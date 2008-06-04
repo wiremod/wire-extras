@@ -1,3 +1,6 @@
+Addons in the repository are protected under the following license, unless otherwise stated.
+All addons copyright, their respective owners, 2007, 2008.
+
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
