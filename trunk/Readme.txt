@@ -13,6 +13,9 @@ Ballsocket_adv_ez - Unvarifiable Devolper (Possibly Incompatible) - No Confirmed
 Door Stool - Doridian - http://forums.facepunchstudios.com/showthread.php?t=480569
 Facer - Incompatible - http://www.garrysmod.org/downloads/?a=view&id=20074
 Freezer - Incompatible - http://www.wiremod.com/2352-wire-freezer.html
+Free Fall Extentions - http://www.wiremod.com/f16/free-fall-extension-wire-socket-radio-other-stuff-i-made-5129/
+	Adv. Dupe. Teleporter
+	String Gate (for teleport)
 _Kilburn's Addons - http://www.wiremod.com/4294-addons-wire-mod-mods-wire-addon.html:
 	Wire String Gates
 	Wire Materializer
