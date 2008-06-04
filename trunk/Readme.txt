@@ -7,10 +7,14 @@ INSTALLATION:
 Simply checkout this SVN repository to a folder of your choice, in your garrysmod addons. Do a full restart of your server/game for the addon to take effect.
 
 -----------------
-Addons Contributed, developer, link, and license (if not GPL v3):
+Addon Contributed - developer - link - license (if not GPL v3):
 
-No Collide Addon, splat2010 - http://www.wiremod.com/4777-no-collide-addon.html
-
+Ballsocket_adv_ez - Unvarifiable Devolper (Possibly Incompatible) - No Confirmed Home Thread
+Facer - Incompatible - http://www.garrysmod.org/downloads/?a=view&id=20074
+Freezer - Incompatible - http://www.wiremod.com/2352-wire-freezer.html
+Multi-wire tool - Incompatible (apparently abandoned) - http://www.wiremod.com/2545-multi-wire-tool.html
+No Collide Addon - splat2010 - http://www.wiremod.com/4777-no-collide-addon.html
+Servo - Unvarifiable Developer (Incompatible or Exlights are most likely) - No Confirmed Home Thread
 
 
 Copyright CoreyLee Hassell (Anticept), and respective developers, 2007, 2008.
