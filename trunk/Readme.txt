@@ -23,6 +23,7 @@ _Kilburn's Addons - http://www.wiremod.com/4294-addons-wire-mod-mods-wire-addon.
 	Wire Motor
 	Wire Microphone
 Keycards - adb - (temp link) http://www.wiremod.com/f16/wire-keycards-2143/
+Lever - cpf - (temp link) http://www.wiremod.com/f16/wire-lever-4097/
 Multi-wire tool - Incompatible (apparently abandoned) - http://www.wiremod.com/2545-multi-wire-tool.html
 No Collide Addon - splat2010 - http://www.wiremod.com/4777-no-collide-addon.html
 Notifier - high6 - (temp link) http://www.wiremod.com/f16/notifier-3204/
