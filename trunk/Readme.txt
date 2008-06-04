@@ -9,7 +9,7 @@ Simply checkout this SVN repository to a folder of your choice, in your garrysmo
 -----------------
 Addon Contributed - developer - link - license (if not GPL v3):
 
-Ballsocket_adv_ez - Unvarifiable Devolper (Possibly Incompatible) - No Confirmed Home Thread
+Buoyancy Stool - RabidToaster - http://forums.facepunchstudios.com/showthread.php?p=10186318
 Door Stool - Doridian - http://forums.facepunchstudios.com/showthread.php?t=480569
 Facer - Incompatible - http://www.garrysmod.org/downloads/?a=view&id=20074
 Freezer - Incompatible - http://www.wiremod.com/2352-wire-freezer.html
