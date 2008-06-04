@@ -13,6 +13,12 @@ Ballsocket_adv_ez - Unvarifiable Devolper (Possibly Incompatible) - No Confirmed
 Door Stool - Doridian - http://forums.facepunchstudios.com/showthread.php?t=480569
 Facer - Incompatible - http://www.garrysmod.org/downloads/?a=view&id=20074
 Freezer - Incompatible - http://www.wiremod.com/2352-wire-freezer.html
+_Kilburn's Addons - http://www.wiremod.com/4294-addons-wire-mod-mods-wire-addon.html:
+	Wire String Gates
+	Wire Materializer
+	Wire Painter
+	Wire Motor
+	Wire Microphone
 Multi-wire tool - Incompatible (apparently abandoned) - http://www.wiremod.com/2545-multi-wire-tool.html
 No Collide Addon - splat2010 - http://www.wiremod.com/4777-no-collide-addon.html
 Servo - Unvarifiable Developer (Incompatible or Exlights are most likely) - No Confirmed Home Thread
