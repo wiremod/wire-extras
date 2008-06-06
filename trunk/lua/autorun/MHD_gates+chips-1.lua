@@ -91,6 +91,6 @@ GateActions["ram64x64x64"] = {
 	label = function(Out, Clk, AddrRX, AddrRY, AddrRZ, AddrWX, AddrWY, AddrWZ, Data)
 	return "WriteAddr:"..AddrWX..", "..AddrWY..", "..AddrWZ..
 		"\nReadAddr:"..AddrRX..", "..AddrRY..", "..AddrRZ..
-      	"\nData:"..Data.."  Clock:"..Clk..
+      	"\nData:"..Data.."  Clock:"..Clk
 	end
 }
