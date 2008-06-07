@@ -23,6 +23,7 @@ _Kilburn's Addons - http://www.wiremod.com/f16/addons-wire-mod-mods-wire-addon-4
 	Wire Painter
 	Wire Motor
 	Wire Microphone
+	Wire RFID Systems
 Keycards - adb - http://www.wiremod.com/f16/wire-keycards-2143/
 Keypad - Robbis_1 - http://forums.facepunchstudios.com/showthread.php?t=276931
 Lever - cpf - http://www.wiremod.com/f16/wire-lever-4097/
