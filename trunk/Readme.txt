@@ -11,28 +11,28 @@ Addon Contributed - developer - link - license (if not GPL v3):
 
 Buoyancy Stool - RabidToaster - http://forums.facepunchstudios.com/showthread.php?p=10186318
 Door Stool - Doridian - http://forums.facepunchstudios.com/showthread.php?t=480569
-Facer - Incompatible - http://www.wiremod.com/f16/wire-freezer-2352/
-Freezer - Incompatible - http://www.wiremod.com/2352-wire-freezer.html
-Free Fall's Extentions - http://www.wiremod.com/f16/free-fall-extension-wire-socket-radio-other-stuff-i-made-5129/
+Facer - Incompatible - http://www.garrysmod.org/downloads/?a=view&id=20074
+Freezer - Incompatible - http://www.wiremod.com/forum/wiremod-addons/2352-wire-freezer.html
+Free Fall's Extentions - http://www.wiremod.com/forum/wiremod-addons/5129-free-fall-extension-wire-socket-radio-other-stuff-i-made.html
 	Adv. Dupe. Teleporter
 	String Gate (for teleport)
-Insanely Huge Memory and Phi Gate - MagnetoHydroDynamics - http://www.wiremod.com/f16/insanely-huge-memory-chips-phi-gate-5018/
-_Kilburn's Addons - http://www.wiremod.com/f16/addons-wire-mod-mods-wire-addon-4294/:
+Insanely Huge Memory and Phi Gate - MagnetoHydroDynamics - http://www.wiremod.com/forum/wiremod-addons/5018-insanely-huge-memory-chips-phi-gate.html/
+_Kilburn's Addons - http://www.wiremod.com/forum/wiremod-addons/4294-addons-wire-mod-mods-wire-addon.html :
 	Wire String Gates
 	Wire Materializer
 	Wire Painter
 	Wire Motor
 	Wire Microphone
-	Wire RFID Systems
-Keycards - adb - http://www.wiremod.com/f16/wire-keycards-2143/
+	Wire RFID Systems (http://www.wiremod.com/forum/wiremod-addons/3017-wire-rfid-systems.html)
+Keycards - adb - http://www.wiremod.com/forum/wiremod-addons/2143-wire-keycards.html
 Keypad - Robbis_1 - http://forums.facepunchstudios.com/showthread.php?t=276931
-Lever - cpf - http://www.wiremod.com/f16/wire-lever-4097/
-Multi-wire tool - Incompatible (apparently abandoned) - http://www.wiremod.com/f16/multi-wire-tool-2545/
-No Collide Addon - splat2010 - http://www.wiremod.com/f16/no-collide-addon-4777/
-Notifier - high6 - http://www.wiremod.com/f16/notifier-3204/
-PID Controller (super delta) - Moyer - http://www.wiremod.com/f16/pid-controller-5061/
+Lever - cpf - http://www.wiremod.com/forum/wiremod-addons/4097-wire-lever.html
+Multi-wire tool - Incompatible (apparently abandoned) - http://www.wiremod.com/forum/wiremod-addons/2545-multi-wire-tool.html
+No Collide Addon - splat2010 - http://www.wiremod.com/forum/wiremod-addons/4777-no-collide-addon.html
+Notifier - high6 - http://www.wiremod.com/forum/wiremod-addons/3204-notifier.html
+PID Controller (super delta) - Moyer - http://www.wiremod.com/forum/wiremod-addons/5061-pid-controller.html
 Servo - Unvarifiable Developer (Incompatible or Exlights are most likely) - No Confirmed Home Thread
-XYZ Beacon - Doticatto - http://www.wiremod.com/f16/wired-xyz-beacon-eject-input-socket-4708/
+XYZ Beacon - Doticatto - http://www.wiremod.com/forum/wiremod-addons/4708-wired-xyz-beacon-eject-input-socket.html
 
 
 Copyright CoreyLee Hassell (Anticept), and respective developers, 2007, 2008.
