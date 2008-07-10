@@ -1,0 +1,5 @@
+"VertexLitGeneric"
+{
+    "$baseTexture" "radio/ra_small_omni"
+    "$model" 1
+}
