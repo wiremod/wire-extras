@@ -1,5 +1,5 @@
 TOOL.Category		= "Construction"
-TOOL.Name			= "Keypad - Advanced"
+TOOL.Name			= "#Keypad - Advanced"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
@@ -20,12 +20,10 @@ TOOL.ClientConVar["repeats1"] = "0"
 TOOL.ClientConVar["repeats2"] = "0"
 
 
-if ( CLIENT ) then
-
+if (CLIENT) then
 	language.Add( "Tool_keypad_adv_name", "Keypad - Advanced" )
 	language.Add( "Tool_keypad_adv_desc", "Made by: Killer HAHA (Robbis_1)" )
 	language.Add( "Tool_keypad_adv_0", "Left Click: Spawn a Keypad   Right Click: Update Keypad with settings" )
-
 end
 
 function TOOL:SetupKeypad(Ent, Password)
@@ -59,7 +57,7 @@ function TOOL:RightClick(tr)
 	local Ply = self:GetOwner()
 	local Password = tonumber(Ply:GetInfo("keypad_adv_password"))
 
-	local SpawnPos = tr.HitPos + tr.HitNormal
+	local SpawnPos = tr.HitPos
 	local TraceEnt = tr.Entity
 
 	if (Password == nil) or (string.len(tostring(Password)) > 4) or (string.find(tostring(Password), "0")) then
@@ -87,6 +85,8 @@ function TOOL:LeftClick(tr)
 		Ply:PrintMessage(3, "Invalid password!")
 		return false
 	end
+	
+	if not (self:GetWeapon():CheckLimit("keypads")) then return false end
 
 	local Keypad = ents.Create("sent_keypad")
 	Keypad:SetPos(SpawnPos)
@@ -108,9 +108,9 @@ function TOOL:LeftClick(tr)
 		TraceEnt:DeleteOnRemove(Keypad)
 		TraceEnt:DeleteOnRemove(weld)
 		Keypad:DeleteOnRemove(weld)
-
+		
 		Keypad:GetPhysicsObject():EnableCollisions(false)
-
+		
 		undo.AddEntity(weld)
 	end
 
@@ -118,8 +118,8 @@ function TOOL:LeftClick(tr)
 	undo.SetPlayer(Ply)
 	undo.Finish()
 
-	--Ply:AddCount( "keypads", Keypad )
-	Ply:AddCleanup( "keypads", Keypad )
+	Ply:AddCount("keypads", Keypad)
+	Ply:AddCleanup("keypads", Keypad)
 
 	return true
 end
