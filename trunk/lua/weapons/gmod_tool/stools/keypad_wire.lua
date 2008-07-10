@@ -1,5 +1,5 @@
 TOOL.Category		= "Wire - I/O"
-TOOL.Name			= "Keypad"
+TOOL.Name			= "#Keypad"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
@@ -24,6 +24,9 @@ TOOL.ClientConVar["valueon2"] = "1"
 TOOL.ClientConVar["valueoff1"] = "0"
 TOOL.ClientConVar["valueoff2"] = "0"
 
+if (SERVER) then
+	CreateConVar('sbox_maxwire_keypads', 10)
+end
 
 cleanup.Register("wire_keypads")
 
@@ -34,8 +37,8 @@ if ( CLIENT ) then
 	language.Add( "Tool_keypad_wire_0", "Left Click: Spawn a Keypad   Right Click: Update Keypad with settings" )
 
 	language.Add( "Undone_wire keypad", "Undone Wire Keypad" )
-	language.Add( "Cleanup_wire_keypad", "Wire Keypads" )
-	language.Add( "Cleaned_wire_keypad", "Cleaned up all Wire Keypads" )
+	language.Add( "Cleanup_wire_keypads", "Wire Keypads" )
+	language.Add( "Cleaned_wire_keypads", "Cleaned up all Wire Keypads" )
 
 end
 
@@ -77,7 +80,7 @@ function TOOL:RightClick(tr)
 	local Ply = self:GetOwner()
 	local Password = tonumber(Ply:GetInfo("keypad_adv_password"))
 
-	local SpawnPos = tr.HitPos + tr.HitNormal
+	local SpawnPos = tr.HitPos
 	local TraceEnt = tr.Entity
 
 	if (Password == nil) or (string.len(tostring(Password)) > 4) or (string.find(tostring(Password), "0")) then
@@ -139,7 +142,7 @@ function TOOL:LeftClick(tr)
 	undo.SetPlayer(Ply)
 	undo.Finish()
 
-	--Ply:AddCount( "wire keypads", Keypad )
+	Ply:AddCount( "wire_keypads", Keypad )
 	Ply:AddCleanup( "wire_keypads", Keypad )
 
 	return true
