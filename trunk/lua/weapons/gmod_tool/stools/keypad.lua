@@ -1,5 +1,5 @@
 TOOL.Category		= "Construction"
-TOOL.Name			= "Keypad"
+TOOL.Name			= "#Keypad"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
@@ -12,18 +12,22 @@ TOOL.ClientConVar["keygroup2"] = "-1"
 TOOL.ClientConVar["length1"] = "0.1"
 TOOL.ClientConVar["length2"] = "0.1"
 
-cleanup.Register("keypad")
+if (SERVER) then
+	CreateConVar('sbox_maxkeypads', 10)
+end
 
-if ( CLIENT ) then
+cleanup.Register("keypads")
 
+if (CLIENT) then
 	language.Add( "Tool_keypad_name", "Keypad" )
 	language.Add( "Tool_keypad_desc", "Made by: Killer HAHA (Robbis_1)" )
 	language.Add( "Tool_keypad_0", "Left Click: Spawn a Keypad   Right Click: Update Keypad with settings" )
 
-	language.Add( "Undone_keypad", "Undone Keypad" )
-	language.Add( "Cleanup_keypad", "Keypads" )
-	language.Add( "Cleaned_keypad", "Cleaned up all Keypads" )
-
+	language.Add( "Undone_Keypad", "Undone Keypad" )
+	language.Add( "Cleanup_keypads", "Keypads" )
+	language.Add( "Cleaned_keypads", "Cleaned up all Keypads" )
+	
+	language.Add("SBoxLimit_keypads", "You've hit the Keypads limit!")
 end
 
 function TOOL:SetupKeypad(Ent, Password)
@@ -69,13 +73,15 @@ function TOOL:LeftClick(tr)
 	local Ply = self:GetOwner()
 	local Password = tonumber(self:GetClientNumber("adv_password"))
 
-	local SpawnPos = tr.HitPos + tr.HitNormal
+	local SpawnPos = tr.HitPos
 	local TraceEnt = tr.Entity
 
 	if (Password == nil) or (string.len(tostring(Password)) > 4) or (string.find(tostring(Password), "0")) then
 		Ply:PrintMessage(3, "Invalid password!")
 		return false
 	end
+	
+	if not (self:GetWeapon():CheckLimit("keypads")) then return false end
 
 	local Keypad = ents.Create("sent_keypad")
 	Keypad:SetPos(SpawnPos)
@@ -97,9 +103,9 @@ function TOOL:LeftClick(tr)
 		TraceEnt:DeleteOnRemove(Keypad)
 		TraceEnt:DeleteOnRemove(weld)
 		Keypad:DeleteOnRemove(weld)
-
+		
 		Keypad:GetPhysicsObject():EnableCollisions(false)
-
+		
 		undo.AddEntity(weld)
 	end
 
@@ -107,8 +113,8 @@ function TOOL:LeftClick(tr)
 	undo.SetPlayer(Ply)
 	undo.Finish()
 
-	--Ply:AddCount( "keypads", Keypad )
-	Ply:AddCleanup( "keypads", Keypad )
+	Ply:AddCount("keypads", Keypad)
+	Ply:AddCleanup("keypads", Keypad)
 
 	return true
 end
