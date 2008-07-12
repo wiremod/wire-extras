@@ -9,6 +9,7 @@ TOOL.ClientConVar[ "igain" ] = "0"
 TOOL.ClientConVar[ "dgain" ] = "0"
 TOOL.ClientConVar[ "dcut" ] = "1000"
 TOOL.ClientConVar[ "ilim" ] = "1000"
+TOOL.ClientConVar[ "limit" ] = "1000"
 
 TOOL.Model = "models/jaanus/wiretool/wiretool_siren.mdl"
 
@@ -32,10 +33,11 @@ function TOOL:LeftClick( trace )
 	local dgain = self:GetClientNumber("dgain")
 	local dcut = self:GetClientNumber("dcut")
 	local ilim = self:GetClientNumber("ilim")
+	local limit = self:GetClientNumber("limit")
 
 	/* If we're just updating, call the PID's SetupGains and exit */
 	if ( trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_pid") then
-		trace.Entity:SetupGains(pgain, igain, dgain, dcut, ilim)
+		trace.Entity:SetupGains(pgain, igain, dgain, dcut, ilim, limit)
 		return true
 	end
 
@@ -47,7 +49,7 @@ function TOOL:LeftClick( trace )
 	Ang.pitch = Ang.pitch + 90
 
 	/* Make the PID loop */
-	local ent = MakeWirePID(ply, self.Model, trace.HitPos, Ang, pgain, igain, dgain, dcut, ilim)
+	local ent = MakeWirePID(ply, self.Model, trace.HitPos, Ang, pgain, igain, dgain, dcut, ilim, limit)
 	
 	local min = ent:OBBMins()
 	ent:SetPos( trace.HitPos - trace.HitNormal * min.z )
@@ -75,13 +77,14 @@ function TOOL:RightClick( trace )
 
 	/* If we hit a PID loop that's ours, get its settings and change the tool's to match */
 	if ( trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_pid" && trace.Entity:GetPlayer() == ply ) then
-		local pgain, igain, dgain, dcut, ilim = trace.Entity.p, trace.Entity.i, trace.Entity.d, trace.Entity.dcut, trace.Entity.ilim
+		local pgain, igain, dgain, dcut, ilim, limit = trace.Entity.p, trace.Entity.i, trace.Entity.d, trace.Entity.dcut, trace.Entity.ilim, trace.Entity.limit
 		local ply = self:GetOwner()
 		ply:ConCommand("wire_pid_pgain "..pgain)
 		ply:ConCommand("wire_pid_igain "..igain)
 		ply:ConCommand("wire_pid_dgain "..dgain)
 		ply:ConCommand("wire_pid_dcut "..dcut)
 		ply:ConCommand("wire_pid_ilim "..ilim)
+		ply:ConCommand("wire_pid_limit "..limit)
 
 		return true
 	end
@@ -89,19 +92,19 @@ end
 
 if (SERVER) then
 	/* Makes a PID loop */
-	function MakeWirePID(pl, Model, Pos, Ang, p, i, d, dcut, ilim, nocollide, Vel, aVel, frozen)
+	function MakeWirePID(pl, Model, Pos, Ang, p, i, d, dcut, ilim, limit, nocollide, Vel, aVel, frozen)
 		local ent = ents.Create("gmod_wire_pid")
 		ent:SetAngles(Ang)
 		ent:SetPos(Pos)
 		ent:SetModel(Model)
 		ent:Spawn()
-		ent:SetupGains(p, i, d, dcut, ilim)
+		ent:SetupGains(p, i, d, dcut, ilim, limit)
 		ent:SetPlayer(pl)
 		return ent
 	end
 	
 	/* Register us for duplicator compatibility */
-	duplicator.RegisterEntityClass("gmod_wire_pid", MakeWirePID, "Model", "Pos", "Ang", "p", "i", "d", "dcut", "ilim", "nocollide", "Vel", "aVel", "frozen")
+	duplicator.RegisterEntityClass("gmod_wire_pid", MakeWirePID, "Model", "Pos", "Ang", "p", "i", "d", "dcut", "ilim", "limit", "nocollide", "Vel", "aVel", "frozen")
 end
 
 function TOOL:UpdateGhostWirePID( ent, player )
@@ -176,5 +179,12 @@ function TOOL.BuildCPanel( panel )
 		Min = "0", 
 		Max = "10000", 
 		Command = "wire_pid_ilim"
+	})
+	panel:AddControl("Slider", {
+		Label = "Output Limit",
+		Type = "Float", 
+		Min = "0", 
+		Max = "10000", 
+		Command = "wire_pid_limit"
 	})
 end
