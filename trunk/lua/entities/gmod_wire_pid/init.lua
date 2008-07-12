@@ -26,6 +26,7 @@ function ENT:Initialize()
 	self.ilim = 0
 	self.iterm = 0
 	self.enabled = 1
+	self.limit = 100
 
 	local phys = self.Entity:GetPhysicsObject()
 	if (phys:IsValid() == true) then
@@ -38,13 +39,14 @@ function ENT:Think()
 	self:TriggerInput()
 end
 
-function ENT:SetupGains(p, i, d, dcut, ilim)
+function ENT:SetupGains(p, i, d, dcut, ilim, limit)
 	/* Called by creator to set options */
 	self.p = p
 	self.i = i
 	self.d = d
 	self.dcut = dcut
 	self.ilim = ilim
+	self.limit = limit
 	self.lasttime = CurTime()
 	self.lasterror = 0
 	self.iterm = 0
@@ -101,6 +103,16 @@ function ENT:TriggerInput(iname, value)
 
 	/* Output it */
 	self.out = (self.p * error) + self.iterm + dterm
+
+	/* Limit the output to whatever */
+	if (math.abs(self.out) > self.limit) then
+		if (self.out>=0) then
+			self.out = self.limit
+		else
+			self.out = -self.limit
+		end
+	end
+
 	Wire_TriggerOutput(self.Entity, "Out", self.out)
 end
 
