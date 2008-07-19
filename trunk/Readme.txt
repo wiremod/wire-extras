@@ -16,7 +16,9 @@ Facer - Incompatible - http://www.garrysmod.org/downloads/?a=view&id=20074
 Freezer - Incompatible - http://www.wiremod.com/forum/wiremod-addons/2352-wire-freezer.html
 Free Fall's Extentions - http://www.wiremod.com/forum/wiremod-addons/5129-free-fall-extension-wire-socket-radio-other-stuff-i-made.html
 	Adv. Dupe. Teleporter
-	String Gate (for teleport)
+	Adv. Dupe RAM-Chip
+	String Switch Gate
+	RAM-Card's (This addon is still in development)
 Insanely Huge Memory and Phi Gate - MagnetoHydroDynamics - http://www.wiremod.com/forum/wiremod-addons/5018-insanely-huge-memory-chips-phi-gate.html/
 _Kilburn's Addons - http://www.wiremod.com/forum/wiremod-addons/4294-addons-wire-mod-mods-wire-addon.html :
 	Wire String Gates
