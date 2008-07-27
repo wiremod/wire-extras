@@ -35,6 +35,7 @@ No Collide Addon - splat2010 - http://www.wiremod.com/forum/wiremod-addons/4777-
 Notifier - high6 - http://www.wiremod.com/forum/wiremod-addons/3204-notifier.html
 PID Controller (super delta) - Moyer - http://www.wiremod.com/forum/wiremod-addons/5061-pid-controller.html
 Servo - Unvarifiable Developer (Incompatible or Exlights are most likely) - No Confirmed Home Thread
+Simple Servo - Selig - http://www.wiremod.com/forum/wiremod-addons/5850-wire-simple-servo.html
 XYZ Beacon - Doticatto - http://www.wiremod.com/forum/wiremod-addons/4708-wired-xyz-beacon-eject-input-socket.html
 
 
