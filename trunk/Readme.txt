@@ -19,6 +19,7 @@ Free Fall's Extentions - http://www.wiremod.com/forum/wiremod-addons/5129-free-f
 	Adv. Dupe RAM-Chip
 	String Switch Gate
 	RAM-Card's (This addon is still in development)
+DuFace's Gates - DuFace - http://www.wiremod.com/forum/wiremod-addons/5661-entity-gates-vector-gates-other-stuff.html
 Insanely Huge Memory and Phi Gate - MagnetoHydroDynamics - http://www.wiremod.com/forum/wiremod-addons/5018-insanely-huge-memory-chips-phi-gate.html/
 _Kilburn's Addons - http://www.wiremod.com/forum/wiremod-addons/4294-addons-wire-mod-mods-wire-addon.html :
 	Wire String Gates
