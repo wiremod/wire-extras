@@ -38,6 +38,7 @@ PID Controller (super delta) - Moyer - http://www.wiremod.com/forum/wiremod-addo
 Servo - Unvarifiable Developer (Incompatible or Exitlights are most likely) - No Confirmed Home Thread
 Simple Servo - Selig - http://www.wiremod.com/forum/wiremod-addons/5850-wire-simple-servo.html
 XYZ Beacon - Doticatto - http://www.wiremod.com/forum/wiremod-addons/4708-wired-xyz-beacon-eject-input-socket.html
+Wired Npcs - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/5930-wired-npc.html
 
 
 Copyright CoreyLee Hassell (Anticept), and respective developers, 2007, 2008.
