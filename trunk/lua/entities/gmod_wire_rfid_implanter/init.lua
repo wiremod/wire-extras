@@ -24,7 +24,7 @@ function ENT:Initialize()
 	self.C = 0;
 	self.D = 0;
 	self.NoColorChg = false;
-	self:SetBeamRange(2048)
+	self:SetBeamLength(2048)
 	self:ShowOutput(0,0,0,0)
 end
 
@@ -33,7 +33,7 @@ function ENT:OnRemove()
 end
 
 function ENT:Setup(Range, col)
-    self:SetBeamRange(Range)
+    self:SetBeamLength(Range)
 	self.NoColorChg = col
 end
 
@@ -44,7 +44,7 @@ function ENT:TriggerInput(iname, value)
 		
 		local trace = {}
 		  trace.start = vStart
-		  trace.endpos = vStart + (vForward * self:GetBeamRange())
+		  trace.endpos = vStart + (vForward * self:GetBeamLength())
 		  trace.filter = { self.Entity }
 		local trace = util.TraceLine( trace ) 
 		
@@ -87,7 +87,7 @@ function ENT:Think()
 	
     local trace = {}
 	   trace.start = vStart
-	   trace.endpos = vStart + (vForward * self:GetBeamRange())
+	   trace.endpos = vStart + (vForward * self:GetBeamLength())
 	   trace.filter = { self.Entity }
 	local trace = util.TraceLine( trace ) 
 	
