@@ -14,7 +14,7 @@ function ENT:Initialize()
 	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
 	self.Entity:SetSolid( SOLID_VPHYSICS )
 	self.Outputs = Wire_CreateOutputs(self.Entity, { "State", "A", "B", "C", "D" })
-	self:SetBeamRange(2048)
+	self:SetBeamLength(2048)
 	self.A=0
 	self.B=0
 	self.C=0
@@ -34,7 +34,7 @@ function ENT:OnRemove()
 end
 
 function ENT:Setup(Range,col)
-    self:SetBeamRange(Range)
+    self:SetBeamLength(Range)
 	self.NoColorChg=col
 end
 
@@ -46,7 +46,7 @@ function ENT:Think()
 	
     local trace = {}
 	   trace.start = vStart
-	   trace.endpos = vStart + (vForward * self:GetBeamRange())
+	   trace.endpos = vStart + (vForward * self:GetBeamLength())
 	   trace.filter = { self.Entity }
 	local trace = util.TraceLine( trace ) 
 	
