@@ -122,7 +122,7 @@ if ( SERVER ) then
 		
 		if ( !pl:CheckLimit( "wire_servos" ) ) then return false end
 		
-		local servo = ents.Create( "gmod_wire_servo" )
+		local servo = ents.Create( "gmod_wire_simple_servo" )
 		if ( !servo:IsValid() ) then return end
 		
 		servo:SetModel( Model )
