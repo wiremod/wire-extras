@@ -13,9 +13,9 @@ if ( CLIENT ) then
     language.Add( "Tool_wire_simple_servo_desc", "Attaches a servo to something." )
     language.Add( "Tool_wire_simple_servo_0", "Primary: Attach a servo. Secondary: Change the model" )
 	
-	language.Add( "undone_WireServo", "Undone Wire Servo" )
+	language.Add( "undone_WireSimpleServo", "Undone Wire Servo" )
 	language.Add( "Cleanup_wire_simple_servos", "Wired Servos" )
-	language.Add( "Cleaned_wire_simple_servos", "Cleaned up all Wired Servos" )
+	language.Add( "Cleaned_wire_simple_servos", "Cleaned up all Wired Simple Servos" )
 	language.Add( "sbox_maxwire_simple_servos", "You've reached the wired servos limit!" )
 
 end
@@ -76,7 +76,7 @@ function TOOL:LeftClick( trace )
 	
 	local constraint, axis = constraint.Axis( servoEnt, trace.Entity, 0, trace.PhysicsBone, LPos1,	LPos2, friction, 0, nocollide, false, ply )
 	
-	undo.Create("WireServo")
+	undo.Create("WireSimpleServo")
 	undo.AddEntity( axis )
 	undo.AddEntity( constraint )
 	undo.AddEntity( servoEnt )
@@ -134,13 +134,13 @@ if ( SERVER ) then
 	
 		servo.model = model
 
-		pl:AddCount( "wire_servos", servo )
+		pl:AddCount( "wire_simple_servos", servo )
 		
 		return servo
 		
 	end
 
-	duplicator.RegisterEntityClass( "gmod_wire_servo", MakeWireServo, "Pos", "Ang", "model", "Vel", "aVel", "frozen" )
+	duplicator.RegisterEntityClass( "gmod_wire_simple_servo", MakeWireServo, "Pos", "Ang", "model", "Vel", "aVel", "frozen" )
 	
 	
 end
