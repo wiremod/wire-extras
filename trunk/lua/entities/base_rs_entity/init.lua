@@ -2,6 +2,7 @@ AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
 
 include("shared.lua")
+ThinkInterval = 0.05
 
 -- Allow an antenna to query for tx power
 function ENT:TxDbw()
@@ -14,7 +15,7 @@ function ENT:WireSetup(tx)
 	if WireAddon then
 		if self.is_tx then
 			self.Inputs = Wire_CreateInputs(self.Entity, {"On", "TxWatts", "BaseMHz", "Channel1", "Channel2", "Channel3", "Channel4", "Channel5", "Channel6", "Channel7", "Channel8"})
-			-- transmitters consume energy. 1 energy unit = 1 watt per second
+			-- transmitters consume energy. 1 energy unit = 1 watt per second, 8 channels = 8 energy units (8 watts) per second
 			if RES_DISTRIB then RD_AddResource(self.Entity, "energy", 0) end
 		else -- it's a receiver
 			self.Inputs = Wire_CreateInputs(self.Entity, {"BaseMHz"})
@@ -27,12 +28,11 @@ end
 
 -- Can we transmit? (Got enough resources?)
 function ENT:CanTX()
-	if not self.is_tx or not self.active then return false end
-	if self.txwatts > 0 then
-		if not RES_DISTRIB then return true end
-		if (RD_GetResourceAmount(self, "energy") >= (self.txwatts * 0.05)) then
-			return true
-		end
+	if not self.is_tx or not self.active or not (self.txwatts > 0) then return false end
+	if not RES_DISTRIB then return true end
+
+	if (RD_GetResourceAmount(self, "energy") >= (self.txwatts * 8 * ThinkInterval)) then
+		return true
 	else
 		return false
 	end
@@ -109,10 +109,10 @@ function ENT:Think()
 	if self:CanTX() then
 		if RES_DISTRIB then
 			local amt = RD_GetResourceAmount(self, "energy")
-			if amt < (self.txwatts * 0.05) then
+			if amt < (self.txwatts * 8 * ThinkInterval) then
 				RD_ConsumeResource(self, "energy", amt)
 			else
-				RD_ConsumeResource(self, "energy", (self.txwatts * 0.05))
+				RD_ConsumeResource(self, "energy", (self.txwatts * 8 * ThinkInterval))
 			end
 		end
 
@@ -183,7 +183,7 @@ function ENT:Think()
 		end
 
 		for k, v in pairs(txs) do
-			local dist = self:GetPos():Distance(v:GetPos()) / 39.37
+			local dist = self:GetPos():Distance(v:GetPos()) / GetConVarNumber("sv_rs_scale")
 			local dBm = (math.log10((10^(v:TxDbw()/10)) / (4 * math.pi * dist * dist)) * 10) + 30
 			for freq, signal in pairs(v.txchannels) do
 				if spectrum[freq] == nil then
@@ -294,5 +294,5 @@ function ENT:Think()
 			end
 		end
 	end
-	self.Entity:NextThink(CurTime() + 0.05)
+	self.Entity:NextThink(CurTime() + ThinkInterval)
 end
