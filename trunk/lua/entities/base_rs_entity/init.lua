@@ -3,6 +3,7 @@ AddCSLuaFile("shared.lua")
 
 include("shared.lua")
 ThinkInterval = 0.05
+RD = {}
 
 if SERVER then
 	if CAF and CAF.GetAddon then
@@ -10,7 +11,6 @@ if SERVER then
 		RES_DISTRIB = true
 		RD = CAF.GetAddon("Resource Distribution")
 	else
-		RD = {}
 		RD.AddResource = RD_AddResource
 		RD.GetResourceAmount = RD_GetResourceAmount
 		RD.ConsumeResource = RD_ConsumeResource
