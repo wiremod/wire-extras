@@ -1,9 +1,13 @@
 TOOL.Category = "Wire - Data"
-TOOL.Name = "Radio Systems Tool"
+TOOL.Name = "#Radio Systems Tool"
 TOOL.Command = nil
 TOOL.ConfigName = ""
+TOOL.ClientConVar[ "model" ] = "models/radio/ra_small_omni.mdl"
+TOOL.ClientConVar[ "tx" ] = "1"
+TOOL.ClientConVar[ "freeze" ] = "0"
+TOOL.ClientConVar[ "weld" ] = "1"
 
-if (CLIENT) then
+if CLIENT then
     language.Add("Tool_radiosystems_name", "Radio Systems")
     language.Add("Tool_radiosystems_desc", "Create Radio devices attached to any surface.")
     language.Add("Tool_radiosystems_0", "Left-Click: Spawn a Device.")
@@ -13,13 +17,48 @@ if (CLIENT) then
     language.Add("SBoxLimit_radiosystems", "Maximum number of Radio Systems Devices Reached")
 end
 
-if(SERVER) then
+if SERVER then
 	CreateConVar("sbox_maxradiosystems", 10)
-end
 
-TOOL.ClientConVar[ "model" ] = "models/radio/ra_small_omni.mdl"
-TOOL.ClientConVar[ "tx" ] = "1"
-TOOL.ClientConVar[ "weld" ] = "1"
+	function MakeRadioSystems(ply, Ang, Pos, model, tx, freeze, weld)
+                if not ply:CheckLimit("radiosystems") then return nil end
+
+                local tmpitem = model:gsub("models/radio/", "")
+                local itemclass = tmpitem:gsub(".mdl", "")
+
+                local ent = nil
+                if itemclass == "ra_cell_tower1" or itemclass == "ra_cell_tower2" then
+                        ent = ents.Create("prop_physics")
+                        ent:SetModel("models/radio/" .. itemclass .. ".mdl")
+                else
+                        ent = ents.Create(itemclass)
+			print("calling setup with tx value of: " .. tostring(tx))
+                        ent:Setup(tx)
+                end
+
+                ent:SetPos(Pos)
+                ent:SetAngles(Ang)
+                ent:SetNWString("Owner", ply:Nick())
+                ent:Spawn()
+                ent:Activate()
+
+                if freeze then
+                        local phys = ent:GetPhysicsObject()
+                        if phys:IsValid() then
+                                phys:EnableMotion(false)
+                                ply:AddFrozenPhysicsObject(ent, phys)
+                        end
+                end
+
+                ply:AddCount("radiosystems", ent)
+
+                if trace and weld then local const = WireLib.Weld(ent, trace.Entity, trace.PhysicsBone, true, true, false) end
+
+                duplicator.RegisterEntityClass(ent, MakeRadioSystems, "Ang", "Pos", "model", "tx", "freeze", "weld")
+
+                return ent
+        end
+end
 
 local radiosystems_models = {
 	["models/radio/ra_domestic_dish.mdl"] = {},
@@ -39,36 +78,30 @@ local radiosystems_models = {
 cleanup.Register("radiosystems")
 
 function TOOL:LeftClick(trace)
+	if CLIENT then return true end
 	if trace.Entity && trace.Entity:IsPlayer() then return false end
-	if (CLIENT) then return true end
 
 	local ply = self:GetOwner()
 	local model = self:GetClientInfo("model")
 	local tx = (self:GetClientNumber("tx") ~= 0)
+	local freeze = (self:GetClientNumber("freeze") ~= 0)
 	local weld = (self:GetClientNumber("weld") ~= 0)
 
-	if (!trace.Entity:IsValid()) then nocollide = false end
+	if trace.Entity:IsValid() && string.find(trace.Entity:GetClass(), "^ra_") && trace.Entity.pl == ply then return true end
 
-	if (trace.Entity:IsValid() && string.find(trace.Entity:GetClass(), "^ra_") && trace.Entity.pl == ply) then return true end
+	if not self:GetSWEP():CheckLimit("radiosystems") then return false end
 
-	if (!self:GetSWEP():CheckLimit("radiosystems")) then return false end
-
-	if (not util.IsValidModel(model)) then return false end
-	if (not util.IsValidProp(model)) then return false end		-- Allow ragdolls to be used?
+	if not util.IsValidModel(model) then return false end
 
 	local Ang = trace.HitNormal:Angle()
 	Ang.pitch = Ang.pitch + 90
 
-	local radio_item = Makeradiosystems(ply, Ang, trace.HitPos, model, tx)
+	local radio_item = MakeRadioSystems(ply, Ang, trace.HitPos, model, tx, freeze, weld)
 
 	local min = radio_item:OBBMins()
 	radio_item:SetPos(trace.HitPos - trace.HitNormal * min.z)
 
-	if weld then
-		local const = WireLib.Weld(radio_item, trace.Entity, trace.PhysicsBone, false, false, true)
-	end
-
-	undo.Create("Radio Systems")
+	undo.Create("RadioSystems")
 		undo.AddEntity(radio_item)
 		if weld then undo.AddEntity(const) end
 		undo.SetPlayer(ply)
@@ -78,59 +111,17 @@ function TOOL:LeftClick(trace)
 	return true
 end
 
-if (SERVER) then
-	function Makeradiosystems(ply, ang, pos, model, tx, frozen)
-		if (!ply:CheckLimit("radiosystems")) then return nil end
-
-		local tmpitem = model:gsub("models/radio/", "")
-		local itemclass = tmpitem:gsub(".mdl", "")
-
-		local e = nil
-		if itemclass == "ra_cell_tower1" || itemclass == "ra_cell_tower2"  then
-			e = "prop_physics"
-		else
-			e = itemclass
-		end
-
-		local ent = ents.Create(e)
-		if e == "prop_physics" then
-			ent:SetModel("models/radio/" .. itemclass .. ".mdl")
-		else
-			ent:WireSetup(tx)
-		end
-		ent:SetPos(pos)
-		ent:SetAngles(ang)
-		ent:Spawn()
-		ent:Activate()
-		ent:SetNetworkedString("Owner", ply:Nick())
-		ent.Class = itemclass
-		if (frozen) then
-			local phys = ent:GetPhysicsObject()
-			if (phys:IsValid()) then
-				phys:EnableMotion(false)
-				ply:AddFrozenPhysicsObject(ent, phys)
-			end
-		end
-		
-		ply:AddCount("radiosystems", ent)
-
-		duplicator.RegisterEntityClass(e, Makeradiosystems, "Ang", "pos", "model", "tx", "frozen")
-
-		return ent
-	end
-end
-
 function TOOL:UpdateGhostRadioSystems(ent, player)
-	if (!ent) then return end
-	if (!ent:IsValid()) then return end
+	if not ent then return end
+	if not ValidEntity(ent) then return end
 
 	local tr = utilx.GetPlayerTrace(player, player:GetCursorAimVector())
 	local trace = util.TraceLine(tr)
-	if (!trace.Hit) then return end
+	if not trace.Hit then return end
 
 	local cls = trace.Entity:GetClass()
 		
-	if (trace.Entity && string.find(trace.Entity:GetClass(), "^ra_") || trace.Entity:IsPlayer()) then
+	if trace.Entity and string.find(trace.Entity:GetClass(), "^ra_") or trace.Entity:IsPlayer() then
 		ent:SetNoDraw(true)
 		return
 	end
@@ -165,6 +156,12 @@ function TOOL.BuildCPanel(panel)
 		Description = "Weld this prop on spawn?",
 		Command = "radiosystems_weld"
 	})
+
+	panel:AddControl("CheckBox", {
+                Label = "Freeze on spawn?",
+                Description = "Freeze this prop on spawn?",
+                Command = "radiosystems_freeze"
+        })
 
 	panel:AddControl("CheckBox", {
 		Label = "Transmitter?",
