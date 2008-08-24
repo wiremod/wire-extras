@@ -4,25 +4,38 @@ AddCSLuaFile("shared.lua")
 include("shared.lua")
 ThinkInterval = 0.05
 
+if SERVER then
+	if CAF and CAF.GetAddon then
+		-- Resource Distribution 3+
+		RES_DISTRIB = true
+		RD = CAF.GetAddon("Resource Distribution")
+	else
+		RD = {}
+		RD.AddResource = RD_AddResource
+		RD.GetResourceAmount = RD_GetResourceAmount
+		RD.ConsumeResource = RD_ConsumeResource
+        end
+end
+
 -- Allow an antenna to query for tx power
 function ENT:TxDbw()
 	return self.gain + (math.log10(self.txwatts)*10)
 end
 
-function ENT:WireSetup(tx)
+function ENT:Setup(tx)
 	self.is_tx = tx
 
 	if WireAddon then
 		if self.is_tx then
 			self.Inputs = Wire_CreateInputs(self.Entity, {"On", "TxWatts", "BaseMHz", "Channel1", "Channel2", "Channel3", "Channel4", "Channel5", "Channel6", "Channel7", "Channel8"})
 			-- transmitters consume energy. 1 energy unit = 1 watt per second, 8 channels = 8 energy units (8 watts) per second
-			if RES_DISTRIB then RD_AddResource(self.Entity, "energy", 0) end
+			if RES_DISTRIB then RD.AddResource(self.Entity, "energy", 0) end
 		else -- it's a receiver
 			self.Inputs = Wire_CreateInputs(self.Entity, {"BaseMHz"})
 			self.Outputs = Wire_CreateOutputs(self.Entity, {"Channel1", "Ch1dBm", "Channel2", "Ch2dBm", "Channel3", "Ch3dBm", "Channel4", "Ch4dBm", "Channel5", "Ch5dBm", "Channel6", "Ch6dBm", "Channel7", "Ch7dBm", "Channel8", "Ch8dBm"})
 		end
 	else
-		print("This version of Radio Systems requires the 'Wire 1' addon to be installed\n")
+		print("This version of Radio Systems requires the 'Wire' addon to be installed.\n")
 	end
 end
 
@@ -31,11 +44,7 @@ function ENT:CanTX()
 	if not self.is_tx or not self.active or not (self.txwatts > 0) then return false end
 	if not RES_DISTRIB then return true end
 
-	if (RD_GetResourceAmount(self, "energy") >= (self.txwatts * 8 * ThinkInterval)) then
-		return true
-	else
-		return false
-	end
+	return (RD.GetResourceAmount(self, "energy") >= (self.txwatts * 8 * ThinkInterval))
 end
 
 -- Returns the background noise at this location in decibels relative to one milliwatt
@@ -108,11 +117,11 @@ function ENT:Think()
 
 	if self:CanTX() then
 		if RES_DISTRIB then
-			local amt = RD_GetResourceAmount(self, "energy")
+			local amt = RD.GetResourceAmount(self, "energy")
 			if amt < (self.txwatts * 8 * ThinkInterval) then
-				RD_ConsumeResource(self, "energy", amt)
+				RD.ConsumeResource(self, "energy", amt)
 			else
-				RD_ConsumeResource(self, "energy", (self.txwatts * 8 * ThinkInterval))
+				RD.ConsumeResource(self, "energy", (self.txwatts * 8 * ThinkInterval))
 			end
 		end
 
