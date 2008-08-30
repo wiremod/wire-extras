@@ -15,8 +15,8 @@ function ENT:Initialize()
 	self.Entity:PhysicsInit( SOLID_VPHYSICS )
 	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
 	self.Entity:SetSolid( SOLID_VPHYSICS )
-	--self.Inputs = Wire_CreateInputs(self.Entity, { "ReadLocation", "WriteEnabled", "WriteLocation", "WriteValue" })
-	self.Outputs = Wire_CreateOutputs(self.Entity, {"Card Connected"})
+	self.Inputs = Wire_CreateInputs(self.Entity, { "Clk", "AddrRead", "AddrWrite", "Data" })
+	self.Outputs = Wire_CreateOutputs(self.Entity, {"Card Connected","Data","Cells"})
 	
 	self.PluggedCard = nil
 	self.CardWeld = nil
@@ -40,6 +40,8 @@ function ENT:Think()
 		self.Entity:SetOverlayText("Wire RAM-Card\nReader/Writer\nNo Card plugged in")
 		
 		Wire_TriggerOutput(self.Entity,"Card Connected",0)
+		Wire_TriggerOutput(self.Entity,"Cells",0)
+		Wire_TriggerOutput(self.Entity,"Data",0)
 		
 		self.Entity:NextThink( CurTime() + NEW_CARD_WAIT_TIME )
 		return true
@@ -102,6 +104,7 @@ function ENT:PlugCard( card )
 	
 	self.Entity:SetOverlayText("Wire RAM-Card\nReader/Writer\nA Card is plugged in")
 	Wire_TriggerOutput(self.Entity,"Card Connected",1)
+	Wire_TriggerOutput(self.Entity,"Cells",self.PluggedCard:GetSize())
 end
 
 --Address 0 is handled by the Reader/Writer, and says, if a card is connected.  If you write a 0 to cell 0, the card will be thrown out
@@ -154,5 +157,35 @@ function ENT:ReadCell( Address )
 		end
 	end
 	return nil
+end
+
+function ENT:TriggerInput( iname, value )
+	if (iname == "AddrWrite") then
+		if (self.PluggedCard && self.PluggedCard:IsValid()) then
+			if (self.Inputs["Clk"].Value > 0) then
+				if (value >= 0 && value < self.PluggedCard:GetSize()) then
+					self:WriteCell(value + 2, self.Inputs["Data"].Value)
+				end
+			end
+		end
+	elseif (iname == "AddrRead") then
+		if (self.PluggedCard && self.PluggedCard:IsValid()) then
+			if (value >= 0 && value < self.PluggedCard:GetSize()) then
+				Wire_TriggerOutput(self.Entity,"Data",self:ReadCell(value+2))
+			else
+				Wire_TriggerOutput(self.Entity,"Data",0)
+			end
+		else
+			Wire_TriggerOutput(self.Entity,"Data",0)
+		end
+	elseif (iname == "Clk") then
+		if (self.PluggedCard && self.PluggedCard:IsValid()) then
+			if (self.Inputs["Clk"].Value > 0) then
+				if (self.Inputs["AddrWrite"].Value >= 0 && self.Inputs["AddrWrite"].Value < self.PluggedCard:GetSize()) then
+					self:WriteCell(self.Inputs["AddrWrite"].Value + 2, self.Inputs["Data"].Value)
+				end
+			end
+		end
+	end
 end
 
