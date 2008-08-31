@@ -26,6 +26,7 @@ function ENT:OnTakeDamage(dmg) //Possibly add retaliation to attacker
   	end
 	if dmg:GetAttacker():IsPlayer() then //Used to tell the assailant the damage on the npc
 		//RunConsoleCommand("say", "You hit my wired npc!")
+		self.Npc:SetTarget(dmg:GetAttacker())
 		dmg:GetAttacker():PrintMessage(3, "You hit the wired npc for "..dmg:GetDamage().." damage!\n")  
 	end 
 end 
