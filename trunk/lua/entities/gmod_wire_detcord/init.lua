@@ -71,7 +71,7 @@ end
    Desc: Remove the Crap
 ---------------------------------------------------------*/
 local function CleanDebris(e)
-	if not e then return end
+	if not ValidEntity(e) then return end
         e:Remove()
 end
 
@@ -92,9 +92,9 @@ function ENT:Detonate()
 		end
 
 		if not v.isDetcord and not v.going and v:GetClass() == "prop_physics" then
+			v.going = true
 			v:Fire("enablemotion","",0)
 			constraint.RemoveAll(v)
-			v.going = true
 			timer.Simple(math.random(8, 15), CleanDebris, v)
 		end
 	end
