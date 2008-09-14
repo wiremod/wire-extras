@@ -40,6 +40,7 @@ Simple Servo - Selig - http://www.wiremod.com/forum/wiremod-addons/5850-wire-sim
 XYZ Beacon - Doticatto - http://www.wiremod.com/forum/wiremod-addons/4708-wired-xyz-beacon-eject-input-socket.html
 Wired Npcs - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/5930-wired-npc.html
 Wired Damage Scale - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/6346-wired-damage-scale.html
-
+Wire Wireless - AlgorithmX2 - http://www.wiremod.com/forum/wiremod-addons/6471-wire-wireless.html
+Wire Field Generators - AlgorithmX2 - http://www.wiremod.com/forum/wiremod-addons/6497-wire-field-generator-s.html
 
 Copyright CoreyLee Hassell (Anticept), and respective developers, 2007, 2008.
