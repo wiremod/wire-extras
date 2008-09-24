@@ -20,7 +20,7 @@ end
 if SERVER then
 	CreateConVar("sbox_maxradiosystems", 10)
 
-	function MakeRadioSystems(ply, Ang, Pos, model, tx, freeze, weld)
+	function MakeRadioSystems(ply, Ang, Pos, model, tx, weld, nocollide, frozen)
                 if not ply:CheckLimit("radiosystems") then return nil end
 
                 local tmpitem = model:gsub("models/radio/", "")
@@ -32,17 +32,28 @@ if SERVER then
                         ent:SetModel("models/radio/" .. itemclass .. ".mdl")
                 else
                         ent = ents.Create(itemclass)
-			print("calling setup with tx value of: " .. tostring(tx))
                         ent:Setup(tx)
                 end
 
+		ent:SetPlayer(ply)
                 ent:SetPos(Pos)
                 ent:SetAngles(Ang)
                 ent:SetNWString("Owner", ply:Nick())
+		local ttable = {
+			ply = ply,
+			Ang = Ang,
+			Pos = Pos,
+			model = model,
+			tx = tx,
+			weld = weld,
+			nocollide = nocollide,
+			frozen = frozen
+		}
+		table.Merge(ent:GetTable(), ttable)
                 ent:Spawn()
                 ent:Activate()
 
-                if freeze then
+                if frozen then
                         local phys = ent:GetPhysicsObject()
                         if phys:IsValid() then
                                 phys:EnableMotion(false)
@@ -52,12 +63,21 @@ if SERVER then
 
                 ply:AddCount("radiosystems", ent)
 
-                if trace and weld then local const = WireLib.Weld(ent, trace.Entity, trace.PhysicsBone, true, true, false) end
-
-                duplicator.RegisterEntityClass(ent, MakeRadioSystems, "Ang", "Pos", "model", "tx", "freeze", "weld")
-
                 return ent
         end
+
+	duplicator.RegisterEntityClass("ra_domestic_dish", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
+	duplicator.RegisterEntityClass("ra_large_drum", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
+	duplicator.RegisterEntityClass("ra_large_omni", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
+	duplicator.RegisterEntityClass("ra_log", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
+	duplicator.RegisterEntityClass("ra_orbital_dish", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
+	duplicator.RegisterEntityClass("ra_panel", MakeRadioSystems, "Pos", "model", "tx", "weld", "nocollide", "frozen")
+	duplicator.RegisterEntityClass("ra_sector", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
+	duplicator.RegisterEntityClass("ra_small_drum", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
+	duplicator.RegisterEntityClass("ra_small_omni", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
+	duplicator.RegisterEntityClass("ra_uplink_dish", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
+	duplicator.RegisterEntityClass("ra_cell_tower1", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
+	duplicator.RegisterEntityClass("ra_cell_tower2", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
 end
 
 local radiosystems_models = {
@@ -79,7 +99,11 @@ cleanup.Register("radiosystems")
 
 function TOOL:LeftClick(trace)
 	if CLIENT then return true end
-	if trace.Entity && trace.Entity:IsPlayer() then return false end
+	if trace.Entity and ValidEntity(trace.Entity) then
+		if trace.Entity:IsPlayer() then return false end
+	else
+		if not self:GetSWEP():CheckLimit("radiosystems") then return false end
+	end
 
 	local ply = self:GetOwner()
 	local model = self:GetClientInfo("model")
@@ -89,17 +113,17 @@ function TOOL:LeftClick(trace)
 
 	if trace.Entity:IsValid() && string.find(trace.Entity:GetClass(), "^ra_") && trace.Entity.pl == ply then return true end
 
-	if not self:GetSWEP():CheckLimit("radiosystems") then return false end
-
 	if not util.IsValidModel(model) then return false end
 
 	local Ang = trace.HitNormal:Angle()
 	Ang.pitch = Ang.pitch + 90
 
-	local radio_item = MakeRadioSystems(ply, Ang, trace.HitPos, model, tx, freeze, weld)
+	local radio_item = MakeRadioSystems(ply, Ang, trace.HitPos, model, tx, weld, false, freeze)
 
 	local min = radio_item:OBBMins()
 	radio_item:SetPos(trace.HitPos - trace.HitNormal * min.z)
+
+	if weld then local const = WireLib.Weld(radio_item, trace.Entity, trace.PhysicsBone, nil, true, true) end
 
 	undo.Create("RadioSystems")
 		undo.AddEntity(radio_item)
@@ -112,18 +136,17 @@ function TOOL:LeftClick(trace)
 end
 
 function TOOL:UpdateGhostRadioSystems(ent, player)
-	if not ent then return end
-	if not ValidEntity(ent) then return end
+	if not ent or not ValidEntity(ent) then return end
 
 	local tr = utilx.GetPlayerTrace(player, player:GetCursorAimVector())
 	local trace = util.TraceLine(tr)
-	if not trace.Hit then return end
+	if not trace and not trace.Hit then return end
 
-	local cls = trace.Entity:GetClass()
-		
-	if trace.Entity and string.find(trace.Entity:GetClass(), "^ra_") or trace.Entity:IsPlayer() then
+	if trace.Entity and trace.Entity:IsPlayer() then
 		ent:SetNoDraw(true)
 		return
+	else
+		ent:SetNoDraw(false)
 	end
 
 	local Ang = trace.HitNormal:Angle()
@@ -132,13 +155,11 @@ function TOOL:UpdateGhostRadioSystems(ent, player)
 	local min = ent:OBBMins()
 	ent:SetPos(trace.HitPos - trace.HitNormal * min.z)
 	ent:SetAngles(Ang)
-
-	ent:SetNoDraw(false)
 end
 
 function TOOL:Think()
 	local m = self:GetClientInfo("model")
-	if (!self.GhostEntity || !self.GhostEntity:IsValid() || self.GhostEntity:GetModel() != m) then
+	if not self.GhostEntity or not ValidEntity(self.GhostEntity) or self.GhostEntity:GetModel() != m then
 		self:MakeGhostEntity(m, Vector(0,0,0), Angle(0,0,0))
 	end
 
