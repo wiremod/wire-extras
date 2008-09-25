@@ -7,9 +7,7 @@ if ( CLIENT ) then
     language.Add( "Tool_dscale_name", "Damage Scale Tool (Wire)" )
     language.Add( "Tool_dscale_desc", "Spawns a Scale." )
     language.Add( "Tool_dscale_0", "Primary: Create Scale, Secondary: Change model, Reload is nil" )
-	language.Add( "undone_dscale", "Undone Wired Damage Scale" )
-	language.Add( "undone_damage scaler", "Undone Wired Damage Scale" )
-	language.Add( "undone_damage_scaler", "Undone Wired Damage Scale" ) //Lawl which one is it?! please pm Hitman271
+	language.Add( "Undone_dscale", "Undone Wired Damage Scale" )//Typo
 end
 
 TOOL.ClientConVar["Model"] = "models/kobilica/wiremonitorrtbig.mdl"
