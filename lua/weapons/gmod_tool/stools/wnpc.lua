@@ -9,9 +9,9 @@ if CLIENT then
     language.Add( "Tool_wnpc_3", "Primary: Place controller\nSecondary: Place Npc" )
     language.Add( "Tool_wnpc_0", "Left Click to place the controller" )
     language.Add( "Tool_wnpc_1", "Right Click to place the npc" )
-	language.Add( "undone_npc_npc", "Undone Wired Npc" )
-	language.Add( "undone_npc_controller", "Undone Wired Npc Controller" )
-	language.Add( "undone_wnpc", "Undone Wired Npc" )
+	language.Add( "Undone_npc_npc", "Undone Wired Npc" )
+	language.Add( "Undone_npc_controller", "Undone Wired Npc Controller" )
+	language.Add( "Undone_wnpc", "Undone Wired Npc" )
 end
 
 function TOOL:LeftClick( trace )
@@ -60,7 +60,7 @@ end
 
 function TOOL.BuildCPanel( CPanel )
 	// HEADER
-	CPanel:AddControl( "Header", { Text = "#Tool_wnpc_name", Description	= "#Tool_wnpc_desc" }  )
+	CPanel:AddControl( "Header", { Text = "#Tool_wnpc_name", Description = "#Tool_wnpc_desc" }  )
 end
 
 
