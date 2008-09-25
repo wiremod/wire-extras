@@ -6,6 +6,8 @@ local ison = 0
 
 local model = "models/jaanus/wiretool/wiretool_siren.mdl"
 
+ENT.WireDebugName = "Npc Controller"
+
 function ENT:Initialize() 
 	self.Entity:SetModel( model ) 	
 	self.Entity:PhysicsInit( SOLID_VPHYSICS )     
