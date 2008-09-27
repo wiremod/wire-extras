@@ -35,7 +35,6 @@ if SERVER then
                         ent:Setup(tx)
                 end
 
-		ent:SetPlayer(ply)
                 ent:SetPos(Pos)
                 ent:SetAngles(Ang)
                 ent:SetNWString("Owner", ply:Nick())
