@@ -42,5 +42,6 @@ Wired Npcs - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/5930-wired-
 Wired Damage Scale - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/6346-wired-damage-scale.html
 Wire Wireless - AlgorithmX2 - http://www.wiremod.com/forum/wiremod-addons/6471-wire-wireless.html
 Wire Field Generators - AlgorithmX2 - http://www.wiremod.com/forum/wiremod-addons/6497-wire-field-generator-s.html
+Adv. HUD Indicator - Moggie100 (Based on the origional by TheApathetic) - http://www.wiremod.com/forum/wiremod-addons/6571-advanced-hud-tools.html
 
 Copyright CoreyLee Hassell (Anticept), and respective developers, 2007, 2008.
