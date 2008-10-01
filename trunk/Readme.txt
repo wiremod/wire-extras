@@ -9,9 +9,11 @@ Simply checkout this SVN repository to a folder of your choice, in your garrysmo
 -----------------
 Addon Contributed - developer - link - license (if not GPL v3):
 
+Adv. HUD Indicator - Moggie100 (Based on the origional by TheApathetic) - http://www.wiremod.com/forum/wiremod-addons/6571-advanced-hud-tools.html
 Buoyancy Stool - RabidToaster - http://forums.facepunchstudios.com/showthread.php?p=10186318
 Directional Radios - -=Fox=- - http://www.wiremod.com/forum/ideas-suggestions/525-wire-directional-radios.html
 Door Stool - Doridian - http://forums.facepunchstudios.com/showthread.php?t=480569
+DuFace's Gates - DuFace - http://www.wiremod.com/forum/wiremod-addons/5661-entity-gates-vector-gates-other-stuff.html
 Facer - Incompatible - http://www.garrysmod.org/downloads/?a=view&id=20074
 Freezer - Incompatible - http://www.wiremod.com/forum/wiremod-addons/2352-wire-freezer.html
 Free Fall's Extentions - http://www.wiremod.com/forum/wiremod-addons/5129-free-fall-extension-wire-socket-radio-other-stuff-i-made.html
@@ -19,7 +21,6 @@ Free Fall's Extentions - http://www.wiremod.com/forum/wiremod-addons/5129-free-f
 	Adv. Dupe RAM-Chip
 	String Switch Gate
 	RAM-Card's (This addon is still in development)
-DuFace's Gates - DuFace - http://www.wiremod.com/forum/wiremod-addons/5661-entity-gates-vector-gates-other-stuff.html
 Insanely Huge Memory and Phi Gate - MagnetoHydroDynamics - http://www.wiremod.com/forum/wiremod-addons/5018-insanely-huge-memory-chips-phi-gate.html/
 _Kilburn's Addons - http://www.wiremod.com/forum/wiremod-addons/4294-addons-wire-mod-mods-wire-addon.html :
 	Wire String Gates
@@ -37,11 +38,10 @@ Notifier - high6 - http://www.wiremod.com/forum/wiremod-addons/3204-notifier.htm
 PID Controller (super delta) - Moyer - http://www.wiremod.com/forum/wiremod-addons/5061-pid-controller.html
 Servo - Unvarifiable Developer (Incompatible or Exitlights are most likely) - No Confirmed Home Thread
 Simple Servo - Selig - http://www.wiremod.com/forum/wiremod-addons/5850-wire-simple-servo.html
-XYZ Beacon - Doticatto - http://www.wiremod.com/forum/wiremod-addons/4708-wired-xyz-beacon-eject-input-socket.html
 Wired Npcs - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/5930-wired-npc.html
 Wired Damage Scale - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/6346-wired-damage-scale.html
 Wire Wireless - AlgorithmX2 - http://www.wiremod.com/forum/wiremod-addons/6471-wire-wireless.html
 Wire Field Generators - AlgorithmX2 - http://www.wiremod.com/forum/wiremod-addons/6497-wire-field-generator-s.html
-Adv. HUD Indicator - Moggie100 (Based on the origional by TheApathetic) - http://www.wiremod.com/forum/wiremod-addons/6571-advanced-hud-tools.html
+XYZ Beacon - Doticatto - http://www.wiremod.com/forum/wiremod-addons/4708-wired-xyz-beacon-eject-input-socket.html
 
 Copyright CoreyLee Hassell (Anticept), and respective developers, 2007, 2008.
