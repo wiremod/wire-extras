@@ -21,49 +21,56 @@ if SERVER then
 	CreateConVar("sbox_maxradiosystems", 10)
 
 	function MakeRadioSystems(ply, Ang, Pos, model, tx, weld, nocollide, frozen)
-                if not ply:CheckLimit("radiosystems") then return nil end
+			print("Calling MakeRadioSystems1\n")
+			if not ply:CheckLimit("radiosystems") then return nil end
+			local tmpitem = model:gsub("models/radio/", "")
+			local itemclass = tmpitem:gsub(".mdl", "")
 
-                local tmpitem = model:gsub("models/radio/", "")
-                local itemclass = tmpitem:gsub(".mdl", "")
+			local ent = nil
+			if itemclass == "ra_cell_tower1" or itemclass == "ra_cell_tower2" then
+					print("Calling MakeRadioSystems2\n")
+					ent = ents.Create("prop_physics")
+					ent:SetModel("models/radio/" .. itemclass .. ".mdl")
+			else
+					print("Calling MakeRadioSystems3\n")
+					ent = ents.Create(itemclass)
+					ent:Setup(tx)
+			end
 
-                local ent = nil
-                if itemclass == "ra_cell_tower1" or itemclass == "ra_cell_tower2" then
-                        ent = ents.Create("prop_physics")
-                        ent:SetModel("models/radio/" .. itemclass .. ".mdl")
-                else
-                        ent = ents.Create(itemclass)
-                        ent:Setup(tx)
-                end
+			table.Merge(ent:GetTable(), {
+				ply = ply,
+				Ang = Ang,
+				Pos = Pos,
+				model = model,
+				tx = tx,
+				weld = weld,
+				nocollide = nocollide,
+				frozen = frozen
+			})
 
-                ent:SetPos(Pos)
-                ent:SetAngles(Ang)
-                ent:SetNWString("Owner", ply:Nick())
-		local ttable = {
-			ply = ply,
-			Ang = Ang,
-			Pos = Pos,
-			model = model,
-			tx = tx,
-			weld = weld,
-			nocollide = nocollide,
-			frozen = frozen
-		}
-		table.Merge(ent:GetTable(), ttable)
-                ent:Spawn()
-                ent:Activate()
+			print("Calling MakeRadioSystems4\n")
 
-                if frozen then
-                        local phys = ent:GetPhysicsObject()
-                        if phys:IsValid() then
-                                phys:EnableMotion(false)
-                                ply:AddFrozenPhysicsObject(ent, phys)
-                        end
-                end
+			ent:SetPos(Pos)
+			ent:SetAngles(Ang)
+			ent:Spawn()
+			ent:Activate()
 
-                ply:AddCount("radiosystems", ent)
+			print("Calling MakeRadioSystems5\n")
 
-                return ent
-        end
+			if frozen then
+				print("Calling MakeRadioSystems6\n")
+				local phys = ent:GetPhysicsObject()
+				if phys:IsValid() then
+						print("Calling MakeRadioSystems7\n")
+						phys:EnableMotion(false)
+						ply:AddFrozenPhysicsObject(ent, phys)
+				end
+			end
+
+			ply:AddCount("radiosystems", ent)
+
+			return ent
+		end
 
 	duplicator.RegisterEntityClass("ra_domestic_dish", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
 	duplicator.RegisterEntityClass("ra_large_drum", MakeRadioSystems, "Ang", "Pos", "model", "tx", "weld", "nocollide", "frozen")
