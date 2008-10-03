@@ -11,7 +11,7 @@ Addon Contributed - developer - link - license (if not GPL v3):
 
 Adv. HUD Indicator - Moggie100 (Based on the origional by TheApathetic) - http://www.wiremod.com/forum/wiremod-addons/6571-advanced-hud-tools.html
 Buoyancy Stool - RabidToaster - http://forums.facepunchstudios.com/showthread.php?p=10186318
-Directional Radios - -=Fox=- - http://www.wiremod.com/forum/ideas-suggestions/525-wire-directional-radios.html
+Directional Radios - philxyz (Decided to go for it based on request by -=Fox=-) - http://www.wiremod.com/forum/ideas-suggestions/525-wire-directional-radios.html
 Door Stool - Doridian - http://forums.facepunchstudios.com/showthread.php?t=480569
 DuFace's Gates - DuFace - http://www.wiremod.com/forum/wiremod-addons/5661-entity-gates-vector-gates-other-stuff.html
 Facer - Incompatible - http://www.garrysmod.org/downloads/?a=view&id=20074
