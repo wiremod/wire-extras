@@ -38,6 +38,13 @@ function ENT:Initialize()
 	self.world_end_z = 0
 	self.useWorldCoords = 0
 	
+	//EXIO Stuff
+	self.EXIO_width = 0
+	self.EXIO_height = 0
+	self.EXIO_x = 0
+	self.EXIO_y = 0
+	self.EXIO_size = 0
+	
 	//Angular Inputs
 	self.pitch = 0
 	self.yaw = 0
@@ -46,23 +53,21 @@ function ENT:Initialize()
 	//--additional flags
 	self.flags = 0
 
-	//The method to use when positioning the indicators
+	//--The method to use when positioning the indicators
 	self.positionMethod = 0
+	
+	//--String store for the EXPERIMENTAL string input--//
+	self.displayText = ""
 
 	// List of players who have hooked this indicator
 	self.RegisteredPlayers = {}
 	self.PrefixText = "Adv. Hud: "
 	
-	self.Inputs = Wire_CreateInputs(self.Entity, { "A", "HideHUD", "ScreenX", "ScreenY" })
+	self.Inputs = Wire_CreateInputs(self.Entity, { "Value", "HideHUD", "ScreenX", "ScreenY" })
 	
 end
 
-function ENT:Setup(a, ar, ag, ab, aa, b, br, bg, bb, ba, positionMethod)
-	
-	if( useWorldCoords == nil ) then
-		Msg("World coordinates was NIL, so set it to zero\n")
-		local useWorldCoords = 0
-	end
+function ENT:Setup(a, ar, ag, ab, aa, b, br, bg, bb, ba)
 	
 	self.A = a or 0
 	self.AR = ar or 255
@@ -75,29 +80,10 @@ function ENT:Setup(a, ar, ag, ab, aa, b, br, bg, bb, ba, positionMethod)
 	self.BB = bb or 0
 	self.BA = ba or 255
 	
-	self.positionMethod = positionMethod
-	
-	//--if( useWorldCoords == 1 ) then
-	//--	self.Inputs = Wire_AdjustInputs(self.Entity, { "A", "HideHUD", "WorldX", "WorldY", "WorldZ", "Alpha" })
-	//--	self:TriggerInput("A", 0)
-	//--	self:TriggerInput("HideHUD", 0)
-	//--	self:TriggerInput("WorldX", 0)
-	//--	self:TriggerInput("WorldY", 0)
-	//--	self:TriggerInput("WorldZ", 0)
-	//--	self:TriggerInput("Alpha", 255)
-	//--else
-	//--	self.Inputs = Wire_AdjustInputs(self, { "A", "HideHUD", "ScreenX", "ScreenY", "Alpha" })
-	//--	self:TriggerInput("A", 0)
-	//--	self:TriggerInput("HideHUD", 0)
-	//--	self:TriggerInput("ScreenX", 22)
-	//--	self:TriggerInput("ScreenY", 200)
-	//--	self:TriggerInput("Alpha", 255)
-	//--end
-	
 end
 
 // For HUD Indicators
-function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, xPosNew, yPosNew, flags)
+function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, flags)
 
 	local ply = self:GetPlayer()
 	local eindex = self.Entity:EntIndex()
@@ -107,7 +93,7 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 		self:UnRegisterPlayer(ply)
 	
 		// Adjust inputs back to normal
-		//Wire_AdjustInputs(self.Entity, { "A" })
+		//Wire_AdjustInputs(self.Entity, { "Value" })
 	elseif (showinhud) then
 		// Basic style is useless without a value
 		// to show so set a default if necessary
@@ -139,8 +125,6 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 	self.HUDStyle = hudstyle
 	self.AllowHook = allowhook
 	self.FullCircleAngle = fullcircleangle
-	self.xPos = xPosNew
-	self.yPos = yPosNew
 	self.flags = flags
 
 	// To tell if you can hook a HUD Indicator at a glance
@@ -166,43 +150,108 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 	
 	
 	//-- Update the inputs to match the style... --//
-	local newInputs = { "A", "HideHUD" }
+	//--local newInputs = { "A", "HideHUD" }
 	
-	//-- If we're at an index over 999 then its a 3D indicator, so add relavant inputs... --//
+	local newInputs = {}
+	local newInputTypes = {}
+	local newInputDesc = {}
 	
-	if( flags == true ) then flags = 1 end
-	if( flags == false ) then flags = 0 end
+	table.insert(newInputs, "A")
+	table.insert(newInputTypes, "NORMAL")
+	//--table.insert(newInputDesc, "The value to display on the indicator (if any)")
 	
-	if( flags != nil ) then
-		Msg( "Flags: " ..flags.. "\n" )
-		if( flags & 1 == 1 ) then
-			table.insert(newInputs, "WorldX")
-			table.insert(newInputs, "WorldY")
-			table.insert(newInputs, "WorldZ")
-		else
-			table.insert(newInputs, "ScreenX")
-			table.insert(newInputs, "ScreenY")
-		end
-		
-		if( flags & 2 == 2 ) then
-			table.insert(newInputs, "Alpha")
-		end
-	else
-		Msg("NIL Flags?!?\n")
+	table.insert(newInputs, "HideHUD")
+	table.insert(newInputTypes, "NORMAL")
+	//--table.insert(newInputDesc, "Hide the HUD Indicator")
+	
+	
+	//-- Translate the flags values... --//
+	
+	//--Flag Options--//
+	local flag_worldcoords = 1
+	local flag_alphainput = 2
+	local flag_position_by_pixel = 4
+	local flag_position_by_percent = 8
+	local flag_position_by_decimal = 16
+	local flag_string_input = 32
+	
+	if( flags == true ) then
+		flags = 1
+		Msg("[WW] Adv. HUD::Flags auto-translated to '1' from 'true'\n")
+	end
+	if( flags == false ) then
+		flags = 0
+		Msg("[WW] Adv. HUD::Flags auto-translated to '0' from 'false'\n")
 	end
 	
-	Msg( "HUD Style: " ..self.HUDStyle.. "\n" )
+	if( flags != nil ) then
+		if( flags & flag_worldcoords == flag_worldcoords ) then
+			table.insert(newInputs, "WorldX")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "World-space 'X' ordinate")
+			
+			table.insert(newInputs, "WorldY")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "World-space 'Y' ordinate")
+	
+			table.insert(newInputs, "WorldZ")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "World-space 'Z' ordinate")
+		else
+			table.insert(newInputs, "ScreenX")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "Screen-space 'X' ordinate")
+			
+			table.insert(newInputs, "ScreenY")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "Screen-space 'Y' ordinate")
+		end
+		
+		//--Manage position methods--//
+		if( flags & flag_position_by_pixel == flag_position_by_pixel ) then
+			self.positionMethod = 0
+		elseif( flags & flag_position_by_percent == flag_position_by_percent ) then
+			self.positionMethod = 1
+		elseif( flags & flag_position_by_decimal == flag_position_by_decimal ) then
+			self.positionMethod = 2
+		end
+		
+		
+		//--Create a STRING input for the text on the indicator--//
+		if( flags & flag_string_input == flag_string_input ) then
+			table.insert(newInputs, "DisplayText")
+			table.insert(newInputTypes, "STRING")
+			//--table.insert(newInputDesc, "The text to display on the indicator")
+		end
+		
+	else
+		Msg("[EE] Adv. HUD::NIL Flags?!?\n")
+	end
+	
 	
 	//-- If we are drawing a 2-point object, then 
 	if( self.HUDStyle > 199 && self.HUDStyle < 999 ) then
 		//-- If we're drawing in 3D mode... --//
 		if( flags & 1 == 1 ) then
 			table.insert(newInputs, "WorldEndX")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "The end X position in world space")
+			
 			table.insert(newInputs, "WorldEndY")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "The end Y position in world space")
+			
 			table.insert(newInputs, "WorldEndZ")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "The end Z position in world space")
 		else
 			table.insert(newInputs, "EndX")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "The end X position in screen space")
+			
 			table.insert(newInputs, "EndY")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "The end Y position in screen space")
 		end
 	end
 	
@@ -214,19 +263,66 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 		//--Add the styles requiring a size input here--//
 		if( self.HUDStyle == 1000 ) then
 			table.insert(newInputs, "EXIO_Size")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "Extended IO - Size parameter")
 		end
 		
 		//--Add the styles requiring L/R brace inputs here--//
 		if( self.HUDStyle == 1001 ) then
 			table.insert(newInputs, "EXIO_LBrace")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "Extended IO - Left brace presence")
+			
 			table.insert(newInputs, "EXIO_RBrace")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "Extended IO - Right brace presence")
+		end
+		
+		if( self.HUDStyle == 1002 ) then
+			table.insert(newInputs, "EXIO_Width")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "Extended IO - Width")
+			
+			table.insert(newInputs, "EXIO_Height")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "Extended IO - Height")
+			
+			table.insert(newInputs, "EXIO_X")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "Extended IO - Internal X Offset")
+			
+			table.insert(newInputs, "EXIO_Y")
+			table.insert(newInputTypes, "NORMAL")
+			//--table.insert(newInputDesc, "Extended IO - Internal Y Offset")
 		end
 	
 	end
 	
-	
 	//--Update the SENT--//
-	Wire_AdjustInputs(self.Entity, newInputs)
+	//--Wire_AdjustInputs(self.Entity, newInputs)
+	WireLib.AdjustSpecialInputs(self.Entity, newInputs, newInputTypes, newInputDesc)
+	
+	for k,inputName in pairs(newInputs) do
+		if( inputName == "Value" ) then self:TriggerInput("Value", self.A)
+		elseif( inputName == "HideHUD" ) then self:TriggerInput("HideHUD", 0)
+		elseif( inputName == "WorldX" ) then self:TriggerInput("WorldX", self.world_x)
+		elseif( inputName == "WorldY" ) then self:TriggerInput("WorldY", self.world_y)
+		elseif( inputName == "WorldZ" ) then self:TriggerInput("WorldZ", self.world_z)
+		elseif( inputName == "ScreenX" ) then self:TriggerInput("ScreenX", self.xPos)
+		elseif( inputName == "ScreenY" ) then self:TriggerInput("ScreenY", self.yPos)
+		elseif( inputName == "DisplayText" ) then self:TriggerInput("DisplayText", self.displayText)
+		elseif( inputName == "WorldEndX" ) then self:TriggerInput("WorldEndX", self.world_end_x)
+		elseif( inputName == "WorldEndY" ) then self:TriggerInput("WorldEndY", self.world_end_y)
+		elseif( inputName == "WorldEndZ" ) then self:TriggerInput("WorldEndZ", self.world_end_z)
+		elseif( inputName == "EndX" ) then self:TriggerInput("EndX", self.xEnd)
+		elseif( inputName == "EndY" ) then self:TriggerInput("EndY", self.yEnd)
+		elseif( inputName == "EXIO_Width" ) then self:TriggerInput("EXIO_Width", self.EXIO_width)
+		elseif( inputName == "EXIO_Height" ) then self:TriggerInput("EXIO_Height", self.EXIO_height)
+		elseif( inputName == "EXIO_X" ) then self:TriggerInput("EXIO_X", self.EXIO_x)
+		elseif( inputName == "EXIO_Y" ) then self:TriggerInput("EXIO_Y", self.EXIO_x)
+		elseif( inputName == "EXIO_Size" ) then self:TriggerInput("EXIO_Size", self.EXIO_size)
+		end
+	end
 	
 end
 
@@ -313,11 +409,12 @@ function ENT:TriggerInput(iname, value)
 		local factor = math.Clamp((value-self.A)/(self.B-self.A), 0, 1)
 		self:ShowOutput(factor, value)
 
-		local r = math.Clamp((self.BR-self.AR)*factor+self.AR, 0, 255)
-		local g = math.Clamp((self.BG-self.AG)*factor+self.AG, 0, 255)
-		local b = math.Clamp((self.BB-self.AB)*factor+self.AB, 0, 255)
-		local a = math.Clamp((self.BA-self.AA)*factor+self.AA, 0, 255)
-		self.Entity:SetColor(r, g, b, a)
+		//--local r = math.Clamp((self.BR-self.AR)*factor+self.AR, 0, 255)
+		//--local g = math.Clamp((self.BG-self.AG)*factor+self.AG, 0, 255)
+		//--local b = math.Clamp((self.BB-self.AB)*factor+self.AB, 0, 255)
+		//--local a = math.Clamp((self.BA-self.AA)*factor+self.AA, 0, 255)
+		//--self.Entity:SetColor(r, g, b, a)
+		self.Entity:SetColor(255, 255, 255, 255)
 	elseif (iname == "HideHUD") then
 		if (self.PrevHideHUD == (value > 0)) then return end
 		
@@ -380,6 +477,29 @@ function ENT:TriggerInput(iname, value)
 	elseif (iname == "Roll") then
 		self.roll = value
 		force_angular_update = true
+	
+	
+	
+	//--BETA! String input for text control--//
+	elseif (iname == "DisplayText") then
+		self.displayText = value
+		
+		//-- Iterate the players table and update them all --//
+		for index,rplayer in pairs(self.RegisteredPlayers) do
+			if (rplayer.ply) then
+				if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
+					//--Build a new usermessage to update the position
+					umsg.Start("AdvHUDIndicator_STRING", rplayer.ply)
+						umsg.Short(self.Entity:EntIndex())	//--Entity inded
+						umsg.String( self.displayText )				//-- The new string to set --//
+					umsg.End()								//--Send message
+				end
+			else
+				self.RegisteredPlayers[index] = nil
+			end
+		end
+		
+		
 	end
 	
 	
@@ -388,7 +508,8 @@ function ENT:TriggerInput(iname, value)
 	//------------------//
 	local EXIO_update = 0
 	local EXIO_value = 0
-	if (iname == "EXIO_Size") then				//-- 0 - Size update --//
+	if (iname == "Size") then				//-- 0 - Size update --//
+		self.EXIO_size = value
 		EXIO_value = value
 		EXIO_update = 1
 		
@@ -399,7 +520,27 @@ function ENT:TriggerInput(iname, value)
 	elseif( iname == "EXIO_RBrace") then		//-- 2 - rBrace update --//
 		EXIO_value = value
 		EXIO_update = 3
+	
+	elseif( iname == "EXIO_Width" ) then
+		self.EXIO_width = value
+		EXIO_value = value
+		EXIO_update = 4
 		
+	elseif( iname == "EXIO_Height" ) then
+		self.EXIO_height = value
+		EXIO_value = value
+		EXIO_update = 5
+	
+	elseif( iname == "EXIO_X" ) then
+		self.EXIO_x = value
+		EXIO_value = value
+		EXIO_update = 6
+	
+	elseif( iname == "EXIO_Y" ) then
+		self.EXIO_y = value
+		EXIO_value = value
+		EXIO_update = 7
+	
 	end
 	
 	//-- If we get an extended IO update, then inform players --//
@@ -501,6 +642,7 @@ function ENT:TriggerInput(iname, value)
 			end
 			
 		elseif( self.force_position_update == 1 ) then
+		
 			for index,rplayer in pairs(self.RegisteredPlayers) do
 				if (rplayer.ply) then
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
@@ -638,10 +780,6 @@ function ENT:Think()
 			
 			if (self.PodPly && !self:CheckRegister(self.PodPly)) then
 				self:RegisterPlayer(self.PodPly, false, true)
-				
-				// Force factor to update
-				self.PrevOutput = nil
-				self:TriggerInput("A", self.Inputs.A.Value)
 			end
 		end
 	else
@@ -677,3 +815,4 @@ function ENT:ApplyDupeInfo(ply, ent, info, GetEntByID)
 		end
 	end
 end
+
