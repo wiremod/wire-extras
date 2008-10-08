@@ -23,6 +23,9 @@ local offsety = {32, 32, 32, 92 + dtextheight, 60 + dtextheight}
 local fullcircletexid = surface.GetTextureID("hudindicator/hi_fullcircle")
 local semicircletexid = surface.GetTextureID("hudindicator/hi_semicircle")
 
+local tex_sci_fi_1 = surface.GetTextureID("adv_hud/sci_fi_style_1")
+
+
 // Copied from wirelib.lua (table.MakeSortedKeys() should be made shared :P)
 local function MakeSortedKeys(tbl)
 	local result = {}
@@ -83,6 +86,8 @@ local function DrawAdvHUDIndicators()
 	local halfScreenWidth = screenWidth/2
 	local halfScreenHeight = screenHeight/2
 	
+	local errors = 0
+	
 	// Now draw HUD Indicators
 	for _, index in ipairs(MakeSortedKeys(advhudindicators)) do
 		if (advhudindicators[index]) then // Is this necessary?
@@ -119,7 +124,6 @@ local function DrawAdvHUDIndicators()
 						
 					else
 						//--Convert the positions based on the position method.
-						//--Msg( "Position Method: " ..indinfo.positionMethod.. "\n" )
 						if( positionMethod == 1 ) then
 							xPos = (screenWidth/100)*xPos
 							yPos = (screenHeight/100)*yPos
@@ -135,6 +139,7 @@ local function DrawAdvHUDIndicators()
 								yEnd = screenHeight*((yEnd/2)+0.5)
 							end
 						end
+						
 					end
 					
 					local txt = indinfo.FullText or ""
@@ -147,9 +152,12 @@ local function DrawAdvHUDIndicators()
 					//-- Access the colors for this indicator, and update the local variables --//
 					local AColor = indinfo.AColor
 					local BColor = indinfo.BColor
+					
+					if( indinfo.Style == nil ) then
+						errors = errors + 1
 
 					//-- Basic --//
-					if (indinfo.Style == 0) then
+					elseif (indinfo.Style == 0) then
 						//--draw.WordBox(8, xPos, yPos, txt, "Default", Color(50, 50, 75, 192), Color(255, 255, 255, 255))
 						
 						draw.DrawText( txt, "ScoreboardText", xPos, yPos, indinfo.DisplayColor, indinfo.TextColor )
@@ -162,10 +170,51 @@ local function DrawAdvHUDIndicators()
 						draw.WordBox(8, xPos, yPos, txt, "Default", Color(BColor.r, BColor.g, BColor.b, BColor.a), Color(AColor.r, AColor.g, AColor.b, AColor.a))
 					
 					
+					//--Text Box - Pretty much only useful with string gates--//
+					elseif (indinfo.Style == 2) then
+						local lines = string.Explode("|", indinfo.Description)
+						local totalLines = table.Count(lines)
+						local boxWidth = 0
+						local boxHeight = 0
+						
+						surface.SetFont("ChatFont")
+						
+						//--Gather the total height and max width of this text--//
+						for k,v in pairs(lines) do
+						
+							local lineWidth, lineHeight = surface.GetTextSize( v )
+							if ( lineWidth > boxWidth ) then boxWidth = lineWidth end
+							boxHeight = boxHeight + lineHeight + 2
+						end
+						
+						//--Add a bit of a border (5px all round)--//
+						boxWidth = boxWidth + 10
+						boxHeight = boxHeight + 10
+						
+						//--Draw the background rectangle--//
+						surface.SetDrawColor(50, 50, 75, 192)
+						surface.DrawRect( xPos, yPos, boxWidth, boxHeight )
+						
+						surface.SetTextColor(255, 255, 255, 255)
+						local index = 0
+						for k,v in pairs(lines) do
+							local lineWidth, lineHeight = surface.GetTextSize( v )
+							
+							surface.SetTextPos( xPos+5, yPos+5+(index*(lineHeight+2)) )
+							surface.DrawText( v );
+							index = index + 1
+						end
+
+					
 					//-- Percent Bar (Style 1) --//
 					elseif (indinfo.Style == 10) then
 					
 						local pbarwidth = 200
+						
+						//--Reposition at the center of the point specified.--//
+						xPos = xPos - pbarwidth/2
+						xPos = xPos - pbarheight/2
+						
 						local w1 = pbarwidth*indinfo.Factor
 						local w2 = pbarwidth*(1-indinfo.Factor)
 						
@@ -192,6 +241,11 @@ local function DrawAdvHUDIndicators()
 					//-- Percent Bar (Style 2) --//
 					elseif( indinfo.Style == 11 ) then
 						local pbarwidth = 200
+						
+						//--Reposition at the center of the point specified.--//
+						xPos = xPos - pbarwidth/2
+						xPos = xPos - pbarheight/2
+						
 						local pos = pbarwidth*indinfo.Factor
 						
 						//--Draw the bar--//
@@ -214,6 +268,11 @@ local function DrawAdvHUDIndicators()
 					elseif (indinfo.Style == 20) then
 					
 						local pbarwidth = 200
+						
+						//--Reposition at the center of the point specified.--//
+						xPos = xPos - pbarwidth/2
+						xPos = xPos - pbarheight/2
+						
 						local w1 = pbarwidth*indinfo.Factor
 						local w2 = pbarwidth*(1-indinfo.Factor)
 						
@@ -240,6 +299,11 @@ local function DrawAdvHUDIndicators()
 					//-- Vertical Bar (Style 2) --//
 					elseif(indinfo.Style == 21) then
 						local pbarwidth = 200
+						
+						//--Reposition at the center of the point specified.--//
+						xPos = xPos - pbarwidth/2
+						xPos = xPos - pbarheight/2
+						
 						local pos = pbarwidth*indinfo.Factor
 						
 						//--Draw the bar--//
@@ -394,6 +458,35 @@ local function DrawAdvHUDIndicators()
 							draw.WordBox(8, xPos+20, yPos+20, txt, "Default", Color(50,255,50, 160), Color(0,0,0, 255) )
 						end
 					
+					//-- Textured crosshair in the 'Ghost In The Shell' style --//
+					//-- Lines to edge of screen also. --//
+					elseif (indinfo.Style == 54) then
+						
+						surface.SetTexture(tex_sci_fi_1)
+						
+						local xSize = 256
+						local ySize = 256
+						local xOffset = 128
+						local yOffset = 128
+						
+						//-- Texture is 256x256, ergo position needs to be offset by 128.
+						surface.DrawTexturedRect( xPos-xOffset, yPos-yOffset, xSize, ySize )
+						
+						//-- Lines to the edge of the screen to match the texture...
+						surface.SetDrawColor(187, 215, 239, 160)
+						surface.DrawLine( 0, yPos, xPos-xOffset, yPos )
+						surface.DrawLine( 0, yPos-1, xPos-xOffset, yPos-1 )
+						
+						surface.DrawLine( xPos+xOffset, yPos, screenWidth, yPos )
+						surface.DrawLine( xPos+xOffset, yPos-1, screenWidth, yPos-1 )
+						
+						surface.DrawLine( xPos, 0, xPos, yPos-yOffset )
+						surface.DrawLine( xPos-1, 0, xPos-1, yPos-yOffset )
+						
+						surface.DrawLine( xPos, yPos+yOffset, xPos, screenHeight )
+						surface.DrawLine( xPos-1, yPos+yOffset, xPos-1, screenHeight )
+						
+					
 					//--Animating target marker (triangular)--//
 					//--Offsets 100 from the normal indicators, so I have room to group types--//
 					elseif( indinfo.Style == 100 ) then
@@ -418,8 +511,108 @@ local function DrawAdvHUDIndicators()
 							draw.WordBox(8, xPos+20, yPos+20, txt, "Default", Color(50,255,50, 160), Color(0,0,0, 255) )
 						end
 					
-					end
 					
+					//-----------------------------------------------------------------------------------------------//
+					//-- [Extended I/O] [Extended I/O] [Extended I/O] [Extended I/O] [Extended I/O] [Extended I/O] --//
+					//-----------------------------------------------------------------------------------------------//
+					//-- These inputs have other IO functions on the SENT, so can access the exio values           --//
+					//-----------------------------------------------------------------------------------------------//
+					//-- Targetting Rectangle --//
+					elseif (indinfo.Style == 1000) then
+					
+						local size = 45
+						if( indinfo.exio_size != nil ) then size = indinfo.exio_size end
+						if( size < 0 ) then size = 0 end
+						
+						surface.SetDrawColor(AColor.r, AColor.g, AColor.b, 90)
+						surface.DrawRect(xPos-size, yPos-size, size*2, size*2)
+						
+						surface.SetDrawColor(BColor.r, BColor.g, BColor.b, 160)
+						
+						surface.DrawLine(xPos-size, yPos-size, xPos-size, yPos-size+15)
+						surface.DrawLine(xPos-size, yPos-size, xPos-size+15, yPos-size)
+						
+						surface.DrawLine(xPos+size, yPos-size, xPos+size, yPos-size+15)
+						surface.DrawLine(xPos+size, yPos-size, xPos+size-15, yPos-size)
+						
+						surface.DrawLine(xPos-size, yPos+size, xPos-size, yPos+size-15)
+						surface.DrawLine(xPos-size, yPos+size, xPos-size+15, yPos+size)
+						
+						surface.DrawLine(xPos+size, yPos+size, xPos+size, yPos+size-15)
+						surface.DrawLine(xPos+size, yPos+size, xPos+size-15, yPos+size)
+					
+						if( txt != "" ) then
+							surface.DrawLine( xPos+size, yPos+size, xPos+size+20, yPos+size+20 )
+							draw.WordBox(8, xPos+size+20, yPos+size+12, txt, "Default", Color(50,255,50, 160), Color(0,0,0, 255) )
+						end
+				
+					//-- Crosshair Style 3 --//
+					elseif (indinfo.Style == 1001) then
+					
+						surface.SetDrawColor(AColor.r, AColor.g, AColor.b, 160)
+						
+						surface.DrawLine( xPos-20, yPos, xPos+20, yPos )
+						surface.DrawLine( xPos, yPos-10, xPos, yPos+10 )
+						
+						surface.SetDrawColor(BColor.r, BColor.g, BColor.b, 160)
+						
+						//-- Left Brace --//
+						if( indinfo.exio_lbrace != nil ) then
+							if( indinfo.exio_lbrace > 0 ) then
+								surface.DrawLine( xPos-30, yPos-10, xPos-30, yPos+10 )
+								surface.DrawLine( xPos-30, yPos-10, xPos-25, yPos-10 )
+								surface.DrawLine( xPos-30, yPos+10, xPos-25, yPos+10 )
+							end
+						end
+						
+						//-- Right Brace --//
+						if( indinfo.exio_rbrace != nil ) then
+							if( indinfo.exio_rbrace > 0 ) then
+								surface.DrawLine( xPos+30, yPos-10, xPos+30, yPos+10 )
+								surface.DrawLine( xPos+30, yPos-10, xPos+25, yPos-10 )
+								surface.DrawLine( xPos+30, yPos+10, xPos+25, yPos+10 )
+							end
+						end
+					
+					//-- Divided Box --//
+					elseif (indinfo.Style == 1002) then
+						
+						if( indinfo.exio_width == nil ) then
+							indinfo.exio_width = 200
+							//--Msg("[WW] exio_width has not been set yet... using default value of 200\n")
+							errors = errors + 1
+						end
+						if( indinfo.exio_height == nil ) then
+							indinfo.exio_height = 200
+							//--Msg("[WW] exio_height has not been set yet... using default value of 200\n")
+							errors = errors + 1
+						end
+						if( indinfo.exio_x == nil ) then
+							indinfo.exio_x = 50
+							//--Msg("[WW] exio_x has not been set yet... using default value of 50\n")
+							errors = errors + 1
+						end
+						if( indinfo.exio_y == nil ) then
+							indinfo.exio_y = 50
+							//--Msg("[WW] exio_y has not been set yet... using default value of 50\n")
+							errors = errors + 1
+						end
+						
+						local x = xPos - (indinfo.exio_width/2)
+						local y = yPos - (indinfo.exio_height/2)
+						
+						xRef = math.Clamp( (indinfo.exio_x/100)*indinfo.exio_width, 0, indinfo.exio_width )
+						yRef = math.Clamp( (indinfo.exio_y/100)*indinfo.exio_height, 0, indinfo.exio_height )
+						
+						surface.SetDrawColor(BColor.r, BColor.g, BColor.b, 160)
+						surface.DrawRect( x, y, indinfo.exio_width, indinfo.exio_height )
+						
+						surface.SetDrawColor(AColor.r, AColor.g, AColor.b, 255)
+						surface.DrawOutlinedRect( x, y, indinfo.exio_width, indinfo.exio_height )
+						surface.DrawLine( x+xRef, y, x+xRef, y+indinfo.exio_height )
+						surface.DrawLine( x, y+yRef, x+indinfo.exio_width, y+yRef )
+					
+					end
 					
 					//-- manual draw mode, possibly -intensely- laggy...--//
 					if( xEnd && yEnd ) then
@@ -468,73 +661,7 @@ local function DrawAdvHUDIndicators()
 							draw.RoundedBox( 3, drawX, drawY, boxSizeX, boxSizeY, Color(255,255,255, 160) )
 							
 						end
-					end
 					
-					//-----------------------------------------------------------------------------------------------//
-					//-- [Extended I/O] [Extended I/O] [Extended I/O] [Extended I/O] [Extended I/O] [Extended I/O] --//
-					//-----------------------------------------------------------------------------------------------//
-					//-- These inputs have other IO functions on the SENT, so can access the exio values           --//
-					//-----------------------------------------------------------------------------------------------//
-					if( indinfo.Style > 999 ) then
-					
-						//-- Targetting Rectangle --//
-						if (indinfo.Style == 1000) then
-						
-							local size = 45
-							if( indinfo.exio_size != nil ) then size = indinfo.exio_size end
-							if( size < 0 ) then size = 0 end
-							
-							surface.SetDrawColor(AColor.r, AColor.g, AColor.b, 90)
-							surface.DrawRect(xPos-size, yPos-size, size*2, size*2)
-							
-							surface.SetDrawColor(BColor.r, BColor.g, BColor.b, 160)
-							
-							surface.DrawLine(xPos-size, yPos-size, xPos-size, yPos-size+15)
-							surface.DrawLine(xPos-size, yPos-size, xPos-size+15, yPos-size)
-							
-							surface.DrawLine(xPos+size, yPos-size, xPos+size, yPos-size+15)
-							surface.DrawLine(xPos+size, yPos-size, xPos+size-15, yPos-size)
-							
-							surface.DrawLine(xPos-size, yPos+size, xPos-size, yPos+size-15)
-							surface.DrawLine(xPos-size, yPos+size, xPos-size+15, yPos+size)
-							
-							surface.DrawLine(xPos+size, yPos+size, xPos+size, yPos+size-15)
-							surface.DrawLine(xPos+size, yPos+size, xPos+size-15, yPos+size)
-						
-							if( txt != "" ) then
-								surface.DrawLine( xPos+size, yPos+size, xPos+size+20, yPos+size+20 )
-								draw.WordBox(8, xPos+size+20, yPos+size+12, txt, "Default", Color(50,255,50, 160), Color(0,0,0, 255) )
-							end
-					
-						//-- Crosshair Style 3 --//
-						elseif (indinfo.Style == 1001) then
-						
-							surface.SetDrawColor(AColor.r, AColor.g, AColor.b, 160)
-							
-							surface.DrawLine( xPos-20, yPos, xPos+20, yPos )
-							surface.DrawLine( xPos, yPos-10, xPos, yPos+10 )
-							
-							surface.SetDrawColor(BColor.r, BColor.g, BColor.b, 160)
-							
-							//-- Left Brace --//
-							if( indinfo.exio_lbrace != nil ) then
-								if( indinfo.exio_lbrace > 0 ) then
-									surface.DrawLine( xPos-30, yPos-10, xPos-30, yPos+10 )
-									surface.DrawLine( xPos-30, yPos-10, xPos-25, yPos-10 )
-									surface.DrawLine( xPos-30, yPos+10, xPos-25, yPos+10 )
-								end
-							end
-							
-							//-- Right Brace --//
-							if( indinfo.exio_rbrace != nil ) then
-								if( indinfo.exio_rbrace > 0 ) then
-									surface.DrawLine( xPos+30, yPos-10, xPos+30, yPos+10 )
-									surface.DrawLine( xPos+30, yPos-10, xPos+25, yPos-10 )
-									surface.DrawLine( xPos+30, yPos+10, xPos+25, yPos+10 )
-								end
-							end
-						end
-							
 					end
 					
 				end
@@ -545,6 +672,11 @@ local function DrawAdvHUDIndicators()
 			end
 		end
 	end
+	
+	//--if( errors > 0 ) then
+	//--	draw.WordBox(8, 20, 20, "[Warning] "..errors.." indicators were missing information at render time! If this message does not go away - contact a developer! ", "Default", Color(50, 50, 75, 192), Color(255, 255, 255, 255))
+	//--end
+	
 end
 hook.Add("HUDPaint", "DrawAdvHUDIndicators", DrawAdvHUDIndicators)
 
@@ -568,7 +700,11 @@ local function AdvHUDFormatDescription( eindex )
 	// Do any extra processing for certain HUD styles
 	// so we aren't calculating this every frame
 	surface.SetFont("Default")
-	indinfo.BoxWidth = surface.GetTextSize(advhudindicators[eindex].FullText)
+	if( advhudindicators[eindex].FullText ) then
+		indinfo.BoxWidth = surface.GetTextSize(advhudindicators[eindex].FullText)
+	else
+		indinfo.BoxWidth = 0
+	end
 	
 end
 
@@ -692,6 +828,23 @@ usermessage.Hook("AdvHUDIndicatorUpdatePositionTwo", AdvHUDIndicatorUpdatePositi
 
 
 
+//--BETA BETA BETA BETA BETA--//
+//--String data to set the FullText variable to!--//
+//--May just explode in everyone's faces!--//
+local function AdvHUDIndicator_UpdateSTRING( um )
+	//--Get the table index
+	local eindex = um:ReadShort()
+	
+	//--Ensure it exists and is ready to use
+	AdvCheckHITableElement(eindex)
+	
+	//--Update the data for this indicator
+	advhudindicators[eindex].Description = um:ReadString()
+end
+usermessage.Hook("AdvHUDIndicator_STRING", AdvHUDIndicator_UpdateSTRING)
+
+
+
 
 
 //--Forces the HUD data to be updated from 3D position data -Moggie100
@@ -769,7 +922,17 @@ local function AdvHUDIndicator_EXIO( um )
 		advhudindicators[eindex].exio_lbrace = value
 	elseif( key == 3 ) then							//-- RBrace update --//
 		advhudindicators[eindex].exio_rbrace = value
+	elseif( key == 4 ) then							//-- Width update --//
+		advhudindicators[eindex].exio_width = value
+	elseif( key == 5 ) then							//-- Height update --//
+		advhudindicators[eindex].exio_height = value
+	elseif( key == 6 ) then							//-- Height update --//
+		advhudindicators[eindex].exio_x = value
+	elseif( key == 7 ) then							//-- Height update --//
+		advhudindicators[eindex].exio_y = value
 	end
+	
+	//--Msg("[II] Updated EXIO value index=" ..key.. " value=" ..value.. "\n")
 	
 end
 usermessage.Hook("AdvHUDIndicator_EXIO", AdvHUDIndicator_EXIO)
@@ -789,9 +952,6 @@ local function AdvHUDIndicatorCheck()
 	if (animation_frame > 360) then animation_frame = 0 end
 	
 	nextupdate = CurTime() + 0.02
-	// Keep x/y within range (the 50 and 100 are arbitrary and may change)
-	hudx = math.Clamp(GetConVarNumber("wire_hudindicator_hudx") or 22, 0, ScrW() - 50)
-	hudy = math.Clamp(GetConVarNumber("wire_hudindicator_hudy") or 200, 0, ScrH() - 100)
 	
 	// Now check readiness
 	for eindex,indinfo in pairs(advhudindicators) do
@@ -801,17 +961,7 @@ local function AdvHUDIndicatorCheck()
 		
 		//-- NOW check readiness --//
 		if (!indinfo.Ready) then
-			if (indinfo.Style == 0) then // Basic
-				advhudindicators[eindex].Ready = true // Don't need to do any additional checks
-			elseif (indinfo.Style == 1) then // Gradient
-				advhudindicators[eindex].Ready = (indinfo.DisplayColor && indinfo.TextColor)
-			elseif (indinfo.Style == 2) then // Percent Bar
-				advhudindicators[eindex].Ready = (indinfo.BoxWidth && indinfo.W1 && indinfo.W2 && indinfo.AColor && indinfo.BColor)
-			elseif (indinfo.Style == 3) then // Full Circle Gauge
-				advhudindicators[eindex].Ready = (indinfo.BoxWidth && indinfo.LineX && indinfo.LineY && indinfo.FullCircleAngle)
-			elseif (indinfo.Style == 4) then // Semi-Circle Gauge
-				advhudindicators[eindex].Ready = (indinfo.BoxWidth && indinfo.LineX && indinfo.LineY)
-			end
+			advhudindicators[eindex].Ready = true // Don't need to do any additional checks
 		end
 	end
 end

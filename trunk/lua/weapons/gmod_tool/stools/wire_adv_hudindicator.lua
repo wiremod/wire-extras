@@ -70,6 +70,7 @@ TOOL.ClientConVar[ "registerdelete" ] = "0"
 TOOL.ClientConVar[ "useworldcoords" ] = "0"
 TOOL.ClientConVar[ "positionmethod" ] = "0"
 TOOL.ClientConVar[ "transitionstyle" ] = nil
+TOOL.ClientConVar[ "stringinput" ] = "0"
 
 cleanup.Register( "wire_indicators" )
 
@@ -106,9 +107,7 @@ function TOOL:LeftClick( trace )
 	local hudstyle		= self:GetClientNumber( "hudstyle" )
 	local allowhook		= (self:GetClientNumber( "allowhook" ) > 0)
 	local fullcircleangle = self:GetClientNumber( "fullcircleangle" )
-	
 	local useWorldCoords = 0	//--Redundant, but here incase anything needs it... REMOVE SOON --//
-	
 	local positionMethod = self:GetClientNumber("positionmethod")
 	
 	local flags = 0
@@ -116,6 +115,10 @@ function TOOL:LeftClick( trace )
 	//--Flag Options--//
 	local flag_worldcoords = 1
 	local flag_alphainput = 2
+	local flag_position_by_pixel = 4
+	local flag_position_by_percent = 8
+	local flag_position_by_decimal = 16
+	local flag_string_input = 32
 	
 	Msg( "World Coords Checkbox: " ..self:GetClientNumber( "useworldcoords" ).. "\n" )
 	Msg( "Alpha Checkbox: " ..self:GetClientNumber( "alpha" ).. "\n" )
@@ -123,14 +126,20 @@ function TOOL:LeftClick( trace )
 	if( self:GetClientNumber( "useworldcoords" ) == 1 ) then flags = flags | flag_worldcoords end
 	if( self:GetClientNumber( "alpha" ) == 1 ) then flags = flags | flag_alphainput end
 	
-	//On-screen position
-	local xPos = 22
-	local yPos = 200
+	if( positionMethod == 0 ) then		//-- Pixels
+		flags = flags | flag_position_by_pixel
+	elseif( positionMethod == 1 ) then	//-- Percent
+		flags = flags | flag_position_by_percent
+	elseif( positionMethod == 2 ) then	//-- -1 to 1
+		flags = flags | flag_position_by_decimal
+	end
+	
+	if( self:GetClientNumber("stringinput") == 1 ) then flags = flags | flag_string_input end				//--BETA! String input!--//
 	
 	// If we shot a wire_indicator change its data
 	if ( trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_adv_hudindicator" && trace.Entity.pl == ply ) then
 		
-		trace.Entity:Setup(a, ar, ag, ab, aa, b, br, bg, bb, ba, useWorldCoords, positionMethod)
+		trace.Entity:Setup(a, ar, ag, ab, aa, b, br, bg, bb, ba)
 		trace.Entity:SetMaterial( material )
 		
 		trace.Entity.a	= a
@@ -145,7 +154,7 @@ function TOOL:LeftClick( trace )
 		trace.Entity.ba	= ba
 
 		// This will un-register if showinhud is false
-		trace.Entity:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, xPos, yPos, flags)
+		trace.Entity:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, flags)
 		
 		trace.Entity.showinhud = showinhud
 		trace.Entity.huddesc = huddesc
@@ -169,8 +178,8 @@ function TOOL:LeftClick( trace )
 
 	Msg("Tool FLAGS: "..flags.."\n")
 
-	wire_adv_indicator = MakeWireAdvHudIndicator( ply, model, Ang, trace.HitPos, a, ar, ag, ab, aa, b, br, bg, bb, ba, material, showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, false,    false, xPos, yPos, flags, positionMethod )
-					 //--MakeWireAdvHudIndicator( pl, Model, Ang, Pos, 			a, ar, ag, ab, aa, b, br, bg, bb, ba, material, showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, nocollide, frozen, xPos, yPos, flags, positionMethod )
+	wire_adv_indicator = MakeWireAdvHudIndicator( ply, model, Ang, trace.HitPos, a, ar, ag, ab, aa, b, br, bg, bb, ba, material, showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, false,    false, flags, positionMethod )
+					 //--MakeWireAdvHudIndicator( pl, Model, Ang, Pos, 			a, ar, ag, ab, aa, b, br, bg, bb, ba, material, showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, nocollide, frozen, flags, positionMethod )
 	//-- Check that it was created properly...
 	if( wire_adv_indicator == nil ) then
 		Msg("Something went wrong with this entity, and it was not created :/ what the hell?\n");
@@ -272,14 +281,15 @@ end
 
 if (SERVER) then
 
-	function MakeWireAdvHudIndicator( pl, Model, Ang, Pos, a, ar, ag, ab, aa, b, br, bg, bb, ba, material, showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, nocollide, frozen, xPos, yPos, flags, positionMethod )
+	function MakeWireAdvHudIndicator( pl, Model, Ang, Pos, a, ar, ag, ab, aa, b, br, bg, bb, ba, material, showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, nocollide, frozen, flags, positionMethod )
 		if ( !pl:CheckLimit( "wire_indicators" ) ) then return false end
 		
+		local positionMethod = 0
 		local flags = flags
 		
 		if( flags == nil ) then
 			flags = 0
-			Msg("Flags auto-set!\n")
+			Msg("[WW] Adv. HUD::Flags auto-set!\n")
 		end
 		
 		local wire_adv_indicator = ents.Create( "gmod_wire_adv_hudindicator" )
@@ -291,10 +301,10 @@ if (SERVER) then
 		wire_adv_indicator:SetPos( Pos )
 		wire_adv_indicator:Spawn()
 		
-		wire_adv_indicator:Setup(a, ar, ag, ab, aa, b, br, bg, bb, ba, positionMethod)
+		wire_adv_indicator:Setup(a, ar, ag, ab, aa, b, br, bg, bb, ba)
 		wire_adv_indicator:SetPlayer(pl)
 		
-		wire_adv_indicator:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, xPos, yPos, flags)
+		wire_adv_indicator:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, flags)
 		
 		if (nocollide) then
 			local phys = wire_adv_indicator:GetPhysicsObject()
@@ -322,17 +332,7 @@ if (SERVER) then
 			hudstyle = hudstyle,
 			allowhook = allowhook,
 			fullcircleangle = fullcircleangle,
-			xPos = xPos,
-			yPos = yPos,
-			xEnd = 0,
-			yEnd = 0,
-			zEnd = 0,
-			world_x = 0,
-			world_y = 0,
-			world_z = 0,
-			useWorldCoords = useWorldCoords,
 			force_position_update = 0,
-			positionMethod = positionMethod
 		}
 		table.Merge(wire_adv_indicator:GetTable(), ttable )
 		
@@ -342,7 +342,7 @@ if (SERVER) then
 	end
 
 	duplicator.RegisterEntityClass("gmod_wire_adv_hudindicator", MakeWireAdvHudIndicator, "Model", "Ang", "Pos", "a", "ar", "ag", "ab", "aa", "b", "br",
-	  "bg", "bb", "ba", "material", "showinhud", "huddesc", "hudaddname", "hudshowvalue", "hudstyle", "allowhook", "fullcircleangle", "nocollide", "frozen", "xPos", "yPos", "flags", "positionMethod" )
+	  "bg", "bb", "ba", "material", "showinhud", "huddesc", "hudaddname", "hudshowvalue", "hudstyle", "allowhook", "fullcircleangle", "nocollide", "frozen", "flags", "positionMethod" )
 
 end
 
@@ -571,6 +571,7 @@ function TOOL.BuildCPanel(panel)
 		Options = {
 			["Text (Basic)"]							= { wire_adv_hudindicator_hudstyle = "0" },
 			["Text (Boxed)"]							= { wire_adv_hudindicator_hudstyle = "1" },
+			["[BETA] Multiline Box"]					= { wire_adv_hudindicator_hudstyle = "2" },
 			["Percent Bar (Basic,Horizontal)"]			= { wire_adv_hudindicator_hudstyle = "10" },
 			["Percent Bar (Line,Horizontal)"]			= { wire_adv_hudindicator_hudstyle = "11" },
 			["Percent Bar (Basic,Vertical)"]			= { wire_adv_hudindicator_hudstyle = "20" },
@@ -581,13 +582,15 @@ function TOOL.BuildCPanel(panel)
 			["Crosshair Style 2"] 						= { wire_adv_hudindicator_hudstyle = "51" },
 			["Crosshair Style 3"] 						= { wire_adv_hudindicator_hudstyle = "52" },
 			["Crosshair Style 4"] 						= { wire_adv_hudindicator_hudstyle = "53" },
+			["[BETA] Sci-Fi Style Crosshair"]			= { wire_adv_hudindicator_hudstyle = "54" },
 			["[Corner-to-corner] Crosshair"]				= { wire_adv_hudindicator_hudstyle = "31" },
 			["Triangular Rotating"]						= { wire_adv_hudindicator_hudstyle = "100" },
 			["[Point-To-Point] Line"]						= { wire_adv_hudindicator_hudstyle = "200" },
 			["[Point-To-Point] Box"]						= { wire_adv_hudindicator_hudstyle = "201" },
 			["[Point-To-Point] Rounded Box"]				= { wire_adv_hudindicator_hudstyle = "202" },
 			["[Extended I/O] Basic Target Marker"]		= { wire_adv_hudindicator_hudstyle = "1000" },
-			["[Extended I/O] Crosshair Style 3"]		= { wire_adv_hudindicator_hudstyle = "1001" }
+			["[Extended I/O] Crosshair Style 3"]		= { wire_adv_hudindicator_hudstyle = "1001" },
+			["[BETA][Extended I/O] Divided Box"]				= { wire_adv_hudindicator_hudstyle = "1002" }
 		}
 	})
 	
@@ -651,6 +654,12 @@ function TOOL.BuildCPanel(panel)
 		Command = "wire_adv_hudindicator_hudy",
 		MaxLength = "20"
 	})
+	
+	panel:AddControl("CheckBox", {
+		Label = "[BETA] Additional string input for UI text",
+		Command = "wire_adv_hudindicator_stringinput"
+	})
+	
 	
 end
 
