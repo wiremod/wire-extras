@@ -6,7 +6,7 @@ TOOL.ConfigName		= ""
 if ( CLIENT ) then
     language.Add( "Tool_dscale_name", "Damage Scale Tool (Wire)" )
     language.Add( "Tool_dscale_desc", "Spawns a Scale." )
-    language.Add( "Tool_dscale_0", "Primary: Create Scale, Secondary: Change model, Reload is nil" )
+    language.Add( "Tool_dscale_0", "Primary: Create Scale, Secondary: Change model" )
 	language.Add( "Undone_dscale", "Undone Wired Damage Scale" )//Typo
 end
 
