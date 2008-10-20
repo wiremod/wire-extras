@@ -17,6 +17,8 @@ local MODEL = Model( "models/jaanus/wiretool/wiretool_range.mdl" )
 	4 = SkewX
 	5 = SkewY
 	6 = Trace Water
+	
+	7 = unused
 ]]--
 
 function ENT:Initialize()
@@ -37,7 +39,7 @@ function ENT:Setup()
 	
 	self.Memory = {}
 	
-	for i = 0, 6 do
+	for i = 0, 7 do
 		self.Memory[i] = 0
 	end
 	
@@ -100,7 +102,7 @@ function ENT:ShowOutput()
 end
 
 function ENT:ReadCell( Address )
-	if ( Address >= 0 and Address <= 6 ) then
+	if ( Address >= 0 and Address <= 7 ) then
 		return self.Memory[Address]
 	end
 end
@@ -109,7 +111,7 @@ function ENT:WriteCell( Address, Value )
 	if ( Address == 0 and Value > 0 ) then
 		self:Trace()
 		return true
-	elseif ( Address >= 2 and Address <= 6 ) then
+	elseif ( Address >= 2 and Address <= 7 ) then
 		self.Memory[Address] = Value
 		return true
 	end
