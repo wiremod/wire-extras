@@ -10,6 +10,10 @@ Simply checkout this SVN repository to a folder of your choice, in your garrysmo
 Addon Contributed - developer - link - license (if not GPL v3):
 
 Adv. HUD Indicator - Moggie100 (Based on the origional by TheApathetic) - http://www.wiremod.com/forum/wiremod-addons/6571-advanced-hud-tools.html
+Borsty's Wire Ents - http://www.wiremod.com/forum/wiremod-addons/6888-wire-highspeed-ranger-2.html
+	Dynamic Memory
+	Wire Highspeed ranger 
+	Wire RT Camera
 Buoyancy Stool - RabidToaster - http://forums.facepunchstudios.com/showthread.php?p=10186318
 Directional Radios - philxyz (Decided to go for it based on request by -=Fox=-) - http://www.wiremod.com/forum/ideas-suggestions/525-wire-directional-radios.html
 Door Stool - Doridian - http://forums.facepunchstudios.com/showthread.php?t=480569
@@ -29,15 +33,16 @@ _Kilburn's Addons - http://www.wiremod.com/forum/wiremod-addons/4294-addons-wire
 	Wire Motor
 	Wire Microphone
 	Wire RFID Systems (http://www.wiremod.com/forum/wiremod-addons/3017-wire-rfid-systems.html)
-Keycards - adb - http://www.wiremod.com/forum/wiremod-addons/2143-wire-keycards.html
+Keycards - Originally by adb, Now Public Domain - http://www.wiremod.com/forum/wiremod-addons/2143-wire-keycards.html - NO LICENSE BY REQUEST OF AUTHOR
 Keypad - Robbis_1 - http://forums.facepunchstudios.com/showthread.php?t=276931
 Lever - cpf - http://www.wiremod.com/forum/wiremod-addons/4097-wire-lever.html
-Multi-wire tool - Incompatible (apparently abandoned) - http://www.wiremod.com/forum/wiremod-addons/2545-multi-wire-tool.html
+Multi-wire tool - Incompatible - http://www.wiremod.com/forum/wiremod-addons/2545-multi-wire-tool.html
 No Collide Addon - splat2010 - http://www.wiremod.com/forum/wiremod-addons/4777-no-collide-addon.html
 Notifier - high6 - http://www.wiremod.com/forum/wiremod-addons/3204-notifier.html
 PID Controller (super delta) - Moyer - http://www.wiremod.com/forum/wiremod-addons/5061-pid-controller.html
-Servo - Unvarifiable Developer (Incompatible or Exitlights are most likely) - No Confirmed Home Thread
+Servo - Exitlights - http://www.wiremod.com/forum/wiremod-addons/1109-wired-servo.html
 Simple Servo - Selig - http://www.wiremod.com/forum/wiremod-addons/5850-wire-simple-servo.html
+Wire Highspeed ranger - Borsty - http://www.wiremod.com/forum/wiremod-addons/6888-wire-highspeed-ranger.html
 Wired Npcs - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/5930-wired-npc.html
 Wired Damage Scale - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/6346-wired-damage-scale.html
 Wire Wireless - AlgorithmX2 - http://www.wiremod.com/forum/wiremod-addons/6471-wire-wireless.html
