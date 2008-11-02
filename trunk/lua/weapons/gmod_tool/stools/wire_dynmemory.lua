@@ -21,7 +21,7 @@ if ( CLIENT ) then
 end
 
 if (SERVER) then
-	CreateConVar('sbox_maxwire_dynmemory', 2)
+	CreateConVar('sbox_maxwire_dynmemorys', 2)
 end
 
 TOOL.ClientConVar[ "model" ] = "models/jaanus/wiretool/wiretool_gate.mdl"
