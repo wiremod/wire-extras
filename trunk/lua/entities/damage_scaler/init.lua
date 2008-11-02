@@ -35,7 +35,7 @@ end
 function ENT:OnTakeDamage(dmginfo)
 	if (ison == 1) then
 		dam = dmginfo:GetDamage()
-		attid = dmginfo:GetAttacker:SteamID()
+		attid = dmginfo:GetAttacker():SteamID()
 	else
 		dam = 0
 	end
