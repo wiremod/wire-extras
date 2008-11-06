@@ -7,6 +7,10 @@ include('shared.lua')
 ENT.WireDebugName = "WIRE_FieldGen"
 
 local MODEL = Model( "models/props_lab/binderblue.mdl" )
+local EMP_IGNORE_INPUTS = { Kill=true , Pod=true , Eject=true , Lock=true , Terminate = true };
+EMP_IGNORE_INPUTS["Damage Armor"]=true;
+EMP_IGNORE_INPUTS["Strip weapons"]=true;
+EMP_IGNORE_INPUTS["Damage Health"]=true;
 
 function ENT:Initialize()
 	self.Entity:PhysicsInit( SOLID_VPHYSICS )
@@ -98,6 +102,8 @@ function ENT:GetTypeName( Type )
 		Text = "Electromagnetic";
 	elseif Type == "Death" then
 		Text = "Radiation";
+	elseif Type == "Heal" then
+		Text = "Recovery";
 	end
 	
 	return Text;
@@ -663,6 +669,51 @@ function ENT:Crush_Apply( prop , yes_no )
 	
 end
 
+function ENT:Health_Apply( prop , yes_no )
+
+	local x,maxx;
+	
+	if ( !prop:IsValid() ) then return end 
+
+	if ( self.ignore[ prop:EntIndex() ] == prop ) then return false; end
+	
+	if ( !self:is_true(self.workonplayers) && prop:GetClass() == "player" ) then
+		return false;
+	end
+	
+	if prop:GetClass() != "player" && !gamemode.Call( "PhysgunPickup", self.pl , prop ) then return false; end
+	
+	if yes_no == true then
+	
+		x=prop:Health()+self.multiplier;
+		maxx=prop:GetMaxHealth();
+		
+		if ( x > maxx ) then
+			x=maxx;
+		end
+		
+		prop:SetHealth( x )
+		
+	end
+	
+end
+
+function ENT:Heal_Logic()
+	
+	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+		if contact:IsNPC() || contact:IsPlayer() then
+			
+			self:Health_Apply( contact , true );
+			
+		end
+	end
+	
+end
+
+function ENT:Heal_Disable()
+
+end
+
 function ENT:Death_Logic()
 
 	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
@@ -703,26 +754,32 @@ function ENT:EMP_Apply( prop , yes_no )
 	
 	if (prop) and (prop.Inputs) and type(prop.Inputs) == 'table' then
 		for k,v in pairs(prop.Inputs) do
-			if v.Type == "NORMAL" then
-				
-				if (prop.TriggerInput) then
-					if yes_no then
-						prop:TriggerInput( k , prop.Inputs[ k ].Value + math.random() * ( self.multiplier * 2 ) - self.multiplier )
-					else
-						prop:TriggerInput( k , prop.Inputs[ k ].Value )
+		
+			if EMP_IGNORE_INPUTS[ k ] != true then
+				//Msg( k .. "\n" ); use to find out what inputs are bad to override. =D
+			
+				if v.Type == "NORMAL" then
+					
+					if (prop.TriggerInput) then
+						if yes_no then
+							prop:TriggerInput( k , prop.Inputs[ k ].Value + math.random() * ( self.multiplier * 2 ) - self.multiplier )
+						else
+							prop:TriggerInput( k , prop.Inputs[ k ].Value )
+						end
+						
 					end
 					
-				end
-				
-			elseif v.Type == "VECTOR" then
-				
-				if (prop.TriggerInput) then
-					if yes_no then
-						prop:TriggerInput( k , prop.Inputs[ k ].Value + Vector(math.random() * ( self.multiplier * 2 ) - self.multiplier,math.random() * ( self.multiplier * 2 ) - self.multiplier ,math.random() * ( self.multiplier * 2 ) - self.multiplier) )
-					else
-						prop:TriggerInput( k , prop.Inputs[ k ].Value )
-					end
+				elseif v.Type == "VECTOR" then
 					
+					if (prop.TriggerInput) then
+						if yes_no then
+							prop:TriggerInput( k , prop.Inputs[ k ].Value + Vector(math.random() * ( self.multiplier * 2 ) - self.multiplier,math.random() * ( self.multiplier * 2 ) - self.multiplier ,math.random() * ( self.multiplier * 2 ) - self.multiplier) )
+						else
+							prop:TriggerInput( k , prop.Inputs[ k ].Value )
+						end
+						
+					end
+				
 				end
 				
 			end
@@ -786,6 +843,8 @@ function ENT:Think()
 			self:Crush_Logic();
 		elseif self.Type == "Death" then
 			self:Death_Logic();
+		elseif self.Type == "Heal" then
+			self:Heal_Logic();
 		elseif self.Type == "EMP" then
 			self:EMP_Logic();
 		end
@@ -816,6 +875,8 @@ function ENT:Disable()
 		self:Crush_Disable();
 	elseif self.Type == "Death" then
 		self:Death_Disable();
+	elseif self.Type == "Heal" then
+		self:Heal_Disable();
 	elseif self.Type == "EMP" then
 		self:EMP_Disable();
 	end

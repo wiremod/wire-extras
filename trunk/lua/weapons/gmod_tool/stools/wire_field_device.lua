@@ -152,7 +152,7 @@ function TOOL.BuildCPanel(panel)
 			Repulsion = {
 				wire_field_device_type="Push"
 			},
-			Static = {
+			Stasis = {
 				wire_field_device_type="Hold"
 			},
 			Wind = {
@@ -172,6 +172,9 @@ function TOOL.BuildCPanel(panel)
 			},
 			Radiation = {
 				wire_field_device_type="Death"
+			},
+			Recovery = {
+				wire_field_device_type="Heal"
 			}
 		}
 		
