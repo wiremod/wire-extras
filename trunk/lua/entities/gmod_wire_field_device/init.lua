@@ -89,7 +89,7 @@ function ENT:GetTypeName( Type )
 	elseif Type == "Push" then
 		Text = "Repulsion";
 	elseif Type == "Hold" then
-		Text = "Static";
+		Text = "Stasis";
 	elseif Type == "Wind" then
 		Text = "Wind";
 	elseif Type == "Vortex" then
