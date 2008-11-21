@@ -14,6 +14,9 @@ ENT.Contact			= ""
 ENT.Purpose			= ""
 ENT.Instructions	= ""
 
+ENT.Spawnable			= false
+ENT.AdminSpawnable		= false
+
 function ENT:TrackEntity( ent, lpos )
 
 	if ( !ent || !ent:IsValid() ) then return end

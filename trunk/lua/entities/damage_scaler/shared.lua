@@ -10,6 +10,6 @@ ENT.Purpose			= ""
 ENT.Instructions		= ""
 ENT.Category			= ""
 
-ENT.AdminSpawnable		= "false"
-ENT.Spawnable			= "false"
+ENT.Spawnable			= false
+ENT.AdminSpawnable		= false
 
