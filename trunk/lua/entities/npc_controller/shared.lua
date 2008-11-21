@@ -10,5 +10,5 @@ ENT.Purpose			= ""
 ENT.Instructions		= ""
 ENT.Category			= ""
 
-ENT.AdminSpawnable		= "false"
-ENT.SpawnAble			= "false"
+ENT.AdminSpawnable		= false
+ENT.SpawnAble			= false

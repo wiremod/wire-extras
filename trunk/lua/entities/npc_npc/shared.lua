@@ -9,8 +9,8 @@ ENT.Purpose			= ""
 ENT.Instructions		= ""
 ENT.Category			= ""
 
-ENT.Spawnable			= "false"
-ENT.AdminSpawnable		= "false"
+ENT.Spawnable			= false
+ENT.AdminSpawnable		= false
 
 ENT.AutomaticFrameAdvance = true
 
