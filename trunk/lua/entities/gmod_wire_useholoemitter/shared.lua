@@ -7,3 +7,6 @@ ENT.Contact		= "cdbarrett@gmail.com";
 ENT.Spawnable		= false;
 ENT.AdminSpawnable	= false;
 ENT.RenderGroup 	= RENDERGROUP_BOTH;
+
+ENT.Spawnable			= false
+ENT.AdminSpawnable		= false

@@ -5,6 +5,9 @@ ENT.PrintName	= "High Speed Ranger (Wire)"
 ENT.Author		= "Borsty"
 ENT.Contact		= ""
 
+ENT.Spawnable			= false
+ENT.AdminSpawnable		= false
+
 if ( SERVER ) then
 
 	function ENT:SetSkewX( value )

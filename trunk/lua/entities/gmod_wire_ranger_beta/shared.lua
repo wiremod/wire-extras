@@ -5,6 +5,9 @@ ENT.PrintName	= "Ranger (Wire)"
 ENT.Author		= "Erkle"
 ENT.Contact		= "ErkleMad@hotmail.com"
 
+ENT.Spawnable			= false
+ENT.AdminSpawnable		= false
+
 
 function ENT:SetSkewX(value)
 	self.Entity:SetNetworkedFloat("SkewX", math.max(-1, math.min(value, 1)))
