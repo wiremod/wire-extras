@@ -2,12 +2,7 @@ AddCSLuaFile( "autorun/freefall_string.lua" )
 
 function string.instr(stringIn, toFind, start)
 	local i = 1
-	
-	if (start == nil || type(start) != "number") then
-		i = 1
-	else
-		i = start
-	end
+	local start = start or 1
 	
 	if (stringIn == "" || type(stringIn) != "string") then return -2 end
 	if (toFind == "" || type(toFind) != "string") then return -2 end
@@ -15,7 +10,7 @@ function string.instr(stringIn, toFind, start)
 	local stringLength = string.len(stringIn)
 	local findLength = string.len(toFind)
 	
-	while (i < stringLength + (findLength-1)) do
+	for i = start,stringLength-(findLength-1) do
 		if (string.sub(stringIn,i,i+(findLength-1)) == toFind) then
 			return i
 		end
@@ -49,6 +44,53 @@ function freefallwiregates()
 		end,
 		label = function(Out, A, B, C, D, E, F, G, H, Num)
 		    return ("Selected: "..Out.Out)
+		end
+	}
+	
+	GateActions["string_hispeed_convert"] = {
+		group = "String",
+		name = "Hi-Speed String Converter",
+		inputs = { "String", "AddrRead" },
+		inputtypes = { "STRING", "NORMAL" },
+		output = function(gate, String, AddrRead )
+			if (String ~= gate.LastString) then
+				gate.LatchStore = {}
+				for i = 1,string.len(String) do
+					gate.LatchStore[i-1] = string.byte(string.sub(String,i,i))
+				end
+				gate.LastString = String
+				gate.LatchSize = string.len(String)
+			end
+			
+			AddrRead = math.floor(tonumber(AddrRead))
+			
+			if (AddrRead == 0) then return gate.LatchSize end
+			
+			if (AddrRead < 0) or ((AddrRead-1) >= gate.LatchSize) then return 0 end
+			
+			return gate.LatchStore[AddrRead-1] or 0
+		end,
+		reset = function(gate)
+			gate.LatchStore = {}
+			gate.LastString = ""
+			gate.LatchSize = 0
+		end,
+		label = function(Out, String, AddrRead)
+			return "String: "..String.."\nReadAddr:"..AddrRead.." = "..Out
+		end,
+		ReadCell = function(dummy,gate,Address)
+			if (Address < 0) || ((Address-1) >= gate.LatchSize) then
+				return 0
+			else
+				if (Address == 0) then
+					return gate.LatchSize
+				else
+					return gate.LatchStore[Address-1] or 0
+				end
+			end
+		end,
+		WriteCell = function(dummy,gate,Address,value)
+			return false
 		end
 	}
 	
