@@ -40,7 +40,7 @@ Multi-wire tool - Incompatible - http://www.wiremod.com/forum/wiremod-addons/254
 No Collide Addon - splat2010 - http://www.wiremod.com/forum/wiremod-addons/4777-no-collide-addon.html
 Notifier - high6 - http://www.wiremod.com/forum/wiremod-addons/3204-notifier.html
 PID Controller (super delta) - Moyer - http://www.wiremod.com/forum/wiremod-addons/5061-pid-controller.html
-Servo - Exitlights - http://www.wiremod.com/forum/wiremod-addons/1109-wired-servo.html
+Servo 2 - Exitlights - http://www.wiremod.com/forum/wiremod-addons/6878-wired-servo-2-a.html
 Simple Servo - Selig - http://www.wiremod.com/forum/wiremod-addons/5850-wire-simple-servo.html
 Wire Highspeed ranger - Borsty - http://www.wiremod.com/forum/wiremod-addons/6888-wire-highspeed-ranger.html
 Wired Npcs - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/5930-wired-npc.html
