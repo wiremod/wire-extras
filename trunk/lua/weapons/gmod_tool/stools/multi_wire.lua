@@ -1,4 +1,9 @@
 
+--[[
+Most of this code was originally from the normal wire tool, I just modified it so you could select multiple inputs and wire them to one single output.
+-Incompatible
+]]
+
 TOOL.Category		= "Wire - Tools"
 TOOL.Name			= "Multi Wire"
 TOOL.Command		= nil
@@ -64,6 +69,7 @@ function TOOL:LeftClick( trace )
 			local winput = self.CurrentInput
 			table.insert(self.enttbl, wents)
 			table.insert(self.inputtbl, winput)
+			wents:SetColor(0,255,0,150)
 			return true
 		end
 		
@@ -101,7 +107,6 @@ function TOOL:LeftClick( trace )
 				table.insert(self.Outputs, key)
 			end
 		end
-		//table.sort(self.Outputs)
 
 		local oname = nil
 		for k,_ in pairs(trace.Entity.Outputs) do
@@ -136,7 +141,7 @@ function TOOL:LeftClick( trace )
 	for k,v in pairs(self.enttbl) do
 		Wire_Link_Start(self:GetOwner():UniqueID(), v, v:WorldToLocal(v:GetPos()), self.inputtbl[k], material, color, width)
 		Wire_Link_End(self:GetOwner():UniqueID(), trace.Entity, trace.Entity:WorldToLocal(trace.HitPos), oname, self:GetOwner())
-		Msg("Link Number: " .. k .. "\n")
+		v:SetColor(255,255,255,255)
 	end
 		self.inputtbl = {}
 		self.enttbl = {}
@@ -156,7 +161,7 @@ function TOOL:LeftClick( trace )
 	for k,v in pairs(self.enttbl) do
 		Wire_Link_Start(self:GetOwner():UniqueID(), v, v:WorldToLocal(v:GetPos()), self.inputtbl[k], material, color, width)
 		Wire_Link_End(self:GetOwner():UniqueID(), self.OutputEnt, self.OutputPos, self.CurrentOutput, self:GetOwner())
-		Msg("Link Number: " .. k .. "\n")
+		v:SetColor(255,255,255,255)
 	end
 		self:GetWeapon():SetNetworkedString("WireCurrentInput", "")
 		self.CurrentOutput = nil
