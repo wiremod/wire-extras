@@ -3,12 +3,13 @@
 ENT.Type 			= "anim"
 ENT.Base 			= "base_wire_entity"
 
-ENT.PrintName		= "WireServo"
-ENT.Author			= "Exitlights"
+ENT.PrintName		= "Wired Servo"
+ENT.Author			= "Exitlights (most code by tad2020)"
 ENT.Contact			= ""
-ENT.Purpose			= "Creates a servo that rotates around its yaw, pitch, or roll axis."
+ENT.Purpose			= "support wire input"
 ENT.Instructions	= ""
 
 ENT.Spawnable			= false
 ENT.AdminSpawnable		= false
+
 
