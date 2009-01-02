@@ -47,7 +47,7 @@ function ENT:Think()
 	local en = ents.FindInSphere(self:GetPos(), self.range)
 	local total = 0
 	for k, v in pairs(en) do
-		if v:GetClass() == "prop_physics" and v:GetTable().MoneyBag and v:GetTable().Amount then
+		if v.GetTable and v:GetTable().MoneyBag and v:GetTable().Amount then
 			total = total + v:GetTable().Amount
 		end
 	end
