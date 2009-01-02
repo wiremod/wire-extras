@@ -15,6 +15,7 @@ Borsty's Wire Ents - http://www.wiremod.com/forum/wiremod-addons/6888-wire-highs
 	Wire Highspeed ranger 
 	Wire RT Camera
 Buoyancy Stool - RabidToaster - http://forums.facepunchstudios.com/showthread.php?p=10186318
+Detonation Cord - philxyz - http://www.wiremod.com/forum/ideas-suggestions/6139-wire-detonation-cord-demolitions.html
 Directional Radios - philxyz (Decided to go for it based on request by -=Fox=-) - http://www.wiremod.com/forum/ideas-suggestions/525-wire-directional-radios.html
 Door Stool - Doridian - http://forums.facepunchstudios.com/showthread.php?t=480569
 DuFace's Gates - DuFace - http://www.wiremod.com/forum/wiremod-addons/5661-entity-gates-vector-gates-other-stuff.html
@@ -40,6 +41,7 @@ Multi-wire tool - Incompatible - http://www.wiremod.com/forum/wiremod-addons/254
 No Collide Addon - splat2010 - http://www.wiremod.com/forum/wiremod-addons/4777-no-collide-addon.html
 Notifier - high6 - http://www.wiremod.com/forum/wiremod-addons/3204-notifier.html
 PID Controller (super delta) - Moyer - http://www.wiremod.com/forum/wiremod-addons/5061-pid-controller.html
+RP Money Detector - philxyz - http://www.wiremod.com/forum/developers-showcase/7668-wire-money-detector-rp-wiremodextras-svn.html
 Servo 2 - Exitlights - http://www.wiremod.com/forum/wiremod-addons/6878-wired-servo-2-a.html
 Simple Servo - Selig - http://www.wiremod.com/forum/wiremod-addons/5850-wire-simple-servo.html
 Wire Highspeed ranger - Borsty - http://www.wiremod.com/forum/wiremod-addons/6888-wire-highspeed-ranger.html
