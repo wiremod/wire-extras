@@ -175,6 +175,15 @@ function TOOL.BuildCPanel(panel)
 			},
 			Recovery = {
 				wire_field_device_type="Heal"
+			},
+			Acceleration = {
+				wire_field_device_type="Speed"
+			},
+			Battery = {
+				wire_field_device_type="Battery"
+			},
+			Phase = {
+				wire_field_device_type="NoCollide"
 			}
 		}
 		
