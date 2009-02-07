@@ -7,6 +7,7 @@ include('shared.lua')
 ENT.WireDebugName = "WIRE_FieldGen"
 
 local MODEL = Model( "models/props_lab/binderblue.mdl" )
+
 local EMP_IGNORE_INPUTS = { Kill=true , Pod=true , Eject=true , Lock=true , Terminate = true };
 EMP_IGNORE_INPUTS["Damage Armor"]=true;
 EMP_IGNORE_INPUTS["Strip weapons"]=true;
@@ -23,6 +24,10 @@ function ENT:Initialize()
 	self.prox=100;
 	self.direction=Vector(0,1,0);
 	self.ignore={}
+	
+	self.props=1;
+	self.npcs=1;
+	self.player=0;
 	
 	if ( self.Type == "Wind" ) then
 		self.direction=Vector(1,0,0);
@@ -75,7 +80,7 @@ function ENT:BuildIgnoreList()
 end
 
 function ENT:GetTypes()
-	return { "Gravity" , "Pull" , "Push" , "Hold" , "Wind" , "Vortex" , "Flame" , "Crush" , "EMP" , "Death" };
+	return { "Gravity" , "Pull" , "Push" , "Hold" , "Wind" , "Vortex" , "Flame" , "Crush" , "EMP" , "Death" , "Heal" , "Battery" , "NoCollide" , "Speed"  };
 end
 
 function ENT:GetTypeName( Type )
@@ -104,6 +109,12 @@ function ENT:GetTypeName( Type )
 		Text = "Radiation";
 	elseif Type == "Heal" then
 		Text = "Recovery";
+	elseif Type == "Battery" then
+		Text = "Battery";
+	elseif Type == "NoCollide" then
+		Text = "Phase";
+	elseif Type == "Speed" then
+		Text = "Accelerator";
 	end
 	
 	return Text;
@@ -452,6 +463,44 @@ function ENT:PullPushProp( prop , vec )
 	
 end
 
+function ENT:VelModProp( prop , mul )
+	
+	if ( !prop:IsValid() ) then return end 
+	
+	if ( self.ignore[ prop:EntIndex() ] == prop ) then return false; end
+	
+	if ( !self:is_true(self.workonplayers) && prop:GetClass() == "player" ) then
+		return false;
+	end
+	
+	if prop:GetMoveType() == MOVETYPE_NONE then return false; end
+	
+	if prop:GetClass() != "player" && !gamemode.Call("PhysgunPickup",self.pl,prop) then return false; end
+	
+	if prop:GetMoveType() != MOVETYPE_VPHYSICS then
+		if prop.AddVelocity then
+			prop:AddVelocity( prop:GetVelocity():Normalize() * mul );
+		else
+			prop:SetVelocity( prop:GetVelocity():Normalize() * mul);
+		end
+	end
+
+	if prop:GetPhysicsObjectCount() > 1 then
+		for x=0,prop:GetPhysicsObjectCount()-1 do
+			local part=prop:GetPhysicsObjectNum(x)
+			part:AddVelocity( part:GetVelocity():Normalize() * mul );
+		end
+		return false;
+	end
+	
+	local phys=prop:GetPhysicsObject();
+	
+	if ( !phys:IsValid() ) then return end 
+	
+	phys:AddVelocity( phys:GetVelocity():Normalize() * mul );
+	
+end
+
 
 function ENT:Pull_Logic()
 
@@ -669,6 +718,35 @@ function ENT:Crush_Apply( prop , yes_no )
 	
 end
 
+function ENT:Battery_Apply( prop , yes_no )
+
+	local x,maxx;
+	
+	if ( !prop:IsValid() ) then return end 
+
+	if ( self.ignore[ prop:EntIndex() ] == prop ) then return false; end
+	
+	if ( !self:is_true(self.workonplayers) && prop:GetClass() == "player" ) then
+		return false;
+	end
+	
+	if prop:GetClass() != "player" && !gamemode.Call( "PhysgunPickup", self.pl , prop ) then return false; end
+	
+	if prop.Armor then
+	
+		x=prop:Armor()+self.multiplier;
+		maxx=100; // prop:GetMaxHealth();
+		
+		if ( x > maxx ) then
+			x=maxx;
+		end
+		
+		prop:SetArmor( x )
+		
+	end
+	
+end
+
 function ENT:Health_Apply( prop , yes_no )
 
 	local x,maxx;
@@ -815,6 +893,115 @@ function ENT:EMP_Disable()
 	
 end
 
+function ENT:WakeUp( prop )
+	
+	if prop != nil then
+		if prop:GetMoveType() == MOVETYPE_VPHYSICS then
+			
+			if prop:GetPhysicsObjectCount() > 1 then
+				for x=0,prop:GetPhysicsObjectCount()-1 do
+					local part=prop:GetPhysicsObjectNum(x)
+					part:Wake();
+				end
+				return false;
+			end
+			
+			local phys=prop:GetPhysicsObject();
+			if ( phys:IsValid() ) then phys:Wake(); end 
+			
+		end
+	end
+	
+end
+
+function ENT:NoCollide_Logic()
+	
+	local myid;
+	local obj;
+	local Valid={};
+
+	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+
+		myid=contact:EntIndex();
+		
+		if ( self.ignore[ myid ] != contact ) then  
+			
+			Valid[ myid ]=true;
+			
+			if self.objects[ myid ] == nil && contact.SetCollisionGroup && contact.GetCollisionGroup then
+				
+				self.objects[ myid ] = {};
+				self.objects[ myid ].old_group=contact:GetCollisionGroup();
+				self.objects[ myid ].obj=contact;
+				contact:SetCollisionGroup( COLLISION_GROUP_WORLD );
+				self:WakeUp(contact);
+				
+			end
+		end
+		
+	end
+
+	for Idx,contact in pairs( self.objects ) do
+		if true != Valid[ Idx ] && type(contact) == "table" then
+			
+			if ( contact.obj:IsValid() ) then
+				contact.obj:SetCollisionGroup( contact.old_group );
+				self:WakeUp(contact.obj);
+			end
+			
+			self.objects[Idx]=nil;
+			
+		end
+	end
+	
+end
+
+function ENT:NoCollide_Disable()
+	
+	for Idx,contact in pairs( self.objects ) do
+		if type(contact) == "table" then
+			
+			if ( contact.obj:IsValid() ) then
+				contact.obj:SetCollisionGroup( contact.old_group );
+				self:WakeUp(contact.obj);
+			end
+			
+		end
+	end
+	
+	self.objects={};
+	
+end
+
+function ENT:Battery_Logic()
+
+	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+		if contact:IsNPC() || contact:IsPlayer() then
+			
+			self:Battery_Apply( contact , true );
+			
+		end
+	end
+	
+end
+
+function ENT:Speed_Logic()
+
+	local NewObjs={};
+	local doo=nil;
+
+	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+		
+		if ( self.multiplier > 0 ) then
+			self:VelModProp( contact , 1+self.multiplier );
+		elseif ( self.multiplier < 0 ) then
+			self:VelModProp( contact , -1+self.multiplier );
+		end
+		
+	end
+	
+end
+
 function ENT:Think()
 	
 	if self:is_true( self.ignoreself ) then
@@ -845,6 +1032,12 @@ function ENT:Think()
 			self:Death_Logic();
 		elseif self.Type == "Heal" then
 			self:Heal_Logic();
+		elseif self.Type == "NoCollide" then
+			self:NoCollide_Logic();
+		elseif self.Type == "Battery" then
+			self:Battery_Logic();
+		elseif self.Type == "Speed" then
+			self:Speed_Logic();
 		elseif self.Type == "EMP" then
 			self:EMP_Logic();
 		end
@@ -854,11 +1047,12 @@ function ENT:Think()
 	self.BaseClass.Think(self)
 end
 
-
 function ENT:Disable()
 
 	if self.Type == "Gravity" then
 		self:Gravity_Disable();
+	elseif self.Type == "NoCollide" then
+		self:NoCollide_Disable();
 	elseif self.Type == "Hold" then
 		self:Static_Disable();
 	elseif self.Type == "Pull" then
