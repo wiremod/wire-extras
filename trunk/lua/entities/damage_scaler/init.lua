@@ -43,7 +43,7 @@ end
 
 function ENT:Think()
 	if ( ison == 1 ) then
-		self:SetOverlayText( "The damage is "..dam )
+		self:SetOverlayText( "The Damage Is "..dam )
 			if ( dam > 0 ) then
 				Wire_TriggerOutput(self.Entity, "Damage", dam)
 				Wire_TriggerOutput(self.Entity, "Steamid", attid)//Registers the steam id
@@ -55,10 +55,10 @@ function ENT:Think()
 					end
 			else
 				Wire_TriggerOutput(self.Entity, "Damage", 0)
-				self.Entity:NextThink( CurTime() + 0 )
+				self.Entity:NextThink( CurTime() )
 			end 
 	else
-		self:SetOverlayText( " We are off and ergo nothing is happnin " )
+		self:SetOverlayText( " Scale Is Off " )
 	end
 end
 
