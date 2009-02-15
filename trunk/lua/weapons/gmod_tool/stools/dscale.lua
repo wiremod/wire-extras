@@ -5,7 +5,7 @@ TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
     language.Add( "Tool_dscale_name", "Damage Scale Tool (Wire)" )
-    language.Add( "Tool_dscale_desc", "Spawns a Scale." )
+    language.Add( "Tool_dscale_desc", "Spawns a Scale" )
     language.Add( "Tool_dscale_0", "Primary: Create Scale, Secondary: Change model" )
 	language.Add( "Undone_dscale", "Undone Wired Damage Scale" )//Typo
 end
@@ -23,20 +23,20 @@ function TOOL:LeftClick( trace )
 	local Ang = trace.HitNormal:Angle()
 	Ang.pitch = Ang.pitch + 90
 
-	local w = MakeScaleEnt( ply, trace.HitPos, Ang , self:GetClientInfo("Model"))
+	local s = MakeScaleEnt( ply, trace.HitPos, Ang , self:GetClientInfo("Model"))
 
-	local min = w:OBBMins()
-	w:SetPos( trace.HitPos - trace.HitNormal * min.z )
+	local min = s:OBBMins()
+	s:SetPos( trace.HitPos - trace.HitNormal * min.z )
 
-	local const = WireLib.Weld(w, trace.Entity, trace.PhysicsBone, true)
+	local const = WireLib.Weld(s, trace.Entity, trace.PhysicsBone, true)
 
 	undo.Create("Wire Damage Scale")
-		undo.AddEntity( w )
+		undo.AddEntity( s )
 		undo.AddEntity( const )
 		undo.SetPlayer( ply )
 	undo.Finish()
 
-	ply:AddCleanup( "dscale", w )
+	ply:AddCleanup( "dscale", s )
 	ply:AddCleanup( "dscale", const )
 
 	return true
