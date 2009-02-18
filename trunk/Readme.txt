@@ -41,7 +41,6 @@ Multi-wire tool - Incompatible - http://www.wiremod.com/forum/wiremod-addons/254
 No Collide Addon - splat2010 - http://www.wiremod.com/forum/wiremod-addons/4777-no-collide-addon.html
 Notifier - high6 - http://www.wiremod.com/forum/wiremod-addons/3204-notifier.html
 PID Controller (super delta) - Moyer - http://www.wiremod.com/forum/wiremod-addons/5061-pid-controller.html
-RP Money Detector - philxyz - http://www.wiremod.com/forum/developers-showcase/7668-wire-money-detector-rp-wiremodextras-svn.html
 Servo 2 - Exitlights - http://www.wiremod.com/forum/wiremod-addons/6878-wired-servo-2-a.html
 Semi-realistic Wiremod Magnet - cpf - http://www.wiremod.com/forum/wiremod-addons/7693-semi-realistic-wiremod-magnet.html
 Simple Servo - Selig - http://www.wiremod.com/forum/wiremod-addons/5850-wire-simple-servo.html
