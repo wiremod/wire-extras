@@ -11,7 +11,7 @@ if ( CLIENT ) then
 end
 
 TOOL.ClientConVar["Model"] = "models/kobilica/wiremonitorrtbig.mdl"
-
+cleanup.Register("wire_dm_scale")
 
 function TOOL:LeftClick( trace )
 	if (!trace.HitPos) then return false end
@@ -23,7 +23,7 @@ function TOOL:LeftClick( trace )
 	local Ang = trace.HitNormal:Angle()
 	Ang.pitch = Ang.pitch + 90
 
-	local s = MakeScaleEnt( ply, trace.HitPos, Ang , self:GetClientInfo("Model"))
+	local s = MakeScaleEnt( ply, trace.HitPos, Ang , self:GetClientInfo("model"))
 
 	local min = s:OBBMins()
 	s:SetPos( trace.HitPos - trace.HitNormal * min.z )
@@ -72,16 +72,19 @@ if (SERVER) then
 
 		w:SetAngles( Ang )
 		w:SetPos( Pos )
-		w:SetModel( Model )
+		w:SetModel( Model )//Changed here
 		w:Spawn()
 
 		w:SetPlayer( pl )
 		w.pl = pl
+		
+		pl:AddCount("dscale", w)
 
 		return w
 	end
 	
-	duplicator.RegisterEntityClass("damage_scaler", MakeScaleEnt, "Pos", "Ang", "Model", "Vel", "aVel", "frozen")
+	//duplicator.RegisterEntityClass("damage_scaler", MakeScaleEnt, "pl", "Pos", "Model", "frozen") //Changed to match
+	duplicator.RegisterEntityClass("Pos", "Ang", "Model", "Vel", "aVel", "frozen")
 
 end
 
