@@ -86,6 +86,7 @@ if SERVER then
 			
 			// update size and show states
 			tr.Entity:SetNetworkedBool( "ShowBeam", showbeams );
+			tr.Entity:SetNetworkedBool( "GroundBeam", groundbeams );
 			tr.Entity:SetNetworkedFloat( "PointSize", size );
 			
 			tr.Entity.r = r
