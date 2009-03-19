@@ -1,6 +1,6 @@
 include("wire/stools/helpers.lua")
 
-TOOL.Category = "Wire - Holography"
+TOOL.Category = "Wire - Render"
 TOOL.Name = "Interactable Holography Emitter"
 TOOL.Command = nil
 TOOL.ConfigName = ""
@@ -15,6 +15,7 @@ if CLIENT then
 	language.Add( "Tool_wire_useholoemitter_size", "Point size" )
 	language.Add( "Tool_wire_useholoemitter_minimum_fade_rate", "CLIENT: Minimum Fade Rate - Applyed to all holoemitters" )
 	language.Add( "sboxlimit_wire_useholoemitters", "You've hit the holoemitters limit!" )
+	language.Add("Undone_gmod_wire_useholoemitter", "Undone Wire Interactable Holoemitter" )
 end
 
 if SERVER then CreateConVar( "sbox_maxwire_useholoemitters", 5 ) end
