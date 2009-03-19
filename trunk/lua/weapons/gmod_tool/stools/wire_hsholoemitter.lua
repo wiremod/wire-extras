@@ -1,4 +1,4 @@
-TOOL.Category		= "Wire - Holography"
+TOOL.Category		= "Wire - Render"
 TOOL.Name			= "HighSpeed Holoemitter"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
