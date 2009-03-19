@@ -1,5 +1,5 @@
 
-TOOL.Category		= "Wire - Physics"
+TOOL.Category		= "Wire - Render"
 TOOL.Name			= "Materializer"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
