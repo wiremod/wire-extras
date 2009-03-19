@@ -1,4 +1,4 @@
-TOOL.Category		= "Wire - Display"
+TOOL.Category		= "Wire - Render"
 TOOL.Name			= "Painter"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
