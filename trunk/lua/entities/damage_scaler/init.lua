@@ -2,7 +2,7 @@
 //Cleaned
 //Fix for multiple scales
 
-//Please pm Hitman271(@yahoo.com) for a way to save wires for the dupe
+//Thanks to ZeitJT for the dupe help!
 
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "shared.lua" )
@@ -15,24 +15,8 @@ function ENT:Initialize()
 	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )   
 	self.Entity:SetSolid( SOLID_VPHYSICS )               
 	local phys = self.Entity:GetPhysicsObject() 
-		
-		local outputtypes = { }
-		local outputs = { }
-		
-		local n = 1
-		outputs[n] = "Damage"
-	
-		// Create "Entity" output - must be at the end!
 
-		for i = 1, n do
-			outputtypes[i] = "NORMAL"
-		end
-	
-		n = n + 1
-		outputs[n] = "Entity"
-		outputtypes[n] = "ENTITY"
-	
-		self.Outputs = WireLib.CreateSpecialOutputs(self.Entity, outputs, outputtypes)
+	self.Outputs = WireLib.CreateSpecialOutputs(self.Entity, { "Damage", "Entity" } , { "NORMAL", "ENTITY" } )
 
 	self.Inputs = Wire_CreateInputs(self.Entity, { "On", "Refresh" })	
 
@@ -40,9 +24,9 @@ function ENT:Initialize()
 		phys:Wake()  	
 	end 
 	
-		self.Damage = 271
-		self.On = 1
-		self.Refresh = 0
+	self.Damage = 271
+	self.On = 1
+	self.Refresh = 0
 end
 
 function ENT:TriggerInput(iname, value)
@@ -81,21 +65,12 @@ function ENT:Think()
 	end
 end
 
-//Added to on down from here
-function ENT:OnRemove()
-    Wire_Remove(self.Entity)
-end
-
-function ENT:OnRestore()
-    Wire_Restored(self.Entity)
-end
-
 function ENT:BuildDupeInfo()
-    return WireLib.BuildDupeInfo(self.Entity)
+return self.BaseClass.BuildDupeInfo(self) or {}  //Fetches most data
 end
 
 function ENT:ApplyDupeInfo(ply, ent, info, GetEntByID)
-    WireLib.ApplyDupeInfo( ply, ent, info, GetEntByID )
+self.BaseClass.ApplyDupeInfo(self, ply, ent, info, GetEntByID)  // Applies the generic data we gathered earlier
 end
 
 
