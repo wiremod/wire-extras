@@ -25,6 +25,7 @@ function TOOL:LeftClick( trace )
 			
 		if ( CLIENT ) then
 			self:ClearObjects()
+			self:SetStage(0)
 			return true
 		end
 		
@@ -41,11 +42,17 @@ function TOOL:LeftClick( trace )
 		
 		local min = controller:OBBMins()
 		controller:SetPos( trace.HitPos - trace.HitNormal * min.z )
-				
+		
+		local const = WireLib.Weld(controller, trace.Entity, trace.PhysicsBone, true)
+		
 		undo.Create("WireFreezer")
 			undo.AddEntity( controller )
+			undo.AddEntity( const )
 			undo.SetPlayer( ply )
 		undo.Finish()
+		
+		self:ClearObjects()
+		self:SetStage(0)
 
 		elseif ( iNum == 1 ) then
 		
@@ -60,7 +67,7 @@ function TOOL:LeftClick( trace )
 		
 	else
 		
-		self:SetStage( iNum + 1 )
+		self:SetStage( self:GetStage() + 1 )
 		
 	end
 	
