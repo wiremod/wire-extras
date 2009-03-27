@@ -33,8 +33,8 @@ function ENT:TriggerInput(iname, value)
 	
 		if ( value == 0  ) then
 		
-		self.Ent1:GetPhysicsObject():SetUnFreezable( false )
 		self.Ent1:GetPhysicsObject():EnableMotion( true )
+		//self.Ent1:GetPhysicsObject():SetUnFreezable( false )
 		self.Ent1:GetPhysicsObject():Wake()
 			
 		self:SetOverlayText( "Weld Freezer - Deactivated" )
@@ -45,7 +45,7 @@ function ENT:TriggerInput(iname, value)
 		
 
 		self.Ent1:GetPhysicsObject():EnableMotion( false )
-		self.Ent1:GetPhysicsObject():SetUnFreezable( true )
+		//self.Ent1:GetPhysicsObject():SetUnFreezable( true )
 		self:SetOverlayText( "Weld Freezer - Activated" )
 			
 		end
