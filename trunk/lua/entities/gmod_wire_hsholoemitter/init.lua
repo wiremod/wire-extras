@@ -33,6 +33,11 @@ end
 function ENT:Setup()
 	self.Memory = {}
 	
+	self.packetStartAddr = 0
+	self.lastWrittenAddr = 0
+	self.packetLen = 0
+	self.lastThinkChange = false
+	
 	//Memory:
 	//0 - Active
 	//2 - point size
@@ -92,27 +97,60 @@ function ENT:TriggerInput( inputname, value )
 	end
 end
 
+function ENT:SendData()
+	if ( self.packetLen > 0 ) then
+		local rp = RecipientFilter()
+		rp:AddAllPlayers()
+
+		umsg.Start("hsholoemitter_datamsg", rp)
+			umsg.Long(self:EntIndex())
+			umsg.Long(self.packetStartAddr)
+			umsg.Long(self.packetLen)
+			for i = 0, self.packetLen-1 do
+				umsg.Float(self.Memory[self.packetStartAddr + i])
+			end
+		umsg.End()
+	end
+	self.packetLen = 0
+	self.packetStartAddr = 0
+end
+
 function ENT:ReadCell( Address )
-	if ( Address >= 0 and Address <= 2047 ) then
+	if ( Address >= 0 and Address <= 4 + 3*GetConVarNumber("hsholoemitter_max_points") ) then
 		return self.Memory[Address]
 	end
 end
 
 function ENT:WriteCell( Address, Value )
-	if ( Address >= 0 and Address <= 2047 ) then
+	if ( Address >= 0 and Address <= 4 + 3*GetConVarNumber("hsholoemitter_max_points") ) then
 		self.Memory[Address] = Value
+		self.lastThinkChange = true
 		
-		local rp = RecipientFilter()
-		rp:AddAllPlayers()
-
-		umsg.Start("hsholoemitter_datamessage", rp)
-			umsg.Long(self:EntIndex())
-			umsg.Long(Address)
-			umsg.Float(Value)
-		umsg.End()
+		if( self.packetLen == 0 ) then
+			self.packetLen = 1
+			self.packetStartAddr = Address
+		elseif( (Address - self.lastWrittenAddr) == 1 ) then
+			self.packetLen = self.packetLen + 1
+			if( self.packetLen >= 30 ) then
+				self:SendData()
+			end
+		else
+			self:SendData()
+			self.packetLen = 1
+			self.packetStartAddr = Address
+		end
 		
+		self.lastWrittenAddr = Address
 		return true
 	end
+	return false
+end
+
+function ENT:Think()
+	if( not self.lastThinkChange ) then
+		self:SendData()
+	end
+	self.lastThinkChange = false
 end
 
 function HSHoloInteract(ply,cmd,args)
