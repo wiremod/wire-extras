@@ -56,6 +56,7 @@ function ENT:TriggerInput(iname, value)
 	/* Change variables to reflect input */
 	if (iname == "Set Point") then
 		self.set = value
+		return
 	end
 	if (iname == "In") then
 		self.inval = value
@@ -63,6 +64,7 @@ function ENT:TriggerInput(iname, value)
 
 	if (iname == "Enable") then
 		self.enabled = value
+		return
 	end
 
 	/* If we're not enabled, set the output to zero and exit */
@@ -79,14 +81,12 @@ function ENT:TriggerInput(iname, value)
 	local dterm = 0
 	if (dt>0) then
 		dterm = (error - self.lasterror)/dt
-	else
-		dterm = 0
 	end
 	dterm = dterm * self.d
 
 	/* If the derivative term is less than the cutoff, evaluate the integral term */
 	if (math.abs(dterm) < self.dcut) then
-		self.iterm = self.iterm + self.i * error
+		self.iterm = self.iterm + self.i * error * dt
 	end
 
 	/* Bound the integral term to the user limit */
