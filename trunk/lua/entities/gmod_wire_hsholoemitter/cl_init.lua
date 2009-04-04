@@ -12,13 +12,16 @@ function ENT:Initialize( )
 	end
 end
 
-function HSHoloemitter_DataMessage(um)
+function HSHoloemitter_DataMsg( um )
 	local ent = ents.GetByIndex(um:ReadLong())
-	local address = um:ReadLong()
-	local value = um:ReadFloat()
-	ent.Memory[address] = value;
+	local start = um:ReadLong()
+	local len = um:ReadLong()
+	
+	for i = 0, len-1 do
+		ent.Memory[start + i] = um:ReadFloat()
+	end
 end
-usermessage.Hook("hsholoemitter_datamessage", HSHoloemitter_DataMessage)
+usermessage.Hook("hsholoemitter_datamsg", HSHoloemitter_DataMsg)
 
 // calculate point
 function ENT:CalculatePixelPoint( pos, emitterPos, fwd, right, up )
@@ -67,7 +70,9 @@ function ENT:Draw( )
 	
 	self.Entity:SetRenderBounds( Vector()*-8192, Vector()*8192 )	
 	
-	for i = 0, self.Memory[4]-1 do
+	local num_points = math.Min(self.Memory[4],GetConVarNumber("hsholoemitter_max_points"))
+	
+	for i = 0, num_points-1 do
 	
 		local pixelpos
 		local pos2 = Vector(self.Memory[i*3 + 5], self.Memory[i*3 + 6], self.Memory[i*3 + 7])
