@@ -1,6 +1,6 @@
 AddCSLuaFile( "autorun/wiregates.lua" )
 AddCSLuaFile( "autorun/_kilburnwiregates.lua" )
-AddCSLuaFile( "autorun/MHD_gates+chips.lua" )
+AddCSLuaFile( "autorun/MHD_gates+chips-1.lua" )
 
 //**********************************************
 // Arithmetic Gates
