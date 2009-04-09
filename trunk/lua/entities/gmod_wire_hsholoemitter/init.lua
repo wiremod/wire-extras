@@ -116,6 +116,7 @@ function ENT:SendData()
 end
 
 function ENT:ReadCell( Address )
+    if(!self.Memory) then return; end
 	if ( Address >= 0 and Address <= 4 + 3*GetConVarNumber("hsholoemitter_max_points") ) then
 		return self.Memory[Address]
 	end
