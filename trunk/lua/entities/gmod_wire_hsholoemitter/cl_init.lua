@@ -43,6 +43,8 @@ function ENT:Draw( )
 	// render model
 	self.Entity:DrawModel();
 	
+    if(!self.Memory) then return; end
+    
 	// are we rendering?
 	if( self.Memory[0] == 0 ) then return; end
 	
