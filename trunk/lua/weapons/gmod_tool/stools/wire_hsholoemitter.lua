@@ -14,8 +14,9 @@ end
 
 if (SERVER) then
 	CreateConVar( 'sbox_maxwire_hsholoemitters', 1 )
-    CreateConVar( 'hsholoemitter_max_points', 681 )
 end
+   
+CreateConVar( 'hsholoemitter_max_points', 681 , FCVAR_REPLICATED )
 
 TOOL.ClientConVar[ "a" ] = "255"
 TOOL.ClientConVar[ "b" ] = "255"
