@@ -57,8 +57,17 @@ function ENT:Draw( )
 	local pos 	= emitter:GetPos() + up * 64;
 	local usegps = emitter:GetNetworkedBool( "UseGPS" )
 
-	// draw beam?
-	local drawbeam	= self.Memory[3];
+	// evaluate flags
+	local flags = self.Memory[3];
+	local drawbeam	    = (flags % 2 == 1)
+	usegps = usegps or    (math.floor(flags*0.5) % 2 == 1)
+	local perPointColor = (math.floor(flags*0.25) % 2 == 1)
+	
+	
+	// if we dont draw beams, we set the point material before the loop:
+	if ( drawbeam == false ) then 
+		render.SetMaterial( matpoint );
+	end
 	
 	// read point size
 	local size	= self.Memory[2];
@@ -71,18 +80,30 @@ function ENT:Draw( )
 	self.Entity:SetRenderBounds( Vector()*-8192, Vector()*8192 )	
 	
 	local num_points = math.Min(self.Memory[4],GetConVarNumber("hsholoemitter_max_points"))
+    if (perPointColor) then
+      num_points = math.Min(num_points,291)
+    end
 	
+	// get the size of a point struct
+	local cbPointStruct = 3;
+	if (perPointColor) then
+		cbPointStruct = cbPointStruct + 4
+	end
 	for i = 0, num_points-1 do
 	
+		local h = i*cbPointStruct+5
 		local pixelpos
-		local pos2 = Vector(self.Memory[i*3 + 5], self.Memory[i*3 + 6], self.Memory[i*3 + 7])
+		local pos2 = Vector(self.Memory[h], self.Memory[h+1], self.Memory[h+2])
+		if (perPointColor == true) then
+			color = Color( self.Memory[h+3], self.Memory[h+4], self.Memory[h+5], self.Memory[h+6] ) 
+		end
 		if (usegps == true) then
 			pixelpos = pos2
 		else
 			pixelpos = self:CalculatePixelPoint( pos2, pos, fwd, right, up );
 		end
 		
-		if( drawbeam != 0) then
+		if( drawbeam == true) then
 			render.SetMaterial( matbeam );
 			render.DrawBeam(
 				self.Entity:GetPos(),
@@ -91,11 +112,11 @@ function ENT:Draw( )
 				0, 1,
 				color
 			);
-		
+			// no need to set the material again and again if it is not changed:
+			render.SetMaterial( matpoint );
 		end
 	
 		// draw active point - sprite
-		render.SetMaterial( matpoint );
 		render.DrawSprite(
 			pixelpos,
 			size,  size,
@@ -133,12 +154,17 @@ local function HSHoloPressCheck( ply, key )
 					local right = emitter:GetRight();
 					local up = emitter:GetUp();
 					local pos = emitter:GetPos() + (up*64)
-					count = v.Memory[4]
+					local count = v.Memory[4]
+                    
+                    local ps = 3
+                    if (math.floor(v.Memory[3]*0.25)%2 == 1) then
+                      ps = 7
+                    end
 
 					for i = 0, count-1 do
 						
-						local pos2 = Vector(v.Memory[i*3 + 5], v.Memory[i*3 + 6], v.Memory[i*3 + 7])
-						if (v.Entity:GetNetworkedBool( "UseGPS" )) then
+						local pos2 = Vector(v.Memory[i*ps + 5], v.Memory[i*ps + 6], v.Memory[i*ps + 7])
+						if (v.Entity:GetNetworkedBool( "UseGPS" ) or (math.floor(v.Memory[3]*0.5)%2 == 1)) then
 							pixelpos = pos2
 						else
 							pixelpos = v:CalculatePixelPoint( pos2, pos, fwd, right, up );
