@@ -17,7 +17,7 @@ function HSHoloemitter_DataMsg( um )
 	local start = um:ReadLong()
 	local len = um:ReadLong()
 	
-    if(!ent.Memory) return; end
+    if(!ent.Memory) then return; end
     
 	for i = 0, len-1 do
 		ent.Memory[start + i] = um:ReadFloat()
