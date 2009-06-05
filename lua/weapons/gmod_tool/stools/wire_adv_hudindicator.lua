@@ -13,9 +13,9 @@ if ( CLIENT ) then
     language.Add( "Tool_wire_adv_hudindicator_desc", "Spawns an Adv. Hud Indicator for use with the wire system." )
     language.Add( "Tool_wire_adv_hudindicator_0", "Primary: Create/Update Hud Indicator Secondary: Hook/Unhook someone else's Hud Indicator Reload: Link Hud Indicator to vehicle" )
 	language.Add( "Tool_wire_adv_hudindicator_1", "Now use Reload on a vehicle to link this Hud Indicator to it, or on the same Hud Indicator to unlink it" )
-    
+
 	language.Add( "undone_wirehudindicator", "Undone Wire Adv. Hud Indicator" )
-	
+
 	// HUD Indicator stuff
 	language.Add( "ToolWireAdvHudIndicator_showinhud", "Show in my HUD:")
 	language.Add( "ToolWireAdvHudIndicator_hudheaderdesc", "HUD Indicator Settings:")
@@ -71,6 +71,7 @@ TOOL.ClientConVar[ "useworldcoords" ] = "0"
 TOOL.ClientConVar[ "positionmethod" ] = "0"
 TOOL.ClientConVar[ "transitionstyle" ] = nil
 TOOL.ClientConVar[ "stringinput" ] = "0"
+TOOL.ClientConVar[ "usevectorinputs" ] = 0;
 
 cleanup.Register( "wire_indicators" )
 
@@ -79,14 +80,14 @@ function TOOL:LeftClick( trace )
 	local wire_adv_indicator = nil
 
 	if trace.Entity && trace.Entity:IsPlayer() then return false end
-	
+
 	// If there's no physics object then we can't constraint it!
 	if ( SERVER && !util.IsValidPhysicsObject( trace.Entity, trace.PhysicsBone ) ) then return false end
 
 	if (CLIENT) then return true end
-	
+
 	local ply = self:GetOwner()
-	
+
 	local model			= self:GetClientInfo( "model" )
 	local a				= self:GetClientNumber("a")
 	local ar			= math.min(self:GetClientNumber("ar"), 255)
@@ -99,7 +100,7 @@ function TOOL:LeftClick( trace )
 	local bb			= math.min(self:GetClientNumber("bb"), 255)
 	local ba			= math.min(self:GetClientNumber("ba"), 255)
 	local material		= self:GetClientInfo( "material" )
-	
+
 	local showinhud		= (self:GetClientNumber( "showinhud" ) > 0)
 	local huddesc		= self:GetClientInfo( "huddesc" )
 	local hudaddname	= (self:GetClientNumber( "hudaddname" ) > 0)
@@ -109,9 +110,9 @@ function TOOL:LeftClick( trace )
 	local fullcircleangle = self:GetClientNumber( "fullcircleangle" )
 	local useWorldCoords = 0	//--Redundant, but here incase anything needs it... REMOVE SOON --//
 	local positionMethod = self:GetClientNumber("positionmethod")
-	
+
 	local flags = 0
-	
+
 	//--Flag Options--//
 	local flag_worldcoords = 1
 	local flag_alphainput = 2
@@ -119,13 +120,14 @@ function TOOL:LeftClick( trace )
 	local flag_position_by_percent = 8
 	local flag_position_by_decimal = 16
 	local flag_string_input = 32
-	
+	local flag_vector_inputs = 64
+
 	Msg( "World Coords Checkbox: " ..self:GetClientNumber( "useworldcoords" ).. "\n" )
 	Msg( "Alpha Checkbox: " ..self:GetClientNumber( "alpha" ).. "\n" )
-	
+
 	if( self:GetClientNumber( "useworldcoords" ) == 1 ) then flags = flags | flag_worldcoords end
 	if( self:GetClientNumber( "alpha" ) == 1 ) then flags = flags | flag_alphainput end
-	
+
 	if( positionMethod == 0 ) then		//-- Pixels
 		flags = flags | flag_position_by_pixel
 	elseif( positionMethod == 1 ) then	//-- Percent
@@ -133,15 +135,18 @@ function TOOL:LeftClick( trace )
 	elseif( positionMethod == 2 ) then	//-- -1 to 1
 		flags = flags | flag_position_by_decimal
 	end
-	
+
 	if( self:GetClientNumber("stringinput") == 1 ) then flags = flags | flag_string_input end				//--BETA! String input!--//
-	
+
+	//--Cope with vector inputs too!--//
+	if( self:GetClientNumber("usevectorinputs") == 1 ) then flags = flags | flag_vector_inputs end
+
 	// If we shot a wire_indicator change its data
 	if ( trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_adv_hudindicator" && trace.Entity.pl == ply ) then
-		
+
 		trace.Entity:Setup(a, ar, ag, ab, aa, b, br, bg, bb, ba)
 		trace.Entity:SetMaterial( material )
-		
+
 		trace.Entity.a	= a
 		trace.Entity.ar	= ar
 		trace.Entity.ag	= ag
@@ -155,7 +160,7 @@ function TOOL:LeftClick( trace )
 
 		// This will un-register if showinhud is false
 		trace.Entity:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, flags)
-		
+
 		trace.Entity.showinhud = showinhud
 		trace.Entity.huddesc = huddesc
 		trace.Entity.hudaddname = hudaddname
@@ -163,10 +168,10 @@ function TOOL:LeftClick( trace )
 		trace.Entity.hudstyle = hudstyle
 		trace.Entity.allowhook = allowhook
 		trace.Entity.fullcircleangle = fullcircleangle
-		
+
 		return true
 	end
-	
+
 	if ( !self:GetSWEP():CheckLimit( "wire_indicators" ) ) then return false end
 
 	if (not util.IsValidModel(model)) then return false end
@@ -185,20 +190,20 @@ function TOOL:LeftClick( trace )
 		Msg("Something went wrong with this entity, and it was not created :/ what the hell?\n");
 		return false
 	end
-	
+
 	local min = wire_adv_indicator:OBBMins()
 	wire_adv_indicator:SetPos( trace.HitPos - trace.HitNormal * self:GetSelectedMin(min) )
-	
+
 	local const = WireLib.Weld(wire_adv_indicator, trace.Entity, trace.PhysicsBone, true)
-	
+
 	undo.Create("WireAdvHudIndicator")
 		undo.AddEntity( wire_adv_indicator )
 		undo.AddEntity( const )
 		undo.SetPlayer( ply )
 	undo.Finish()
-	
+
 	ply:AddCleanup( "wire_indicators", wire_adv_indicator )
-	
+
 	return true
 end
 
@@ -210,25 +215,25 @@ function TOOL:RightClick( trace )
 
 	local ply = self:GetOwner()
 	local hookhidehud = (self:GetClientNumber( "hookhidehud" ) > 0)
-	
+
 	// Can't hook your own HUD Indicators
 	if (ply == trace.Entity:GetPlayer()) then
 		self:GetOwner():SendLua( "GAMEMODE:AddNotify('You cannot hook your own HUD Indicators!', NOTIFY_GENERIC, 7);" )
 		return false
 	end
-	
+
 	if (!trace.Entity:GetTable():CheckRegister(ply)) then
 		// Has the creator allowed this HUD Indicator to be hooked?
 		if (!trace.Entity:GetTable().AllowHook) then
 			self:GetOwner():SendLua( "GAMEMODE:AddNotify('You are not allowed to hook this HUD Indicator.', NOTIFY_GENERIC, 7);" )
 			return false
 		end
-		
+
 		trace.Entity:GetTable():RegisterPlayer(ply, hookhidehud)
 	else
 		trace.Entity:GetTable():UnRegisterPlayer(ply)
 	end
-	
+
 	return true
 end
 
@@ -239,15 +244,15 @@ function TOOL:Reload( trace )
 	if (!trace.Entity || !trace.Entity:IsValid()) then return false end
 
 	if (CLIENT) then return true end
-	
+
 	local iNum = self:NumObjects()
-	
+
 	if (iNum == 0) then
 		if (trace.Entity:GetClass() != "gmod_wire_adv_hudindicator") then
 			self:GetOwner():SendLua( "GAMEMODE:AddNotify('You must select a HUD Indicator to link first.', NOTIFY_GENERIC, 7);" )
 			return false
 		end
-		
+
 		local Phys = trace.Entity:GetPhysicsObjectNum( trace.PhysicsBone )
 		self:SetObject( 1, trace.Entity, trace.HitPos, Phys, trace.PhysicsBone, trace.HitNormal )
 		self:SetStage(1)
@@ -259,10 +264,10 @@ function TOOL:Reload( trace )
 				self:SetStage(0)
 				return false
 			end
-			
+
 			local ent = self:GetEnt(1)
 			local bool = ent:GetTable():LinkVehicle(trace.Entity)
-			
+
 			if (!bool) then
 				self:GetOwner():SendLua( "GAMEMODE:AddNotify('Could not link HUD Indicator!', NOTIFY_GENERIC, 7);" )
 				return false
@@ -271,11 +276,11 @@ function TOOL:Reload( trace )
 			// Unlink HUD Indicator from this vehicle
 			trace.Entity:GetTable():UnLinkVehicle()
 		end
-		
+
 		self:ClearObjects()
 		self:SetStage(0)
 	end
-	
+
 	return true
 end
 
@@ -283,34 +288,34 @@ if (SERVER) then
 
 	function MakeWireAdvHudIndicator( pl, Model, Ang, Pos, a, ar, ag, ab, aa, b, br, bg, bb, ba, material, showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, nocollide, frozen, flags, positionMethod )
 		if ( !pl:CheckLimit( "wire_indicators" ) ) then return false end
-		
+
 		local positionMethod = 0
 		local flags = flags
-		
+
 		if( flags == nil ) then
 			flags = 0
 			Msg("[WW] Adv. HUD::Flags auto-set!\n")
 		end
-		
+
 		local wire_adv_indicator = ents.Create( "gmod_wire_adv_hudindicator" )
 		if (!wire_adv_indicator:IsValid()) then return false end
-		
+
 		wire_adv_indicator:SetModel( Model )
 		wire_adv_indicator:SetMaterial( material )
 		wire_adv_indicator:SetAngles( Ang )
 		wire_adv_indicator:SetPos( Pos )
 		wire_adv_indicator:Spawn()
-		
+
 		wire_adv_indicator:Setup(a, ar, ag, ab, aa, b, br, bg, bb, ba)
 		wire_adv_indicator:SetPlayer(pl)
-		
+
 		wire_adv_indicator:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, flags)
-		
+
 		if (nocollide) then
 			local phys = wire_adv_indicator:GetPhysicsObject()
 			if ( phys:IsValid() ) then phys:EnableCollisions(false) end
 		end
-		
+
 		local ttable = {
 			a	= a,
 			ar	= ar,
@@ -335,9 +340,9 @@ if (SERVER) then
 			force_position_update = 0,
 		}
 		table.Merge(wire_adv_indicator:GetTable(), ttable )
-		
+
 		pl:AddCount( "wire_indicators", wire_adv_indicator )
-		
+
 		return wire_adv_indicator
 	end
 
@@ -354,21 +359,21 @@ function TOOL:UpdateGhostWireAdvHudIndicator( ent, player )
 	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
-	
+
 	if (trace.Entity && trace.Entity:GetClass() == "gmod_wire_adv_hudindicator" || trace.Entity:IsPlayer()) then
 		ent:SetNoDraw( true )
 		return
 	end
-	
+
 	local Ang = self:GetSelectedAngle(trace.HitNormal:Angle())
 	Ang.pitch = Ang.pitch + 90
-	
+
 	local min = ent:OBBMins()
 	ent:SetPos( trace.HitPos - trace.HitNormal * self:GetSelectedMin(min) )
 	ent:SetAngles( Ang )
-	
+
 	ent:SetNoDraw( false )
-	
+
 end
 
 function TOOL:GetSelectedAngle( Ang )
@@ -397,9 +402,9 @@ function TOOL:Think()
 	if (!self.GhostEntity || !self.GhostEntity:IsValid() || self.GhostEntity:GetModel() != self:GetClientInfo( "model" )) then
 		self:MakeGhostEntity( self:GetClientInfo( "model" ), Vector(0,0,0), self:GetSelectedAngle(Angle(0,0,0)) )
 	end
-	
+
 	self:UpdateGhostWireAdvHudIndicator( self.GhostEntity, self:GetOwner() )
-	
+
 	if (SERVER) then
 		// Add check to see if player is registered with
 		// the HUD Indicator at which he is pointing
@@ -407,7 +412,7 @@ function TOOL:Think()
 			local ply = self:GetOwner()
 			local tr = utilx.GetPlayerTrace(ply, ply:GetCursorAimVector())
 			local trace = util.TraceLine(tr)
-		
+
 			if (trace.Hit && trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_adv_hudindicator" && trace.Entity:GetPlayer() != ply) then
 				local currentcheck = trace.Entity:GetTable():CheckRegister(ply)
 				if (currentcheck != self.LastRegisterCheck) then
@@ -429,7 +434,7 @@ end
 if (CLIENT) then
 	function TOOL:DrawHUD()
 		local isregistered = self:GetWeapon():GetNetworkedBool("AdvHUDIndicatorCheckRegister")
-		
+
 		if (isregistered) then
 			draw.WordBox(8, ScrW() / 2 + 10, ScrH() / 2 + 10, "Registered", "Default", Color(50, 50, 75, 192), Color(255, 255, 255, 255))
 		end
@@ -491,7 +496,7 @@ function TOOL.BuildCPanel(panel)
 			[15] = "wire_adv_hudindicator_hudaddname",
 			[16] = "wire_adv_hudindicator_hudshowvalue",
 			[17] = "wire_adv_hudindicator_hudstyle",
-			
+
 			[18] = "wire_adv_hudindicator_worldcoords"
 		}
 	})
@@ -533,12 +538,12 @@ function TOOL.BuildCPanel(panel)
 		ShowRGB = "1",
 		Multiplier = "255"
 	})
-	
+
 	panel:AddControl("Label", {
 		Text = "Indicator model:",
 		Description = "The model to use for the Adv, HUD Indicator..."
 	})
-	
+
 	panel:AddControl("ComboBox", {
 		Label = "#ToolWireAdvHudIndicator_Model",
 		MenuButton = "0",
@@ -554,17 +559,17 @@ function TOOL.BuildCPanel(panel)
 			["Big Clock"]			= { wire_adv_hudindicator_model = "models/props_trainstation/trainstation_clock001.mdl" }
 		}
 	})
-	
+
 	panel:AddControl("Label", {
 		Text = "HUD Type",
 		Description = "The style of HUD to display..."
 	})
-	
+
 	//--["Gradient"]	= { wire_adv_hudindicator_hudstyle = "1" },
 	//--["Percent Bar"]	= { wire_adv_hudindicator_hudstyle = "2" },
 	//--["Full Circle"] = { wire_adv_hudindicator_hudstyle = "3" },
 	//--["Semi-circle"] = { wire_adv_hudindicator_hudstyle = "4" },
-	
+
 	panel:AddControl("ComboBox", {
 		Label = "#ToolWireAdvHudIndicator_hudstyle",
 		MenuButton = "0",
@@ -593,7 +598,7 @@ function TOOL.BuildCPanel(panel)
 			["[BETA][Extended I/O] Divided Box"]				= { wire_adv_hudindicator_hudstyle = "1002" }
 		}
 	})
-	
+
 	//--panel:AddControl("ComboBox", {
 	//--	Label = "Transition style",
 	//--	MenuButton = "0",
@@ -605,13 +610,13 @@ function TOOL.BuildCPanel(panel)
 	//--		["Scale Down"] = { wire_adv_hudindicator_transitionstyle = "scale down" }
 	//--	}
 	//--})
-	
+
 	panel:AddControl("TextBox", {
 		Label = "#ToolWireHudIndicator_huddesc",
 		Command = "wire_adv_hudindicator_huddesc",
 		MaxLength = "20"
 	})
-	
+
 	panel:AddControl("ComboBox", {
 		Label = "Show value as:",
 		MenuButton = "0",
@@ -621,7 +626,7 @@ function TOOL.BuildCPanel(panel)
 			["Value"]	= { wire_adv_hudindicator_hudshowvalue = "2" }
 		}
 	})
-	
+
 	panel:AddControl("CheckBox", {
 		Label = "#ToolWireHudIndicator_showinhud",
 		Command = "wire_adv_hudindicator_showinhud"
@@ -632,7 +637,13 @@ function TOOL.BuildCPanel(panel)
 		Command = "wire_adv_hudindicator_useworldcoords",
 		Description = "Allow world coordinate input rather than screen positions"
 	})
-	
+
+	panel:AddControl("CheckBox", {
+		Label = "Vector Inputs",
+		Command = "wire_adv_hudindicator_usevectorinputs",
+		Description = "Use vector inputs instead of regular wires for positions"
+	})
+
 	panel:AddControl("ComboBox", {
 		Label = "2D Position using method: ",
 		MenuButton = "0",
@@ -642,25 +653,25 @@ function TOOL.BuildCPanel(panel)
 			["-1 to 1"]	= { wire_adv_hudindicator_positionmethod = "2" }
 		}
 	})
-	
+
 	panel:AddControl("TextBox", {
 		Label = "Text X offset",
 		Command = "wire_adv_hudindicator_hudx",
 		MaxLength = "20"
 	})
-	
+
 	panel:AddControl("TextBox", {
 		Label = "Text Y offset",
 		Command = "wire_adv_hudindicator_hudy",
 		MaxLength = "20"
 	})
-	
+
 	panel:AddControl("CheckBox", {
 		Label = "[BETA] Additional string input for UI text",
 		Command = "wire_adv_hudindicator_stringinput"
 	})
-	
-	
+
+
 end
 
 // Concommand to unregister HUD Indicator through control panel
