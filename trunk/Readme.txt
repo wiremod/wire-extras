@@ -48,6 +48,7 @@ Simple Servo - Selig - http://www.wiremod.com/forum/wiremod-addons/5850-wire-sim
 Wire Highspeed ranger - Borsty - http://www.wiremod.com/forum/wiremod-addons/6888-wire-highspeed-ranger.html
 Wired Npcs - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/5930-wired-npc.html
 Wired Damage Scale - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/6346-wired-damage-scale.html
+Wired Wirer - Jeremydeath - http://www.wiremod.com/forum/wiremod-addons/9941-jeremydeaths-various-wire-addons.html
 Wire Wireless - AlgorithmX2 - http://www.wiremod.com/forum/wiremod-addons/6471-wire-wireless.html
 Wire Field Generators - AlgorithmX2 - http://www.wiremod.com/forum/wiremod-addons/6497-wire-field-generator-s.html
 XYZ Beacon - Doticatto - http://www.wiremod.com/forum/wiremod-addons/4708-wired-xyz-beacon-eject-input-socket.html
