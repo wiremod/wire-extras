@@ -588,14 +588,14 @@ function TOOL.BuildCPanel(panel)
 			["Crosshair Style 3"] 						= { wire_adv_hudindicator_hudstyle = "52" },
 			["Crosshair Style 4"] 						= { wire_adv_hudindicator_hudstyle = "53" },
 			["[BETA] Sci-Fi Style Crosshair"]			= { wire_adv_hudindicator_hudstyle = "54" },
-			["[Corner-to-corner] Crosshair"]				= { wire_adv_hudindicator_hudstyle = "31" },
+			["[Corner-to-corner] Crosshair"]			= { wire_adv_hudindicator_hudstyle = "31" },
 			["Triangular Rotating"]						= { wire_adv_hudindicator_hudstyle = "100" },
-			["[Point-To-Point] Line"]						= { wire_adv_hudindicator_hudstyle = "200" },
-			["[Point-To-Point] Box"]						= { wire_adv_hudindicator_hudstyle = "201" },
-			["[Point-To-Point] Rounded Box"]				= { wire_adv_hudindicator_hudstyle = "202" },
+			["[Point-To-Point] Line"]					= { wire_adv_hudindicator_hudstyle = "200" },
+			["[Point-To-Point] Box"]					= { wire_adv_hudindicator_hudstyle = "201" },
+			["[Point-To-Point] Rounded Box"]			= { wire_adv_hudindicator_hudstyle = "202" },
 			["[Extended I/O] Basic Target Marker"]		= { wire_adv_hudindicator_hudstyle = "1000" },
 			["[Extended I/O] Crosshair Style 3"]		= { wire_adv_hudindicator_hudstyle = "1001" },
-			["[BETA][Extended I/O] Divided Box"]				= { wire_adv_hudindicator_hudstyle = "1002" }
+			["[BETA][Extended I/O] Divided Box"]		= { wire_adv_hudindicator_hudstyle = "1002" }
 		}
 	})
 
