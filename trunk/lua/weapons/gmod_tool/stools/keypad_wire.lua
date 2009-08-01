@@ -1,3 +1,5 @@
+if not WireVersion then return end
+
 TOOL.Category		= "Wire - I/O"
 TOOL.Name			= "#Keypad"
 TOOL.Command		= nil
@@ -24,96 +26,89 @@ TOOL.ClientConVar["valueon2"] = "1"
 TOOL.ClientConVar["valueoff1"] = "0"
 TOOL.ClientConVar["valueoff2"] = "0"
 
-if (SERVER) then
-	CreateConVar('sbox_maxwire_keypads', 10)
-end
-
-cleanup.Register("wire_keypads")
-
 if ( CLIENT ) then
 
 	language.Add( "Tool_keypad_wire_name", "Keypad (Wire)" )
 	language.Add( "Tool_keypad_wire_desc", "Made by: Killer HAHA (Robbis_1)" )
-	language.Add( "Tool_keypad_wire_0", "Left Click: Spawn a Keypad   Right Click: Update Keypad with settings" )
+	language.Add( "Tool_keypad_wire_0", "Left Click: Spawn a Keypad, Right Click: Update Keypad with settings" )
 
-	language.Add( "Undone_wire keypad", "Undone Wire Keypad" )
-	language.Add( "Cleanup_wire_keypads", "Wire Keypads" )
-	language.Add( "Cleaned_wire_keypads", "Cleaned up all Wire Keypads" )
 
 end
 
 function TOOL:SetupKeypad(Ent, Password)
 	Ent:AddPassword(Password)
 
-	Ent:SetNetworkedEntity("keypad_owner", self:GetOwner())
-	Ent:SetNetworkedInt("keypad_length1", self:GetClientNumber("length1"))
-	Ent:SetNetworkedInt("keypad_length2", self:GetClientNumber("length2"))
+	Ent:SetPlayer(self:GetOwner())
+	Ent.length1 = self:GetClientNumber("length1")
+	Ent.length2 = self:GetClientNumber("length2")
 
-	Ent:SetNetworkedInt("keypad_keygroup1", self:GetClientNumber("keygroup1"))
-	Ent:SetNetworkedInt("keypad_keygroup2", self:GetClientNumber("keygroup2"))
+	Ent.keygroup1 = self:GetClientNumber("keygroup1")
+	Ent.keygroup2 = self:GetClientNumber("keygroup2")
 
-	Ent:SetNetworkedInt("keypad_delay1", self:GetClientNumber("delay1"))
-	Ent:SetNetworkedInt("keypad_delay2", self:GetClientNumber("delay2"))
+	Ent.delay1 = self:GetClientNumber("delay1")
+	Ent.delay2 = self:GetClientNumber("delay2")
 
-	Ent:SetNetworkedInt("keypad_initdelay1", self:GetClientNumber("initdelay1"))
-	Ent:SetNetworkedInt("keypad_initdelay2", self:GetClientNumber("initdelay2"))
+	Ent.initdelay1 = self:GetClientNumber("initdelay1")
+	Ent.initdelay2 = self:GetClientNumber("initdelay2")
 
-	Ent:SetNetworkedInt("keypad_repeats1", self:GetClientNumber("repeat1"))
-	Ent:SetNetworkedInt("keypad_repeats2", self:GetClientNumber("repeats2"))
+	Ent.repeats1 = self:GetClientNumber("repeat1")
+	Ent.repeats2 = self:GetClientNumber("repeats2")
 
-	Ent:SetNetworkedBool("keypad_toggle1", util.tobool(self:GetClientNumber("toggle1")))
-	Ent:SetNetworkedBool("keypad_toggle2", util.tobool(self:GetClientNumber("toggle2")))
-
-	Ent:SetNetworkedInt("keypad_valueon1", self:GetClientNumber("valueon1"))
-	Ent:SetNetworkedInt("keypad_valueon2", self:GetClientNumber("valueon2"))
-	Ent:SetNetworkedInt("keypad_valueoff1", self:GetClientNumber("valueoff1"))
-	Ent:SetNetworkedInt("keypad_valueoff2", self:GetClientNumber("valueoff2"))
+	Ent.toggle1 = util.tobool(self:GetClientNumber("toggle1"))
+	Ent.toggle2 = util.tobool(self:GetClientNumber("toggle2"))
+	
+	Ent.valueon1 = self:GetClientNumber("valueon1")
+	Ent.valueon2 = self:GetClientNumber("valueon2")
+	Ent.valueoff1 = self:GetClientNumber("valueoff1")
+	Ent.valueoff2 = self:GetClientNumber("valueoff2")
 
 	Ent:SetNetworkedBool("keypad_showaccess", false)
-	Ent:SetNetworkedBool("keypad_secure", util.tobool(self:GetClientNumber("secure")))
+	Ent.secure = util.tobool(self:GetClientNumber("secure")) -- feed duplicator
+	Ent:SetNetworkedBool("keypad_secure", Ent.secure) -- feed client
 end
 
-function TOOL:RightClick(tr)
-	if (tr.Entity:GetClass() == "player") then return false end
+function TOOL:RightClick(trace)
+	if (trace.Entity:GetClass() == "player") then return false end
 	if (CLIENT) then return true end
 
 	local Ply = self:GetOwner()
 	local Password = tonumber(Ply:GetInfo("keypad_adv_password"))
 
-	local SpawnPos = tr.HitPos
-	local TraceEnt = tr.Entity
+	local SpawnPos = trace.HitPos
+	local TraceEnt = trace.Entity
 
 	if (Password == nil) or (string.len(tostring(Password)) > 4) or (string.find(tostring(Password), "0")) then
 		Ply:PrintMessage(3, "Invalid password!")
 		return false
 	end
 
-	if (TraceEnt:IsValid() and TraceEnt:GetClass() == "sent_keypad_wire" and TraceEnt:GetNetworkedEntity("keypad_owner") == Ply ) then
+	if (TraceEnt:IsValid() and TraceEnt:GetClass() == "sent_keypad" and TraceEnt:GetPlayer() == Ply ) then
 		self:SetupKeypad(TraceEnt, Password)
 		return true
 	end
 end
 
-function TOOL:LeftClick(tr)
-	if (tr.Entity:GetClass() == "player") then return false end
+function TOOL:LeftClick(trace)
+	if (trace.Entity:GetClass() == "player") then return false end
 	if (CLIENT) then return true end
 
 	local Ply = self:GetOwner()
 	local Password = tonumber(Ply:GetInfo("keypad_adv_password"))
 
-	local SpawnPos = tr.HitPos + tr.HitNormal
-	local TraceEnt = tr.Entity
+	local SpawnPos = trace.HitPos + trace.HitNormal
+	local TraceEnt = trace.Entity
 
 	if (Password == nil) or (string.len(tostring(Password)) > 4) or (string.find(tostring(Password), "0")) then
 		Ply:PrintMessage(3, "Invalid password!")
 		return false
 	end
 
-	local Keypad = ents.Create("sent_keypad_wire")
+	local Keypad = ents.Create("sent_keypad")
+	Keypad.AddOutputs = true
 	Keypad:SetPos(SpawnPos)
-	Keypad:SetAngles(tr.HitNormal:Angle())
+	Keypad:SetAngles(trace.HitNormal:Angle())
 	Keypad:Spawn()
-	Keypad:SetAngles(tr.HitNormal:Angle())
+	Keypad:SetAngles(trace.HitNormal:Angle())
 	Keypad:Activate()
 
 	Wire_TriggerOutput(Keypad, "Valid", self:GetClientNumber("valueoff1"))
@@ -127,8 +122,8 @@ function TOOL:LeftClick(tr)
 		Keypad:GetPhysicsObject():EnableMotion(false)
 	end
 
-	if (util.tobool(self:GetClientNumber("weld"))) and not (TraceEnt:GetClass() == "player") and not (TraceEnt:GetClass() == "sent_keypad") and not (TraceEnt:GetClass() == "sent_keypad_wire") then
-		local weld = constraint.Weld(Keypad, TraceEnt, 0, tr.PhysicsBone, 0)
+	if (util.tobool(self:GetClientNumber("weld"))) and not (TraceEnt:GetClass() == "player") and not (TraceEnt:GetClass() == "sent_keypad") then
+		local weld = constraint.Weld(Keypad, TraceEnt, 0, trace.PhysicsBone, 0)
 		TraceEnt:DeleteOnRemove(Keypad)
 		TraceEnt:DeleteOnRemove(weld)
 		Keypad:DeleteOnRemove(weld)
@@ -142,8 +137,8 @@ function TOOL:LeftClick(tr)
 	undo.SetPlayer(Ply)
 	undo.Finish()
 
-	Ply:AddCount( "wire_keypads", Keypad )
-	Ply:AddCleanup( "wire_keypads", Keypad )
+	Ply:AddCount( "keypads", Keypad )
+	Ply:AddCleanup( "keypads", Keypad )
 
 	return true
 end
