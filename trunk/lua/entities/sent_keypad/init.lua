@@ -170,17 +170,21 @@ concommand.Add("gmod_keypad", function(Ply, Command, Args)
 	KeyCommand(Ply, tonumber(Args[1]), Args[2])
 end)
 
+/******************************************************************************/
 
 local dupevars = {
 	"length1", "keygroup1", "delay1", "initdelay1", "repeats1", "toggle1", "valueon1", "valueoff1",
 	"length2", "keygroup2", "delay2", "initdelay2", "repeats2", "toggle2", "valueon2", "valueoff2",
-	"secure", "Pass", "simple",
+	"secure", "Pass", "simple", "AddOutputs"
 }
 function MakeKeypad( pl, Model, Ang, Pos, nocollide, frozen, ... )
 	if not pl:CheckLimit("keypads") then return false end
 
 	local keypad = ents.Create( "sent_keypad" )
 	if not keypad:IsValid() then return false end
+	for index,varname in ipairs(dupevars) do
+		keypad[varname] = arg[index]
+	end
 
 	keypad:SetAngles(Ang)
 	keypad:SetPos(Pos)
