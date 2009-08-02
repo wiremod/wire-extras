@@ -84,7 +84,6 @@
 // read it. I tend to lurk moar at Wiremod.com ;-)
 //-----------------------------------------------------------------------------
 
-AddCSLuaFile ("autorun/wiregates.lua")
 AddCSLuaFile ("autorun/dufacewiregates.lua")
 
 

@@ -1,4 +1,3 @@
-AddCSLuaFile( "autorun/wiregates.lua" )
 AddCSLuaFile( "autorun/_kilburnwiregates.lua" )
 
 //***********************************************************
