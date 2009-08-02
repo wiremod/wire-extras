@@ -2,7 +2,6 @@ TOOL.Category		= "Wire - Physics"
 TOOL.Name			= "Wire Magnet"
 TOOL.Command		= nil
 TOOL.ConfigName		= nil
-print("Loaded Wire Magnet")
 
 if ( CLIENT ) then
     language.Add( "Tool_wire_magnet_name", "Wired Magnet Tool" )
