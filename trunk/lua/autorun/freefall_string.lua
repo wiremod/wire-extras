@@ -21,8 +21,6 @@ function string.instr(stringIn, toFind, start)
 	return -1
 end
 
-AddCSLuaFile( "autorun/wiregates.lua" )
-
 function freefallwiregates()
 	GateActions["string_switchgate"] = {
 		group = "String",
