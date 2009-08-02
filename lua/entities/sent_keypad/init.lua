@@ -24,8 +24,6 @@ function ENT:Initialize()
 end
 
 function ENT:AddPassword(Pass)
-	self:OnRemove()
-	
 	Pass = util.CRC(Pass)
 	
 	self.Entity.Pass = Pass
