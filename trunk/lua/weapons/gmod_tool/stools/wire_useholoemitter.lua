@@ -1,5 +1,3 @@
-include("wire/stools/helpers.lua")
-
 TOOL.Category = "Wire - Render"
 TOOL.Name = "Interactable Holography Emitter"
 TOOL.Command = nil
@@ -23,9 +21,9 @@ if SERVER then CreateConVar( "sbox_maxwire_useholoemitters", 5 ) end
 TOOL.Model = "models/jaanus/wiretool/wiretool_range.mdl"
 TOOL.Emitter = nil
 TOOL.NoGhostOn = { "gmod_wire_hologrid" }
-TOOL.LeftClick = WireToolHelpers.LeftClick
-TOOL.UpdateGhost = WireToolHelpers.UpdateGhost
-TOOL.Think = WireToolHelpers.Think
+timer.Simple(0,function(TOOL)
+	setmetatable(TOOL, WireToolObj)
+end, TOOL)
 TOOL.WireClass = "gmod_wire_useholoemitter"
 
 TOOL.ClientConVar = {
@@ -135,5 +133,5 @@ if SERVER then
 		
 		return emitter
 	end
-	TOOL.ToolMakeEnt = WireToolMakeUseEmitter
+	TOOL.LeftClick_Make = WireToolMakeUseEmitter
 end
