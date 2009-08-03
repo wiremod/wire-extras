@@ -36,7 +36,7 @@ _Kilburn's Addons - http://www.wiremod.com/forum/wiremod-addons/4294-addons-wire
 	Wire Microphone
 	Wire RFID Systems (http://www.wiremod.com/forum/wiremod-addons/3017-wire-rfid-systems.html)
 Keycards - Originally by adb, Now Public Domain - http://www.wiremod.com/forum/wiremod-addons/2143-wire-keycards.html - NO LICENSE BY REQUEST OF AUTHOR
-Keypad - Robbis_1 - http://forums.facepunchstudios.com/showthread.php?t=276931
+Keypad - Robbis_1 and TomyLobo - http://forums.facepunchstudios.com/showthread.php?t=276931
 Lever - cpf - http://www.wiremod.com/forum/wiremod-addons/4097-wire-lever.html
 Multi-wire tool - Incompatible - http://www.wiremod.com/forum/wiremod-addons/2545-multi-wire-tool.html
 No Collide Addon - splat2010 - http://www.wiremod.com/forum/wiremod-addons/4777-no-collide-addon.html

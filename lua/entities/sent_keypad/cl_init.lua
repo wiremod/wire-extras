@@ -6,25 +6,26 @@ local W = 100
 local H = 200
 
 local KeyPos = {
-	{X+5   , Y+100  , 25, 25, -2.2, 3.45,  1.3 ,  0  },
-	{X+37.5, Y+100  , 25, 25, -0.6, 1.85,  1.3 ,  0  },
-	{X+70  , Y+100  , 25, 25,  1.0, 0.25,  1.3 ,  0  },
+	{X+5   , Y+100  , 25, 25, -2.2, 3.45,  1.3 ,  0  }, -- 1
+	{X+37.5, Y+100  , 25, 25, -0.6, 1.85,  1.3 ,  0  }, -- 2
+	{X+70  , Y+100  , 25, 25,  1.0, 0.25,  1.3 ,  0  }, -- 3
 	
-	{X+5   , Y+132.5, 25, 25, -2.2, 3.45,  2.9 , -1.6},
-	{X+37.5, Y+132.5, 25, 25, -0.6, 1.85,  2.9 , -1.6},
-	{X+70  , Y+132.5, 25, 25,  1.0, 0.25,  2.9 , -1.6},
+	{X+5   , Y+132.5, 25, 25, -2.2, 3.45,  2.9 , -1.6}, -- 4
+	{X+37.5, Y+132.5, 25, 25, -0.6, 1.85,  2.9 , -1.6}, -- 5
+	{X+70  , Y+132.5, 25, 25,  1.0, 0.25,  2.9 , -1.6}, -- 6
 	
-	{X+5   , Y+165  , 25, 25, -2.2, 3.45,  4.55, -3.3},
-	{X+37.5, Y+165  , 25, 25, -0.6, 1.85,  4.55, -3.3},
-	{X+70  , Y+165  , 25, 25,  1.0, 0.25,  4.55, -3.3},
+	{X+5   , Y+165  , 25, 25, -2.2, 3.45,  4.55, -3.3}, -- 7
+	{X+37.5, Y+165  , 25, 25, -0.6, 1.85,  4.55, -3.3}, -- 8
+	{X+70  , Y+165  , 25, 25,  1.0, 0.25,  4.55, -3.3}, -- 9
 	
-	{X+5   , Y+ 67.5, 40, 25, -2.2, 4.25, -0.3 ,  1.6},
-	{X+55  , Y+ 67.5, 40, 25,  0.3, 1.65, -0.3 ,  1.6},
+	{X+5   , Y+ 67.5, 40, 25, -2.2, 4.25, -0.3 ,  1.6}, -- abort
+	{X+55  , Y+ 67.5, 40, 25,  0.3, 1.65, -0.3 ,  1.6}, -- ok
 }
 
 surface.CreateFont("Trebuchet", 34, 400, true, false, "Trebuchet34" )
 surface.CreateFont("Trebuchet", 24, 400, true, false, "Trebuchet24AA" )
 
+local highlight_key, highlight_until
 function ENT:Draw()
 	
 	self.Entity:DrawModel()
@@ -62,6 +63,7 @@ function ENT:Draw()
 			local texty = v[2] + 4
 			local x = (pos.y - v[5]) / (v[5] + v[6])
 			local y = 1 - (pos.z + v[7]) / (v[7] + v[8])
+			local highlight_current_key = highlight_key == k and highlight_until >= CurTime()
 			
 			if (k == 10) then
 				text = "ABORT"
@@ -77,7 +79,7 @@ function ENT:Draw()
 				surface.SetDrawColor(150, 150, 150, 255)
 			end
 			
-			if (trace.Entity == self.Entity) and (x >= 0) and (y >= 0) and (x <= 1) and (y <= 1) then
+			if highlight_current_key or (trace.Entity == self.Entity and x >= 0 and y >= 0 and x <= 1 and y <= 1) then
 				if (k <= 9) then
 					surface.SetDrawColor(200, 200, 200, 255)
 				elseif (k == 10) then
@@ -86,7 +88,7 @@ function ENT:Draw()
 					surface.SetDrawColor(50, 200, 50, 255)
 				end
 				
-				if (Ply:KeyDown(IN_USE)) and not (Ply.KeyOnce) then
+				if Ply:KeyDown(IN_USE) and not Ply.KeyOnce and not highlight_current_key then
 					if (k <= 9) then
 						Ply:ConCommand("gmod_keypad "..self.Entity:EntIndex().." "..k.."\n")
 					elseif (k == 10) then
@@ -125,17 +127,18 @@ hook.Add("KeyRelease", "Keypad_KeyReleased", function(Ply, key)
 end)
 
 local binds = {
-	["+gm_special 1" ] = "1",
-	["+gm_special 2" ] = "2",
-	["+gm_special 3" ] = "3",
-	["+gm_special 4" ] = "4",
-	["+gm_special 5" ] = "5",
-	["+gm_special 6" ] = "6",
-	["+gm_special 7" ] = "7",
-	["+gm_special 8" ] = "8",
-	["+gm_special 9" ] = "9",
-	["+gm_special 11"] = "accept",
-	["+gm_special 12"] = "reset",
+	-- ["bind"] = { "argument for gmod_keypad", key_index },
+	["+gm_special 1" ] = { "1"     , 1  },
+	["+gm_special 2" ] = { "2"     , 2  },
+	["+gm_special 3" ] = { "3"     , 3  }, 
+	["+gm_special 4" ] = { "4"     , 4  },
+	["+gm_special 5" ] = { "5"     , 5  },
+	["+gm_special 6" ] = { "6"     , 6  },
+	["+gm_special 7" ] = { "7"     , 7  },
+	["+gm_special 8" ] = { "8"     , 8  },
+	["+gm_special 9" ] = { "9"     , 9  },
+	["+gm_special 11"] = { "accept", 11 },
+	["+gm_special 12"] = { "reset" , 10 },
 }
 
 hook.Add("PlayerBindPress", "keypad_PlayerBindPress", function(ply, bind, pressed)
@@ -149,6 +152,7 @@ hook.Add("PlayerBindPress", "keypad_PlayerBindPress", function(ply, bind, presse
 	
 	if ent:GetClass() ~= "sent_keypad" and ent:GetClass() ~= "sent_keypad_wire" then return end
 	
-	ply:ConCommand("gmod_keypad "..ent:EntIndex().." "..command.."\n")
+	ply:ConCommand("gmod_keypad "..ent:EntIndex().." "..command[1].."\n")
+	highlight_key, highlight_until = command[2], CurTime()+0.5
 	return true
 end)
