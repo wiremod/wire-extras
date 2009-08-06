@@ -81,6 +81,10 @@ function TOOL:LeftClick(trace)
 	local SpawnPos = trace.HitPos + trace.HitNormal
 	local TraceEnt = trace.Entity
 
+	if TraceEnt:GetClass() == "sent_keypad" then
+		return self:RightClick(trace)
+	end
+	
 	if (Password == nil) or (string.len(tostring(Password)) > 4) or (string.find(tostring(Password), "0")) then
 		Ply:PrintMessage(3, "Invalid password!")
 		return false
