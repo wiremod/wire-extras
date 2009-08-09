@@ -3,14 +3,16 @@ TOOL.Name       = "#Keypad"
 TOOL.Command    = nil
 TOOL.ConfigName = ""
 
-TOOL.ClientConVar["secure"] = "0"
-TOOL.ClientConVar["weld"] = "1"
-TOOL.ClientConVar["freeze"] = "1"
-
-TOOL.ClientConVar["keygroup1"] = "-1"
-TOOL.ClientConVar["keygroup2"] = "-1"
-TOOL.ClientConVar["length1"] = "0.1"
-TOOL.ClientConVar["length2"] = "0.1"
+TOOL.ClientConVar = {
+	secure = "0",
+	weld = "1",
+	freeze = "1",
+	
+	keygroup1 = "-1",
+	keygroup2 = "-1",
+	length1 = "0.1",
+	length2 = "0.1",
+}
 
 if (SERVER) then
 	CreateConVar('sbox_maxkeypads', 10)
@@ -21,7 +23,7 @@ cleanup.Register("keypads")
 if (CLIENT) then
 	language.Add( "Tool_keypad_name", "Keypad" )
 	language.Add( "Tool_keypad_desc", "Made by: Killer HAHA (Robbis_1)" )
-	language.Add( "Tool_keypad_0", "Left Click: Spawn a Keypad, Right Click: Update Keypad with settings" )
+	language.Add( "Tool_keypad_0", "Left Click: Create/Update a Keypad" )
 	
 	language.Add( "Undone_Keypad", "Undone Keypad" )
 	language.Add( "Cleanup_keypads", "Keypads" )
@@ -91,7 +93,7 @@ function TOOL:LeftClick(trace)
 	Keypad:SetPos(SpawnPos)
 	Keypad:SetAngles(trace.HitNormal:Angle())
 	Keypad:Spawn()
-	Keypad:SetAngles(trace.HitNormal:Angle())
+	Keypad:SetAngles(trace.HitNormal:Angle()) -- why is this done twice?
 	Keypad:Activate()
 	
 	self:SetupKeypad(Keypad, Password)
