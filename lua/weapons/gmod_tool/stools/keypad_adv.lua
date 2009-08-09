@@ -3,27 +3,28 @@ TOOL.Name       = "#Keypad - Advanced"
 TOOL.Command    = nil
 TOOL.ConfigName = ""
 
-TOOL.ClientConVar["secure"] = "0"
-TOOL.ClientConVar["weld"] = "1"
-TOOL.ClientConVar["freeze"] = "1"
-
-TOOL.ClientConVar["password"] = ""
-TOOL.ClientConVar["keygroup1"] = "-1"
-TOOL.ClientConVar["keygroup2"] = "-1"
-TOOL.ClientConVar["length1"] = "0.1"
-TOOL.ClientConVar["length2"] = "0.1"
-TOOL.ClientConVar["delay1"] = "0"
-TOOL.ClientConVar["delay2"] = "0"
-TOOL.ClientConVar["initdelay1"] = "0"
-TOOL.ClientConVar["initdelay2"] = "0"
-TOOL.ClientConVar["repeats1"] = "0"
-TOOL.ClientConVar["repeats2"] = "0"
-
+TOOL.ClientConVar = {
+	secure = "0",
+	weld = "1",
+	freeze = "1",
+	
+	password = "",
+	keygroup1 = "-1",
+	keygroup2 = "-1",
+	length1 = "0.1",
+	length2 = "0.1",
+	delay1 = "0",
+	delay2 = "0",
+	initdelay1 = "0",
+	initdelay2 = "0",
+	repeats1 = "0",
+	repeats2 = "0",
+}
 
 if (CLIENT) then
 	language.Add( "Tool_keypad_adv_name", "Keypad - Advanced" )
 	language.Add( "Tool_keypad_adv_desc", "Made by: Killer HAHA (Robbis_1)" )
-	language.Add( "Tool_keypad_adv_0", "Left Click: Spawn a Keypad, Right Click: Update Keypad with settings" )
+	language.Add( "Tool_keypad_adv_0", "Left Click: Create/Update a Keypad" )
 end
 
 function TOOL:SetupKeypad(Ent, Password)
@@ -96,7 +97,7 @@ function TOOL:LeftClick(trace)
 	Keypad:SetPos(SpawnPos)
 	Keypad:SetAngles(trace.HitNormal:Angle())
 	Keypad:Spawn()
-	Keypad:SetAngles(trace.HitNormal:Angle())
+	Keypad:SetAngles(trace.HitNormal:Angle()) -- why is this done twice?
 	Keypad:Activate()
 	
 	self:SetupKeypad(Keypad, Password)

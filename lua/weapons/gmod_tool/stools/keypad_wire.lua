@@ -5,63 +5,65 @@ TOOL.Name       = "#Keypad"
 TOOL.Command    = nil
 TOOL.ConfigName = ""
 
-TOOL.ClientConVar["secure"] = "0"
-TOOL.ClientConVar["weld"] = "1"
-TOOL.ClientConVar["freeze"] = "1"
-
-TOOL.ClientConVar["keygroup1"] = "-1"
-TOOL.ClientConVar["keygroup2"] = "-1"
-TOOL.ClientConVar["length1"] = "0.1"
-TOOL.ClientConVar["length2"] = "0.1"
-TOOL.ClientConVar["delay1"] = "0"
-TOOL.ClientConVar["delay2"] = "0"
-TOOL.ClientConVar["initdelay1"] = "0"
-TOOL.ClientConVar["initdelay2"] = "0"
-TOOL.ClientConVar["repeats1"] = "0"
-TOOL.ClientConVar["repeats2"] = "0"
-TOOL.ClientConVar["toggle1"] = "0"
-TOOL.ClientConVar["toggle2"] = "0"
-TOOL.ClientConVar["valueon1"] = "1"
-TOOL.ClientConVar["valueon2"] = "1"
-TOOL.ClientConVar["valueoff1"] = "0"
-TOOL.ClientConVar["valueoff2"] = "0"
+TOOL.ClientConVar = {
+	secure = "0",
+	weld = "1",
+	freeze = "1",
+	
+	keygroup1 = "-1",
+	keygroup2 = "-1",
+	length1 = "0.1",
+	length2 = "0.1",
+	delay1 = "0",
+	delay2 = "0",
+	initdelay1 = "0",
+	initdelay2 = "0",
+	repeats1 = "0",
+	repeats2 = "0",
+	toggle1 = "0",
+	toggle2 = "0",
+	valueon1 = "1",
+	valueon2 = "1",
+	valueoff1 = "0",
+	valueoff2 = "0",
+}
 
 if ( CLIENT ) then
 	language.Add( "Tool_keypad_wire_name", "Keypad (Wire)" )
 	language.Add( "Tool_keypad_wire_desc", "Made by: Killer HAHA (Robbis_1)" )
-	language.Add( "Tool_keypad_wire_0", "Left Click: Spawn a Keypad, Right Click: Update Keypad with settings" )
+	language.Add( "Tool_keypad_wire_0", "Left Click: Create/Update a Keypad" )
 end
 
-function TOOL:SetupKeypad(Ent, Password)
-	Ent:AddPassword(Password)
+function TOOL:SetupKeypad(ent, Password)
+	ent:AddPassword(Password)
 	
-	Ent:SetPlayer(self:GetOwner())
-	Ent.length1 = self:GetClientNumber("length1")
-	Ent.length2 = self:GetClientNumber("length2")
+	ent:SetPlayer(self:GetOwner())
+	ent.length1 = self:GetClientNumber("length1")
+	ent.length2 = self:GetClientNumber("length2")
 	
-	Ent.keygroup1 = self:GetClientNumber("keygroup1")
-	Ent.keygroup2 = self:GetClientNumber("keygroup2")
+	ent.keygroup1 = self:GetClientNumber("keygroup1")
+	ent.keygroup2 = self:GetClientNumber("keygroup2")
 	
-	Ent.delay1 = self:GetClientNumber("delay1")
-	Ent.delay2 = self:GetClientNumber("delay2")
+	ent.delay1 = self:GetClientNumber("delay1")
+	ent.delay2 = self:GetClientNumber("delay2")
 	
-	Ent.initdelay1 = self:GetClientNumber("initdelay1")
-	Ent.initdelay2 = self:GetClientNumber("initdelay2")
+	ent.initdelay1 = self:GetClientNumber("initdelay1")
+	ent.initdelay2 = self:GetClientNumber("initdelay2")
 	
-	Ent.repeats1 = self:GetClientNumber("repeat1")
-	Ent.repeats2 = self:GetClientNumber("repeats2")
+	ent.repeats1 = self:GetClientNumber("repeat1")
+	ent.repeats2 = self:GetClientNumber("repeats2")
 	
-	Ent.toggle1 = util.tobool(self:GetClientNumber("toggle1"))
-	Ent.toggle2 = util.tobool(self:GetClientNumber("toggle2"))
+	ent.toggle1 = util.tobool(self:GetClientNumber("toggle1"))
+	ent.toggle2 = util.tobool(self:GetClientNumber("toggle2"))
 	
-	Ent.valueon1 = self:GetClientNumber("valueon1")
-	Ent.valueon2 = self:GetClientNumber("valueon2")
-	Ent.valueoff1 = self:GetClientNumber("valueoff1")
-	Ent.valueoff2 = self:GetClientNumber("valueoff2")
+	ent.valueon1 = self:GetClientNumber("valueon1")
+	ent.valueon2 = self:GetClientNumber("valueon2")
+	ent.valueoff1 = self:GetClientNumber("valueoff1")
+	ent.valueoff2 = self:GetClientNumber("valueoff2")
 	
-	Ent:SetNetworkedBool("keypad_showaccess", false)
-	Ent.secure = util.tobool(self:GetClientNumber("secure")) -- feed duplicator
-	Ent:SetNetworkedBool("keypad_secure", Ent.secure) -- feed client
+	ent:SetNetworkedBool("keypad_showaccess", false)
+	ent.secure = util.tobool(self:GetClientNumber("secure")) -- feed duplicator
+	ent:SetNetworkedBool("keypad_secure", ent.secure) -- feed client
 end
 
 function TOOL:RightClick(trace)
@@ -109,7 +111,7 @@ function TOOL:LeftClick(trace)
 	Keypad:SetPos(SpawnPos)
 	Keypad:SetAngles(trace.HitNormal:Angle())
 	Keypad:Spawn()
-	Keypad:SetAngles(trace.HitNormal:Angle())
+	Keypad:SetAngles(trace.HitNormal:Angle()) -- why is this done twice?
 	Keypad:Activate()
 	
 	Wire_TriggerOutput(Keypad, "Valid", self:GetClientNumber("valueoff1"))
@@ -145,16 +147,15 @@ function TOOL:LeftClick(trace)
 end
 
 if (CLIENT) then
-	local function ResetSettings(Ply, Com, Args)
-		Ply:ConCommand("keypad_wire_length"..Args[1].." 0.1\n")
-		Ply:ConCommand("keypad_wire_initdelay"..Args[1].." 0\n")
-		Ply:ConCommand("keypad_wire_repeats"..Args[1].." 0\n")
-		Ply:ConCommand("keypad_wire_delay"..Args[1].." 0\n")
-		Ply:ConCommand("keypad_wire_toggle"..Args[1].." 0\n")
-		Ply:ConCommand("keypad_wire_valueon"..Args[1].." 1\n")
-		Ply:ConCommand("keypad_wire_valueoff"..Args[1].." 0\n")
-	end
-	concommand.Add("keypad_wire_reset", ResetSettings)
+	concommand.Add("keypad_wire_reset", function(ply, command, args)
+		ply:ConCommand("keypad_wire_length"..args[1].." 0.1\n")
+		ply:ConCommand("keypad_wire_initdelay"..args[1].." 0\n")
+		ply:ConCommand("keypad_wire_repeats"..args[1].." 0\n")
+		ply:ConCommand("keypad_wire_delay"..Args[1].." 0\n")
+		ply:ConCommand("keypad_wire_toggle"..args[1].." 0\n")
+		ply:ConCommand("keypad_wire_valueon"..args[1].." 1\n")
+		ply:ConCommand("keypad_wire_valueoff"..args[1].." 0\n")
+	end)
 end
 
 function TOOL.BuildCPanel( CPanel )
