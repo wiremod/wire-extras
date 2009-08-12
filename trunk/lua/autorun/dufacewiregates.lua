@@ -606,24 +606,6 @@ local function AddWireGates_DuFace ()
 //-----------------------------------------------------------------------------
 
 // Activator (TODO... maybe)
-// Owner
-    GateActions["entity_owner"] = {
-        group = "Entity",
-        name = "Owner",
-        inputs = { "A" },
-        inputtypes = { "ENTITY" },
-        outputtypes = { "ENTITY" },
-        output = function (gate, A)
-            gate.Action.timed = false
-            if (A and IsEntity (A) and A:IsValid ()) then return A:GetOwner () end
-            return NULL
-        end,
-        label = function (Out, A)
-            local strEnt = "(none)"
-            if (Out != NULL and IsEntity (Out)) then strEnt = Out:GetName () end
-            return string.format ("A: %s  Owner: %s", A, strEnt)
-        end
-    }
 // Spawner
     GateActions["entity_player"] = {
         group = "Entity",
