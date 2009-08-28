@@ -71,9 +71,9 @@ end
 
 if ( CLIENT ) then
 
-	language.Add( "Tool_door_name", "Door" )
-	language.Add( "Tool_door_desc", "Spawn a Door" )
-	language.Add( "Tool_door_0", "Click somewhere to spawn a door." )
+	language.Add( "Tool_wire_door_name", "Door" )
+	language.Add( "Tool_wire_door_desc", "Spawn a Door" )
+	language.Add( "Tool_wire_door_0", "Click somewhere to spawn a door." )
 
 	language.Add( "Undone_door", "Undone door" )
 	language.Add( "Cleanup_door", "door" )
@@ -104,45 +104,45 @@ end
 function TOOL.BuildCPanel( CPanel )
 
 	// HEADER
-	CPanel:AddControl( "Header", { Text = "#Tool_door_name", Description	= "#Tool_door_desc" }  )
+	CPanel:AddControl( "Header", { Text = "#Tool_wire_door_name", Description	= "#Tool_wire_door_desc" }  )
 	
 	// PRESETS
 	local params = { Label = "#Presets", MenuButton = 1, Folder = "door", Options = {}, CVars = {} }
 			
 		params.Options.default = {
-			door_model = "models/props_combine/combine_door01.mdl",
-			door_open	= 1,
-			door_close	= 2 }
+			wire_door_model = "models/props_combine/combine_door01.mdl",
+			wire_door_open	= 1,
+			wire_door_close	= 2 }
 			
-		table.insert( params.CVars, "door_open" )
-		table.insert( params.CVars, "door_close" )
-		table.insert( params.CVars, "door_model" )
+		table.insert( params.CVars, "wire_door_open" )
+		table.insert( params.CVars, "wire_door_close" )
+		table.insert( params.CVars, "wire_door_model" )
 		
 	CPanel:AddControl( "ComboBox", params )
 	
 	
 	// KEY
-	// CPanel:AddControl( "Numpad", { Label = "#Door Open",Label2 = "#Door Close", Command = "door_open",Command2 = "door_close", ButtonSize = 22 } )
+	// CPanel:AddControl( "Numpad", { Label = "#Door Open",Label2 = "#Door Close", Command = "wire_door_open",Command2 = "wire_door_close", ButtonSize = 22 } )
 	
 	
 	// EMITTERS
 	local params = { Label = "#Models", Height = 150, Options = {} }
 
-	params.Options[ "TallCombineDoor" ] = { door_class = "prop_dynamic",door_model = "models/props_combine/combine_door01.mdl" }
-	params.Options[ "ElevatorDoor" ] = { door_class = "prop_dynamic",door_model = "models/props_lab/elevatordoor.mdl" }
-	params.Options[ "CombineDoor" ] = { door_class = "prop_dynamic",door_model = "models/combine_gate_Vehicle.mdl" }
-	params.Options[ "SmallCombineDoor" ] = { door_class = "prop_dynamic",door_model = "models/combine_gate_citizen.mdl" }
-	params.Options[ "Door1" ] = { door_hardware = "1",door_class = "prop_door_rotating",door_model = "models/props_c17/door01_left.mdl" }
-	params.Options[ "Door2" ] = { door_hardware = "2",door_class = "prop_door_rotating",door_model = "models/props_c17/door01_left.mdl" }
-	params.Options[ "KlabBlastDoor(by †Omen†)" ] = { door_class = "prop_dynamic",door_model = "models/props_doors/doorKLab01.mdl" }
+	params.Options[ "TallCombineDoor" ] = { wire_door_class = "prop_dynamic",wire_door_model = "models/props_combine/combine_door01.mdl" }
+	params.Options[ "ElevatorDoor" ] = { wire_door_class = "prop_dynamic",wire_door_model = "models/props_lab/elevatordoor.mdl" }
+	params.Options[ "CombineDoor" ] = { wire_door_class = "prop_dynamic",wire_door_model = "models/combine_gate_Vehicle.mdl" }
+	params.Options[ "SmallCombineDoor" ] = { wire_door_class = "prop_dynamic",wire_door_model = "models/combine_gate_citizen.mdl" }
+	params.Options[ "Door1" ] = { wire_door_hardware = "1",wire_door_class = "prop_door_rotating",wire_door_model = "models/props_c17/door01_left.mdl" }
+	params.Options[ "Door2" ] = { wire_door_hardware = "2",wire_door_class = "prop_door_rotating",wire_door_model = "models/props_c17/door01_left.mdl" }
+	params.Options[ "KlabBlastDoor(by †Omen†)" ] = { wire_door_class = "prop_dynamic",wire_door_model = "models/props_doors/doorKLab01.mdl" }
 
 	CPanel:AddControl( "ListBox", params )
 	CPanel:AddControl( "Slider",  { Label	= "#AutoClose Delay",
 								Type	= "Float",
 								Min		= 0,
 								Max		= 100,
-								Command = "door_closetime" }	 )
-	CPanel:AddControl( "Checkbox", { Label = "#AutoClose", Command = "door_autoclose" } )
+								Command = "wire_door_closetime" }	 )
+	CPanel:AddControl( "Checkbox", { Label = "#AutoClose", Command = "wire_door_autoclose" } )
 
 end
 
