@@ -28,6 +28,7 @@ Free Fall's Extentions - http://www.wiremod.com/forum/wiremod-addons/5129-free-f
 	RAM-Card's (This addon is still in development)
 High-speed holoemitter - Fizyk - http://www.wiremod.com/forum/wiremod-addons/8308-high-speed-holoemitter.html
 Insanely Huge Memory and Phi Gate - MagnetoHydroDynamics - http://www.wiremod.com/forum/wiremod-addons/5018-insanely-huge-memory-chips-phi-gate.html/
+Interactive Holoemitter - ??? - ??? (this was found in UWSVN but apparently no one updated the README)
 _Kilburn's Addons - http://www.wiremod.com/forum/wiremod-addons/4294-addons-wire-mod-mods-wire-addon.html :
 	Wire String Gates
 	Wire Materializer
@@ -35,22 +36,27 @@ _Kilburn's Addons - http://www.wiremod.com/forum/wiremod-addons/4294-addons-wire
 	Wire Motor
 	Wire Microphone
 	Wire RFID Systems (http://www.wiremod.com/forum/wiremod-addons/3017-wire-rfid-systems.html)
-Keycards - Originally by adb, Now Public Domain - http://www.wiremod.com/forum/wiremod-addons/2143-wire-keycards.html - NO LICENSE BY REQUEST OF AUTHOR
+Keycards - adb - http://www.wiremod.com/forum/wiremod-addons/2143-wire-keycards.html - (Placed in public domain by Author)
 Keypad - Robbis_1 and TomyLobo - http://forums.facepunchstudios.com/showthread.php?t=276931
 Lever - cpf - http://www.wiremod.com/forum/wiremod-addons/4097-wire-lever.html
 Multi-wire tool - Incompatible - http://www.wiremod.com/forum/wiremod-addons/2545-multi-wire-tool.html
 No Collide Addon - splat2010 - http://www.wiremod.com/forum/wiremod-addons/4777-no-collide-addon.html
 Notifier - high6 - http://www.wiremod.com/forum/wiremod-addons/3204-notifier.html
 PID Controller (super delta) - Moyer - http://www.wiremod.com/forum/wiremod-addons/5061-pid-controller.html
+Prop Core - Mr.Faul - http://wiki.garrysmod.com/?title=Expression_2_-_Prop_Core
 Servo 2 - Exitlights - http://www.wiremod.com/forum/wiremod-addons/6878-wired-servo-2-a.html
 Semi-realistic Wiremod Magnet - cpf - http://www.wiremod.com/forum/wiremod-addons/7693-semi-realistic-wiremod-magnet.html
 Simple Servo - Selig - http://www.wiremod.com/forum/wiremod-addons/5850-wire-simple-servo.html
+Simulate Data Stool - ZeitJT - http://www.wiremod.com/forum/wiremod-addons/8135-simulate-data-stool.html
+Wire Detcord - Philxyz - http://www.wiremod.com/forum/ideas-suggestions/6139-wire-detonation-cord-demolitions.html
+Wired Damage Scale - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/6346-wired-damage-scale.html
 Wire Highspeed ranger - Borsty - http://www.wiremod.com/forum/wiremod-addons/6888-wire-highspeed-ranger.html
 Wired Npcs - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/5930-wired-npc.html
-Wired Damage Scale - Hitman271 - http://www.wiremod.com/forum/wiremod-addons/6346-wired-damage-scale.html
+Wired Ramcard - ??? - ??? (this was found in UWSVN but apparently no one updated the README)
+Wired RT Camera - Hurricaaane - http://www.wiremod.com/forum/wiremod-addons/11063-wired-rt-camera-zoom-input.html
 Wired Wirer - Jeremydeath - http://www.wiremod.com/forum/wiremod-addons/9941-jeremydeaths-various-wire-addons.html
 Wire Wireless - AlgorithmX2 - http://www.wiremod.com/forum/wiremod-addons/6471-wire-wireless.html
 Wire Field Generators - AlgorithmX2 - http://www.wiremod.com/forum/wiremod-addons/6497-wire-field-generator-s.html
 XYZ Beacon - Doticatto - http://www.wiremod.com/forum/wiremod-addons/4708-wired-xyz-beacon-eject-input-socket.html
 
-Copyright CoreyLee Hassell (Anticept), and respective developers, 2007, 2008.
+Copyright CoreyLee Hassell (Anticept), and respective developers, 2007-2009.
