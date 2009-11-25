@@ -88,7 +88,7 @@ if (SERVER) then
 		wire_materializer:Spawn()
 		wire_materializer:Setup(outMat,Range)
 
-		wire_materializer:GetTable():SetPlayer( pl )
+		wire_materializer:SetPlayer( pl )
 
 		local ttable = {
 		    outMat = outMat,

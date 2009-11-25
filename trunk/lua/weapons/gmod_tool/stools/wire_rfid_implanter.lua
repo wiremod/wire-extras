@@ -84,7 +84,7 @@ if (SERVER) then
 		wire_rfid_implanter:Spawn()
 		wire_rfid_implanter:Setup(Range,NoColorChg)
 
-		wire_rfid_implanter:GetTable():SetPlayer( pl )
+		wire_rfid_implanter:SetPlayer( pl )
 
 		local ttable = {
 		    Range = Range,
