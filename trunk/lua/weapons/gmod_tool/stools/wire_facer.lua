@@ -74,7 +74,7 @@ if (SERVER) then
 		wire_facer:SetModel(Model)
 		wire_facer:Spawn()
 
-		wire_facer:GetTable():SetPlayer( pl )
+		wire_facer:SetPlayer( pl )
 
 		local ttable = {
 			pl = pl

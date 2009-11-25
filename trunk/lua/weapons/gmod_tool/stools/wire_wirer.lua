@@ -131,7 +131,7 @@ if (SERVER) then
 		ent:Setup(Range, WireWidth, WireMaterial, WireColor, Wiretype_Input, TargetPos_Input)
 		ent:Activate()
 		
-		ent:GetTable():SetPlayer( pl )
+		ent:SetPlayer( pl )
 
 		local ttable = {
 		    Range = Range,
