@@ -94,9 +94,9 @@ if SERVER then
 		wire_rfid_reader_act:SetPos(Pos)
 		wire_rfid_reader_act:Spawn()
 		
-		wire_rfid_reader_act:GetTable():Setup(target,NoColorChg)
+		wire_rfid_reader_act:Setup(target,NoColorChg)
 		
-		wire_rfid_reader_act:GetTable():SetPlayer(pl)
+		wire_rfid_reader_act:SetPlayer(pl)
 
 		local ttable = {
 			pl = pl,
