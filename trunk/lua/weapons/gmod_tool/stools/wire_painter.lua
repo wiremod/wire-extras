@@ -92,7 +92,7 @@ if (SERVER) then
 		wire_painter:Spawn()
 		wire_painter:Setup(Range, decal, playsnd, paintrate)
 
-		wire_painter:GetTable():SetPlayer( pl )
+		wire_painter:SetPlayer( pl )
 
 		local ttable = {
 		    Range = Range,

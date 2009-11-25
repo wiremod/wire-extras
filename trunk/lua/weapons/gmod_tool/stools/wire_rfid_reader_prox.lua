@@ -85,7 +85,7 @@ if (SERVER) then
 		wire_rfid_reader_prox:Spawn()
 		wire_rfid_reader_prox:Setup(Range,NoColorChg)
 
-		wire_rfid_reader_prox:GetTable():SetPlayer( pl )
+		wire_rfid_reader_prox:SetPlayer( pl )
 
 		local ttable = {
 		    Range = Range,

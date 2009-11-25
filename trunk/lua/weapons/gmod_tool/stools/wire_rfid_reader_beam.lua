@@ -83,7 +83,7 @@ if (SERVER) then
 		wire_rfid_reader_beam:Spawn()
 		wire_rfid_reader_beam:Setup(Range,NoColorChg)
 
-		wire_rfid_reader_beam:GetTable():SetPlayer( pl )
+		wire_rfid_reader_beam:SetPlayer( pl )
 
 		local ttable = {
 		    Range = Range,
