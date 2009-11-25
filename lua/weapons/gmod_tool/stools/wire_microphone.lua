@@ -94,7 +94,7 @@ if (SERVER) then
 		wire_microphone:Spawn()
 		wire_microphone:Setup(range, sen, on, hearcombat, hearplayer, hearworld, hearbullet, hearexplo)
 
-		wire_microphone:GetTable():SetPlayer( pl )
+		wire_microphone:SetPlayer( pl )
 
 		local ttable = {
 		    range = range,
