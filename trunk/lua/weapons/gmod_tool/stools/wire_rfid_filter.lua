@@ -120,9 +120,9 @@ if SERVER then
 		wire_rfid_filter:SetPos(Pos)
 		wire_rfid_filter:Spawn()
 		
-		wire_rfid_filter:GetTable():Setup(a,b,c,d,ca,cb,cc,cd,filtertype,target)
+		wire_rfid_filter:Setup(a,b,c,d,ca,cb,cc,cd,filtertype,target)
 		
-		wire_rfid_filter:GetTable():SetPlayer(pl)
+		wire_rfid_filter:SetPlayer(pl)
 
 		local ttable = {
 			a=a,
