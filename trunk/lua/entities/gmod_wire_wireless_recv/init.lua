@@ -57,7 +57,7 @@ function ENT:TriggerInput(iname, value)
 	
 	if ( iname == "Pop" ) then
 		if ( value != nil && math.floor( value ) != 0 ) then
-			table.remove( self.Buff , 0 )
+			table.remove( self.Buff , 1 )
 		end
 	end
 	
@@ -106,17 +106,15 @@ function ENT:UpdateRMessage()
 		
 	end
 	
-	Wire_TriggerOutput(self.Entity, "Count", # self.Buff )
+	Wire_TriggerOutput(self.Entity, "Count", #self.Buff )
 	
-	if ( #self.Buff ) then
-		Wire_TriggerOutput(self.Entity, "Message", self.Buff[0] )
-	end
+	Wire_TriggerOutput(self.Entity, "Message", self.Buff[1] or 0 )
 	
 end
 
 function ENT:Push( data )
 
-	table.insert( self.Buff , data );
+	table.insert( self.Buff, data );
 	self:UpdateRMessage();
 	
 end
