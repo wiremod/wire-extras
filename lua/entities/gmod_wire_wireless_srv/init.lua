@@ -40,11 +40,9 @@ function BTClientUpdateMessage( self )
 	end
 
 	Wire_TriggerOutput(self.Entity, "ID", self.clientID )
-	Wire_TriggerOutput(self.Entity, "Count", # self.Buff )
+	Wire_TriggerOutput(self.Entity, "Count", #self.Buff )
 	
-	if ( #self.Buff ) then
-		Wire_TriggerOutput(self.Entity, "Message", self.Buff[1] )
-	end
+	Wire_TriggerOutput(self.Entity, "Message", self.Buff[1] or 0 )
 	
 end
 
@@ -123,7 +121,7 @@ function ENT:TriggerInput(iname, value)
 	if ( Cli != 0 ) then
 		if ( iname == "Pop" ) then
 			if ( value != nil && math.floor( value ) != 0 ) then
-				table.remove( Cli.Buff , 0 )
+				table.remove( Cli.Buff , 1 )
 			end
 		end
 		
