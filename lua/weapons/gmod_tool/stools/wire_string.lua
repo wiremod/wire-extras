@@ -138,7 +138,7 @@ if (SERVER) then
 		return wire_string
 	end
 
-	duplicator.RegisterEntityClass("gmod_wire_string", MakeWireValue, "Model", "Pos", "Ang", "str", "Vel", "aVel", "frozen")
+	duplicator.RegisterEntityClass("gmod_wire_string", MakeWireString, "Model", "Pos", "Ang", "str", "Vel", "aVel", "frozen")
 
 end
 
