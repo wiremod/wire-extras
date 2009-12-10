@@ -12,12 +12,11 @@ function ENT:SpawnFunction( ply, trace )
 	Ang.pitch = Ang.pitch + 90
 	ent:SetAngles( Ang )
 	
-	-- Spawn the plate and set its player
-	
 	-- Move it into the right spot
 	local min = ent:OBBMins()
 	ent:SetPos( trace.HitPos - trace.HitNormal * min.z )
 	
+	-- Spawn the plate and set its player
 	ent:SetPlayer( ply )
 	ent:Spawn()
 	
@@ -29,6 +28,7 @@ function ENT:Initialize()
 	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
 	self.Entity:SetSolid( SOLID_VPHYSICS )
 	
+	self.Inputs  = WireLib.CreateInputs (self, { "OnlyPlayers" })
 	self.Outputs = WireLib.CreateOutputs(self, { "Touched", "Toucher [ENTITY]", "Touchers [ARRAY]" })
 	
 	local phys = self:GetPhysicsObject()
@@ -37,8 +37,15 @@ function ENT:Initialize()
 	end
 	
 	self.touchers = {}
+	self.OnlyPlayers = false
 	
 	self:UpdateOutputs()
+end
+
+function ENT:TriggerInput(name, value)
+	if name == "OnlyPlayers" then
+		self.OnlyPlayers = value ~= 0
+	end
 end
 
 function ENT:UpdateOutputs()
@@ -49,6 +56,7 @@ function ENT:UpdateOutputs()
 end
 
 function ENT:StartTouch(ent)
+	if not self:MehPassesTriggerFilters(ent) then return end
 	table.insert(self.touchers, ent)
 	self:UpdateOutputs()
 end
@@ -61,4 +69,8 @@ function ENT:EndTouch(ent)
 			break
 		end
 	end
+end
+
+function ENT:MehPassesTriggerFilters(ent)
+	return ent:IsPlayer() or not self.OnlyPlayers
 end
