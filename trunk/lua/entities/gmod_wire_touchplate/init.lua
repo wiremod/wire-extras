@@ -1,27 +1,6 @@
-include('shared.lua')
+AddCSLuaFile("cl_init.lua")
 
-function ENT:SpawnFunction( ply, trace )
-	-- Create the entity
-	local ent = ents.Create("gmod_wire_touchplate")
-	
-	-- Use a plate as the model
-	ent:SetModel( "models/props_phx/construct/metal_plate1.mdl" )
-	
-	-- Align the plate with the surface below it
-	local Ang = trace.HitNormal:Angle()
-	Ang.pitch = Ang.pitch + 90
-	ent:SetAngles( Ang )
-	
-	-- Move it into the right spot
-	local min = ent:OBBMins()
-	ent:SetPos( trace.HitPos - trace.HitNormal * min.z )
-	
-	-- Spawn the plate and set its player
-	ent:SetPlayer( ply )
-	ent:Spawn()
-	
-	return ent
-end
+include("cl_init.lua")
 
 function ENT:Initialize()
 	self.Entity:PhysicsInit( SOLID_VPHYSICS )
@@ -37,14 +16,14 @@ function ENT:Initialize()
 	end
 	
 	self.touchers = {}
-	self.OnlyPlayers = false
+	self.only_players = false
 	
 	self:UpdateOutputs()
 end
 
 function ENT:TriggerInput(name, value)
 	if name == "OnlyPlayers" then
-		self.OnlyPlayers = value ~= 0
+		self.only_players = value ~= 0
 	end
 end
 
@@ -56,7 +35,7 @@ function ENT:UpdateOutputs()
 end
 
 function ENT:StartTouch(ent)
-	if not self:MehPassesTriggerFilters(ent) then return end
+	if not self:MyPassesTriggerFilters(ent) then return end
 	table.insert(self.touchers, ent)
 	self:UpdateOutputs()
 end
@@ -71,6 +50,24 @@ function ENT:EndTouch(ent)
 	end
 end
 
-function ENT:MehPassesTriggerFilters(ent)
-	return ent:IsPlayer() or not self.OnlyPlayers
+function ENT:MyPassesTriggerFilters(ent)
+	return ent:IsPlayer() or not self.only_players
 end
+
+function MakeWireTouchplate(pl, Pos, Ang, model, only_players)
+	-- Create the entity
+	local ent = ents.Create("gmod_wire_touchplate")
+	
+	ent:SetModel(Model(model))
+	ent:SetAngles( Ang )
+	ent:SetPos( Pos )
+	
+	ent:SetPlayer( pl )
+	ent:Spawn()
+	
+	ent.only_players = only_players
+	
+	return ent
+end
+
+duplicator.RegisterEntityClass("gmod_wire_touchplate", MakeWireTouchplate, "Pos", "Ang", "model", "only_players")
