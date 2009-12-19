@@ -14,6 +14,9 @@ hyperlink
 
 -----------------
 
+EGP e2 Graphics Processor: Goluch / Doridian
+http://www.wiremod.com/forum/e2-development/16225-release-egp-e2-graphics-processor.html
+
 Adv. HUD Indicator - Moggie100 (Based on the origional by TheApathetic)
 http://www.wiremod.com/forum/wiremod-addons/6571-advanced-hud-tools.html
 
