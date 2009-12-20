@@ -14,8 +14,11 @@ hyperlink
 
 -----------------
 
-EGP e2 Graphics Processor: Goluch / Doridian
+EGP e2 Graphics Processor - Goluch / Doridian
 http://www.wiremod.com/forum/e2-development/16225-release-egp-e2-graphics-processor.html
+
+Wire Touch Plate - Asphid_Jackal / TomyLobo
+http://www.wiremod.com/forum/ideas-suggestions/16284-pressure-pad-3.html#post158700 (Asphid_Jackal's original release)
 
 Adv. HUD Indicator - Moggie100 (Based on the origional by TheApathetic)
 http://www.wiremod.com/forum/wiremod-addons/6571-advanced-hud-tools.html
