@@ -313,6 +313,7 @@ e2function void wirelink:egpMaterial(idx,string mat)
 end
 
 e2function void wirelink:egpSetText(idx,string text)
+	if text == "" then return end
 	RenderSetMaterial(this,idx,text)
 end
 
