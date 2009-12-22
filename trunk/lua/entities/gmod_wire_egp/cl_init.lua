@@ -112,7 +112,6 @@ end)
 
 usermessage.Hook("EGPPoly", function(um)
 	local ent = um:ReadEntity()
-	print(ent)
 	if not validEGP(ent) then return end
 	
 	local idx = um:ReadLong()
@@ -141,7 +140,6 @@ usermessage.Hook("EGPPoly", function(um)
 	
 	ent.Render[idx] = entry
 	ent.NeedsRender = true
-	PrintTable(entry)
 end)
 
 function ENT:clearAll()
