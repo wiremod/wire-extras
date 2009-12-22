@@ -383,6 +383,13 @@ e2function void wirelink:egpPoly(index, ...)
 	Draw_Poly(this, index, vertex_array)
 end
 
+e2function void wirelink:egpTextAlign(idx,s)
+	idx = math.Round(idx)
+	if not validEGP(this,idx,true) then return false end
+	if not this.Render[idx].image == "text" then return end
+	this.Render[idx]["extra"] = math.Clamp(math.Round(I),0,2)
+end
+
 --this is where i take over the coding again.
 
 e2function void wirelink:egpPolyColor(index, vector4 color)
