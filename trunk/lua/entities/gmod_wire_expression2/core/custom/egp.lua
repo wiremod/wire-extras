@@ -1,5 +1,5 @@
-local EGPLimit = CreateConVar("sbox_maxwire_egp_elements","40",FCVAR_ARCHIVE)
-local EGPPolyLimit = CreateConVar("sbox_maxwire_egp_polys","40",FCVAR_ARCHIVE)
+local EGPLimit = CreateConVar("sbox_maxwire_egp_elements", "40", FCVAR_ARCHIVE)
+local EGPPolyLimit = CreateConVar("sbox_maxwire_egp_polys", "40", FCVAR_ARCHIVE)
 local NilTab = {
 	image = "Empty",
 	posX = 0,
@@ -25,7 +25,7 @@ ValidFonts["arial"] = 5
 ValidFonts["courier new"] = 6
 ValidFonts["times new roman"] = 7
 
-local function validEGP(ent,idx,notexistant)
+local function validEGP(ent, idx, notexistant)
 	if not ValidEntity(ent) then return false end
 	if not ent.Render then return false end
 	if idx and (idx < 0 or idx > EGPLimit:GetInt() or not (notexistant or ent.Render[idx])) then return false end
@@ -33,7 +33,7 @@ local function validEGP(ent,idx,notexistant)
 	return true
 end
 
-local function validEGPDraw(ent,noset)
+local function validEGPDraw(ent, noset)
 	if !ent.LastPainted or (CurTime() - ent.LastPainted) >= 0.08 then 
 		if not noset then ent.LastPainted = CurTime() end
 		return true
@@ -44,21 +44,21 @@ end
 e2function void wirelink:egpClear()
 	if not validEGP(this) then return end
 	if not validEGPDraw(this) then return end
-	for k,_ in pairs(this.RenderDirty) do
+	for k, _ in pairs(this.RenderDirty) do
 		this.Render[k] = NilTab
 	end
 end
 
 e2function number wirelink:egpCanDraw()
 	if not validEGP(this) then return 0 end
-	if validEGPDraw(this,true) then return 1 end
+	if validEGPDraw(this, true) then return 1 end
 	return 0
 end
 
 e2function number wirelink:egpDraw()
 	if not validEGP(this) then return 0 end
 	if not validEGPDraw(this) then return 0 end
-	for k,_ in pairs(this.RenderDirty) do
+	for k, _ in pairs(this.RenderDirty) do
 		if this.Render[k] then
 			local v = this.Render[k]
 			this:SendEntry(k, v) --> shared.lua
@@ -72,7 +72,7 @@ end
 e2function number wirelink:egpDrawPolys()
 	if not validEGP(this) then return 0 end
 	if not validEGPDraw(this) then return 0 end
-	for k,_ in pairs(this.Poly) do
+	for k, _ in pairs(this.Poly) do
 		if this.Poly[k] then
 			local v = this.Poly[k]
 			umsg.Start("EGPPoly")
@@ -84,7 +84,7 @@ e2function number wirelink:egpDrawPolys()
 				umsg.Char(v.colA-128)
 				umsg.String(v.material or "")
 				umsg.Short( table.Count(v.vertices) )
-				for _,z in pairs(v.vertices) do
+				for _, z in pairs(v.vertices) do
 					umsg.Short(z[1])
 					umsg.Short(z[2])
 					umsg.Short(z[3])
@@ -101,19 +101,19 @@ end
 
 
 local function EGPPlayerInit(ply)
-	for _,this in pairs(ents.FindByClass("gmod_wire_egp")) do
-		for k,v in pairs(this.Render) do
+	for _, this in pairs(ents.FindByClass("gmod_wire_egp")) do
+		for k, v in pairs(this.Render) do
 			-- TODO
-			--umsg.Start("EGPU",ply)
+			--umsg.Start("EGPU", ply)
 				
 			--umsg.End()
 		end
 	end
 end
-hook.Add("PlayerInitialSpawn","EGPPlayerInit",EGPPlayerInit)
+hook.Add("PlayerInitialSpawn", "EGPPlayerInit", EGPPlayerInit)
 
-local function RenderSetColor(this,idx,R,G,B,A)
-	if not validEGP(this,idx) then return false end
+local function RenderSetColor(this, idx, R, G, B, A)
+	if not validEGP(this, idx) then return false end
 	local tbl = this.Render[idx]
 	tbl.colR = R
 	tbl.colG = G
@@ -121,195 +121,208 @@ local function RenderSetColor(this,idx,R,G,B,A)
 	tbl.colA = A
 end
 
-local function RenderSetP1(this,idx,pos1X,pos1Y)
-	if not validEGP(this,idx) then return false end
+local function RenderSetP1(this, idx, pos1X, pos1Y)
+	if not validEGP(this, idx) then return false end
 	local tbl = this.Render[idx]
 	tbl.posX = pos1X
 	tbl.posY = pos1Y
 end
 
-local function RenderSetP2(this,idx,pos2X,pos2Y)
-	if not validEGP(this,idx) then return false end
+local function RenderSetP2(this, idx, pos2X, pos2Y)
+	if not validEGP(this, idx) then return false end
 	local tbl = this.Render[idx]
 	tbl.sizeX = pos2X
 	tbl.sizeY = pos2Y
 end
 
-local function RenderSetMaterial(this,idx,mat)
-	if not validEGP(this,idx) then return false end
+local function RenderSetMaterial(this, idx, mat)
+	if not validEGP(this, idx) then return false end
 	this.Render[idx].material = mat
 end
 
-local function AddGenericRender(this,idx,imgX,pos1X,pos1Y,sizeX,sizeY,R,G,B,A)
+local function AddGenericRender(this, idx, imgX, pos1X, pos1Y, sizeX, sizeY, R, G, B, A)
 	idx = math.Round(idx)
-	if not validEGP(this,idx,true) then return false end
+	if not validEGP(this, idx, true) then return false end
 	this.Render[idx] = {
 		image = imgX,
 		material = nil,
 		extra = 7,
 		sides = 64
 	}
-	RenderSetP1(this,idx,pos1X,pos1Y)
-	RenderSetP2(this,idx,sizeX,sizeY)
-	RenderSetColor(this,idx,R,G,B,A)
+	RenderSetP1(this, idx, pos1X, pos1Y)
+	RenderSetP2(this, idx, sizeX, sizeY)
+	RenderSetColor(this, idx, R, G, B, A)
 	return true
 end
 
-e2function void wirelink:egpBox(idx,posX,posY,sizeX,sizeY,R,G,B,A)
-	AddGenericRender(this,idx,"box",posX,posY,sizeX,sizeY,R,G,B,A)
+e2function void wirelink:egpBox(idx, posX, posY, sizeX, sizeY, R, G, B, A)
+	AddGenericRender(this, idx, "box", posX, posY, sizeX, sizeY, R, G, B, A)
 end
-e2function void wirelink:egpBox(idx,vector2 pos,vector2 size,vector4 col)
-	AddGenericRender(this,idx,"box",pos[1],pos[2],size[1],size[2],col[1],col[2],col[3],col[4])
+e2function void wirelink:egpBox(idx, vector2 pos, vector2 size, vector4 col)
+	AddGenericRender(this, idx, "box", pos[1], pos[2], size[1], size[2], col[1], col[2], col[3], col[4])
 end
-e2function void wirelink:egpBox(idx,vector2 pos,vector2 size,vector col,A)
-	AddGenericRender(this,idx,"box",pos[1],pos[2],size[1],size[2],col[1],col[2],col[3],A)
-end
-
-e2function void wirelink:egpBoxoutline(idx,posX,posY,sizeX,sizeY,R,G,B,A)
-	AddGenericRender(this,idx,"boxoutline",posX,posY,sizeX,sizeY,R,G,B,A)
-end
-e2function void wirelink:egpBoxoutline(idx,vector2 pos,vector2 size,vector4 col)
-	AddGenericRender(this,idx,"boxoutline",pos[1],pos[2],size[1],size[2],col[1],col[2],col[3],col[4])
-end
-e2function void wirelink:egpBoxoutline(idx,vector2 pos,vector2 size,vector col,A)
-	AddGenericRender(this,idx,"boxoutline",pos[1],pos[2],size[1],size[2],col[1],col[2],col[3],A)
+e2function void wirelink:egpBox(idx, vector2 pos, vector2 size, vector col, A)
+	AddGenericRender(this, idx, "box", pos[1], pos[2], size[1], size[2], col[1], col[2], col[3], A)
 end
 
-e2function void wirelink:egpCircle(idx,posX,posY,sizeX,sizeY,R,G,B,A)
-	AddGenericRender(this,idx,"cir",posX,posY,sizeX,sizeY,R,G,B,A)
+e2function void wirelink:egpBoxoutline(idx, posX, posY, sizeX, sizeY, R, G, B, A)
+	AddGenericRender(this, idx, "boxoutline", posX, posY, sizeX, sizeY, R, G, B, A)
 end
-e2function void wirelink:egpCircle(idx,vector2 pos,vector2 size,vector4 col)
-	AddGenericRender(this,idx,"cir",pos[1],pos[2],size[1],size[2],col[1],col[2],col[3],col[4])
+e2function void wirelink:egpBoxoutline(idx, vector2 pos, vector2 size, vector4 col)
+	AddGenericRender(this, idx, "boxoutline", pos[1], pos[2], size[1], size[2], col[1], col[2], col[3], col[4])
 end
-e2function void wirelink:egpCircle(idx,vector2 pos,vector2 size,vector col,A)
-	AddGenericRender(this,idx,"cir",pos[1],pos[2],size[1],size[2],col[1],col[2],col[3],A)
+e2function void wirelink:egpBoxoutline(idx, vector2 pos, vector2 size, vector col, A)
+	AddGenericRender(this, idx, "boxoutline", pos[1], pos[2], size[1], size[2], col[1], col[2], col[3], A)
 end
 
-e2function void wirelink:egpTriangle(idx,posX1,posY1,posX2,posY2,posX3,posY3,sizeX,sizeY,R,G,B,A)
+e2function void wirelink:egpCircle(idx, posX, posY, sizeX, sizeY, R, G, B, A)
+	AddGenericRender(this, idx, "cir", posX, posY, sizeX, sizeY, R, G, B, A)
+end
+e2function void wirelink:egpCircle(idx, vector2 pos, vector2 size, vector4 col)
+	AddGenericRender(this, idx, "cir", pos[1], pos[2], size[1], size[2], col[1], col[2], col[3], col[4])
+end
+e2function void wirelink:egpCircle(idx, vector2 pos, vector2 size, vector col, A)
+	AddGenericRender(this, idx, "cir", pos[1], pos[2], size[1], size[2], col[1], col[2], col[3], A)
+end
+
+e2function void wirelink:egpTriangle(idx, posX1, posY1, posX2, posY2, posX3, posY3, sizeX, sizeY, R, G, B, A)
 	idx = math.Round(idx)
-	if not validEGP(this,idx,true) then return false end
-	AddGenericRender(this,idx,"tri",posX1,posY1,posX2,posY2,posX3,posY3,R,G,B,A)
+	if not validEGP(this, idx, true) then return false end
+	AddGenericRender(this, idx, "tri", posX1, posY1, posX2, posY2, posX3, posY3, R, G, B, A)
 	this.Render[idx]["angle"] = posX3
 	this.Render[idx]["extra"] = posY3
 end
-e2function void wirelink:egpTriangle(idx,vector2 pos1,vector2 pos2,vector2 pos3,vector4 col)
+e2function void wirelink:egpTriangle(idx, vector2 pos1, vector2 pos2, vector2 pos3, vector4 col)
 	idx = math.Round(idx)
-	if not validEGP(this,idx,true) then return false end
-	AddGenericRender(this,idx,"tri",pos1[1],pos1[2],pos2[1],pos2[2],col[1],col[2],col[3],col[4])
+	if not validEGP(this, idx, true) then return false end
+	AddGenericRender(this, idx, "tri", pos1[1], pos1[2], pos2[1], pos2[2], col[1], col[2], col[3], col[4])
 	this.Render[idx]["angle"] = pos3[1]
 	this.Render[idx]["extra"] = pos3[2]
 end
-e2function void wirelink:egpTriangle(idx,vector2 pos1,vector2 pos2,vector2 pos3,vector col,A)
+e2function void wirelink:egpTriangle(idx, vector2 pos1, vector2 pos2, vector2 pos3, vector col, A)
 	idx = math.Round(idx)
-	if not validEGP(this,idx,true) then return false end
-	AddGenericRender(this,idx,"tri",pos1[1],pos1[2],pos2[1],pos2[2],col[1],col[2],col[3],A)
+	if not validEGP(this, idx, true) then return false end
+	AddGenericRender(this, idx, "tri", pos1[1], pos1[2], pos2[1], pos2[2], col[1], col[2], col[3], A)
 	this.Render[idx]["angle"] = pos3[1]
 	this.Render[idx]["extra"] = pos3[2]
 end
 
 
 
-e2function void wirelink:egpLine(idx,posX,posY,sizeX,sizeY,R,G,B,A)
-	AddGenericRender(this,idx,"line",posX,posY,sizeX,sizeY,R,G,B,A)
+e2function void wirelink:egpLine(idx, posX, posY, sizeX, sizeY, R, G, B, A)
+	AddGenericRender(this, idx, "line", posX, posY, sizeX, sizeY, R, G, B, A)
 end
-e2function void wirelink:egpLine(idx,vector2 pos,vector2 size,vector4 col)
-	AddGenericRender(this,idx,"line",pos[1],pos[2],size[1],size[2],col[1],col[2],col[3],col[4])
+e2function void wirelink:egpLine(idx, vector2 pos, vector2 size, vector4 col)
+	AddGenericRender(this, idx, "line", pos[1], pos[2], size[1], size[2], col[1], col[2], col[3], col[4])
 end
-e2function void wirelink:egpLine(idx,vector2 pos,vector2 size,vector col,A)
-	AddGenericRender(this,idx,"line",pos[1],pos[2],size[1],size[2],col[1],col[2],col[3],A)
+e2function void wirelink:egpLine(idx, vector2 pos, vector2 size, vector col, A)
+	AddGenericRender(this, idx, "line", pos[1], pos[2], size[1], size[2], col[1], col[2], col[3], A)
 end
 
 
-e2function void wirelink:egpCircleStart(idx,i)
+e2function void wirelink:egpCircleStart(idx, i)
 	idx = math.Round(idx)
-	if not validEGP(this,idx,true) then return false end
+	if not validEGP(this, idx, true) then return false end
 	this.Render[idx]["angle"] = i
 end
-e2function void wirelink:egpCircleEnd(idx,i)
+e2function void wirelink:egpCircleEnd(idx, i)
 	idx = math.Round(idx)
-	if not validEGP(this,idx,true) then return false end
+	if not validEGP(this, idx, true) then return false end
 	this.Render[idx]["extra"] = i
 end
-e2function void wirelink:egpCirclePoints(idx,vector2 i)
+e2function void wirelink:egpCirclePoints(idx, vector2 i)
 	idx = math.Round(idx)
-	if not validEGP(this,idx,true) then return false end
+	if not validEGP(this, idx, true) then return false end
 	this.Render[idx]["angle"] = i[1]
 	this.Render[idx]["extra"] = i[2]
 end
-e2function void wirelink:egpCirclePoints(idx,s,e)
+e2function void wirelink:egpCirclePoints(idx, s, e)
 	idx = math.Round(idx)
-	if not validEGP(this,idx,true) then return false end
+	if not validEGP(this, idx, true) then return false end
 	this.Render[idx]["angle"] = s
 	this.Render[idx]["extra"] = e
 end
-e2function void wirelink:egpCircleSides(idx,s)
+e2function void wirelink:egpCircleSides(idx, s)
 	idx = math.Round(idx)
-	if not validEGP(this,idx,true) then return false end
-	this.Render[idx]["sides"] = math.Clamp(math.Round(s),3,64)
+	if not validEGP(this, idx, true) then return false end
+	this.Render[idx]["sides"] = math.Clamp(math.Round(s), 3, 64)
 end
 
-e2function void wirelink:egpText(idx,string text,vector2 pos,vector col,A)
-	if text == "" or not text then return end
-	if !AddGenericRender(this,idx,"text",pos[1],pos[2],0,0,col[1],col[2],col[3],A) then return end
+e2function void wirelink:egpText(idx, string text, vector2 pos, vector4 col)
+	if !AddGenericRender(this, idx, "text", pos[1], pos[2], 0, 0, col[1], col[2], col[3], col[4]) then return end
 	this.Render[idx].falign = 0
-	RenderSetMaterial(this,idx,text)
+	this.Render[idx].text = text
 end
-e2function void wirelink:egpText(idx,string text,vector2 pos,vector4 col)
-	if text == "" or not text then return end
-	if !AddGenericRender(this,idx,"text",pos[1],pos[2],0,0,col[1],col[2],col[3],col[4]) then return end
+e2function void wirelink:egpText(idx, string text, vector2 pos, vector col, A)
+	if !AddGenericRender(this, idx, "text", pos[1], pos[2], 0, 0, col[1], col[2], col[3], A) then return end
 	this.Render[idx].falign = 0
-	RenderSetMaterial(this,idx,text)
+	this.Render[idx].text = text
 end
-e2function void wirelink:egpText(idx,string text,pos1X,pos1Y,R,G,B,A)
-	if text == "" or not text then return end
-	if !AddGenericRender(this,idx,"text",pos1X,pos1Y,0,0,R,G,B,A) then return end
+e2function void wirelink:egpText(idx, string text, posX, posY, R, G, B, A)
+	if !AddGenericRender(this, idx, "text", posX, posY, 0, 0, R, G, B, A) then return end
 	this.Render[idx].falign = 0
-	RenderSetMaterial(this,idx,text)
+	this.Render[idx].text = text
 end
 
---X,Y
-e2function void wirelink:egpPos(idx,posX,posY)
-	RenderSetP1(this,idx,posX,posY)
+e2function void wirelink:egpTextLayout(idx, string text, vector2 pos, vector2 size, vector4 col)
+	if !AddGenericRender(this, idx, "textl", pos[1], pos[2], size[1], size[2], col[1], col[2], col[3], col[4]) then return end
+	this.Render[idx].falign = 0
+	this.Render[idx].text = text
 end
-e2function void wirelink:egpPos1(idx,posX,posY)
-	RenderSetP1(this,idx,posX,posY)
+e2function void wirelink:egpTextLayout(idx, string text, vector2 pos, vector2 size, vector col, A)
+	if !AddGenericRender(this, idx, "textl", pos[1], pos[2], size[1], size[2], col[1], col[2], col[3], A) then return end
+	this.Render[idx].falign = 0
+	this.Render[idx].text = text
 end
-e2function void wirelink:egpPos2(idx,posX,posY)
-	RenderSetP2(this,idx,posX,posY)
+e2function void wirelink:egpTextLayout(idx, string text, posX, posY, sizeX, sizeY, R, G, B, A)
+	if !AddGenericRender(this, idx, "textl", posX, posY, sizeX, sizeY, R, G, B, A) then return end
+	this.Render[idx].falign = 0
+	this.Render[idx].text = text
 end
-e2function void wirelink:egpSize(idx,posX,posY)
-	RenderSetP2(this,idx,posX,posY)
+
+--X, Y
+e2function void wirelink:egpPos(idx, posX, posY)
+	RenderSetP1(this, idx, posX, posY)
+end
+e2function void wirelink:egpPos1(idx, posX, posY)
+	RenderSetP1(this, idx, posX, posY)
+end
+e2function void wirelink:egpPos2(idx, posX, posY)
+	RenderSetP2(this, idx, posX, posY)
+end
+e2function void wirelink:egpSize(idx, posX, posY)
+	RenderSetP2(this, idx, posX, posY)
 end
 
 --V2
-e2function void wirelink:egpPos(idx,vector2 pos)
-	RenderSetP1(this,idx,pos[1],pos[2])
+e2function void wirelink:egpPos(idx, vector2 pos)
+	RenderSetP1(this, idx, pos[1], pos[2])
 end
-e2function void wirelink:egpPos1(idx,vector2 pos)
-	RenderSetP1(this,idx,pos[1],pos[2])
+e2function void wirelink:egpPos1(idx, vector2 pos)
+	RenderSetP1(this, idx, pos[1], pos[2])
 end
-e2function void wirelink:egpPos2(idx,vector2 pos)
-	RenderSetP2(this,idx,pos[1],pos[2])
+e2function void wirelink:egpPos2(idx, vector2 pos)
+	RenderSetP2(this, idx, pos[1], pos[2])
 end
-e2function void wirelink:egpSize(idx,vector2 pos)
-	RenderSetP2(this,idx,pos[1],pos[2])
-end
-
-
-
-e2function void wirelink:egpMaterial(idx,string mat)
-	RenderSetMaterial(this,idx,mat)
+e2function void wirelink:egpSize(idx, vector2 pos)
+	RenderSetP2(this, idx, pos[1], pos[2])
 end
 
-e2function void wirelink:egpSetText(idx,string text)
+
+
+e2function void wirelink:egpMaterial(idx, string mat)
+	RenderSetMaterial(this, idx, mat)
+end
+
+e2function void wirelink:egpSetText(idx, string text)
 	if text == "" then return end
-	RenderSetMaterial(this,idx,text)
+	RenderSetMaterial(this, idx, text)
 end
 
-e2function void wirelink:egpSetFont(idx,string name,number size)
+e2function void wirelink:egpSetFont(idx, string name, number size)
 	local fid = ValidFonts[string.lower(name)]
 	if not fid then return end
-	if not validEGP(this,idx) then return false end
+	if not validEGP(this, idx) then return false end
 	
 	local tbl = this.Render[idx]
 	tbl.fsize = size
@@ -317,7 +330,7 @@ e2function void wirelink:egpSetFont(idx,string name,number size)
 end
 
 e2function void wirelink:egpRemove(idx)
-	if not validEGP(this,idx,true) then return false end
+	if not validEGP(this, idx, true) then return false end
 	this.Render[idx] = NilTab
 end
 
@@ -337,11 +350,11 @@ local function Draw_Poly(ent, idx, vertex_array)
 end
 
 e2function void wirelink:egpPoly(idx, array arr)
-	if not validEGP(this,idx,true) then return false end
+	if not validEGP(this, idx, true) then return false end
 	--I lied again he actualy did make this one.
 	local vertex_array = {}
 	
-	for k,v in pairs_sortkeys(arr) do
+	for k, v in pairs_sortkeys(arr) do
 		local tp = type(v) == "table" and #v
 		if tp == 2 then
 			v = { v[1], v[2], 0, 0 }
@@ -360,7 +373,7 @@ e2function void wirelink:egpPoly(idx, ...)
 	local arr = { ... }
 	local vertex_array = {}
 	
-	for k,v in ipairs(arr) do
+	for k, v in ipairs(arr) do
 		local tp = typeids[k]
 		if tp == "xv2" then
 			v = { v[1], v[2], 0, 0 }
@@ -376,9 +389,9 @@ end
 
 e2function void wirelink:egpTextAlign(idx, halign, valign)
 	idx = math.Round(idx)
-	if not validEGP(this,idx,true) then return false end
+	if not validEGP(this, idx, true) then return false end
 	if not this.Render[idx].image == "text" then return end
-	this.Render[idx].falign = math.Clamp(math.floor(halign),0,2) + 10*math.Clamp(math.floor(valign),0,2)
+	this.Render[idx].falign = math.Clamp(math.floor(halign), 0, 2) + 10*math.Clamp(math.floor(valign), 0, 2)
 end
 
 --this is where i take over the coding again.
