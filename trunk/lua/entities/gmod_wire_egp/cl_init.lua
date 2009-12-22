@@ -20,7 +20,6 @@ local function validEGP(ent)
 end
 
 function ENT:Initialize()
-	self.Poly = {}
 	self.GPU = WireGPU(self.Entity)
 	self.Render = {
 		{
@@ -95,7 +94,7 @@ usermessage.Hook("EGPU", function(um)
 	if not validEGP(ent) then return end
 	if id == 1 then
 		ent.Render = {}
-		if ent.FirstDraw then ent.FirstDraw = nil end
+		ent.FirstDraw = nil
 		
 	elseif id == 2 then
 		if ent.FirstDraw then
@@ -113,29 +112,36 @@ end)
 
 usermessage.Hook("EGPPoly", function(um)
 	local ent = um:ReadEntity()
+	print(ent)
 	if not validEGP(ent) then return end
+	
 	local idx = um:ReadLong()
-	ent.Poly[idx] = {
+	
+	local entry = {
+		image = "poly",
 		colR = um:ReadChar()+128,
 		colG = um:ReadChar()+128,
 		colB = um:ReadChar()+128,
 		colA = um:ReadChar()+128,
 		material = um:ReadString(),
-		vertexs = {}
+		vertices = {},
 	}
 	
 	local nvertices = um:ReadChar()
-	for i = 1,nvertices do 
-		ent.Poly[idx].vertexs[i] = {
+	for i = 1,nvertices do
+		entry.vertices[i] = {
 			x = um:ReadFloat(),
 			y = um:ReadFloat(),
 			u = um:ReadFloat(),
-			v = um:ReadFloat()
+			v = um:ReadFloat(),
 		}
 	end
-					
-	if ent.Poly[idx].material"" then ent.Render[idx].material = nil end
+	
+	if entry.material == "" then entry.material = nil end
+	
+	ent.Render[idx] = entry
 	ent.NeedsRender = true
+	PrintTable(entry)
 end)
 
 function ENT:clearAll()
@@ -268,17 +274,14 @@ function ENT:Draw()
 					
 					surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
 					surface.DrawPoly(vertices)
+				elseif v.image == "poly" then
+					if v.material then
+						surface.SetTexture(GetCachedMaterial(v.material))
+					end
+					surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
+					surface.DrawPoly(v.vertices)
 				end
 			end
-			if not self.Poly then return end
-			for k, v in pairs_sortkeys(self.Poly) do
-				if v.material then
-					surface.SetTexture(GetCachedMaterial(v.material))
-				end
-				surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
-				surface.DrawPoly(v.vertexs)
-			end
-			
 		end)
 		self.NeedsRender = false
 	end
