@@ -265,16 +265,19 @@ end
 e2function void wirelink:egpText(idx,string text,vector2 pos,vector col,A)
 	if text == "" or not text then return end
 	if !AddGenericRender(this,idx,"text",pos[1],pos[2],0,0,col[1],col[2],col[3],A) then return end
+	this.Render[idx].extra = 0
 	RenderSetMaterial(this,idx,text)
 end
 e2function void wirelink:egpText(idx,string text,vector2 pos,vector4 col)
 	if text == "" or not text then return end
 	if !AddGenericRender(this,idx,"text",pos[1],pos[2],0,0,col[1],col[2],col[3],col[4]) then return end
+	this.Render[idx].extra = 0
 	RenderSetMaterial(this,idx,text)
 end
 e2function void wirelink:egpText(idx,string text,pos1X,pos1Y,R,G,B,A)
 	if text == "" or not text then return end
 	if !AddGenericRender(this,idx,"text",pos1X,pos1Y,0,0,R,G,B,A) then return end
+	this.Render[idx].extra = 0
 	RenderSetMaterial(this,idx,text)
 end
 
@@ -329,12 +332,12 @@ e2function void wirelink:egpRemove(idx)
 end
 
 --TomyLobo Made These, Thanks :)
-local function Draw_Poly(ent, index, vertex_array) 
+local function Draw_Poly(ent, idx, vertex_array)
 	--I lied i made this one.
-	if not ValidEntity(ent) then return  end
-	index = math.Round(index)
-	if index and (index < 0 or index > EGPPolyLimit:GetInt()) then return end
-	ent.Poly[index]=
+	if not ValidEntity(ent) then return end
+	idx = math.Round(idx)
+	if idx and (idx < 0 or idx > EGPPolyLimit:GetInt()) then return end
+	ent.Poly[idx]=
 		{
 			vertexs = vertex_array,
 			colR = 255,
@@ -345,8 +348,8 @@ local function Draw_Poly(ent, index, vertex_array)
 		}
 end
 
-e2function void wirelink:egpPoly(index, array arr)
-	if not ValidEntity(ent) then return end
+e2function void wirelink:egpPoly(idx, array arr)
+	if not validEGP(this,idx) then return false end
 	--I lied again he actualy did make this one.
 	local vertex_array = {}
 	
@@ -361,10 +364,10 @@ e2function void wirelink:egpPoly(index, array arr)
 		vertex_array[#vertex_array+1] = v
 	end
 	
-	Draw_Poly(this, index, vertex_array)
+	Draw_Poly(this, idx, vertex_array)
 end
 
-e2function void wirelink:egpPoly(index, ...)
+e2function void wirelink:egpPoly(idx, ...)
 	--oh he made this one also.
 	local arr = { ... }
 	local vertex_array = {}
@@ -380,48 +383,48 @@ e2function void wirelink:egpPoly(index, ...)
 		vertex_array[#vertex_array+1] = v
 	end
 	
-	Draw_Poly(this, index, vertex_array)
+	Draw_Poly(this, idx, vertex_array)
 end
 
-e2function void wirelink:egpTextAlign(idx,s)
+e2function void wirelink:egpTextAlign(idx, align, valign)
 	idx = math.Round(idx)
 	if not validEGP(this,idx,true) then return false end
 	if not this.Render[idx].image == "text" then return end
-	this.Render[idx]["extra"] = math.Clamp(math.Round(I),0,2)
+	this.Render[idx].extra = math.Clamp(math.floor(align),0,2) + 10*math.Clamp(math.floor(valign),0,2)
 end
 
 --this is where i take over the coding again.
 
-e2function void wirelink:egpPolyColor(index, vector4 color)
+e2function void wirelink:egpPolyColor(idx, vector4 color)
 	if not ValidEntity(ent) then return  end
-	index = math.Round(index)
-	if not this.Poly[index] then return end
-	if index and (index < 0 or index > EGPPolyLimit:GetInt()) then return end
-	this.Poly[index].colR = color[1]
-	this.Poly[index].colG = color[2]
-	this.Poly[index].colB = color[3]
-	this.Poly[index].colA = color[4]	
+	idx = math.Round(idx)
+	if not this.Poly[idx] then return end
+	if idx and (idx < 0 or idx > EGPPolyLimit:GetInt()) then return end
+	this.Poly[idx].colR = color[1]
+	this.Poly[idx].colG = color[2]
+	this.Poly[idx].colB = color[3]
+	this.Poly[idx].colA = color[4]
 end
 
-e2function void wirelink:egpPolyMaterial(index, string material)
+e2function void wirelink:egpPolyMaterial(idx, string material)
 	if not ValidEntity(ent) then return  end
-	index = math.Round(index)
-	if not this.Poly[index] then return end
-	if index and (index < 0 or index > EGPPolyLimit:GetInt()) then return end
-	this.Poly[index].material = material
+	idx = math.Round(idx)
+	if not this.Poly[idx] then return end
+	if idx and (idx < 0 or idx > EGPPolyLimit:GetInt()) then return end
+	this.Poly[idx].material = material
 end
 
-e2function void wirelink:egpPolyRemove(index) 
+e2function void wirelink:egpPolyRemove(idx) 
 	if not ValidEntity(ent) then return  end
-	if not this.Poly[index] then return end
-	index = math.Round(index)
-	if index and (index < 0 or index > EGPPolyLimit:GetInt()) then return end
-	this.Poly[index].vertexs = {}
-	this.Poly[index].colR = 0
-	this.Poly[index].colG = 0
-	this.Poly[index].colB = 0
-	this.Poly[index].colA = 0
-	this.Poly[index].material = ""
+	if not this.Poly[idx] then return end
+	idx = math.Round(idx)
+	if idx and (idx < 0 or idx > EGPPolyLimit:GetInt()) then return end
+	this.Poly[idx].vertexs = {}
+	this.Poly[idx].colR = 0
+	this.Poly[idx].colG = 0
+	this.Poly[idx].colB = 0
+	this.Poly[idx].colA = 0
+	this.Poly[idx].material = ""
 end
 
 

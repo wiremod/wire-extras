@@ -191,8 +191,10 @@ function ENT:Draw()
 					surface.SetFont(ffname)
 					local textwidth, textheight = surface.GetTextSize(v.material)
 					local falign = v.extra or 0
-					local X = v.posX - (textwidth * (falign/2))
-					local Y = v.posY
+					local halign, valign = falign%10, math.floor(falign/10)
+					
+					local X = v.posX - (textwidth * (halign/2))
+					local Y = v.posY - (textheight * (valign/2))
 					surface.SetTextPos(X,Y)
 					surface.DrawText(v.material)
 				elseif v.image == "textl" then
