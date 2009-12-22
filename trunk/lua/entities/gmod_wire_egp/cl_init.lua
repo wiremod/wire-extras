@@ -180,14 +180,14 @@ function ENT:Draw()
 						end
 					end
 					surface.SetFont(ffname)
-					local textwidth, textheight = surface.GetTextSize(v.material)
+					local textwidth, textheight = surface.GetTextSize(v.text)
 					local falign = v.falign
 					local halign, valign = falign%10, math.floor(falign/10)
 					
 					local X = v.posX - (textwidth * (halign/2))
 					local Y = v.posY - (textheight * (valign/2))
 					surface.SetTextPos(X,Y)
-					surface.DrawText(v.material)
+					surface.DrawText(v.text)
 				elseif v.image == "textl" then
 					surface.SetTextColor(v.colR,v.colG,v.colB,v.colA)
 					local fsize = math.floor(math.Clamp(v.fsize,4,200))
@@ -205,7 +205,7 @@ function ENT:Draw()
 					local halign, valign = falign%10, math.floor(falign/10)
 					
 					self.layouter = MakeTextScreenLayouter()
-					self.layouter:layout(v.material, v.posX, v.posY, v.sizeX, v.sizeY, halign, valign) -- vertical alignment is not (yet) supported, but i'll pass it anyway...
+					self.layouter:layout(v.text, v.posX, v.posY, v.sizeX, v.sizeY, halign, valign) -- vertical alignment is not (yet) supported, but i'll pass it anyway...
 				elseif v.image == "line" then
 					surface.DrawLine(v.posX,v.posY,v.sizeX,v.sizeY)
 				elseif v.image == "cir" then
