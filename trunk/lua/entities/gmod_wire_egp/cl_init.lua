@@ -210,9 +210,11 @@ function ENT:Draw()
 						end
 					end
 					surface.SetFont(ffname)
-					self.layouter = MakeTextScreenLayouter()
 					local falign = v.extra or 0
-					self.layouter:layout(v.material, v.posX, v.posY, v.sizeX, v.sizeY, falign)
+					local halign, valign = falign%10, math.floor(falign/10)
+					
+					self.layouter = MakeTextScreenLayouter()
+					self.layouter:layout(v.material, v.posX, v.posY, v.sizeX, v.sizeY, halign, valign) -- vertical alignment is not (yet) supported, but i'll pass it anyway...
 				elseif v.image == "line" then
 					surface.DrawLine(v.posX,v.posY,v.sizeX,v.sizeY)
 				elseif v.image == "cir" then
