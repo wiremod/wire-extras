@@ -71,8 +71,8 @@ local umsg_layout = {
 
 setmetatable(umsg_layout, { __index = function(self) return rawget(self, "Default") end })
 
-function ENT:SendEntry(idx, entry , ply)
-	umsg.Start("EGPU",ply)
+function ENT:SendEntry(idx, entry, ply)
+	umsg.Start("EGPU", ply)
 		umsg.Entity(self)
 		umsg.Char(2) -- id
 		umsg.Long(idx)
