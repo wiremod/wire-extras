@@ -164,7 +164,7 @@ function ENT:Draw()
 			surface.SetDrawColor(0, 0, 0, 255)
 			surface.DrawRect(0, 0, w, h)
 			
-			for k, v in pairs(self.Render) do
+			for k, v in pairs_sortkeys(self.Render) do
 				surface.SetTexture(GetCachedMaterial(v.material))
 				surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
 				if v.image == "box" then
@@ -248,7 +248,7 @@ function ENT:Draw()
 				end
 			end
 			if not self.Poly then return end
-			for k, v in pairs(self.Poly) do
+			for k, v in pairs_sortkeys(self.Poly) do
 				if v.material then
 							surface.SetTexture(GetCachedMaterial(v.material))
 				end
