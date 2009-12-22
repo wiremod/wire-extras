@@ -40,29 +40,27 @@ function ENT:Initialize()
 			image = "text",
 			posX = 170,
 			posY = 200,
-			sizeX = 100,
-			sizeY = 4,
 			colR = 0,
 			colG = 0,
 			colB = 0,
 			colA = 255,
-			angle = 0,
-			material = "EGP",
-			extra = 0
+			text = "EGP",
+			fsize = 100,
+			fid = 4,
+			falign = 0,
 		},
 		{
 			image = "text",
 			posX = 175,
 			posY = 205,
-			sizeX = 90,
-			sizeY = 4,
 			colR = 255,
 			colG = 0,
 			colB = 0,
 			colA = 255,
-			angle = 0,
-			material = "EGP",
-			extra = 0
+			text = "EGP",
+			fsize = 90,
+			fid = 4,
+			falign = 0,
 		},
 	}
 	
@@ -107,38 +105,6 @@ usermessage.Hook("EGPU", function(um)
 		local idx = um:ReadLong()
 		ent.Render[idx] = nil
 	end
-	ent.NeedsRender = true
-end)
-
-usermessage.Hook("EGPPoly", function(um)
-	local ent = um:ReadEntity()
-	if not validEGP(ent) then return end
-	
-	local idx = um:ReadLong()
-	
-	local entry = {
-		image = "poly",
-		colR = um:ReadChar()+128,
-		colG = um:ReadChar()+128,
-		colB = um:ReadChar()+128,
-		colA = um:ReadChar()+128,
-		material = um:ReadString(),
-		vertices = {},
-	}
-	
-	local nvertices = um:ReadChar()
-	for i = 1,nvertices do
-		entry.vertices[i] = {
-			x = um:ReadFloat(),
-			y = um:ReadFloat(),
-			u = um:ReadFloat(),
-			v = um:ReadFloat(),
-		}
-	end
-	
-	if entry.material == "" then entry.material = nil end
-	
-	ent.Render[idx] = entry
 	ent.NeedsRender = true
 end)
 
