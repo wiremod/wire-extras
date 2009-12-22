@@ -21,50 +21,52 @@ end
 
 function ENT:Initialize()
 	self.Poly = {}
-	self.Render = {}
 	self.GPU = WireGPU(self.Entity)
-	self.Render[1] = {
-						image = "box",
-						posX = 100,
-						posY = 100,
-						sizeX = 300,
-						sizeY = 300,
-						colR = 255,
-						colG = 0,
-						colB = 0,
-						colA = 255,
-						angle = 0,
-						material = "expression 2/cog",
-						extra = 0
-					}
-	self.Render[2] = {
-						image = "text",
-						posX = 170,
-						posY = 200,
-						sizeX = 100,
-						sizeY = 4,
-						colR = 0,
-						colG = 0,
-						colB = 0,
-						colA = 255,
-						angle = 0,
-						material = "EGP",
-						extra = 0
-					}
-	self.Render[3] = {
-						image = "text",
-						posX = 175,
-						posY = 205,
-						sizeX = 90,
-						sizeY = 4,
-						colR = 255,
-						colG = 0,
-						colB = 0,
-						colA = 255,
-						angle = 0,
-						material = "EGP",
-						extra = 0
-					}
+	self.Render = {
+		{
+			image = "box",
+			posX = 100,
+			posY = 100,
+			sizeX = 300,
+			sizeY = 300,
+			colR = 255,
+			colG = 0,
+			colB = 0,
+			colA = 255,
+			angle = 0,
+			material = "expression 2/cog",
+			extra = 0
+		},
+		{
+			image = "text",
+			posX = 170,
+			posY = 200,
+			sizeX = 100,
+			sizeY = 4,
+			colR = 0,
+			colG = 0,
+			colB = 0,
+			colA = 255,
+			angle = 0,
+			material = "EGP",
+			extra = 0
+		},
+		{
+			image = "text",
+			posX = 175,
+			posY = 205,
+			sizeX = 90,
+			sizeY = 4,
+			colR = 255,
+			colG = 0,
+			colB = 0,
+			colA = 255,
+			angle = 0,
+			material = "EGP",
+			extra = 0
+		},
+	}
+	
 	self.FirstDraw = true
 	self.NeedsRender = true
 end
@@ -89,35 +91,22 @@ end
 
 usermessage.Hook("EGPU", function(um)
 	local ent = um:ReadEntity()
-	local id = um:ReadLong()
+	local id = um:ReadChar()
 	if not validEGP(ent) then return end
 	if id == 1 then
 		ent.Render = {}
 		if ent.FirstDraw then ent.FirstDraw = nil end
+		
 	elseif id == 2 then
 		if ent.FirstDraw then
 			ent.Render = {}
 			ent.FirstDraw = nil
 		end
-		local idx = um:ReadLong()
-		ent.Render[idx] = {
-						image = um:ReadString(),
-						posX = um:ReadShort(),
-						posY = um:ReadShort(),
-						sizeX = um:ReadShort(),
-						sizeY = um:ReadShort(),
-						colR = um:ReadShort(),
-						colG = um:ReadShort(),
-						colB = um:ReadShort(),
-						colA = um:ReadShort(),
-						angle = um:ReadShort(),
-						material = um:ReadString(),
-						extra = um:ReadShort(),
-						sides = um:ReadShort()
-					}
-		if ent.Render[idx].material == "" then ent.Render[idx].material = nil end
+		ent:ReceiveEntry(um)
+		
 	elseif id == 3 then
-		ent.Render[um:ReadLong()] = nil
+		local idx = um:ReadLong()
+		ent.Render[idx] = nil
 	end
 	ent.NeedsRender = true
 end)
@@ -127,20 +116,22 @@ usermessage.Hook("EGPPoly", function(um)
 	if not validEGP(ent) then return end
 	local idx = um:ReadLong()
 	ent.Poly[idx] = {
-						colR = um:ReadShort(),
-						colG = um:ReadShort(),
-						colB = um:ReadShort(),
-						colA = um:ReadShort(),
-						material = um:ReadString(),
-						vertexs = {}
-					}
-	for i=1,um:ReadShort() do 
+		colR = um:ReadChar()+128,
+		colG = um:ReadChar()+128,
+		colB = um:ReadChar()+128,
+		colA = um:ReadChar()+128,
+		material = um:ReadString(),
+		vertexs = {}
+	}
+	
+	local nvertices = um:ReadChar()
+	for i = 1,nvertices do 
 		ent.Poly[idx].vertexs[i] = {
-										x = um:ReadShort(),
-										y = um:ReadShort(),
-										u = um:ReadShort(),
-										v = um:ReadShort()
-									}
+			x = um:ReadFloat(),
+			y = um:ReadFloat(),
+			u = um:ReadFloat(),
+			v = um:ReadFloat()
+		}
 	end
 					
 	if ent.Poly[idx].material"" then ent.Render[idx].material = nil end
@@ -178,8 +169,8 @@ function ENT:Draw()
 					surface.DrawOutlinedRect(v.posX,v.posY,v.sizeX,v.sizeY)
 				elseif v.image == "text" then
 					surface.SetTextColor(v.colR,v.colG,v.colB,v.colA)
-					local fsize = math.floor(math.Clamp(v.sizeX,4,200))
-					local fname = ValidFonts[v.sizeY]
+					local fsize = math.floor(math.Clamp(v.fsize,4,200))
+					local fname = ValidFonts[v.fid]
 					local ffname = "WireGPU_ConsoleFont"
 					if fname then
 						ffname = "WireEGP_"..fsize.."_"..fname
@@ -190,7 +181,7 @@ function ENT:Draw()
 					end
 					surface.SetFont(ffname)
 					local textwidth, textheight = surface.GetTextSize(v.material)
-					local falign = v.extra or 0
+					local falign = v.falign
 					local halign, valign = falign%10, math.floor(falign/10)
 					
 					local X = v.posX - (textwidth * (halign/2))
@@ -199,8 +190,8 @@ function ENT:Draw()
 					surface.DrawText(v.material)
 				elseif v.image == "textl" then
 					surface.SetTextColor(v.colR,v.colG,v.colB,v.colA)
-					local fsize = math.floor(math.Clamp(v.sizeX,4,200))
-					local fname = ValidFonts[v.sizeY]
+					local fsize = math.floor(math.Clamp(v.fsize,4,200))
+					local fname = ValidFonts[v.fid]
 					local ffname = "WireGPU_ConsoleFont"
 					if fname then
 						ffname = "WireEGP_"..fsize.."_"..fname
@@ -210,7 +201,7 @@ function ENT:Draw()
 						end
 					end
 					surface.SetFont(ffname)
-					local falign = v.extra or 0
+					local falign = v.falign
 					local halign, valign = falign%10, math.floor(falign/10)
 					
 					self.layouter = MakeTextScreenLayouter()
@@ -228,53 +219,61 @@ function ENT:Draw()
 					local astep = (aend-astart) / numsides
 										
 					for i=1,numsides do
-					local poly = { {} , {} , {} }
-											
-						poly[1].x = x + w*math.sin(astart+astep*(i+0))
-						poly[1].y = y + h*math.cos(astart+astep*(i+0))
-						poly[1].u = 0
-						poly[1].v = 0
-
-						poly[2].x = x
-						poly[2].y = y
-						poly[2].u = 0
-						poly[2].v = 0
-
-						poly[3].x = x + w*math.sin(astart+astep*(i+1))
-						poly[3].y = y + h*math.cos(astart+astep*(i+1))
-						poly[3].u = 0
-						poly[3].v = 0
-
+						local vertices = {
+							{
+								x = x + w*math.sin(astart+astep*(i+0)),
+								y = y + h*math.cos(astart+astep*(i+0)),
+								u = 0,
+								v = 0,
+							},
+							{
+								x = x,
+								y = y,
+								u = 0,
+								v = 0,
+							},
+							{
+								x = x + w*math.sin(astart+astep*(i+1)),
+								y = y + h*math.cos(astart+astep*(i+1)),
+								u = 0,
+								v = 0,
+							},
+						}
+						
 						surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
-						surface.DrawPoly(poly)
+						surface.DrawPoly(vertices)
 					end
 					
 				elseif v.image == "tri" then
-					local poly = { {} , {} , {} }
-											
-						poly[1].x = v.posX
-						poly[1].y = v.posY
-						poly[1].u = 0
-						poly[1].v = 0
-
-						poly[2].x = v.sizeX
-						poly[2].y = v.sizeY
-						poly[2].u = 0
-						poly[2].v = 0
-
-						poly[3].x = v.angle
-						poly[3].y = v.extra
-						poly[3].u = 0
-						poly[3].v = 0
-
-						surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
-						surface.DrawPoly(poly)
+					local vertices = {
+						{
+							x = v.posX,
+							y = v.posY,
+							u = 0,
+							v = 0,
+						},
+						{
+							x = v.sizeX,
+							y = v.sizeY,
+							u = 0,
+							v = 0,
+						},
+						{
+							x = v.angle,
+							y = v.extra,
+							u = 0,
+							v = 0,
+						},
+					}
+					
+					surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
+					surface.DrawPoly(vertices)
 				end
 			end
 			if not self.Poly then return end
 			for k, v in pairs_sortkeys(self.Poly) do
 				if v.material then
-							surface.SetTexture(GetCachedMaterial(v.material))
+					surface.SetTexture(GetCachedMaterial(v.material))
 				end
 				surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
 				surface.DrawPoly(v.vertexs)
