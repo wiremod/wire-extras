@@ -1,5 +1,5 @@
-local EGPLimit = CreateConVar("sbox_maxwire_egp_elements", "40", FCVAR_ARCHIVE)
-local EGPPolyLimit = CreateConVar("sbox_maxwire_egp_polys", "40", FCVAR_ARCHIVE)
+local sbox_maxwire_egp_elements = CreateConVar("sbox_maxwire_egp_elements", "40", FCVAR_ARCHIVE)
+local sbox_maxwire_egp_polys = CreateConVar("sbox_maxwire_egp_polys", "40", FCVAR_ARCHIVE)
 local NilTab = {
 	image = "Empty",
 	posX = 0,
@@ -25,16 +25,24 @@ ValidFonts["arial"] = 5
 ValidFonts["courier new"] = 6
 ValidFonts["times new roman"] = 7
 
-local function validEGP(ent, idx, notexistant)
+local function validEGP(ent, idx, ignore_missing)
 	if not ValidEntity(ent) then return false end
 	if not ent.Render then return false end
-	if idx and (idx < 0 or idx > EGPLimit:GetInt() or not (notexistant or ent.Render[idx])) then return false end
-	if idx then ent.RenderDirty[idx] = true end
+	if idx then
+		if idx < 0 then return false end
+		if idx > sbox_maxwire_egp_elements:GetInt() then return false end
+		
+		if not ignore_missing then
+			if not ent.Render[idx] then return false end
+		end
+		
+		ent.RenderDirty[idx] = true
+	end
 	return true
 end
 
 local function validEGPDraw(ent, noset)
-	if !ent.LastPainted or (CurTime() - ent.LastPainted) >= 0.08 then 
+	if not ent.LastPainted or (CurTime() - ent.LastPainted) >= 0.08 then 
 		if not noset then ent.LastPainted = CurTime() end
 		return true
 	end
@@ -101,12 +109,9 @@ end
 
 
 local function EGPPlayerInit(ply)
-	for _, this in pairs(ents.FindByClass("gmod_wire_egp")) do
-	if not validEGP(this) then return end
+	for _,ent in pairs(ents.FindByClass("gmod_wire_egp")) do
 		for k,v in pairs(this.Render) do
-			if v then
-				this:SendEntry(k, v ,ply) --> shared.lua
-			end
+			ent:SendEntry(k, v, ply) --> shared.lua
 		end
 	end
 end
@@ -187,21 +192,21 @@ end
 
 e2function void wirelink:egpTriangle(idx, posX1, posY1, posX2, posY2, posX3, posY3, sizeX, sizeY, R, G, B, A)
 	idx = math.Round(idx)
-	if not validEGP(this, idx, true) then return false end
+	if not validEGP(this, idx, true) then return end
 	AddGenericRender(this, idx, "tri", posX1, posY1, posX2, posY2, posX3, posY3, R, G, B, A)
 	this.Render[idx]["angle"] = posX3
 	this.Render[idx]["extra"] = posY3
 end
 e2function void wirelink:egpTriangle(idx, vector2 pos1, vector2 pos2, vector2 pos3, vector4 col)
 	idx = math.Round(idx)
-	if not validEGP(this, idx, true) then return false end
+	if not validEGP(this, idx, true) then return end
 	AddGenericRender(this, idx, "tri", pos1[1], pos1[2], pos2[1], pos2[2], col[1], col[2], col[3], col[4])
 	this.Render[idx]["angle"] = pos3[1]
 	this.Render[idx]["extra"] = pos3[2]
 end
 e2function void wirelink:egpTriangle(idx, vector2 pos1, vector2 pos2, vector2 pos3, vector col, A)
 	idx = math.Round(idx)
-	if not validEGP(this, idx, true) then return false end
+	if not validEGP(this, idx, true) then return end
 	AddGenericRender(this, idx, "tri", pos1[1], pos1[2], pos2[1], pos2[2], col[1], col[2], col[3], A)
 	this.Render[idx]["angle"] = pos3[1]
 	this.Render[idx]["extra"] = pos3[2]
@@ -222,29 +227,29 @@ end
 
 e2function void wirelink:egpCircleStart(idx, i)
 	idx = math.Round(idx)
-	if not validEGP(this, idx, true) then return false end
+	if not validEGP(this, idx, true) then return end
 	this.Render[idx]["angle"] = i
 end
 e2function void wirelink:egpCircleEnd(idx, i)
 	idx = math.Round(idx)
-	if not validEGP(this, idx, true) then return false end
+	if not validEGP(this, idx, true) then return end
 	this.Render[idx]["extra"] = i
 end
 e2function void wirelink:egpCirclePoints(idx, vector2 i)
 	idx = math.Round(idx)
-	if not validEGP(this, idx, true) then return false end
+	if not validEGP(this, idx, true) then return end
 	this.Render[idx]["angle"] = i[1]
 	this.Render[idx]["extra"] = i[2]
 end
 e2function void wirelink:egpCirclePoints(idx, s, e)
 	idx = math.Round(idx)
-	if not validEGP(this, idx, true) then return false end
+	if not validEGP(this, idx, true) then return end
 	this.Render[idx]["angle"] = s
 	this.Render[idx]["extra"] = e
 end
 e2function void wirelink:egpCircleSides(idx, s)
 	idx = math.Round(idx)
-	if not validEGP(this, idx, true) then return false end
+	if not validEGP(this, idx, true) then return end
 	this.Render[idx]["sides"] = math.Clamp(math.Round(s), 3, 64)
 end
 
@@ -315,8 +320,8 @@ e2function void wirelink:egpMaterial(idx, string mat)
 end
 
 e2function void wirelink:egpSetText(idx, string text)
-	if text == "" then return end
-	RenderSetMaterial(this, idx, text)
+	if not validEGP(this, idx, true) then return end
+	this.Render[idx].text = text
 end
 
 e2function void wirelink:egpSetFont(idx, string name, number size)
@@ -338,7 +343,7 @@ end
 local function Draw_Poly(ent, idx, vertex_array)
 	--I lied i made this one.
 	idx = math.Round(idx)
-	if idx and (idx < 0 or idx > EGPPolyLimit:GetInt()) then return end
+	if idx and (idx < 0 or idx > sbox_maxwire_egp_polys:GetInt()) then return end
 	ent.Poly[idx] = {
 		vertices = vertex_array,
 		colR = 255,
@@ -400,7 +405,7 @@ e2function void wirelink:egpPolyColor(idx, vector4 color)
 	if not ValidEntity(ent) then return  end
 	idx = math.Round(idx)
 	if not this.Poly[idx] then return end
-	if idx and (idx < 0 or idx > EGPPolyLimit:GetInt()) then return end
+	if idx and (idx < 0 or idx > sbox_maxwire_egp_polys:GetInt()) then return end
 	this.Poly[idx].colR = color[1]
 	this.Poly[idx].colG = color[2]
 	this.Poly[idx].colB = color[3]
@@ -411,7 +416,7 @@ e2function void wirelink:egpPolyMaterial(idx, string material)
 	if not ValidEntity(ent) then return  end
 	idx = math.Round(idx)
 	if not this.Poly[idx] then return end
-	if idx and (idx < 0 or idx > EGPPolyLimit:GetInt()) then return end
+	if idx and (idx < 0 or idx > sbox_maxwire_egp_polys:GetInt()) then return end
 	this.Poly[idx].material = material
 end
 
@@ -419,7 +424,7 @@ e2function void wirelink:egpPolyRemove(idx)
 	if not ValidEntity(ent) then return  end
 	if not this.Poly[idx] then return end
 	idx = math.Round(idx)
-	if idx and (idx < 0 or idx > EGPPolyLimit:GetInt()) then return end
+	if idx and (idx < 0 or idx > sbox_maxwire_egp_polys:GetInt()) then return end
 	this.Poly[idx].vertices = {}
 	this.Poly[idx].colR = 0
 	this.Poly[idx].colG = 0
