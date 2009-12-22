@@ -168,35 +168,51 @@ function ENT:Draw()
 				surface.SetTexture(GetCachedMaterial(v.material))
 				surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
 				if v.image == "box" then
-						if v.material then
-							surface.SetTexture(GetCachedMaterial(v.material))
-							surface.DrawTexturedRect(v.posX,v.posY,v.sizeX,v.sizeY)
-						else
-							surface.DrawRect(v.posX,v.posY,v.sizeX,v.sizeY)
-						end
+					if v.material then
+						surface.SetTexture(GetCachedMaterial(v.material))
+						surface.DrawTexturedRect(v.posX,v.posY,v.sizeX,v.sizeY)
+					else
+						surface.DrawRect(v.posX,v.posY,v.sizeX,v.sizeY)
+					end
 				elseif v.image == "boxoutline" then
-						surface.DrawOutlinedRect(v.posX,v.posY,v.sizeX,v.sizeY)
+					surface.DrawOutlinedRect(v.posX,v.posY,v.sizeX,v.sizeY)
 				elseif v.image == "text" then
-						surface.SetTextColor(v.colR,v.colG,v.colB,v.colA)
-						local fsize = math.floor(math.Clamp(v.sizeX,4,200))
-						local fname = ValidFonts[v.sizeY]
-						local ffname = "WireGPU_ConsoleFont"
-						if fname then
-							ffname = "WireEGP_"..fsize.."_"..fname
-							if not CachedFonts[ffname] then
-								surface.CreateFont(fname,fsize,800,true,false,ffname)
-								CachedFonts[ffname] = true
-							end
+					surface.SetTextColor(v.colR,v.colG,v.colB,v.colA)
+					local fsize = math.floor(math.Clamp(v.sizeX,4,200))
+					local fname = ValidFonts[v.sizeY]
+					local ffname = "WireGPU_ConsoleFont"
+					if fname then
+						ffname = "WireEGP_"..fsize.."_"..fname
+						if not CachedFonts[ffname] then
+							surface.CreateFont(fname,fsize,800,true,false,ffname)
+							CachedFonts[ffname] = true
 						end
-						surface.SetFont(ffname)
-						local textwidth, textheight = surface.GetTextSize()
-						local falign = v.extra or 0
-						local X = v.posX - (textwidth * (falign/2))
-						local Y = v.posY
-						surface.SetTextPos(X,Y)
-						surface.DrawText(v.material)
+					end
+					surface.SetFont(ffname)
+					local textwidth, textheight = surface.GetTextSize(v.material)
+					local falign = v.extra or 0
+					local X = v.posX - (textwidth * (falign/2))
+					local Y = v.posY
+					surface.SetTextPos(X,Y)
+					surface.DrawText(v.material)
+				elseif v.image == "textl" then
+					surface.SetTextColor(v.colR,v.colG,v.colB,v.colA)
+					local fsize = math.floor(math.Clamp(v.sizeX,4,200))
+					local fname = ValidFonts[v.sizeY]
+					local ffname = "WireGPU_ConsoleFont"
+					if fname then
+						ffname = "WireEGP_"..fsize.."_"..fname
+						if not CachedFonts[ffname] then
+							surface.CreateFont(fname,fsize,800,true,false,ffname)
+							CachedFonts[ffname] = true
+						end
+					end
+					surface.SetFont(ffname)
+					self.layouter = MakeTextScreenLayouter()
+					local falign = v.extra or 0
+					self.layouter:layout(v.material, v.posX, v.posY, v.sizeX, v.sizeY, falign)
 				elseif v.image == "line" then
-						surface.DrawLine(v.posX,v.posY,v.sizeX,v.sizeY)
+					surface.DrawLine(v.posX,v.posY,v.sizeX,v.sizeY)
 				elseif v.image == "cir" then
 					local h = v.sizeX / 2
 					local w  = v.sizeY / 2
