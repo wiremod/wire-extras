@@ -46,7 +46,6 @@ local umsg_layout = {
 		{ "Byte", "colG" },
 		{ "Byte", "colB" },
 		{ "Byte", "colA" },
-		{ "Short", "angle" },
 		{ "String", "text" },
 		{ "Short", "falign" },
 		{ "Short", "fsize" },
@@ -61,52 +60,70 @@ local umsg_layout = {
 		{ "Byte", "colG" },
 		{ "Byte", "colB" },
 		{ "Byte", "colA" },
-		{ "Short", "angle" },
 		{ "String", "text" },
 		{ "Short", "falign" },
 		{ "Short", "fsize" },
 		{ "Short", "fid" },
 	},
+	poly = {
+		{ "Byte", "colR" },
+		{ "Byte", "colG" },
+		{ "Byte", "colB" },
+		{ "Byte", "colA" },
+		{ "String", "material" },
+		{ "VertexList", "vertices" },
+	},
 }
 
 setmetatable(umsg_layout, { __index = function(self) return rawget(self, "Default") end })
 
-function ENT:SendEntry(idx, entry, ply)
-	if entry.image == "poly" then
-		umsg.Start("EGPPoly", ply)
-			umsg.Entity(self)
-			umsg.Long(idx)
-			umsg.Char(entry.colR-128)
-			umsg.Char(entry.colG-128)
-			umsg.Char(entry.colB-128)
-			umsg.Char(entry.colA-128)
-			umsg.String(entry.material or "")
+local _umsg = setmetatable({}, { __index = umsg })
+local _bf_read = setmetatable({}, { __index = _R.bf_read })
 
-			umsg.Char( #entry.vertices )
-			for _,vertex in ipairs(entry.vertices) do
-				umsg.Float(vertex[1])
-				umsg.Float(vertex[2])
-				umsg.Float(vertex[3])
-				umsg.Float(vertex[4])
-			end
-		umsg.End()
-	else
-		umsg.Start("EGPU", ply)
-			umsg.Entity(self)
-			umsg.Char(2) -- id
-			umsg.Long(idx)
-			umsg.String(entry.image)
+function _umsg.Byte(value)
+	return umsg.Char(value-128)
+end
 
-			for _,tp,element in ipairs_map(umsg_layout[entry.image], unpack) do
-				local value = entry[element] or umsg_defaults[tp]
-				if tp == "Byte" then
-					umsg.Char(value-128)
-				else
-					umsg[tp](value)
-				end
-			end
-		umsg.End()
+function _bf_read:ReadByte()
+	return self:ReadChar()+128
+end
+
+function _umsg.VertexList(value)
+	umsg.Char( #value )
+	for _,vertex in ipairs(value) do
+		umsg.Float(vertex[1])
+		umsg.Float(vertex[2])
+		umsg.Float(vertex[3])
+		umsg.Float(vertex[4])
 	end
+end
+
+function _bf_read:ReadVertexList()
+	local vertices = {}
+	local nvertices = self:ReadChar()
+	for i = 1,nvertices do
+		vertices[i] = {
+			x = self:ReadFloat(),
+			y = self:ReadFloat(),
+			u = self:ReadFloat(),
+			v = self:ReadFloat(),
+		}
+	end
+	return vertices
+end
+
+function ENT:SendEntry(idx, entry, ply)
+	umsg.Start("EGPU", ply)
+		umsg.Entity(self)
+		umsg.Char(2) -- id
+		umsg.Long(idx)
+		umsg.String(entry.image)
+		
+		for _,tp,element in ipairs_map(umsg_layout[entry.image], unpack) do
+			local value = entry[element] or umsg_defaults[tp]
+			_umsg[tp](value)
+		end
+	umsg.End()
 end
 
 function ENT:ReceiveEntry(um)
@@ -115,11 +132,7 @@ function ENT:ReceiveEntry(um)
 	local entry = { image = image }
 	
 	for _,tp,element in ipairs_map(umsg_layout[image], unpack) do
-		if tp == "Byte" then
-			entry[element] = um:ReadChar()+128
-		else
-			entry[element] = um["Read"..tp](um)
-		end
+		entry[element] = _bf_read["Read"..tp](um)
 	end
 	if entry.material == "" then entry.material = nil end
 	
