@@ -12,8 +12,6 @@ function ENT:Initialize()
 	
 	self.Render = {}
 	self.RenderDirty = {}
-	self.Poly = {}
-	self.PolyDirty = {}
 end
 
 duplicator.RegisterEntityClass("gmod_wire_EGP", MakeWireEGP, "Pos", "Ang", "Model")

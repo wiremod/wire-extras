@@ -72,21 +72,41 @@ local umsg_layout = {
 setmetatable(umsg_layout, { __index = function(self) return rawget(self, "Default") end })
 
 function ENT:SendEntry(idx, entry, ply)
-	umsg.Start("EGPU", ply)
-		umsg.Entity(self)
-		umsg.Char(2) -- id
-		umsg.Long(idx)
-		umsg.String(entry.image)
-		
-		for _,tp,element in ipairs_map(umsg_layout[entry.image], unpack) do
-			local value = entry[element] or umsg_defaults[tp]
-			if tp == "Byte" then
-				umsg.Char(value-128)
-			else
-				umsg[tp](value)
+	if entry.image == "poly" then
+		umsg.Start("EGPPoly", ply)
+			umsg.Entity(self)
+			umsg.Long(idx)
+			umsg.Char(entry.colR-128)
+			umsg.Char(entry.colG-128)
+			umsg.Char(entry.colB-128)
+			umsg.Char(entry.colA-128)
+			umsg.String(entry.material or "")
+
+			umsg.Char( #entry.vertices )
+			for _,vertex in ipairs(entry.vertices) do
+				umsg.Float(vertex[1])
+				umsg.Float(vertex[2])
+				umsg.Float(vertex[3])
+				umsg.Float(vertex[4])
 			end
-		end
-	umsg.End()
+		umsg.End()
+	else
+		umsg.Start("EGPU", ply)
+			umsg.Entity(self)
+			umsg.Char(2) -- id
+			umsg.Long(idx)
+			umsg.String(entry.image)
+
+			for _,tp,element in ipairs_map(umsg_layout[entry.image], unpack) do
+				local value = entry[element] or umsg_defaults[tp]
+				if tp == "Byte" then
+					umsg.Char(value-128)
+				else
+					umsg[tp](value)
+				end
+			end
+		umsg.End()
+	end
 end
 
 function ENT:ReceiveEntry(um)
