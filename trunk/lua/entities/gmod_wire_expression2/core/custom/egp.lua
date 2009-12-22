@@ -102,11 +102,11 @@ end
 
 local function EGPPlayerInit(ply)
 	for _, this in pairs(ents.FindByClass("gmod_wire_egp")) do
-		for k, v in pairs(this.Render) do
-			-- TODO
-			--umsg.Start("EGPU", ply)
-				
-			--umsg.End()
+	if not validEGP(this) then return end
+		for k,v in pairs(this.Render) do
+			if v then
+				this:SendEntry(k, v ,ply) --> shared.lua
+			end
 		end
 	end
 end
