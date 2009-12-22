@@ -199,7 +199,7 @@ e2function void wirelink:egpCircle(idx,vector2 pos,vector2 size,vector col,A)
 	AddGenericRender(this,idx,"cir",pos[1],pos[2],size[1],size[2],col[1],col[2],col[3],A)
 end
 
-e2function void wirelink:egpTrianglee(idx,posX1,posY1,posX2,posY2,posX3,posY3,sizeX,sizeY,R,G,B,A)
+e2function void wirelink:egpTriangle(idx,posX1,posY1,posX2,posY2,posX3,posY3,sizeX,sizeY,R,G,B,A)
 	idx = math.Round(idx)
 	if not validEGP(this,idx,true) then return false end
 	AddGenericRender(this,idx,"tri",posX1,posY1,posX2,posY2,posX3,posY3,R,G,B,A)
