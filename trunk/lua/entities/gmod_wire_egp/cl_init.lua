@@ -177,7 +177,6 @@ function ENT:Draw()
 				elseif v.image == "boxoutline" then
 						surface.DrawOutlinedRect(v.posX,v.posY,v.sizeX,v.sizeY)
 				elseif v.image == "text" then
-						surface.SetTextPos(v.posX,v.posY)
 						surface.SetTextColor(v.colR,v.colG,v.colB,v.colA)
 						local fsize = math.floor(math.Clamp(v.sizeX,4,200))
 						local fname = ValidFonts[v.sizeY]
@@ -190,6 +189,11 @@ function ENT:Draw()
 							end
 						end
 						surface.SetFont(ffname)
+						local textwidth, textheight = surface.GetTextSize()
+						local falign = v.extra or 0
+						local X = v.posX - (textwidth * (falign/2))
+						local Y = v.posY
+						surface.SetTextPos(X,Y)
 						surface.DrawText(v.material)
 				elseif v.image == "line" then
 						surface.DrawLine(v.posX,v.posY,v.sizeX,v.sizeY)
