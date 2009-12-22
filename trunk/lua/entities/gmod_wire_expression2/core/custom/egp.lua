@@ -334,7 +334,6 @@ end
 --TomyLobo Made These, Thanks :)
 local function Draw_Poly(ent, idx, vertex_array)
 	--I lied i made this one.
-	if not ValidEntity(ent) then return end
 	idx = math.Round(idx)
 	if idx and (idx < 0 or idx > EGPPolyLimit:GetInt()) then return end
 	ent.Poly[idx]=
@@ -349,7 +348,7 @@ local function Draw_Poly(ent, idx, vertex_array)
 end
 
 e2function void wirelink:egpPoly(idx, array arr)
-	if not validEGP(this,idx) then return false end
+	if not validEGP(this,idx,true) then return false end
 	--I lied again he actualy did make this one.
 	local vertex_array = {}
 	
@@ -386,11 +385,11 @@ e2function void wirelink:egpPoly(idx, ...)
 	Draw_Poly(this, idx, vertex_array)
 end
 
-e2function void wirelink:egpTextAlign(idx, align, valign)
+e2function void wirelink:egpTextAlign(idx, halign, valign)
 	idx = math.Round(idx)
 	if not validEGP(this,idx,true) then return false end
 	if not this.Render[idx].image == "text" then return end
-	this.Render[idx].extra = math.Clamp(math.floor(align),0,2) + 10*math.Clamp(math.floor(valign),0,2)
+	this.Render[idx].extra = math.Clamp(math.floor(halign),0,2) + 10*math.Clamp(math.floor(valign),0,2)
 end
 
 --this is where i take over the coding again.
