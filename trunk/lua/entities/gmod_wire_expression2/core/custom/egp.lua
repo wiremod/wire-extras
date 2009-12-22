@@ -1,19 +1,21 @@
 local EGPLimit = CreateConVar("sbox_maxwire_egp_elements","40",FCVAR_ARCHIVE)
 local EGPPolyLimit = CreateConVar("sbox_maxwire_egp_polys","40",FCVAR_ARCHIVE)
-local NilTab = {image = "Empty",
-				posX = 0,
-				posY = 0,
-				sizeX = 0,
-				sizeY = 0,
-				colR = 0,
-				colG = 0,
-				colB = 0,
-				colA = 0,
-				angle = 0,
-				material = "",
-				extra = 0,
-				sides = 0}
-				
+local NilTab = {
+	image = "Empty",
+	posX = 0,
+	posY = 0,
+	sizeX = 0,
+	sizeY = 0,
+	colR = 0,
+	colG = 0,
+	colB = 0,
+	colA = 0,
+	angle = 0,
+	material = "",
+	extra = 0,
+	sides = 0,
+}
+
 local ValidFonts = {}
 ValidFonts["coolvetica"] = 1
 ValidFonts["arial"] = 2
@@ -59,24 +61,7 @@ e2function number wirelink:egpDraw()
 	for k,_ in pairs(this.RenderDirty) do
 		if this.Render[k] then
 			local v = this.Render[k]
-				umsg.Start("EGPU")
-					umsg.Entity(this)
-					umsg.Long(2) -- id
-					umsg.Long(k)
-					umsg.String(v.image)
-					umsg.Short(v.posX)
-					umsg.Short(v.posY)
-					umsg.Short(v.sizeX)
-					umsg.Short(v.sizeY)
-					umsg.Short(v.colR)
-					umsg.Short(v.colG)
-					umsg.Short(v.colB)
-					umsg.Short(v.colA)
-					umsg.Short(v.angle or 0)
-					umsg.String(v.material or "")
-					umsg.Short(v.extra or 0)
-					umsg.Short(v.sides or 0)
-				umsg.End()
+			this:SendEntry(k, v) --> shared.lua
 		end
 		
 	end
@@ -90,22 +75,22 @@ e2function number wirelink:egpDrawPolys()
 	for k,_ in pairs(this.Poly) do
 		if this.Poly[k] then
 			local v = this.Poly[k]
-				umsg.Start("EGPPoly")
-					umsg.Entity(this)
-					umsg.Long(k)
-					umsg.Short(v.colR)
-					umsg.Short(v.colG)
-					umsg.Short(v.colB)
-					umsg.Short(v.colA)
-					umsg.String(v.material or "")
-					umsg.Short( table.Count(v.vertexs) )
-					for _,z in pairs(v.vertexs) do
-						umsg.Short(z[1])
-						umsg.Short(z[2])
-						umsg.Short(z[3])
-						umsg.Short(z[4])
-					end
-				umsg.End()
+			umsg.Start("EGPPoly")
+				umsg.Entity(this)
+				umsg.Long(k)
+				umsg.Char(v.colR-128)
+				umsg.Char(v.colG-128)
+				umsg.Char(v.colB-128)
+				umsg.Char(v.colA-128)
+				umsg.String(v.material or "")
+				umsg.Short( table.Count(v.vertices) )
+				for _,z in pairs(v.vertices) do
+					umsg.Short(z[1])
+					umsg.Short(z[2])
+					umsg.Short(z[3])
+					umsg.Short(z[4])
+				end
+			umsg.End()
 		end
 		
 	end
@@ -118,9 +103,10 @@ end
 local function EGPPlayerInit(ply)
 	for _,this in pairs(ents.FindByClass("gmod_wire_egp")) do
 		for k,v in pairs(this.Render) do
-			umsg.Start("EGPU",ply)
+			-- TODO
+			--umsg.Start("EGPU",ply)
 				
-			umsg.End()
+			--umsg.End()
 		end
 	end
 end
@@ -158,11 +144,11 @@ local function AddGenericRender(this,idx,imgX,pos1X,pos1Y,sizeX,sizeY,R,G,B,A)
 	idx = math.Round(idx)
 	if not validEGP(this,idx,true) then return false end
 	this.Render[idx] = {
-						image = imgX,
-						material = nil,
-						extra = 7,
-						sides = 64
-					}
+		image = imgX,
+		material = nil,
+		extra = 7,
+		sides = 64
+	}
 	RenderSetP1(this,idx,pos1X,pos1Y)
 	RenderSetP2(this,idx,sizeX,sizeY)
 	RenderSetColor(this,idx,R,G,B,A)
@@ -265,19 +251,19 @@ end
 e2function void wirelink:egpText(idx,string text,vector2 pos,vector col,A)
 	if text == "" or not text then return end
 	if !AddGenericRender(this,idx,"text",pos[1],pos[2],0,0,col[1],col[2],col[3],A) then return end
-	this.Render[idx].extra = 0
+	this.Render[idx].falign = 0
 	RenderSetMaterial(this,idx,text)
 end
 e2function void wirelink:egpText(idx,string text,vector2 pos,vector4 col)
 	if text == "" or not text then return end
 	if !AddGenericRender(this,idx,"text",pos[1],pos[2],0,0,col[1],col[2],col[3],col[4]) then return end
-	this.Render[idx].extra = 0
+	this.Render[idx].falign = 0
 	RenderSetMaterial(this,idx,text)
 end
 e2function void wirelink:egpText(idx,string text,pos1X,pos1Y,R,G,B,A)
 	if text == "" or not text then return end
 	if !AddGenericRender(this,idx,"text",pos1X,pos1Y,0,0,R,G,B,A) then return end
-	this.Render[idx].extra = 0
+	this.Render[idx].falign = 0
 	RenderSetMaterial(this,idx,text)
 end
 
@@ -323,7 +309,11 @@ end
 e2function void wirelink:egpSetFont(idx,string name,number size)
 	local fid = ValidFonts[string.lower(name)]
 	if not fid then return end
-	RenderSetP2(this,idx,size,fid)
+	if not validEGP(this,idx) then return false end
+	
+	local tbl = this.Render[idx]
+	tbl.fsize = size
+	tbl.fid = fid
 end
 
 e2function void wirelink:egpRemove(idx)
@@ -336,15 +326,14 @@ local function Draw_Poly(ent, idx, vertex_array)
 	--I lied i made this one.
 	idx = math.Round(idx)
 	if idx and (idx < 0 or idx > EGPPolyLimit:GetInt()) then return end
-	ent.Poly[idx]=
-		{
-			vertexs = vertex_array,
-			colR = 255,
-			colG = 255,
-			colB = 255,
-			colA = 255,
-			material = ""
-		}
+	ent.Poly[idx] = {
+		vertices = vertex_array,
+		colR = 255,
+		colG = 255,
+		colB = 255,
+		colA = 255,
+		material = ""
+	}
 end
 
 e2function void wirelink:egpPoly(idx, array arr)
@@ -389,7 +378,7 @@ e2function void wirelink:egpTextAlign(idx, halign, valign)
 	idx = math.Round(idx)
 	if not validEGP(this,idx,true) then return false end
 	if not this.Render[idx].image == "text" then return end
-	this.Render[idx].extra = math.Clamp(math.floor(halign),0,2) + 10*math.Clamp(math.floor(valign),0,2)
+	this.Render[idx].falign = math.Clamp(math.floor(halign),0,2) + 10*math.Clamp(math.floor(valign),0,2)
 end
 
 --this is where i take over the coding again.
@@ -418,7 +407,7 @@ e2function void wirelink:egpPolyRemove(idx)
 	if not this.Poly[idx] then return end
 	idx = math.Round(idx)
 	if idx and (idx < 0 or idx > EGPPolyLimit:GetInt()) then return end
-	this.Poly[idx].vertexs = {}
+	this.Poly[idx].vertices = {}
 	this.Poly[idx].colR = 0
 	this.Poly[idx].colG = 0
 	this.Poly[idx].colB = 0
