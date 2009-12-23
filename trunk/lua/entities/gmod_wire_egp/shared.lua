@@ -47,9 +47,9 @@ local umsg_layout = {
 		{ "Byte", "colB" },
 		{ "Byte", "colA" },
 		{ "String", "text" },
-		{ "Short", "falign" },
+		{ "Char", "falign" },
 		{ "Short", "fsize" },
-		{ "Short", "fid" },
+		{ "Char", "fid" },
 	},
 	textl = {
 		{ "Short", "posX" },
@@ -61,9 +61,9 @@ local umsg_layout = {
 		{ "Byte", "colB" },
 		{ "Byte", "colA" },
 		{ "String", "text" },
-		{ "Short", "falign" },
+		{ "Char", "falign" },
 		{ "Short", "fsize" },
-		{ "Short", "fid" },
+		{ "Char", "fid" },
 	},
 	poly = {
 		{ "Byte", "colR" },
