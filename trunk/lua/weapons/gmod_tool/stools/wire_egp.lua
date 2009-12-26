@@ -118,24 +118,7 @@ end
 
 function TOOL.BuildCPanel(panel)
 	panel:AddControl("Header", { Text = "#Tool_wire_egp_name", Description = "#Tool_wire_egp_desc" })
-	
-	panel:AddControl("ComboBox", {
-		Label = "#WireThrusterTool_Model",
-		MenuButton = "0",
-
-		Options = {
-			["#Small tv"]		= { wire_egp_model = "models/props_lab/monitor01b.mdl" },
-			["#Plasma tv"]		= { wire_egp_model = "models/props/cs_office/TV_plasma.mdl" },
-			["#LCD monitor"]	= { wire_egp_model = "models/props/cs_office/computer_monitor.mdl" },
-			["#Monitor Big"]	= { wire_egp_model = "models/kobilica/wiremonitorbig.mdl" },
-			["#Monitor Small"]	= { wire_egp_model = "models/kobilica/wiremonitorsmall.mdl" },
-			["#PHX Small"]	= { wire_egp_model = "models/hunter/plates/plate1x1.mdl" },
-			["#PHX medium"]	= { wire_egp_model = "models/hunter/plates/plate2x2.mdl" },
-			["#PHX large"]	= { wire_egp_model = "models/hunter/plates/plate4x4.mdl" },
-			["#PHX huge"]	= { wire_egp_model = "models/hunter/plates/plate8x8.mdl" },
-			
-		}
-	})
+	WireDermaExts.ModelSelect(panel, "wire_egp_model", list.Get( "WireScreenModels" ), 2)
 	panel:AddControl("Checkbox", {
 		Label = "#Tool_wire_egp_createflat",
 		Command = "wire_egp_createflat"
