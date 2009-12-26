@@ -63,6 +63,7 @@ e2function void wirelink:egpClear()
 	if not validEGPDraw(this) then return end
 	for k, _ in pairs(this.RenderDirty) do
 		this.Render[k] = NilTab
+		ent.RenderDirty[k] = true
 	end
 end
 
