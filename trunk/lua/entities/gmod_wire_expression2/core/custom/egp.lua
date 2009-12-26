@@ -63,7 +63,7 @@ e2function void wirelink:egpClear()
 	if not validEGPDraw(this) then return end
 	for k, _ in pairs(this.RenderDirty) do
 		this.Render[k] = NilTab
-		ent.RenderDirty[k] = true
+		this.RenderDirty[k] = true
 	end
 end
 
@@ -196,6 +196,7 @@ e2function void wirelink:egpCircleStart(idx, i)
 	idx = math.Round(idx)
 	if not validEGP(this, idx) then return end
 	this.Render[idx]["angle"] = i
+	
 end
 e2function void wirelink:egpCircleEnd(idx, i)
 	idx = math.Round(idx)
