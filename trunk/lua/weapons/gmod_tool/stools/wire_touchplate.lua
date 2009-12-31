@@ -1,5 +1,4 @@
 WireToolSetup.open( "touchplate", "Touchplate", "gmod_wire_touchplate", nil, "Touchplates" )
-WireToolSetup.SetupMax( 40, "wire_touchplates" , "You've hit the touchplates limit!" )
 
 if CLIENT then
 	language.Add( "Tool_wire_touchplate_name", "Wired Touch Plate" )
@@ -8,7 +7,7 @@ if CLIENT then
 end
 WireToolSetup.BaseLang()
 
---WireToolSetup.SetupMax( 20, "wire_indicators", "You've hit indicators limit!" )
+WireToolSetup.SetupMax( 40, "wire_touchplates", "You've hit the touchplates limit!" )
 
 if SERVER then
 	function TOOL:GetConVars()
