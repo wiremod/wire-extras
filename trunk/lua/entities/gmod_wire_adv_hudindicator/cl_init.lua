@@ -8,7 +8,6 @@ local advhudindicators = {}
 local hudx = 0
 local hudy = 0
 local nextupdate = 0
-local animation_frame = 0
 
 // Text Height Constant
 local dtextheight = draw.GetFontHeight("Default")
@@ -491,7 +490,7 @@ local function DrawAdvHUDIndicators()
 					//--Offsets 100 from the normal indicators, so I have room to group types--//
 					elseif( indinfo.Style == 100 ) then
 
-						local frame = animation_frame*3.6
+						local frame = RealTime()*120
 
 						local point1x = xPos+(math.sin(math.rad(frame))*20)
 						local point1y = yPos+(math.cos(math.rad(frame))*20)
@@ -946,10 +945,6 @@ usermessage.Hook("AdvHUDIndicator_EXIO", AdvHUDIndicator_EXIO)
 // Check for updates every 1/50 seconds
 local function AdvHUDIndicatorCheck()
 	if (CurTime() < nextupdate) then return end
-
-	//--Increment the animation frame, rotate it around 360;
-	animation_frame = animation_frame + 1;
-	if (animation_frame > 360) then animation_frame = 0 end
 
 	nextupdate = CurTime() + 0.02
 
