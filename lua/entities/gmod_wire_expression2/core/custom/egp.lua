@@ -61,15 +61,14 @@ end
 e2function void wirelink:egpClear()
 	if not validEGP(this) then return end
 	if not validEGPDraw(this) then return end
-	for k, _ in pairs(this.RenderDirty) do
-		this.Render[k] = NilTab
-		this.RenderDirty[k] = true
-	end
+	this.Render = {}
+	this.RenderDirty = {}
+	this.Clear = true
 end
 
 e2function void wirelink:egpRemove(idx)
 	if not validEGP(this, idx, true) then return end
-	this.Render[idx] = NilTab
+	this.Render[idx] = {}
 end
 
 e2function number wirelink:egpCanDraw()
@@ -81,12 +80,18 @@ end
 e2function number wirelink:egpDraw()
 	if not validEGP(this) then return 0 end
 	if not validEGPDraw(this) then return 0 end
+	if this.Clear then
+		umsg.Start("EGPClear")
+			umsg.Entity(this)
+		umsg.End()
+		this.Clear = false
+	end
 	for k, _ in pairs(this.RenderDirty) do
 		if this.Render[k] then
 			local v = this.Render[k]
 			this:SendEntry(k, v) --> shared.lua
 		end
-		
+			
 	end
 	this.RenderDirty = {}
 	return 1
@@ -196,6 +201,7 @@ e2function void wirelink:egpCircleStart(idx, i)
 	idx = math.Round(idx)
 	if not validEGP(this, idx) then return end
 	this.Render[idx]["angle"] = i
+	
 end
 e2function void wirelink:egpCircleEnd(idx, i)
 	idx = math.Round(idx)
@@ -247,7 +253,11 @@ end
 e2function void wirelink:egpSize(idx, vector2 pos)
 	RenderSetP2(this, idx, pos[1], pos[2])
 end
-
+e2function void wirelink:egpAngle(idx, ang)
+	if not validEGP(this, idx) then return end
+	if not this.Render[idx].image == "box" then return end
+	this.Render[idx]["angle"] = ang
+end
 e2function void wirelink:egpColor(idx, vector4 color)
 	idx = math.Round(idx)
 	if not validEGP(this, idx) then return end
@@ -355,18 +365,16 @@ e2function void wirelink:egpPoly(idx, array arr)
 	Draw_Poly(this, idx, vertex_array)
 end
 
-e2function void wirelink:egpPoly(idx, ...)
+e2function void wirelink:egpPoly(idx, array arr, vector4 color)
 	idx = math.Round(idx)
 	if not validEGP(this, idx, true) then return end
-	--oh he made this one also.
-	local arr = { ... }
 	local vertex_array = {}
 	
-	for k, v in ipairs(arr) do
-		local tp = typeids[k]
-		if tp == "xv2" then
+	for k, v in pairs_sortkeys(arr) do
+		local tp = type(v) == "table" and #v
+		if tp == 2 then
 			v = { v[1], v[2], 0, 0 }
-		elseif tp ~= "xv4" then
+		elseif tp ~= 4 then
 			v = nil
 		end
 		
@@ -374,8 +382,41 @@ e2function void wirelink:egpPoly(idx, ...)
 	end
 	
 	Draw_Poly(this, idx, vertex_array)
+	
+	local entry = this.Render[idx]
+	entry.colR = color[1]
+	entry.colG = color[2]
+	entry.colB = color[3]
+	entry.colA = color[4]
+	
 end
 
+e2function void wirelink:egpPoly(idx, array arr, vector color,alpha)
+	idx = math.Round(idx)
+	if not validEGP(this, idx, true) then return end
+	local vertex_array = {}
+	
+	for k, v in pairs_sortkeys(arr) do
+		local tp = type(v) == "table" and #v
+		if tp == 2 then
+			v = { v[1], v[2], 0, 0 }
+		elseif tp ~= 4 then
+			v = nil
+		end
+		
+		vertex_array[#vertex_array+1] = v
+	end
+	
+	Draw_Poly(this, idx, vertex_array)
+	
+	local entry = this.Render[idx]
+	entry.colR = color[1]
+	entry.colG = color[2]
+	entry.colB = color[3]
+	entry.colA = alpha
+	
+end
+	
 --this is where i take over the coding again.
 
 -- http://www.weebls-stuff.com/toons/magical+trevor/ :)
