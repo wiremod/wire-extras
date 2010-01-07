@@ -128,12 +128,39 @@ function ENT:Draw()
 			for k, v in pairs_sortkeys(self.Render) do
 				surface.SetTexture(GetCachedMaterial(v.material))
 				surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
-				if v.image == "box" then
+				if v.image == "box" and v.angle == 0 then
 					if v.material then
 						surface.SetTexture(GetCachedMaterial(v.material))
 						surface.DrawTexturedRect(v.posX,v.posY,v.sizeX,v.sizeY)
 					else
 						surface.DrawRect(v.posX,v.posY,v.sizeX,v.sizeY)
+					end
+				elseif v.image == "box" then
+					
+					local SX = (v.sizeX / 2)
+					local SY = (v.sizeY / 2)
+					local PX = v.posX + SX
+					local PY = v.posY + SY
+					local R = v.angle
+					local P1 = {x= PX + (math.cos(R) * SX),
+								y=PY + (math.sin(R) * SY),
+								u=0,v=0}
+					local P2 = {x= PX + (math.cos(R+90) * SX),
+								y=PY + (math.sin(R+90) * SY),
+								u=0,v=0}
+					local P3 = {x= PX + (math.cos(R+180) * SX),
+								y=PY + (math.sin(R+180) * SY),
+								u=0,v=0}
+					local P4 = {x= PX + (math.cos(R+270) * SX),
+								y=PY + (math.sin(R+270) * SY),
+								u=0,v=0}
+					local poly = {P1,P2,P3,P4}
+					surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
+					if v.material then
+						surface.SetTexture(GetCachedMaterial(v.material))
+						surface.DrawPoly(poly)
+					else
+						surface.DrawPoly(poly)
 					end
 				elseif v.image == "boxoutline" then
 					surface.DrawOutlinedRect(v.posX,v.posY,v.sizeX,v.sizeY)
@@ -253,3 +280,10 @@ function ENT:Draw()
 	self.GPU:Render()
 	Wire_Render(self.Entity)
 end
+
+function egp_clear( um )
+   local ent = umsg.ReadEntity()
+   ent.Render = {}
+   ent.NeedsRender = true
+end
+usermessage.Hook("EGPClear", egp_clear)
