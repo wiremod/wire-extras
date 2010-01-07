@@ -114,7 +114,7 @@ end
 
 
 function ENT:Draw()
-	self:DrawEntityOutline( 0 )
+	self:DrawEntityOutline( 0.1 )
 	self.Entity:DrawModel()
 	if self.NeedsRender then
 		self.GPU:RenderToGPU(function()
