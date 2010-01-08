@@ -68,7 +68,8 @@ end
 
 e2function void wirelink:egpRemove(idx)
 	if not validEGP(this, idx, true) then return end
-	this.Render[idx] = {}
+	this.Render[idx] = nil
+	this.RenderDirty[idx] = true
 end
 
 e2function number wirelink:egpCanDraw()
@@ -83,16 +84,13 @@ e2function number wirelink:egpDraw()
 	if this.Clear then
 		umsg.Start("EGPU")
 			umsg.Entity(this)
-			umsg.Char(3)
+			umsg.Char(1)
 		umsg.End()
 		this.Clear = false
 	end
 	for k, _ in pairs(this.RenderDirty) do
-		if this.Render[k] then
-			local v = this.Render[k]
-			this:SendEntry(k, v) --> shared.lua
-		end
-		
+		local v = this.Render[k]
+		this:SendEntry(k, v) --> shared.lua
 	end
 	this.RenderDirty = {}
 	return 1
