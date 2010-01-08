@@ -92,7 +92,7 @@ e2function number wirelink:egpDraw()
 			local v = this.Render[k]
 			this:SendEntry(k, v) --> shared.lua
 		end
-			
+		
 	end
 	this.RenderDirty = {}
 	return 1
@@ -202,7 +202,6 @@ e2function void wirelink:egpCircleStart(idx, i)
 	idx = math.Round(idx)
 	if not validEGP(this, idx) then return end
 	this.Render[idx]["angle"] = i
-	
 end
 e2function void wirelink:egpCircleEnd(idx, i)
 	idx = math.Round(idx)
