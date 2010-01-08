@@ -108,11 +108,6 @@ usermessage.Hook("EGPU", function(um)
 	ent.NeedsRender = true
 end)
 
-function ENT:clearAll()
-	self.GPU:Finalize()
-end
-
-
 function ENT:Draw()
 	self.Entity.DrawEntityOutline = function() end
 	self.Entity:DrawModel()
