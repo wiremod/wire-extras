@@ -1,14 +1,14 @@
-ENT.Type            = "anim"
-ENT.Base            = "base_wire_entity"
+ENT.Type           = "anim"
+ENT.Base           = "base_wire_entity"
 
-ENT.PrintName       = "Wire EGP"
-ENT.Author          = "Goluch"
-ENT.Contact         = "Goluch on wiremod.com"
-ENT.Purpose         = "Bring Graphic Processing to E2"
-ENT.Instructions    = "WireLink To E2"
+ENT.PrintName      = "Wire EGP"
+ENT.Author         = "Goluch"
+ENT.Contact        = "Goluch on wiremod.com"
+ENT.Purpose        = "Bring Graphic Processing to E2"
+ENT.Instructions   = "WireLink To E2"
 
-ENT.Spawnable       = false
-ENT.AdminSpawnable  = false
+ENT.Spawnable      = false
+ENT.AdminSpawnable = false
 
 local umsg_defaults = {
 	Char = 0,
@@ -113,17 +113,25 @@ function _bf_read:ReadVertexList()
 end
 
 function ENT:SendEntry(idx, entry, ply)
-	umsg.Start("EGPU", ply)
-		umsg.Entity(self)
-		umsg.Char(2) -- id
-		umsg.Long(idx)
-		umsg.String(entry.image)
-		
-		for _,tp,element in ipairs_map(umsg_layout[entry.image], unpack) do
-			local value = entry[element] or umsg_defaults[tp]
-			_umsg[tp](value)
-		end
-	umsg.End()
+	if entry then
+		umsg.Start("EGPU", ply)
+			umsg.Entity(self)
+			umsg.Char(2) -- id
+			umsg.Long(idx)
+			umsg.String(entry.image)
+			
+			for _,tp,element in ipairs_map(umsg_layout[entry.image], unpack) do
+				local value = entry[element] or umsg_defaults[tp]
+				_umsg[tp](value)
+			end
+		umsg.End()
+	else
+		umsg.Start("EGPU", ply)
+			umsg.Entity(self)
+			umsg.Char(3) -- id
+			umsg.Long(idx)
+		umsg.End()
+	end
 end
 
 function ENT:ReceiveEntry(um)
