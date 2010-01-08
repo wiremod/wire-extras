@@ -366,6 +366,27 @@ e2function void wirelink:egpPoly(idx, array arr)
 	Draw_Poly(this, idx, vertex_array)
 end
 
+e2function void wirelink:egpPoly(idx, ...)
+	idx = math.Round(idx)
+	if not validEGP(this, idx, true) then return end
+	--oh he made this one also.
+	local arr = { ... }
+	local vertex_array = {}
+	
+	for k, v in ipairs(arr) do
+		local tp = typeids[k]
+		if tp == "xv2" then
+			v = { v[1], v[2], 0, 0 }
+		elseif tp ~= "xv4" then
+			v = nil
+		end
+		
+		vertex_array[#vertex_array+1] = v
+	end
+	
+	Draw_Poly(this, idx, vertex_array)
+end
+
 e2function void wirelink:egpPoly(idx, array arr, vector4 color)
 	idx = math.Round(idx)
 	if not validEGP(this, idx, true) then return end
@@ -392,7 +413,7 @@ e2function void wirelink:egpPoly(idx, array arr, vector4 color)
 	
 end
 
-e2function void wirelink:egpPoly(idx, array arr, vector color,alpha)
+e2function void wirelink:egpPoly(idx, array arr, vector color, alpha)
 	idx = math.Round(idx)
 	if not validEGP(this, idx, true) then return end
 	local vertex_array = {}
