@@ -114,7 +114,7 @@ end
 
 
 function ENT:Draw()
-	self:DrawEntityOutline( 0.1 )
+	self.Entity.DrawEntityOutline = function() end
 	self.Entity:DrawModel()
 	if self.NeedsRender then
 		self.GPU:RenderToGPU(function()
@@ -141,20 +141,22 @@ function ENT:Draw()
 					local SY = (v.sizeY / 2)
 					local PX = v.posX + SX
 					local PY = v.posY + SY
-					local R = v.angle
-					local P1 = {x= PX + (math.cos(R) * SX),
-								y=PY + (math.sin(R) * SY),
+					local R = v.angle or 0
+					local poly = {
+							{x= PX + (math.sin(R+0) * SX),
+								y= PY + (math.cos(R+0) * SY),
+								u=0,v=0},
+							{x= PX + (math.sin(R+90) * SX),
+								y= PY + (math.cos(R+90) * SY),
+								u=0,v=0},
+							{x= PX + (math.sin(R+180) * SX),
+								y= PY + (math.cos(R+180) * SY),
+								u=0,v=0},
+							{x= PX + (math.sin(R+270) * SX),
+								y= PY + (math.cos(R+270) * SY),
 								u=0,v=0}
-					local P2 = {x= PX + (math.cos(R+90) * SX),
-								y=PY + (math.sin(R+90) * SY),
-								u=0,v=0}
-					local P3 = {x= PX + (math.cos(R+180) * SX),
-								y=PY + (math.sin(R+180) * SY),
-								u=0,v=0}
-					local P4 = {x= PX + (math.cos(R+270) * SX),
-								y=PY + (math.sin(R+270) * SY),
-								u=0,v=0}
-					local poly = {P1,P2,P3,P4}
+						}
+					
 					surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
 					if v.material then
 						surface.SetTexture(GetCachedMaterial(v.material))
@@ -280,10 +282,11 @@ function ENT:Draw()
 	self.GPU:Render()
 	Wire_Render(self.Entity)
 end
-
+--[[
 function egp_clear( um )
-   local ent = umsg.ReadEntity()
+   local ent = um.ReadEntity()
    ent.Render = {}
    ent.NeedsRender = true
 end
 usermessage.Hook("EGPClear", egp_clear)
+]]--
