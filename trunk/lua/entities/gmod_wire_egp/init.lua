@@ -5,6 +5,7 @@ include('shared.lua')
 ENT.WireDebugName = "E2 Graphics Processor"
 
 function ENT:Initialize()
+	self:InitializeShared()
 	
 	self.Entity:PhysicsInit(SOLID_VPHYSICS)
 	self.Entity:SetMoveType(MOVETYPE_VPHYSICS)

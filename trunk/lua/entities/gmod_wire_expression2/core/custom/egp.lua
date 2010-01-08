@@ -25,15 +25,6 @@ ValidFonts["arial"] = 5
 ValidFonts["courier new"] = 6
 ValidFonts["times new roman"] = 7
 
-local function EGPPlayerInit(ply)
-	for _,ent in pairs(ents.FindByClass("gmod_wire_egp")) do
-		for k,v in pairs(ent.Render) do
-			ent:SendEntry(k, v, ply) --> shared.lua
-		end
-	end
-end
-hook.Add("PlayerInitialSpawn", "EGPPlayerInit", EGPPlayerInit)
-
 local function validEGP(ent, idx, ignore_missing)
 	if not ValidEntity(ent) then return false end
 	if not ent.Render then return false end

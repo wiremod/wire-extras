@@ -112,11 +112,14 @@ function _bf_read:ReadVertexList()
 	return vertices
 end
 
+function ENT:InitializeShared()
+	WireLib.umsgRegister(self)
+end
+
 function ENT:SendEntry(idx, entry, ply)
+	self:umsg(ply)
 	if entry then
-		umsg.Start("EGPU", ply)
-			umsg.Entity(self)
-			umsg.Char(2) -- id
+			umsg.Char(2) -- set entry
 			umsg.Long(idx)
 			umsg.String(entry.image)
 			
@@ -124,14 +127,11 @@ function ENT:SendEntry(idx, entry, ply)
 				local value = entry[element] or umsg_defaults[tp]
 				_umsg[tp](value)
 			end
-		umsg.End()
 	else
-		umsg.Start("EGPU", ply)
-			umsg.Entity(self)
-			umsg.Char(3) -- id
+			umsg.Char(3) -- clear entry
 			umsg.Long(idx)
-		umsg.End()
 	end
+	umsg.End()
 end
 
 function ENT:ReceiveEntry(um)
@@ -145,4 +145,10 @@ function ENT:ReceiveEntry(um)
 	if entry.material == "" then entry.material = nil end
 	
 	self.Render[idx] = entry
+end
+
+function ENT:Retransmit(ply)
+	for k,v in pairs(self.Render) do
+		self:SendEntry(k, v, ply) --> shared.lua
+	end
 end
