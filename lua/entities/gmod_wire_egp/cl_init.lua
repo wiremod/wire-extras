@@ -136,34 +136,13 @@ function ENT:Draw()
 						surface.DrawRect(v.posX,v.posY,v.sizeX,v.sizeY)
 					end
 				elseif v.image == "box" then
-					
-					local SX = (v.sizeX / 2)
-					local SY = (v.sizeY / 2)
-					local PX = v.posX + SX
-					local PY = v.posY + SY
-					local R = v.angle or 0
-					local poly = {
-							{x= PX + (math.sin(R+0) * SX),
-								y= PY + (math.cos(R+0) * SY),
-								u=0,v=0},
-							{x= PX + (math.sin(R+90) * SX),
-								y= PY + (math.cos(R+90) * SY),
-								u=0,v=0},
-							{x= PX + (math.sin(R+180) * SX),
-								y= PY + (math.cos(R+180) * SY),
-								u=0,v=0},
-							{x= PX + (math.sin(R+270) * SX),
-								y= PY + (math.cos(R+270) * SY),
-								u=0,v=0}
-						}
-					
+				
 					surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
 					if v.material then
 						surface.SetTexture(GetCachedMaterial(v.material))
-						surface.DrawPoly(poly)
-					else
-						surface.DrawPoly(poly)
 					end
+					surface.DrawTexturedRectRotated(v.posX,v.posY,v.sizeX,v.sizeY,v.angle)
+					
 				elseif v.image == "boxoutline" then
 					surface.DrawOutlinedRect(v.posX,v.posY,v.sizeX,v.sizeY)
 				elseif v.image == "text" then
