@@ -20,6 +20,8 @@ local function validEGP(ent)
 end
 
 function ENT:Initialize()
+	self:InitializeShared()
+	
 	self.GPU = WireGPU(self.Entity)
 	self.Render = {
 		{
@@ -86,27 +88,25 @@ local function GetCachedMaterial(mat)
 	return MatCache[mat]
 end
 
-usermessage.Hook("EGPU", function(um)
-	local ent = um:ReadEntity()
+function ENT:Receive(um)
 	local id = um:ReadChar()
-	if not validEGP(ent) then return end
 	if id == 1 then
-		ent.Render = {}
-		ent.FirstDraw = nil
+		self.Render = {}
+		self.FirstDraw = nil
 		
 	elseif id == 2 then
-		if ent.FirstDraw then
-			ent.Render = {}
-			ent.FirstDraw = nil
+		if self.FirstDraw then
+			self.Render = {}
+			self.FirstDraw = nil
 		end
-		ent:ReceiveEntry(um)
+		self:ReceiveEntry(um)
 		
 	elseif id == 3 then
 		local idx = um:ReadLong()
-		ent.Render[idx] = nil
+		self.Render[idx] = nil
 	end
-	ent.NeedsRender = true
-end)
+	self.NeedsRender = true
+end
 
 function ENT:Draw()
 	self.Entity.DrawEntityOutline = function() end
@@ -256,11 +256,3 @@ function ENT:Draw()
 	self.GPU:Render()
 	Wire_Render(self.Entity)
 end
---[[
-function egp_clear( um )
-   local ent = um.ReadEntity()
-   ent.Render = {}
-   ent.NeedsRender = true
-end
-usermessage.Hook("EGPClear", egp_clear)
-]]--
