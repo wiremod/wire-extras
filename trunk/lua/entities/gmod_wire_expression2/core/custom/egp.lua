@@ -73,8 +73,7 @@ e2function number wirelink:egpDraw()
 	if not validEGP(this) then return 0 end
 	if not validEGPDraw(this) then return 0 end
 	if this.Clear then
-		umsg.Start("EGPU")
-			umsg.Entity(this)
+		this:umsg()
 			umsg.Char(1)
 		umsg.End()
 		this.Clear = false
