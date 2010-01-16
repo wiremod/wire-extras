@@ -43,7 +43,7 @@ function TOOL:LeftClick( trace )
 		Ang.pitch = Ang.pitch + 90
 	end
 	
-	if (string.find(self:GetClientInfo( "model" ),"models/hunter/plates/")) then
+	if (string.find(self:GetClientInfo( "model" ),"models/hunter/plates/"))  or (string.find(self:GetClientInfo( "model" ),"models/cheeze/pcb")) then
 		Ang.pitch = Ang.pitch + 90
 	end
 	
