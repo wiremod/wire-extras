@@ -118,7 +118,7 @@ end
 
 function ENT:SendEntry(idx, entry, ply)
 	self:umsg(ply)
-	if entry then
+		if entry then
 			umsg.Char(2) -- set entry
 			umsg.Long(idx)
 			umsg.String(entry.image)
@@ -127,10 +127,10 @@ function ENT:SendEntry(idx, entry, ply)
 				local value = entry[element] or umsg_defaults[tp]
 				_umsg[tp](value)
 			end
-	else
+		else
 			umsg.Char(3) -- clear entry
 			umsg.Long(idx)
-	end
+		end
 	umsg.End()
 end
 
