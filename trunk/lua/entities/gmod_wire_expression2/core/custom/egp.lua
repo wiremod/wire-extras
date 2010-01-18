@@ -261,6 +261,12 @@ e2function void wirelink:egpMaterial(idx, string mat)
 	this.Render[idx].material = mat
 end
 
+e2function void wirelink:egpMaterialFromScreen(idx, entity gpu)
+	if not validEGP(this, idx) then return end
+	if not validEntity(gpu) then return end
+	this.Render[idx].material = ("<gpu%d>"):format(gpu:EntIndex())
+end
+e2function void wirelink:egpMaterialFromScreen(idx, wirelink gpu) = e2function void wirelink:egpMaterialFromScreen(idx, entity gpu)
 --------------------------------- text drawing --------------------------------
 
 e2function void wirelink:egpText(idx, string text, vector2 pos, vector4 col)
