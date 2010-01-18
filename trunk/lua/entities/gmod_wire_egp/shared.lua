@@ -142,6 +142,10 @@ function ENT:ReceiveEntry(um)
 	for _,tp,element in ipairs_map(umsg_layout[image], unpack) do
 		entry[element] = _bf_read["Read"..tp](um)
 	end
+	local gpuid = tonumber(entry.material:match("^<gpu(%d+)>$"))
+	if gpuid then
+		entry.material = Entity(gpuid)
+	end
 	if entry.material == "" then entry.material = nil end
 	
 	self.Render[idx] = entry

@@ -121,11 +121,21 @@ function ENT:Draw()
 			surface.DrawRect(0, 0, w, h)
 			
 			for k, v in pairs_sortkeys(self.Render) do
-				surface.SetTexture(GetCachedMaterial(v.material))
+				local OldTex
+				if type(v.material) == "Entity" then
+					if v.material:IsValid() and v.material.GPU and v.material.GPU.RT then
+						OldTex = WireGPU_matScreen:GetMaterialTexture("$basetexture")
+						WireGPU_matScreen:SetMaterialTexture("$basetexture", v.material.GPU.RT)
+						surface.SetTexture(WireGPU_texScreen)
+					end
+				else
+					surface.SetTexture(GetCachedMaterial(v.material))
+				end
+				
 				surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
+				
 				if v.image == "box" and v.angle == 0 then
 					if v.material then
-						surface.SetTexture(GetCachedMaterial(v.material))
 						surface.DrawTexturedRect(v.posX,v.posY,v.sizeX,v.sizeY)
 					else
 						surface.DrawRect(v.posX,v.posY,v.sizeX,v.sizeY)
@@ -133,9 +143,6 @@ function ENT:Draw()
 				elseif v.image == "box" then
 				
 					surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
-					if v.material then
-						surface.SetTexture(GetCachedMaterial(v.material))
-					end
 					surface.DrawTexturedRectRotated(v.posX,v.posY,v.sizeX,v.sizeY,v.angle)
 					
 				elseif v.image == "boxoutline" then
@@ -242,11 +249,12 @@ function ENT:Draw()
 					surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
 					surface.DrawPoly(vertices)
 				elseif v.image == "poly" then
-					if v.material then
-						surface.SetTexture(GetCachedMaterial(v.material))
-					end
 					surface.SetDrawColor(v.colR,v.colG,v.colB,v.colA)
 					surface.DrawPoly(v.vertices)
+				end
+				
+				if OldTex then
+					WireGPU_matScreen:SetMaterialTexture("$basetexture", OldTex)
 				end
 			end
 		end)
