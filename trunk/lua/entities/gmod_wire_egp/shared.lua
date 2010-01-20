@@ -77,11 +77,11 @@ local umsg_layout = {
 
 setmetatable(umsg_layout, { __index = function(self) return rawget(self, "Default") end })
 
-local _umsg = setmetatable({}, { __index = umsg })
+local _umsg = setmetatable({}, { __index = WireLib.wire_umsg })
 local _bf_read = setmetatable({}, { __index = _R.bf_read })
 
 function _umsg.Byte(value)
-	return umsg.Char(value-128)
+	return _umsg.Char(value-128)
 end
 
 function _bf_read:ReadByte()
@@ -89,12 +89,12 @@ function _bf_read:ReadByte()
 end
 
 function _umsg.VertexList(value)
-	umsg.Char( #value )
+	_umsg.Char( #value )
 	for _,vertex in ipairs(value) do
-		umsg.Float(vertex[1])
-		umsg.Float(vertex[2])
-		umsg.Float(vertex[3])
-		umsg.Float(vertex[4])
+		_umsg.Float(vertex[1])
+		_umsg.Float(vertex[2])
+		_umsg.Float(vertex[3])
+		_umsg.Float(vertex[4])
 	end
 end
 
@@ -119,19 +119,19 @@ end
 function ENT:SendEntry(idx, entry, ply)
 	self:umsg(ply)
 		if entry then
-			umsg.Char(2) -- set entry
-			umsg.Long(idx)
-			umsg.String(entry.image)
+			self.umsg.Char(2) -- set entry
+			self.umsg.Long(idx)
+			self.umsg.String(entry.image)
 			
 			for _,tp,element in ipairs_map(umsg_layout[entry.image], unpack) do
 				local value = entry[element] or umsg_defaults[tp]
 				_umsg[tp](value)
 			end
 		else
-			umsg.Char(3) -- clear entry
-			umsg.Long(idx)
+			self.umsg.Char(3) -- clear entry
+			self.umsg.Long(idx)
 		end
-	umsg.End()
+	self.umsg.End()
 end
 
 function ENT:ReceiveEntry(um)
