@@ -544,21 +544,7 @@ function TOOL.BuildCPanel(panel)
 		Description = "The model to use for the Adv, HUD Indicator..."
 	})
 
-	panel:AddControl("ComboBox", {
-		Label = "#ToolWireAdvHudIndicator_Model",
-		MenuButton = "0",
-
-		Options = {
-			["Siren"]				= { wire_adv_hudindicator_model = "models/jaanus/wiretool/wiretool_siren.mdl" },
-			["Medium 7-seg bar"]	= { wire_adv_hudindicator_model = "models/segment2.mdl" },
-			["Small 7-seg bar"]		= { wire_adv_hudindicator_model = "models/segment.mdl" },
-			["Barrel"]				= { wire_adv_hudindicator_model = "models/props_borealis/bluebarrel001.mdl" },
-			["Grave stone"]			= { wire_adv_hudindicator_model = "models/props_c17/gravestone004a.mdl" },
-			["Pop can"]				= { wire_adv_hudindicator_model = "models/props_junk/PopCan01a.mdl" },
-			["Traffic Cone"]		= { wire_adv_hudindicator_model = "models/props_junk/TrafficCone001a.mdl" },
-			["Big Clock"]			= { wire_adv_hudindicator_model = "models/props_trainstation/trainstation_clock001.mdl" }
-		}
-	})
+	ModelPlug_AddToCPanel(panel, "indicator", "wire_adv_hudindicator", "#ToolWireIndicator_Model", nil, "#ToolWireIndicator_Model")
 
 	panel:AddControl("Label", {
 		Text = "HUD Type",
