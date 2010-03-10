@@ -1,7 +1,9 @@
 local sbox_maxwire_egp_elements = CreateConVar("sbox_maxwire_egp_elements", "40", FCVAR_ARCHIVE)
---local sbox_maxwire_egp_cameras = CreateConVar("sbox_maxwire_egp_cameras", "40", FCVAR_ARCHIVE)
---local sbox_maxwire_egp_polys = CreateConVar("sbox_maxwire_egp_polys", "40", FCVAR_ARCHIVE)
---these one are not implented yet mabey never will be :)
+
+--EGP DISABLE COMMAND FOR EGP2
+if not egp_enabled then egp_enabled = CreateConVar("egp_enabled", "1", FCVAR_ARCHIVE) end
+if egp_enabled:GetInt() == 0 then return end
+--------------------------------
 
 local NilTab = {
 	image = "Empty", 
@@ -63,17 +65,6 @@ e2function void wirelink:egpClear()
 		this.RenderDirty[idx] = true
 	end
 end
-
-
-e2function void wirelink:egpRedraw()
-	if not validEGP(this) then return 0 end
-	if not this.LastRedraw or (CurTime() - this.LastRedraw) >= 0.04 then 
-		this:SendEGPNumber(4)
-		return 1
-	end
-	return 0
-end
-
 
 e2function void wirelink:egpRemove(idx)
 	if not validEGP(this, idx, true) then return end
