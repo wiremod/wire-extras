@@ -455,7 +455,7 @@ end
 
 e2function vector2 wirelink:egpToMouse(entity ply)
 	--Taken from Wire Graphics Tablet.
-	if not EvalidEGP(this, idx, true) then return {-1,-1}  end
+	if not validEGP(this, idx, true) then return {-1,-1}  end
 	if not ply:IsPlayer(ply) then return {-1,-1}  end
 	
 	local monitor = WireGPU_Monitors[this:GetModel()]
