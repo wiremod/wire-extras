@@ -1,5 +1,5 @@
---ToDo: add angle and texture
---Note: anybody that knows how to do this pleae do.
+if EGP then return end -- should detect egp2 installnot needed on clients but just in case.
+
 include('shared.lua')
 
 local ValidFonts = {}

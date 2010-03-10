@@ -1,3 +1,9 @@
+--EGP2 Compatability
+if EGP then return end -- should detect an egp2 install
+if not egp_enabled then egp_enabled = CreateConVar("egp_enabled", "1", FCVAR_ARCHIVE) end
+if egp_enabled:GetInt() == 0 then return end
+--------------------------------
+
 --Wire EGP by Goluch
 --YAY Wire Lib GPU Thanx dude
 --And yes i copied the graphic tablet tool SO WHAT!
