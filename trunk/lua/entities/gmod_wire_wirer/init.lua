@@ -575,9 +575,9 @@ function ENT:TriggerInput(iname, value)
 	Wire_TriggerOutput(self.Entity, "TargetInputs", Inputs)
 	Wire_TriggerOutput(self.Entity, "TargetOutputs", Outputs)
 	
-	if(trace.Hit and trace.Entity:IsValid() and (IsWire(trace.Entity) == true) and getOwner(self.Entity, trace.Entity) == self.Entity.pl) then
-		Wire_TriggerOutput(self.Entity, "TargetEntity", TraceHitEntity)
+	if(trace.Hit and trace.Entity:IsValid() and (IsWire(trace.Entity) == true) and getOwner(self, trace.Entity) == self.pl) then
+		Wire_TriggerOutput(self, "TargetEntity", trace.Entity)
 	else
-		Wire_TriggerOutput(self.Entity, "TargetEntity", null)
+		Wire_TriggerOutput(self, "TargetEntity", null)
 	end
 end
