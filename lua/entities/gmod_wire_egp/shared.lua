@@ -1,3 +1,9 @@
+--EGP2 Compatability
+if EGP then return end -- should detect an egp2 install
+if not egp_enabled then egp_enabled = CreateConVar("egp_enabled", "1", FCVAR_ARCHIVE) end
+if egp_enabled:GetInt() == 0 then return end
+--------------------------------
+
 ENT.Type           = "anim"
 ENT.Base           = "base_wire_entity"
 
@@ -9,7 +15,6 @@ ENT.Instructions   = "WireLink To E2"
 
 ENT.Spawnable      = false
 ENT.AdminSpawnable = false
-
 local umsg_defaults = {
 	Char = 0,
 	Byte = 0,
