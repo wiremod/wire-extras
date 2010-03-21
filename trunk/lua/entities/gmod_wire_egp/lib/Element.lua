@@ -4,6 +4,7 @@ function EGP.ELEMENT.box(v)
 	if v.Ang and v.Ang != 0 then
 		return EGP.ELEMENT.boxangle(v)
 	end
+	surface.SetDrawColor(v.R,v.G,v.B,v.A)
 	if v.material then
 		surface.DrawTexturedRect(v.X,v.Y,v.W,v.H)
 	else
@@ -12,10 +13,12 @@ function EGP.ELEMENT.box(v)
 end
 
 function EGP.ELEMENT.boxangle(v)
+	surface.SetDrawColor(v.R,v.G,v.B,v.A)
 	surface.DrawTexturedRectRotated(v.X,v.Y,v.W,v.H,v.Ang)
 end
 
 function EGP.ELEMENT.boxoutline(v)
+	surface.SetDrawColor(v.R,v.G,v.B,v.A)
 	surface.DrawOutlinedRect(v.X,v.Y,v.W,v.H)
 end
 
@@ -67,6 +70,7 @@ function EGP.ELEMENT.text1(v,ent)
 end
 
 function EGP.ELEMENT.line(v)
+	surface.SetDrawColor(v.R,v.G,v.B,v.A)
 	surface.DrawLine(v.X,v.Y,v.X1,v.Y1)
 end
 
