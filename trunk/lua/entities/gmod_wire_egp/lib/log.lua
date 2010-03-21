@@ -3,11 +3,12 @@
 --DAMIT TOMY I MEAN YOU TO!
 
 --SVN REVISHION NUMBER
-EGP.Rev = "2"
+EGP.Rev = "2.1"
 ----------------------
 
 --Patch Notes!
 --Date,Rev,Note!
+EGP.AddLog("17/3/2010","2.1","Emitter?.")
 EGP.AddLog("17/3/2010","1.9","Gone Live In UWSVN.")
 EGP.AddLog("17/3/2010","1.9","New Home Screen (mattwd0526).")
 EGP.AddLog("3/3/2010","1.9","Changed File Structure..")
