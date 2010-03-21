@@ -14,11 +14,13 @@ if ( CLIENT ) then
 	language.Add( "sboxlimit_wire_egps", "You've hit EGP limit!" )
 	language.Add( "Undone_wireegp", "Undone EGP" )
 	language.Add("Tool_wire_egp_createflat", "Create flat to surface")
+	language.Add("Tool_wire_egp_emitter", "Create An EGP Emitter (Beta)")
 end
 
 
 TOOL.ClientConVar["model"] = "models/kobilica/wiremonitorbig.mdl"
 TOOL.ClientConVar["createflat"] = 1
+TOOL.ClientConVar["emitter"] = 0
 
 if (SERVER) then
 	CreateConVar('sbox_maxwire_egps', 20)
@@ -39,8 +41,10 @@ function TOOL:LeftClick( trace )
 	local Ang = trace.HitNormal:Angle()
 	local model = self:GetClientInfo("model")
 	local CreateFlat = self:GetClientNumber("createflat")
+	local Emitter = self:GetClientNumber("emitter")
+	local wire_egp
 	
-	if (CreateFlat == 0) then
+	if (CreateFlat == 0) and (Emitter == 0) then
 		Ang.pitch = Ang.pitch + 90
 	end
 	
@@ -48,7 +52,13 @@ function TOOL:LeftClick( trace )
 		Ang.pitch = Ang.pitch + 90
 	end
 	
-	local wire_egp = MakeWireEGP(ply, trace.HitPos, Ang, model)
+	if (Emitter == 1) then
+		model = "models/cheeze/beta/white_button.mdl"
+		wire_egp = MakeWireEGPEmitter(ply, trace.HitPos, Ang, model)
+	else
+		wire_egp = MakeWireEGP(ply, trace.HitPos, Ang, model)
+	end
+	 
 	local min = wire_egp:OBBMins()
 	wire_egp:SetPos( trace.HitPos - trace.HitNormal * min.z )
 
@@ -86,6 +96,28 @@ if (SERVER) then
 		return wire_egp
 	end
 	duplicator.RegisterEntityClass("gmod_wire_egp", MakeWireEGP, "Pos", "Ang", "Model")
+	
+	function MakeWireEGPEmitter( pl, Pos, Ang, model )
+		if ( !pl:CheckLimit( "wire_egps" ) ) then return false end
+		
+		local wire_egp = ents.Create( "gmod_wire_egp_emitter" )
+		if (!wire_egp:IsValid()) then return false end
+		wire_egp:SetModel(model)
+
+		wire_egp:SetAngles( Ang )
+		wire_egp:SetPos( Pos )
+		wire_egp:Spawn()
+		wire_egp:SetPlayer(pl)
+			
+		local ttable = {
+			pl = pl,
+			model = model
+		}
+		table.Merge(wire_egp:GetTable(), ttable )
+		pl:AddCount( "wire_egps", wire_egp )
+		return wire_egp
+	end
+	duplicator.RegisterEntityClass("gmod_wire_egp_emitter", MakeWireEGPEmitter, "Pos", "Ang", "Model")
 end
 
 function TOOL:UpdateGhostWireEGP( ent, player )
@@ -97,7 +129,7 @@ function TOOL:UpdateGhostWireEGP( ent, player )
 	if (!trace.Hit) then return end
 	local Ang = trace.HitNormal:Angle()
 	
-	if (self:GetClientNumber("createflat") == 0) then
+	if (self:GetClientNumber("createflat") == 0) and (Emitter == 0) then
 		Ang.pitch = Ang.pitch + 90
 	end
 	
@@ -113,7 +145,12 @@ end
 
 function TOOL:Think()
 	if (!self.GhostEntity || !self.GhostEntity:IsValid() || self.GhostEntity:GetModel() != self:GetClientInfo( "model" ) || (not self.GhostEntity:GetModel()) ) then
-		self:MakeGhostEntity( self:GetClientInfo( "model" ), Vector(0,0,0), Angle(0,0,0) )
+		local Emitter = self:GetClientNumber("emitter")
+		local model = self:GetClientInfo( "model" )
+		if (Emitter == 1) then
+			model = "models/cheeze/beta/white_button.mdl"
+		end
+		self:MakeGhostEntity( model, Vector(0,0,0), Angle(0,0,0) )
 	end
 	self:UpdateGhostWireEGP( self.GhostEntity, self:GetOwner() )
 end
@@ -128,6 +165,7 @@ function TOOL.BuildCPanel(panel)
 	panel:AddControl("Header", { Text = "#Tool_wire_egp_name", Description = "#Tool_wire_egp_desc" })
 	WireDermaExts.ModelSelect(panel, "wire_egp_model", list.Get( "WireScreenModels" ), 2)
 	panel:AddControl("Checkbox", {Label = "#Tool_wire_egp_createflat",Command = "wire_egp_createflat"})
+	panel:AddControl("Checkbox", {Label = "#Tool_wire_egp_emitter",Command = "wire_egp_emitter"})
 	
 	panel:AddControl( "Label", { Text = "REV: " .. EGP.Rev }  )
 	panel:AddControl( "Label", { Text = "Update Log:" }  )

@@ -148,7 +148,6 @@ EGP.ValidFonts[6] = "times new roman"
 					local func = EGP.ELEMENT[v.image]
 					if func then
 						--Wait so where am i drawing the elements?
-						surface.SetDrawColor(v.R,v.G,v.B,v.A)
 						func(v,ent)--HERE!
 					end
 					--I love this new code!
