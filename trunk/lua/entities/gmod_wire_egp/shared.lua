@@ -105,7 +105,7 @@ end
 
 function ENT:Retransmit(ply)
 	for k,v in pairs(self.RenderDrawn) do
-		sellf:SendEntry(k, v ,ply)
+		self:SendEntry(k, v ,ply)
 	end
 end
 --Thank you Tomy!

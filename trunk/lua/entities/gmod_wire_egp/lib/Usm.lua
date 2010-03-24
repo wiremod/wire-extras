@@ -51,7 +51,7 @@ EGP.USM.text = {
 		{ "Char", "fid" }
 }
 
-EGP.USM.textl = {
+EGP.USM.text1 = {
 		{ "Short", "X" },
 		{ "Short", "Y" },
 		{ "Short", "W" },
