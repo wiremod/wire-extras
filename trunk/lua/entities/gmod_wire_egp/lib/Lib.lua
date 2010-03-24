@@ -76,7 +76,7 @@ EGP.ValidFonts[6] = "times new roman"
 					if not v.image then table.remove(ent.RenderDrawn,idx) end
 				end
 				
-				ent.Render = {}
+				--ent.Render = {} Temp disabled for a small test
 				ent.RenderDirty = {}
 				
 			end

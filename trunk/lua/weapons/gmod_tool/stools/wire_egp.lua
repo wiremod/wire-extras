@@ -134,7 +134,7 @@ function TOOL:UpdateGhostWireEGP( ent, player )
 	end
 	
 	if (string.find(self:GetClientInfo( "model" ),"models/hunter/plates/"))  or (string.find(self:GetClientInfo( "model" ),"models/cheeze/pcb")) then
-		Ang.pitch = Ang.pitch + 90
+		if (Emitter == 0) then Ang.pitch = Ang.pitch + 90 end
 	end
 	
 	local min = ent:OBBMins()
