@@ -330,7 +330,7 @@ end
 		Draw_Poly(this, idx, vertex_array)
 	end	
 	
-	e2function void wirelink:egpPolyColor(idx, ... , vector4 color)
+	e2function void wirelink:egpPolyColor(idx, vector4 color, ...)
 		idx = math.Round(idx)
 		if not EGP.IsValid(this, idx, true) then return end
 		--oh he made this one also.
@@ -352,7 +352,7 @@ end
 		EGP.SetColor(this,idx,color)
 	end	
 	
-	e2function void wirelink:egpPolyColor(idx, array arr, vector4 color)
+	e2function void wirelink:egpPolyColor(idx, vector4 color, array arr)
 		idx = math.Round(idx)
 		if not EGP.IsValid(this, idx, true) then return end
 		--I lied again he actualy did make this one.
