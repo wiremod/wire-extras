@@ -330,6 +330,49 @@ end
 		Draw_Poly(this, idx, vertex_array)
 	end	
 	
+	e2function void wirelink:egpPolyColor(idx, ... , vector4 color)
+		idx = math.Round(idx)
+		if not EGP.IsValid(this, idx, true) then return end
+		--oh he made this one also.
+		local arr = { ... }
+		local vertex_array = {}
+		
+		for k, v in ipairs(arr) do
+			local tp = typeids[k]
+			if tp == "xv2" then
+				v = { v[1], v[2], 0, 0 }
+			elseif tp ~= "xv4" then
+				v = nil
+			end
+			
+			vertex_array[#vertex_array+1] = v
+		end
+		
+		Draw_Poly(this, idx, vertex_array)
+		EGP.SetColor(this,idx,color)
+	end	
+	
+	e2function void wirelink:egpPolyColor(idx, array arr, vector4 color)
+		idx = math.Round(idx)
+		if not EGP.IsValid(this, idx, true) then return end
+		--I lied again he actualy did make this one.
+		local vertex_array = {}
+		
+		for k, v in pairs_sortkeys(arr) do
+			local tp = type(v) == "table" and #v
+			if tp == 2 then
+				v = { v[1], v[2], 0, 0 }
+			elseif tp ~= 4 then
+				v = nil
+			end
+			
+			vertex_array[#vertex_array+1] = v
+		end
+		
+		Draw_Poly(this, idx, vertex_array)
+		EGP.SetColor(this,idx,color)
+	end
+	
 ------------------------------
 --EGP E2 Advanced Functions!--
 ------------------------------
@@ -337,7 +380,7 @@ end
 e2function vector2 wirelink:egpToMouse(entity ply)
 	--Taken from Wire Graphics Tablet.
 	if not EGP.IsValid(this) then return {-1,-1}  end
-	if not ply:IsPlayer(ply) then return {-1,-1}  end
+	if not ply:IsPlayer() or not ply:IsVailid() or not ply then return {-1,-1}  end
 	
 	local monitor = WireGPU_Monitors[this:GetModel()]
 	local ang = this:LocalToWorldAngles(monitor.rot)
@@ -352,7 +395,7 @@ e2function vector2 wirelink:egpToMouse(entity ply)
 
 	local cx = -1
 	local cy = -1
-		
+	if not ent then return end
 	if ent == this then
 		local dist = trace.Normal:Dot(trace.HitNormal)*trace.Fraction*-16384
 		dist = math.max(dist, trace.Fraction*16384-ent:BoundingRadius())
@@ -360,7 +403,6 @@ e2function vector2 wirelink:egpToMouse(entity ply)
 		cx = (0.5+cpos.x/(monitor.RS*w)) * 512
 		cy = (0.5-cpos.y/(monitor.RS*h)) * 512	
 	end
-	
 	--Thank you eurocracy for telling me the most ovious thing in the world.
 
 	return {cx,cy}
