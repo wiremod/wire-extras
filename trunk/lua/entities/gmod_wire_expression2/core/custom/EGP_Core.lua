@@ -380,7 +380,7 @@ end
 e2function vector2 wirelink:egpToMouse(entity ply)
 	--Taken from Wire Graphics Tablet.
 	if not EGP.IsValid(this) then return {-1,-1}  end
-	if not ply:IsPlayer() or not ply:IsVailid() or not ply then return {-1,-1}  end
+	if not ply:IsPlayer() or not ply:IsValid() or not ply then return {-1,-1}  end
 	
 	local monitor = WireGPU_Monitors[this:GetModel()]
 	local ang = this:LocalToWorldAngles(monitor.rot)
