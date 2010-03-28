@@ -149,6 +149,7 @@ EGP.ValidFonts[6] = "times new roman"
 					if func then
 						--Wait so where am i drawing the elements?
 						func(v,ent)--HERE!
+						render.SetScissorRect(0,0,512,512,true) --Exsperment
 					end
 					--I love this new code!
 					if OldTex then WireGPU_matScreen:SetMaterialTexture("$basetexture", OldTex) end
