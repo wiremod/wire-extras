@@ -3,11 +3,12 @@
 --DAMIT TOMY I MEAN YOU TO!
 
 --SVN REVISHION NUMBER
-EGP.Rev = "2.5"
+EGP.Rev = "2.6"
 ----------------------
 
 --Patch Notes!
 --Date,Rev,Note!
+EGP.AddLog("17/3/2010","2.5","Fixed dam typos.")
 EGP.AddLog("17/3/2010","2.5","Fixed more silly errors.")
 EGP.AddLog("17/3/2010","2.4","Fixed a few silly errors.")
 EGP.AddLog("17/3/2010","2.3","XWL:egpPolyColor(idx,.../a,v4)?.")
