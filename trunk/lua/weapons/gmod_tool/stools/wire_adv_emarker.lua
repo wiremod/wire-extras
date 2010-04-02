@@ -143,6 +143,21 @@ else
 		panel:AddControl("Header", { Text = "#Tool_wire_adv_emarker_name", Description = "#Tool_wire_adv_emarker_desc" })
 		WireDermaExts.ModelSelect(panel, "wire_adv_emarker_model", list.Get( "Wire_Misc_Tools_Models" ), 8)
 	end
+	
+	usermessage.Hook("Wire_Adv_EMarker_Links", function(um)
+		local Marker = Entity(um:ReadShort())
+		if (Marker:IsValid()) then
+			local nr = um:ReadShort()
+			local marks = {}
+			for i=1,nr do
+				local en = Entity(um:ReadShort())
+				if (en:IsValid()) then
+					table.insert( marks, en )
+				end
+			end
+			Marker.Marks = marks
+		end
+	end)
 end
 	
 function TOOL:UpdateGhostEmarker( ent, ply )
@@ -184,7 +199,7 @@ end
 
 function TOOL:DrawHUD()
 	if (self.viewing and self.viewing:IsValid()) then
-		local marks = glon.decode(self.viewing:GetNWString( "Adv_EMarker_Marks" ))
+		local marks = self.viewing.Marks
 		if (marks and #marks > 0) then
 			local markerpos = self.viewing:GetPos():ToScreen()
 			for _, ent in pairs( marks ) do
