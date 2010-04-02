@@ -136,4 +136,10 @@ http://www.wiremod.com/forum/wiremod-addons/6497-wire-field-generator-s.html
 XYZ Beacon - Doticatto
 http://www.wiremod.com/forum/wiremod-addons/4708-wired-xyz-beacon-eject-input-socket.html
 
+Wire Advanced Entity Marker - Divran
+http://www.wiremod.com/forum/wiremod-lua-coding/18875-release-adv-entity-marker-holographic-text-screen.html
+
+Multi Exit Point Controller
+http://www.wiremod.com/forum/wiremod-lua-coding/18914-release-multi-exit-point-controller.html
+
 Copyright CoreyLee Hassell (Anticept), and respective developers, 2007-2009.
