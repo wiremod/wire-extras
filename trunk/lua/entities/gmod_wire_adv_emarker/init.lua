@@ -78,7 +78,15 @@ function ENT:UpdateOutputs()
 	self:SetOverlayText( "Number of entities linked: " .. #self.Marks )
 	
 	-- Yellow lines information
-	self.Entity:SetNWString( "Adv_EMarker_Marks", glon.encode( self.Marks ) )
+	if (SERVER) then
+		umsg.Start("Wire_Adv_EMarker_Links")
+			umsg.Short(self.Entity:EntIndex())
+			umsg.Short(#self.Marks)
+			for k,v in pairs( self.Marks ) do
+				umsg.Short(v:EntIndex())
+			end
+		umsg.End()
+	end
 end
 
 function ENT:CheckEnt( ent )
