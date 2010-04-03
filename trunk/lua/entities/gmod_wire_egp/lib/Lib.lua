@@ -80,14 +80,48 @@ EGP.ValidFonts[6] = "times new roman"
 				ent.RenderDirty = {}
 				
 			end
-		
+			
+			function EGP.SendV2(ent,idx)
+				if not EGP.IsValid(ent) then return false end
+				local check = false
+				local Drawn = ent.RenderDrawn[idx]
+				local element = ent.Render[idx]
+				
+				if not Drawn then
+					check = true
+				else
+					for k,v in pairs(element) do
+						if type(v) != "table" then
+							if not Drawn[k] then check = true 
+							elseif Drawn[k] != v then check = true end
+						else
+							for kk,vv in pairs(v) do
+								if not Drawn[k][kk] then check = true
+								elseif Drawn[k][kk] != vv then check = true end
+							end
+						end
+					end
+				end
+				
+				if check != true then return end
+
+				ent:SendEntry(idx,element)
+				if not element.image or element.image == "E" then
+					element = nil
+					Drawn = nil
+				else
+					Drawn = table.Copy(element)
+				end
+			end
+			
 			function EGP.CacheCompare(ent,idx)
 				if not EGP.IsValid(ent) then return false end
 				local check = false
 				local Drawn = ent.RenderDrawn[idx] or {}
 				for k,v in pairs(ent.Render[idx]) do
-					if not Drawn[k] then check = true end
-					if Drawn[k] != v then check = true end
+					Msg("\nEGP: " .. tostring(idx) .. " " .. k .. " ")
+					if not Drawn[k] then check = true Msg("not") end
+					if Drawn[k] != v then check = true Msg("!=") end
 				end
 				return check
 			end
