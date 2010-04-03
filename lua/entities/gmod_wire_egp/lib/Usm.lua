@@ -89,12 +89,12 @@ EGP.USM.circle = {
 }
 
 EGP.USM.triangle = {
+		{ "Short", "X" },
+		{ "Short", "Y" },
 		{ "Short", "X1" },
 		{ "Short", "Y1" },
 		{ "Short", "X2" },
 		{ "Short", "Y2" },
-		{ "Short", "X3" },
-		{ "Short", "Y3" },
 		{ "Byte", "R" },
 		{ "Byte", "G" },
 		{ "Byte", "B" },
