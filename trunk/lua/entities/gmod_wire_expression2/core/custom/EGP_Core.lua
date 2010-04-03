@@ -52,10 +52,11 @@ end
 e2function number wirelink:egpDraw()
 	--if not EGP.IsValid(this) then return 0 end
 	if not EGP.CanDraw(this) then return 0 end
-	for k,v in pairs(this.Render) do
-		if EGP.CacheCompare(this,k) then this:SendEntry(k, v) end
+	for k,_ in pairs(this.Render) do
+		--if EGP.CacheCompare(this,k) then this:SendEntry(k, v) end
+		EGP.SendV2(this,k)
 	end
-	EGP.ProcessCache(this)
+	--EGP.ProcessCache(this)
 	return 1
 end
 
