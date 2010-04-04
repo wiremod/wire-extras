@@ -16,7 +16,7 @@ end
 --EGP CLEAR!
 e2function void wirelink:egpClear()
 	if not EGP.IsValid(this) then return end
-	for idx,_ in pairs(this.Render) do
+	for idx,_ in pairs( this.Render or {} ) do
 		this.Render[idx] = { image = "E" }
 		this.RenderDirty[idx] = true
 	end
@@ -52,7 +52,7 @@ end
 e2function number wirelink:egpDraw()
 	--if not EGP.IsValid(this) then return 0 end
 	if not EGP.CanDraw(this) then return 0 end
-	for k,_ in pairs(this.Render) do
+	for k,_ in pairs( this.Render or {} ) do
 		--if EGP.CacheCompare(this,k) then this:SendEntry(k, v) end
 		EGP.SendV2(this,k)
 	end
