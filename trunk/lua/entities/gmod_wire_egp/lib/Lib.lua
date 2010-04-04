@@ -87,10 +87,12 @@ EGP.ValidFonts[6] = "times new roman"
 				local Drawn = ent.RenderDrawn[idx]
 				local element = ent.Render[idx]
 				
-				if not Drawn then
+				if not element then
+					return
+				elseif not Drawn then
 					check = true
 				else
-					for k,v in pairs(element) do
+					for k,v in pairs( element or {} ) do
 						if type(v) != "table" then
 							if not Drawn[k] then check = true 
 							elseif Drawn[k] != v then check = true end
@@ -114,7 +116,7 @@ EGP.ValidFonts[6] = "times new roman"
 				end
 			end
 			
-			function EGP.CacheCompare(ent,idx)
+			--[[function EGP.CacheCompare(ent,idx)
 				if not EGP.IsValid(ent) then return false end
 				local check = false
 				local Drawn = ent.RenderDrawn[idx] or {}
@@ -124,12 +126,12 @@ EGP.ValidFonts[6] = "times new roman"
 					if Drawn[k] != v then check = true Msg("!=") end
 				end
 				return check
-			end
+			end]]
 		
 		function EGP.USM_Bombardment(ply)
 			--hmm i think this func name is an easter egg.
 			local egps = ents.FindByClass("wire_egp") --These are my tanks
-			for _,ent in pairs(egps) do
+			for _,ent in pairs( egps or {} ) do
 				ent:Retransmit(ply) --And these are my bullets
 			end
 		end
@@ -167,7 +169,7 @@ EGP.ValidFonts[6] = "times new roman"
 				else tabl = ent.Render end
 				if not tabl then return end
 				
-				for k, v in pairs_sortkeys(tabl) do
+				for k, v in pairs_sortkeys( tabl or {} ) do
 					local OldTex
 					if type(v.material) == "Entity" then
 						if v.material:IsValid() and v.material.GPU and v.material.GPU.RT then
