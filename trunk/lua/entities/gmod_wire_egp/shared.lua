@@ -72,7 +72,7 @@ end
 
 function ENT:SendEntry(idx, entry, ply)
 	self:umsg(ply)
-		if entry then
+		if entry and entry.image then
 			self.umsg.Long(idx)
 			self.umsg.String(entry.image)
 			
