@@ -85,9 +85,9 @@ EGP.USM.circle = {
 		{ "Byte", "R" },
 		{ "Byte", "G" },
 		{ "Byte", "B" },
-		{ "Byte", "A" }
-		{ "Short", "Start" }
-		{ "Short", "End" }
+		{ "Byte", "A" },
+		{ "Short", "Start" },
+		{ "Short", "End" },
 		{ "Short", "Sides" }
 }
 
