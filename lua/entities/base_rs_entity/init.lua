@@ -42,11 +42,16 @@ end
 
 -- Can we transmit? (Got enough resources?)
 function ENT:CanTX()
+	local status = true
+	if CAF and CAF.GetAddonStatus then
+		status = tobool(CAF.GetAddonStatus("Resource Distribution"))
+	end
 	if not self.is_tx or not self.active or not (self.txwatts > 0) then return false end
-	if not ResourceDistribution then return true end
+	if not ResourceDistribution or not status then return true end
 	
 	return (ResourceDistribution.GetResourceAmount(self, "energy") >= (self.txwatts * 8 * ThinkInterval))
 end
+
 
 -- Returns the background noise at this location in decibels relative to one milliwatt
 function ENT:GetBgNoise()
@@ -63,7 +68,7 @@ end
 function ENT:TriggerInput(iname, value)
 	if self.is_tx then
 		if iname == "On" then
-			self.active = value
+			self.active = tobool(value)
 		elseif iname == "TxWatts" then
 			local m = GetConVarNumber("sv_rs_maxtxpower")
 			if value > m then
@@ -86,7 +91,7 @@ function ENT:TriggerInput(iname, value)
 			self.txchannels[self.Inputs.BaseMHz.Value + 32.5] = self.Inputs.Channel7.Value
 			self.txchannels[self.Inputs.BaseMHz.Value + 37.5] = self.Inputs.Channel8.Value
 		elseif iname == "Channel1" then
-			self.txchannels[self.Inputs.BaseMHz.Value] = value
+			self.txchannels[self.Inputs.BaseMHz.Value + 2.5] = value
 		elseif iname == "Channel2" then
 			self.txchannels[self.Inputs.BaseMHz.Value + 7.5] = value
 		elseif iname == "Channel3" then
