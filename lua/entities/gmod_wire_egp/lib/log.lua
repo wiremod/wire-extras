@@ -1,13 +1,18 @@
 --Only edit this file if your a member of the EGP team.
 --Plz make sure you keep this file up to date.
---DAMIT TOMY I MEAN YOU TO!
 
 --SVN REVISHION NUMBER
-EGP.Rev = "2.7"
+EGP.Rev = "2.9"
 ----------------------
 
 --Patch Notes!
 --Date,Rev,Note!
+EGP.AddLog("4/6/2010","2.9","In game tests complete.")
+EGP.AddLog("4/6/2010","2.9","e2 helper functions added.")
+EGP.AddLog("4/6/2010","2.9","New e2 functions added.")
+EGP.AddLog("4/6/2010","2.9","EGP emmitters readded.")
+EGP.AddLog("3/6/2010","2.9","Huge Optimization.")
+EGP.AddLog("3/6/2010","2.9","EGP Emitters Removed.")
 EGP.AddLog("17/3/2010","2.7","Big update im back babey.")
 EGP.AddLog("17/3/2010","2.7","Fixed egpDraw.")
 EGP.AddLog("17/3/2010","2.7","Fixed egpClear.")
