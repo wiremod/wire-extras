@@ -49,9 +49,8 @@ function ENT:Draw()
 	local pos = self:LocalToWorld( Vector( -64, 0, 135 ) )
 	local ang = self:LocalToWorldAngles( Angle(0,0,90) )
 	cam.Start3D2D( pos , ang , 0.25 )
-		render.SetScissorRect(  0,  0,  512,  512,  true )
+		render.SetScissorRect( 0, 0, 512, 512, true ) 
 		EGP.Process(self)
 	cam.End3D2D()
-
-	
 end
+

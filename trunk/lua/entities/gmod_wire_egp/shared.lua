@@ -2,14 +2,18 @@ ENT.Type           = "anim"
 ENT.Base           = "base_wire_entity"
 
 ENT.PrintName      = "Wire EGP"
-ENT.Author         = "Goluch / Doridian"
-ENT.Contact        = "Goluch on wiremod.com"
+ENT.Author         = "Goluch / Doridian / TomyLobo"
+ENT.Contact        = "Goluch @ Wiremod"
 ENT.Purpose        = "Bring Graphic Processing to E2"
 ENT.Instructions   = "WireLink To E2"
 
 ENT.Spawnable      = false
 ENT.AdminSpawnable = false
 
+--Just gota include the lib
+include("lib/Lib.lua")
+if(SERVER) then AddCSLuaFile("FuncList.lua")
+else include("FuncList.lua") end
 
 --This realy advanced user message system is by TOMYLOBO!
 local umsg_defaults = {
