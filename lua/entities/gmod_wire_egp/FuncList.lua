@@ -54,51 +54,65 @@ E2Helper.Descriptions["egpColor(xwl:nnnnn)"] = "Sets the color of element at ind
 --BOX
 E2Helper.Descriptions["egpBox(xwl:nv2v2)"] = "Index Position Size\nCreate a box element at index."
 E2Helper.Descriptions["egpBox(xwl:nv2v2v)"] = "Index Position Size Color\nCreate a box element at index."
+E2Helper.Descriptions["egpBox(xwl:nv2v2v4)"] = "Index Position Size Color\nCreate a box element at index."
 
 E2Helper.Descriptions["egpBox(xwl:nnnnn)"] = "Index X Y Width Height\nCreate a box element at index."
 E2Helper.Descriptions["egpBox(xwl:nnnnnv)"] = "Index X Y Width Height Color\nCreate a box element at index."
+E2Helper.Descriptions["egpBox(xwl:nnnnnv4)"] = "Index X Y Width Height Color\nCreate a box element at index."
 
 --BOXOutline
 E2Helper.Descriptions["egpBoxOutline(xwl:nv2v2)"] = "Index Position Size\nCreate a boxoutline element at index."
 E2Helper.Descriptions["egpBoxOutline(xwl:nv2v2v)"] = "Index Position Size Color\nCreate a boxoutline element at index."
+E2Helper.Descriptions["egpBoxOutline(xwl:nv2v2v4)"] = "Index Position Size Color\nCreate a boxoutline element at index."
 
 E2Helper.Descriptions["egpBoxOutline(xwl:nnnnn)"] = "Index X Y Width Height\nCreate a boxoutline element at index."
 E2Helper.Descriptions["egpBoxOutline(xwl:nnnnnv)"] = "Index X Y Width Height Color\nCreate a boxoutline element at index."
+E2Helper.Descriptions["egpBoxOutline(xwl:nnnnnv4)"] = "Index X Y Width Height Color\nCreate a boxoutline element at index."
 
 --Line
 E2Helper.Descriptions["egpLine(xwl:nv2v2)"] = "Index Position1 Position2\nCreate a line element at index."
 E2Helper.Descriptions["egpLine(xwl:nv2v2v)"] = "Index Position1 Position2 Color\nCreate a line element at index."
+E2Helper.Descriptions["egpLine(xwl:nv2v2v4)"] = "Index Position1 Position2 Color\nCreate a line element at index."
 
 E2Helper.Descriptions["egpLine(xwl:nnnnn)"] = "Index X1 Y1 X2 Y2\nCreate a line element at index."
 E2Helper.Descriptions["egpLine(xwl:nnnnnv)"] = "Index X1 Y1 X2 Y2 Color\nCreate a line element at index."
+E2Helper.Descriptions["egpLine(xwl:nnnnnv4)"] = "Index X1 Y1 X2 Y2 Color\nCreate a line element at index."
 
 --Circle
 E2Helper.Descriptions["egpCircle(xwl:nv2v2)"] = "Index Position Size\nCreate a circle element at index."
 E2Helper.Descriptions["egpCircle(xwl:nv2v2v)"] = "Index Position Size Color\nCreate a circle element at index."
+E2Helper.Descriptions["egpCircle(xwl:nv2v2v4)"] = "Index Position Size Color\nCreate a circle element at index."
 
 E2Helper.Descriptions["egpCircle(xwl:nnnnn)"] = "Index X Y Width Height\nCreate a circle element at index."
 E2Helper.Descriptions["egpCircle(xwl:nnnnnv)"] = "Index X Y Width Height Color\nCreate a circle element at index."
+E2Helper.Descriptions["egpCircle(xwl:nnnnnv4)"] = "Index X Y Width Height Color\nCreate a circle element at index."
 
 --Triangle
 E2Helper.Descriptions["egpTriangle(xwl:nv2v2v2)"] = "Index Position1 Position2 Position3\nCreate a triangle element at index."
 E2Helper.Descriptions["egpTriangle(xwl:nv2v2v2v)"] = "Index Position1 Position2 Position3 Color\nCreate a triangle element at index."
+E2Helper.Descriptions["egpTriangle(xwl:nv2v2v2v4)"] = "Index Position1 Position2 Position3 Color\nCreate a triangle element at index."
 
 E2Helper.Descriptions["egpTriangle(xwl:nnnnn)"] = "Index X1 Y1 X2 Y2 X3 Y3\nCreate a triangle element at index."
 E2Helper.Descriptions["egpTriangle(xwl:nnnnnv)"] = "Index X1 Y1 X2 Y2 X3 Y3 Color\nCreate a triangle element at index."
+E2Helper.Descriptions["egpTriangle(xwl:nnnnnv4)"] = "Index X1 Y1 X2 Y2 X3 Y3 Color\nCreate a triangle element at index."
 
 --Text
 E2Helper.Descriptions["egpText(xwl:nsv2)"] = "Index Text Position\nCreate a text element at index."
 E2Helper.Descriptions["egpText(xwl:nsv2v)"] = "Index Text Position Color\nCreate a text element at index."
+E2Helper.Descriptions["egpText(xwl:nsv2v4)"] = "Index Text Position Color\nCreate a text element at index."
 
 E2Helper.Descriptions["egpText(xwl:nsnn)"] = "Index Text X Y\nCreate a text element at index."
 E2Helper.Descriptions["egpText(xwl:nsnnv)"] = "Index Text X Y Color\nCreate a text element at index."
+E2Helper.Descriptions["egpText(xwl:nsnnv4)"] = "Index Text X Y Color\nCreate a text element at index."
 
 --TextLayout
 E2Helper.Descriptions["egpTextLayout(xwl:nsv2v2)"] = "Index Text Position Size\nCreate a TextLayout element at index."
 E2Helper.Descriptions["egpTextLayout(xwl:nsv2v2v)"] = "Index Text Position Size Color\nCreate a TextLayout element at index."
+E2Helper.Descriptions["egpTextLayout(xwl:nsv2v2v4)"] = "Index Text Position Size Color\nCreate a TextLayout element at index."
 
 E2Helper.Descriptions["egpTextLayout(xwl:nsnnnn)"] = "Index Text X Y Width Height\nCreate a TextLayout element at index."
 E2Helper.Descriptions["egpTextLayout(xwl:nsnnnnv)"] = "Index Text X Y X Y Color\nCreate a TextLayout element at index."
+E2Helper.Descriptions["egpTextLayout(xwl:nsnnnnv4)"] = "Index Text X Y X Y Color\nCreate a TextLayout element at index."
 
 --PolyGons 
 E2Helper.Descriptions["egpPoly(xwl:na)"] = "Index Vertex-Array\nCreate a polygon element at index."
@@ -106,6 +120,9 @@ E2Helper.Descriptions["egpPoly(xwl:n...)"] = "Index (...)\nCreate a polygon elem
 
 E2Helper.Descriptions["egpPolyColor(xwl:nv4...)"] = "Index Color (...)\nCreate a polygon element at index using all vector's and vector2's as a Vertex-Array."
 E2Helper.Descriptions["egpPolyColor(xwl:nv4a)"] = "Index Color Vertex-Array\nCreate a polygon element at index."
+
+E2Helper.Descriptions["egpPolyColor(xwl:nv...)"] = "Index Color (...)\nCreate a polygon element at index using all vector's and vector2's as a Vertex-Array."
+E2Helper.Descriptions["egpPolyColor(xwl:nva)"] = "Index Color Vertex-Array\nCreate a polygon element at index."
 
 --Element Return Functions
 E2Helper.Descriptions["egpGetElement(xwl:nn)"] = "Returns element at index n as a tabel\nwill use drawn memory if n2 is 0 or cache memory if n2 is 1."
