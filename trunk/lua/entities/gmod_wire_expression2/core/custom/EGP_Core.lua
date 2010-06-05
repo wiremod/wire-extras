@@ -220,12 +220,20 @@ end
 		MakeBox(this,idx,Pos[1],Pos[2],Size[1],Size[2],Color)
 	end
 	
+	e2function void wirelink:egpBox(idx,vector2 Pos ,vector2 Size ,vector4 Color)
+		MakeBox(this,idx,Pos[1],Pos[2],Size[1],Size[2],Color)
+	end
+	
 /*Numbers*/
 	e2function void wirelink:egpBox(idx, X,Y, W,H)
 		MakeBox(this,idx,X,Y, W,H,{})
 	end
 	
 	e2function void wirelink:egpBox(idx, X,Y, W,H,vector Color)
+		MakeBox(this,idx,X,Y, W,H,Color)
+	end
+	
+	e2function void wirelink:egpBox(idx, X,Y, W,H,vector4 Color)
 		MakeBox(this,idx,X,Y, W,H,Color)
 	end
 
@@ -253,6 +261,10 @@ end
 		MakeBoxOutLine(this,idx,Pos[1],Pos[2],Size[1],Size[2],Color)
 	end
 	
+	e2function void wirelink:egpBoxOutline(idx,vector2 Pos ,vector2 Size ,vector4 Color)
+		MakeBoxOutLine(this,idx,Pos[1],Pos[2],Size[1],Size[2],Color)
+	end
+	
 /*Numbers*/
 	e2function void wirelink:egpBoxOutline(idx, X,Y, W,H)
 		MakeBoxOutLine(this,idx,X,Y, W,H,{})
@@ -260,6 +272,10 @@ end
 	
 	e2function void wirelink:egpBoxOutline(idx, X,Y, W,H,vector Color)
 		MakeBoxOutLine(this,idx,X,Y, W,H,Color)
+	end
+	
+	e2function void wirelink:egpBoxOutline(idx, X,Y, W,H,vector4 Color)
+		MakeBoxOutLine(this,idx,X,Y, W,H,Color4)
 	end
 --Note may need to do egpBoxOutLine in future (Ask Comunity)
 
@@ -286,6 +302,10 @@ end
 	e2function void wirelink:egpLine(idx,vector2 Start ,vector2 End ,vector Color)
 		MakeLine(this,idx,Start[1],Start[2],End[1],End[2],Color)
 	end
+
+	e2function void wirelink:egpLine(idx,vector2 Start ,vector2 End ,vector4 Color)
+		MakeLine(this,idx,Start[1],Start[2],End[1],End[2],Color)
+	end
 	
 /*Numbers*/
 	e2function void wirelink:egpLine(idx,X,Y,X1,Y1)
@@ -293,6 +313,10 @@ end
 	end
 	
 	e2function void wirelink:egpLine(idx,X,Y,X1,Y1,vector Color)
+		MakeLine(this,idx,X,Y,X1,Y1,Color)
+	end
+	
+	e2function void wirelink:egpLine(idx,X,Y,X1,Y1,vector4 Color)
 		MakeLine(this,idx,X,Y,X1,Y1,Color)
 	end
 
@@ -319,6 +343,10 @@ end
 	e2function void wirelink:egpCircle(idx,vector2 Pos ,vector2 Size ,vector Color)
 		MakeCircle(this,idx,Pos[1],Pos[2],Size[1],Size[2],Color)
 	end
+
+	e2function void wirelink:egpCircle(idx,vector2 Pos ,vector2 Size ,vector4 Color)
+		MakeCircle(this,idx,Pos[1],Pos[2],Size[1],Size[2],Color)
+	end
 	
 /*Numbers*/
 	e2function void wirelink:egpCircle(idx, X,Y, W,H)
@@ -326,6 +354,10 @@ end
 	end
 	
 	e2function void wirelink:egpCircle(idx, X,Y, W,H,vector Color)
+		MakeCircle(this,idx,X,Y, W,H,Color)
+	end
+	
+	e2function void wirelink:egpCircle(idx, X,Y, W,H,vector4 Color)
 		MakeCircle(this,idx,X,Y, W,H,Color)
 	end
 
@@ -353,6 +385,10 @@ end
 	e2function void wirelink:egpTriangle(idx,vector2 Pos1 ,vector2 Pos2,vector2 Pos3,vector Color)
 		MakeTriangle(this,idx,Pos1[1],Pos1[2],Pos2[1],Pos2[2],Pos3[1],Pos3[2],Color)
 	end
+
+	e2function void wirelink:egpTriangle(idx,vector2 Pos1 ,vector2 Pos2,vector2 Pos3,vector4 Color)
+		MakeTriangle(this,idx,Pos1[1],Pos1[2],Pos2[1],Pos2[2],Pos3[1],Pos3[2],Color)
+	end
 	
 /*Numbers*/
 	e2function void wirelink:egpTriangle(idx,X1,Y1,X2,Y2,X3,Y3)
@@ -360,6 +396,10 @@ end
 	end
 	
 	e2function void wirelink:egpTriangle(idx,X1,Y1,X2,Y2,X3,Y3,vector Color)
+		MakeTriangle(this,idx,X1,Y1,X2,Y2,X3,Y3,color)
+	end
+	
+	e2function void wirelink:egpTriangle(idx,X1,Y1,X2,Y2,X3,Y3,vector4 Color)
 		MakeTriangle(this,idx,X1,Y1,X2,Y2,X3,Y3,color)
 	end
 
@@ -386,6 +426,10 @@ end
 	e2function void wirelink:egpText(idx,string Text,vector2 Pos,vector Color)
 		MakeText(this,idx,Pos[1],Pos[2],Text,Color)
 	end
+
+	e2function void wirelink:egpText(idx,string Text,vector2 Pos,vector4 Color)
+		MakeText(this,idx,Pos[1],Pos[2],Text,Color)
+	end
 	
 /*Numbers*/
 	e2function void wirelink:egpText(idx,string Text,X,Y)
@@ -393,6 +437,10 @@ end
 	end
 	
 	e2function void wirelink:egpText(idx,string Text,X,Y,vector Color)
+		MakeText(this,idx,X,Y,Text,Color)
+	end
+	
+	e2function void wirelink:egpText(idx,string Text,X,Y,vector4 Color)
 		MakeText(this,idx,X,Y,Text,Color)
 	end
 
@@ -420,6 +468,10 @@ end
 	e2function void wirelink:egpTextLayout(idx,string Text,vector2 Pos,vector2 Size,vector Color)
 		MakeTextLayout(this,idx,Pos[1],Pos[2],Size[1],Size[2],Text,Color)
 	end
+
+	e2function void wirelink:egpTextLayout(idx,string Text,vector2 Pos,vector2 Size,vector4 Color)
+		MakeTextLayout(this,idx,Pos[1],Pos[2],Size[1],Size[2],Text,Color)
+	end
 	
 /*Numbers*/
 	e2function void wirelink:egpTextLayout(idx,string Text,X,Y,W,H)
@@ -427,6 +479,10 @@ end
 	end
 	
 	e2function void wirelink:egpTextLayout(idx,string Text,X,Y,W,H,vector Color)
+		MakeTextLayout(this,idx,X,Y,W,HText,Color)
+	end
+	
+	e2function void wirelink:egpTextLayout(idx,string Text,X,Y,W,H,vector4 Color)
 		MakeTextLayout(this,idx,X,Y,W,HText,Color)
 	end
 
@@ -494,6 +550,41 @@ e2function void wirelink:egpPolyColor(idx, vector4 color, ...)
 end	
 	
 e2function void wirelink:egpPolyColor(idx, vector4 color, array arr)
+	idx = math.Round(idx)
+	if !(EGP.IsValid(this, idx, true)) then return end
+	local vertex_array = {}
+	for k, v in pairs_sortkeys(arr) do
+		local tp = type(v) == "table" and #v
+		if tp == 2 then
+			v = { v[1], v[2], 0, 0 }
+		elseif tp ~= 4 then
+			v = nil
+		end
+		vertex_array[#vertex_array+1] = v
+	end
+	Draw_Poly(this, idx, vertex_array)
+	EGP.SetColor(this,idx,color)
+end
+
+e2function void wirelink:egpPolyColor(idx, vector color, ...)
+	idx = math.Round(idx)
+	if !(EGP.IsValid(this, idx, true)) then return end
+	local arr = { ... }
+	local vertex_array = {}
+	for k, v in ipairs(arr) do
+		local tp = typeids[k]
+		if tp == "xv2" then
+			v = { v[1], v[2], 0, 0 }
+		elseif tp ~= "xv4" then
+			v = nil
+		end
+		vertex_array[#vertex_array+1] = v
+	end
+	Draw_Poly(this, idx, vertex_array)
+	EGP.SetColor(this,idx,color)
+end	
+	
+e2function void wirelink:egpPolyColor(idx, vector color, array arr)
 	idx = math.Round(idx)
 	if !(EGP.IsValid(this, idx, true)) then return end
 	local vertex_array = {}
