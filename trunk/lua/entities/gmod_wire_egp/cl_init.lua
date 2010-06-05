@@ -35,6 +35,8 @@ function ENT:Draw()
 	if self.NeedsRender then
 		self.GPU:RenderToGPU(function()	
 			render.Clear( 0, 0, 0, 0 )
+			surface.SetDrawColor(0,0,0,255)
+			surface.DrawRect(0,0,512,512)
 			EGP.Process(self)
 		end)
 		self.NeedsRender = false
