@@ -542,7 +542,7 @@ local function MakeText(ent,idx,X,Y,Text,Col)
 	if !(EGP.IsValid(ent, idx, true)) then return end
 	ent.Render[idx] = {
 		image="text",
-		X=X,Y=X,
+		X=X,Y=Y,
 		text=Text,
 		falign=0
 	}
@@ -595,7 +595,7 @@ local function MakeTextLayout(ent,idx,X,Y,W,H,Text,Col)
 	if !(EGP.IsValid(ent, idx, true)) then return end
 	ent.Render[idx] = {
 		image="text1",
-		X=X,Y=X,
+		X=X,Y=Y,
 		W=W,H=H,
 		text=Text,
 		falign=0
@@ -773,14 +773,19 @@ e2function void entity:egpPolyColor(idx, vector color, array arr) = e2function v
 ---------------------------------------------------
 local function returnData(ent,idx,type)
 	if !(EGP.IsValid(ent, idx)) then return {} end
-	if !(type) then return {} end
+	idx = math.Round(idx)
 	local data = {}
-	if (type <= 0 ) then data = ent.Drawn[idx]
-	else data = ent.Render[idx] end
+	if (type == 0 ) then data = ent.Drawn[idx]
+	elseif (type == 1 ) then data = ent.Render[idx]
+	else 
+		if !(this.Frames[idx]) then this.Frames[idx] = {} end
+		data = this.Frames[idx]
+	end
 	return data or {}
 end
 
 e2function table wirelink:egpGetElement(idx,type)
+	if !(EGP.IsValid(this)) then return {} end
 	if !(isOwner(self, this)) then return {} end
 	return returnData(this,idx,type)
 end
@@ -790,8 +795,12 @@ e2function array wirelink:egpGetElements(type)
 	if !(EGP.IsValid(this, idx)) then return {} end
 	if !(isOwner(self, this)) then return {} end
 	local data = {}
-	if (type <= 0 ) then data = this.Drawn
-	else data = this.Render end
+	if (type == 0 ) then data = ent.Drawn
+	elseif (type == 1 ) then data = ent.Render
+	else 
+		if !(this.Frames) then this.Frames = {} end
+		data = this.Frames
+	end
 	local idxs = {}
 	for idx,_ in pairs(data) do
 		table.insert(idxs,idx)
@@ -805,6 +814,7 @@ e2function array entity:egpGetElements(idx) = e2function array wirelink:egpGetEl
 --Get Pos
 ---------------------------------------------------
 e2function vector2 wirelink:egpGetPos(idx,type)
+	if !(EGP.IsValid(this)) then return {0,0} end
 	if !(isOwner(self, this)) then return {0,0} end
 	local data = returnData(this,idx,type)
 	return {data.X or 0,data.Y or 0}
@@ -812,6 +822,7 @@ end
 e2function vector2 entity:egpGetPos(idx,type) = e2function vector2 wirelink:egpGetPos(idx,type)
 
 e2function vector2 wirelink:egpGetPos1(idx,type)
+	if !(EGP.IsValid(this)) then return {0,0} end
 	if !(isOwner(self, this)) then return {0,0} end
 	local data = returnData(this,idx,type)
 	return {data.X1 or 0,data.Y1 or 0}
@@ -819,6 +830,7 @@ end
 e2function vector2 entity:egpGetPos1(idx,type) = e2function vector2 wirelink:egpGetPos1(idx,type)
 
 e2function vector2 wirelink:egpGetPos2(idx,type)
+	if !(EGP.IsValid(this)) then return {0,0} end
 	if !(isOwner(self, this)) then return {0,0} end
 	local data = returnData(this,idx,type)
 	return {data.X2 or 0,data.Y2 or 0}
@@ -829,6 +841,7 @@ e2function vector2 entity:egpGetPos2(idx,type) = e2function vector2 wirelink:egp
 --Get Size
 ---------------------------------------------------
 e2function vector2 wirelink:egpGetSize(idx,type)
+	if !(EGP.IsValid(this)) then return {0,0} end
 	if !(isOwner(self, this)) then return {0,0} end
 	local data = returnData(this,idx,type)
 	return {data.W or 0,data.H or 0}
@@ -839,6 +852,7 @@ e2function vector2 entity:egpGetSize(idx,type) = e2function vector2 wirelink:egp
 --Get Text
 ---------------------------------------------------
 e2function string wirelink:egpGetText(idx,type)
+	if !(EGP.IsValid(this)) then return {} end
 	if !(isOwner(self, this)) then return "" end
 	local data = returnData(this,idx,type)
 	return data.text or ""
@@ -849,6 +863,7 @@ e2function string entity:egpGetText(idx,type) = e2function string wirelink:egpGe
 --Get Color
 ---------------------------------------------------
 e2function vector4 wirelink:egpGetColor(idx,type)
+	if !(EGP.IsValid(this)) then return {0,0,0,0} end
 	if !(isOwner(self, this)) then return {0,0,0,0} end
 	local data = returnData(this,idx,type)
 	return {data.R or 0,data.G or 0,data.B or 0,data.A or 0}
@@ -887,6 +902,45 @@ e2function vector2 wirelink:egpToMouse(entity ply)
 	return {cx,cy}
 end
 e2function vector2 entity:egpToMouse(entity ply) = e2function vector2 wirelink:egpToMouse(entity ply)
+
+---------------------------------------------------
+--Frame Saving (BETA)
+---------------------------------------------------
+e2function void wirelink:egpSaveFrame(idx,type)
+	if !(EGP.IsValid(this)) then return end
+	idx = math.Round(idx)
+	local data = {}
+	if (idx <= 1) or (idx >= 11) then return end
+	if !(this.Frames) then this.Frames = {} end
+	local frame = table.Copy(data)
+	for k,v in pairs( frame ) do
+		if v.image == "E" then v = {} end
+	end
+	this.Frames[idx] = frame
+end
+e2function void entity:egpSaveFrame(idx,type) = e2function void wirelink:egpSaveFrame(idx,type)
+
+e2function void wirelink:egpDeleteFrame(idx)
+	if !(EGP.IsValid(this)) then return end
+	idx = math.Round(idx)
+	if !(this.Frames) then this.Frames = {} end
+	this.Frames[idx] = nil
+end
+e2function void entity:egpDeleteFrame(idx) = e2function void wirelink:egpDeleteFrame(idx)
+
+e2function void wirelink:egpLoadFrame(idx)
+	if !(EGP.IsValid(this)) then return end
+	idx = math.Round(idx)
+	if !(this.Frames) then this.Frames = {} end
+	if !(this.Frames[idx]) then this.Frames[idx] = {} end
+	for k,v in pairs( this.Render ) do
+		v.image = "E"
+	end
+	for k,v in pairs( this.Frames[idx] ) do
+		this.Render[k] = table.Copy(v)
+	end
+end
+e2function void entity:egpLoadFrame(idx) = e2function void wirelink:egpLoadFrame(idx)
 
 -------------------------------------------------------
 -- http://www.weebls-stuff.com/toons/magical+trevor/ :)
