@@ -2,11 +2,13 @@
 --Plz make sure you keep this file up to date.
 
 --SVN REVISHION NUMBER
-EGP.Rev = "3.2"
+EGP.Rev = "3.3"
 ----------------------
 
 --Patch Notes!
 --Date,Rev,Note!
+EGP.AddLog("7/6/2010","3.3","Fixed Y being X on text elements!.")
+EGP.AddLog("6/6/2010","3.3","Added EGP Memory!.")
 EGP.AddLog("5/6/2010","3.2","Fixed Errors on frame Refresh.")
 EGP.AddLog("5/6/2010","3.1","Added Entity: support to all egp functions.")
 EGP.AddLog("5/6/2010","3.1","Added e2 Prop Protection to all functions.")
