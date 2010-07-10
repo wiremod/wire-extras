@@ -452,9 +452,11 @@ function ENT:RegisterPlayer(ply, hookhidehud, podonly)
 end
 
 function ENT:UnRegisterPlayer(ply)
-	umsg.Start("AdvHUDIndicatorUnRegister", ply)
-		umsg.Short(self.Entity:EntIndex())
-	umsg.End()
+	if IsValid(ply) then
+		umsg.Start("AdvHUDIndicatorUnRegister", ply)
+			umsg.Short(self.Entity:EntIndex())
+		umsg.End()
+	end
 	self.RegisteredPlayers[ply:UniqueID()] = nil
 end
 
@@ -465,8 +467,11 @@ end
 
 // Is this player registered only because he is in a linked pod?
 function ENT:CheckPodOnly(ply)
-	local plyuid = ply:UniqueID()
-	return (self.RegisteredPlayers[plyuid] != nil && self.RegisteredPlayers[plyuid].podonly)
+	if IsValid(ply) then
+		local plyuid = ply:UniqueID()
+		return (self.RegisteredPlayers[plyuid] != nil && self.RegisteredPlayers[plyuid].podonly)
+	end
+	return false
 end
 
 function ENT:TriggerInput(iname, value)
@@ -563,7 +568,7 @@ function ENT:TriggerInput(iname, value)
 
 		//-- Iterate the players table and update them all --//
 		for index,rplayer in pairs(self.RegisteredPlayers) do
-			if (rplayer.ply) then
+			if IsValid(rplayer.ply) then
 				if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 					//--Build a new usermessage to update the position
 					umsg.Start("AdvHUDIndicator_STRING", rplayer.ply)
@@ -625,7 +630,7 @@ function ENT:TriggerInput(iname, value)
 
 		//-- Iterate the players table and update them all --//
 		for index,rplayer in pairs(self.RegisteredPlayers) do
-			if (rplayer.ply) then
+			if IsValid(rplayer.ply) then
 				if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 					//--Build a new usermessage to update the position
 					umsg.Start("AdvHUDIndicator_EXIO", rplayer.ply)
@@ -650,7 +655,7 @@ function ENT:TriggerInput(iname, value)
 		if( force_position_update == 4 ) then
 
 			for index,rplayer in pairs(self.RegisteredPlayers) do
-				if (rplayer.ply) then
+				if IsValid(rplayer.ply) then
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 						//--Build a new usermessage to update the position
 						umsg.Start("AdvHUDIndicatorUpdate3DPositionTwo", rplayer.ply)
@@ -667,7 +672,7 @@ function ENT:TriggerInput(iname, value)
 		elseif( force_position_update == 3 ) then
 
 			for index,rplayer in pairs(self.RegisteredPlayers) do
-				if (rplayer.ply) then
+				if IsValid(rplayer.ply) then
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 						//--Build a new usermessage to update the position
 						umsg.Start("AdvHUDIndicatorUpdatePositionTwo", rplayer.ply)
@@ -685,7 +690,7 @@ function ENT:TriggerInput(iname, value)
 		elseif( force_position_update == 2 ) then
 
 			for index,rplayer in pairs(self.RegisteredPlayers) do
-				if (rplayer.ply) then
+				if IsValid(rplayer.ply) then
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 						//--Build a new usermessage to update the position
 						umsg.Start("AdvHUDIndicatorUpdate3DPosition", rplayer.ply)
@@ -703,7 +708,7 @@ function ENT:TriggerInput(iname, value)
 		elseif( force_position_update == 1 ) then
 
 			for index,rplayer in pairs(self.RegisteredPlayers) do
-				if (rplayer.ply) then
+				if IsValid(rplayer.ply) then
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 						//--Build a new usermessage to update the position
 						umsg.Start("AdvHUDIndicatorUpdatePosition", rplayer.ply)
@@ -734,7 +739,7 @@ function ENT:ShowOutput(factor, value)
 
 		// RecipientFilter will contain all registered players
 		for index,rplayer in pairs(self.RegisteredPlayers) do
-			if (rplayer.ply) then
+			if IsValid(rplayer.ply) then
 				if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 					rf:AddPlayer(rplayer.ply)
 				end
@@ -757,7 +762,7 @@ function ENT:SendHUDInfo(hidehud)
 	local pl = self:GetPlayer()
 
 	for index,rplayer in pairs(self.RegisteredPlayers) do
-		if (rplayer.ply) then
+		if IsValid(rplayer.ply) then
 			if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 				umsg.Start("AdvHUDIndicatorHideHUD", rplayer.ply)
 					umsg.Short(self.Entity:EntIndex())
@@ -777,7 +782,7 @@ end
 
 // Despite everything being named "pod", any vehicle will work
 function ENT:LinkVehicle(pod)
-	if (!pod || !pod:IsValid() || !string.find(pod:GetClass(), "prop_vehicle_")) then return false end
+	if !IsValid(pod) or !string.find(pod:GetClass(), "prop_vehicle_") then return false end
 
 	local ply = nil
 	// Check if a player is in pod first
@@ -788,7 +793,7 @@ function ENT:LinkVehicle(pod)
 		end
 	end
 
-	if (ply && !self:CheckRegister(ply)) then
+	if IsValid(ply) and !self:CheckRegister(ply) then
 		// Register as "only in pod" if not registered before
 		self:RegisterPlayer(ply, false, true)
 
@@ -805,7 +810,7 @@ end
 function ENT:UnLinkVehicle()
 	local ply = self.PodPly
 
-	if (ply && self:CheckPodOnly(ply)) then
+	if IsValid(ply) and self:CheckPodOnly(ply) then
 		// Only unregister if player is registered only because he is in a linked pod
 		self:UnRegisterPlayer(ply)
 	end
@@ -816,10 +821,10 @@ end
 function ENT:Think()
 	self.BaseClass.Think(self)
 
-	if (self.Pod && self.Pod:IsValid()) then
+	if IsValid(self.Pod) then
 		local ply = nil
 
-		if (!self.PodPly || self.PodPly:GetVehicle() != self.Pod) then
+		if !IsValid(self.PodPly) or self.PodPly:GetVehicle() != self.Pod then
 			for k,v in pairs(player.GetAll()) do
 				if (v:GetVehicle() == self.Pod) then
 					ply = v
@@ -832,19 +837,19 @@ function ENT:Think()
 
 		// Has the player changed?
 		if (ply != self.PodPly) then
-			if (self.PodPly && self:CheckPodOnly(self.PodPly)) then // Don't send umsg if player disconnected or is registered otherwise
+			if self.PodPly and self:CheckPodOnly(self.PodPly) then // Don't send umsg if player disconnected or is registered otherwise
 				self:UnRegisterPlayer(self.PodPly)
 			end
 
 			self.PodPly = ply
 
-			if (self.PodPly && !self:CheckRegister(self.PodPly)) then
+			if IsValid(self.PodPly) and self.PodPly and !self:CheckRegister(self.PodPly) then
 				self:RegisterPlayer(self.PodPly, false, true)
 			end
 		end
 	else
 		// If we deleted this pod and there was a player in it
-		if (self.PodPly && self:CheckPodOnly(self.PodPly)) then
+		if self.PodPly and self:CheckPodOnly(self.PodPly) then
 			self:UnRegisterPlayer(self.PodPly)
 		end
 		self.PodPly = nil
@@ -858,7 +863,7 @@ end
 function ENT:BuildDupeInfo()
 	local info = self.BaseClass.BuildDupeInfo(self) or {}
 
-	if (self.Pod) and (self.Pod:IsValid()) then
+	if IsValid(self.Pod) then
 	    info.pod = self.Pod:EntIndex()
 	end
 
