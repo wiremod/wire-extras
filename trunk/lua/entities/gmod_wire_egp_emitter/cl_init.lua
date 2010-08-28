@@ -83,14 +83,14 @@ function ENT:Draw()
 	if (self.RenderTable and #self.RenderTable > 0) then
 		local pos = self:LocalToWorld( Vector( -64, 0, 135 ) )
 		local ang = self:LocalToWorldAngles( Angle(0,0,90) )
+
 		cam.Start3D2D( pos , ang , 0.25 )
-			render.SetScissorRect( 0, 0, 512, 512, true ) 
 			for k,v in ipairs( self.RenderTable ) do 
 				local oldtex = EGP:SetMaterial( v.material )
 				v:Draw() 
 				EGP:FixMaterial( oldtex )
 			end
-			render.SetScissorRect( 0, 0, 512, 512, false )
 		cam.End3D2D()
+		
 	end
 end
