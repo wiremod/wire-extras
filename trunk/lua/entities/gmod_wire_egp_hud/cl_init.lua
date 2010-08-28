@@ -52,6 +52,7 @@ function ENT:Initialize()
 end
 
 function ENT:EGP_Update( forcechangepos ) 
+
 	for k,v in ipairs( self.RenderTable ) do
 		if (self.Resolution == true or forcechangepos) then 
 			self:ChangePositions( v, self.Resolution )

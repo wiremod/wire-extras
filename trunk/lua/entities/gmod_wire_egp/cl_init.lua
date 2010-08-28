@@ -2,7 +2,7 @@ include('shared.lua')
 
 function ENT:Initialize()
 	self.GPU = GPULib.WireGPU( self )
-
+	
 	self.RenderTable = {}
 	self:EGP_Update( EGP.HomeScreen )
 end
