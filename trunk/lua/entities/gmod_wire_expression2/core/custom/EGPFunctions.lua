@@ -613,7 +613,7 @@ __e2setcost(20)
 e2function vector2 wirelink:egpCursor( entity ply )
 	if (!EGP:ValidEGP( this ) or !ply or !ply:IsValid() or !ply:IsPlayer()) then return {-1,-1} end
 	
-	local Normal, Pos, monitor
+	local Normal, Pos, monitor, Ang
 	-- If it's an emitter, set custom normal and pos
 	if (this:GetClass() == "gmod_wire_egp_emitter") then
 		Normal = this:GetRight()
@@ -627,7 +627,7 @@ e2function vector2 wirelink:egpCursor( entity ply )
 		-- Monitor does not have a valid screen point
 		if (!monitor) then return {-1,-1} end
 		
-		local Ang = this:LocalToWorldAngles( monitor.rot )
+		Ang = this:LocalToWorldAngles( monitor.rot )
 		Pos = this:LocalToWorld( monitor.offset )
 		
 		Normal = Ang:Up()
@@ -651,9 +651,10 @@ e2function vector2 wirelink:egpCursor( entity ply )
 			local y = HitPos.z*-(512/128)
 			return {x,y}			
 		else
-			local HitPos = this:WorldToLocal(Start + Dir * B)
-			local x = (0.5+HitPos.y/(monitor.RS*512/monitor.RatioX)) * 512
-			local y = (0.5+HitPos.x/(monitor.RS*512)) * 512	
+			local HitPos = WorldToLocal( Start + Dir * B, Angle(), Pos, Ang )
+			local x = (0.5+HitPos.x/(monitor.RS*512/monitor.RatioX)) * 512
+			local y = (0.5-HitPos.y/(monitor.RS*512)) * 512	
+		
 			return {x,y}
 		end
 	end
