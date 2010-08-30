@@ -329,6 +329,11 @@ else -- SERVER/CLIENT
 							if (Obj.OnCreate) then Obj:OnCreate() end
 						else -- Edit
 							self:EditObject( v, v:Receive( um ) )
+							
+							-- If parented, reset the parent indexes
+							if (v.parent and v.parent != 0) then
+								EGP:AddParentIndexes( v )
+							end
 						end
 					else -- Object does not exist. Create new
 						local Obj = self:GetObjectByID( ID )

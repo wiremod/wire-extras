@@ -17,15 +17,41 @@ Obj.Draw = function( self )
 			table.insert( EGP.ValidFonts, font )
 			EGP.ValidFonts_Lookup[font] = true
 		end
-		surface.SetFont( font )
+		--surface.SetFont( font )
 		
 		--if (!self.layouter) then self.layouter = EGP:MakeTextLayouter() end -- Trying to make my own layouter...
 		--self.layouter:SetText( self.text, self.x, self.y, self.w, self.h, self.halign, self.valign, (self.fontid != self.oldfontid) )
 		--self.layouter:DrawText()
 		--self.oldfontid = self.fontid
 		
-		if (!self.layouter) then self.layouter = MakeTextScreenLayouter() end
-		self.layouter:DrawText(self.text, self.x, self.y, self.w, self.h, self.halign, self.valign)
+		--if (!self.layouter) then self.layouter = MakeTextScreenLayouter() end
+		--self.layouter:DrawText(self.text, self.x, self.y, self.w, self.h, self.halign, self.valign)
+		
+		if (!self.layouter) then 
+			self.layouter = EGP:TextLayouter( font ) 
+			self.layouter:SetJustify( false )
+			self.layouter:SetJustifyLast( false )
+			self.layouter:SetTabWidth( 4 )
+			self.layouter:SetLimitHeight( true )
+			self.oldvalues = {} 
+		end
+		if (self.oldvalues.x != self.x or
+			self.oldvalues.y != self.y or
+			self.oldvalues.w != self.w or
+			self.oldvalues.h != self.h or
+			self.oldvalues.text != self.text or
+			self.oldvalues.size != self.size or
+			self.oldvalues.halign != self.halign or
+			self.oldvalues.valign != self.valign or
+			self.oldvalues.fontid != self.fontid) then
+			self.layouter:SetSize( self.w, self.h )
+			self.layouter:SetPos( self.x, self.y )
+			self.layouter:SetText( self.text )
+			self.layouter:SetFont( font )
+			self.layouter:Reset()
+			self.oldvalues = table.Copy( self )
+		end
+		self.layouter:Draw()
 	end
 end
 Obj.Transmit = function( self )

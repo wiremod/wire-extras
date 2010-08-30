@@ -4,7 +4,7 @@ Obj.h = nil
 Obj.x = nil
 Obj.y = nil
 Obj.vertices = {}
-Obj.parent = nil
+Obj.verticesindex = "vertices"
 Obj.Draw = function( self )
 	if (self.a>0 and #self.vertices>2) then
 		surface.SetDrawColor( self.r, self.g, self.b, self.a )
@@ -29,7 +29,7 @@ Obj.Receive = function( self, um )
 	local nr = um:ReadChar()+128
 	tbl.vertices = {}
 	for i=1,nr do
-		table.insert( tbl.vertices, { x = um:ReadShort(), y = um:ReadShort(), u = um:ReadShort(), v = um:ReadShort() } )
+		tbl.vertices[ #tbl.vertices+1 ] = { x = um:ReadShort(), y = um:ReadShort(), u = um:ReadShort(), v = um:ReadShort() }
 	end
 	EGP:ReceiveMaterial( tbl, um )
 	EGP:ReceiveColor( tbl, self, um )
