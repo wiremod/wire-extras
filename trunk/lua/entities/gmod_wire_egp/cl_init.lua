@@ -23,8 +23,11 @@ function ENT:_EGP_Update( bool )
 			surface.DrawRect(0,0,512,512)
 			for k,v in ipairs( Table ) do 
 				if (v.parent and v.parent != 0) then
-					local x, y, angle = EGP:GetGlobalPos( self, v.index )
-					EGP:EditObject( v, { x = x, y = y, angle = angle } )
+					if (!v.IsParented) then EGP:SetParent( self, v.index, v.parentindex ) end
+					local _, data = EGP:GetGlobalPos( self, v.index )
+					EGP:EditObject( v, data )
+				elseif (!v.parent or v.parent == 0 and v.IsParented) then
+					EGP:UnParent( self, v.index )
 				end
 				local oldtex = EGP:SetMaterial( v.material )
 				v:Draw() 
