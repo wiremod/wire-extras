@@ -85,7 +85,7 @@ function EGP.umsg.Short( data )
 end
 -- String
 function EGP.umsg.String( data )
-	CurrentCost = CurrentCost + #data
+	CurrentCost = CurrentCost + #(data or " ")
 	umsg.String( data )
 end
 -- Vector
