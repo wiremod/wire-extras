@@ -10,7 +10,6 @@ TOOL.ClientConVar["model"] = "models/kobilica/wiremonitorbig.mdl"
 TOOL.ClientConVar["type"] = 1
 TOOL.ClientConVar["createflat"] = 1
 
-
 cleanup.Register( "wire_egps" )
 
 if (SERVER) then
@@ -22,8 +21,10 @@ if (SERVER) then
 		if (model) then ent:SetModel(model) end
 		ent:SetAngles(Ang)
 		ent:SetPos(Pos)
-		ent:SetPlayer(ply)
 		ent:Spawn()
+		ent:Activate()
+		
+		ent:SetPlayer(ply)
 
 		ply:AddCount( "wire_egps", ent )
 		
@@ -83,7 +84,7 @@ if (SERVER) then
 			
 			local flat = self:GetClientNumber("createflat")
 			local ang
-			if (flat == 1) then
+			if (flat == 0) then
 				ang = trace.HitNormal:Angle() + Angle(90,0,0)
 			else
 				ang = trace.HitNormal:Angle()
@@ -92,7 +93,7 @@ if (SERVER) then
 			ent = SpawnEGP( ply, trace.HitPos, ang, model )
 			if (!ent or !ent:IsValid()) then return end
 			
-			if (flat == 1) then
+			if (flat == 0) then
 				ent:SetPos( trace.HitPos - trace.HitNormal * ent:OBBMins().z )
 			else
 				ent:SetPos( trace.HitPos - trace.HitNormal * ent:OBBMins().x )
@@ -108,6 +109,8 @@ if (SERVER) then
 			undo.AddEntity( ent )
 			undo.SetPlayer( ply )
 		undo.Finish()
+		
+		cleanup.Add( ply, "wire_egps", ent )
 		
 		return true
 	end
@@ -132,7 +135,7 @@ if (SERVER) then
 				EGP:UnlinkHUDFromVehicle( self.Selected )
 				self.Selected = nil
 				self:SetStage(0)
-				ply:ChatPrint("[EGP] Unlinked EGP HUD.")
+				ply:ChatPrint("[EGP] EGP HUD unlinked.")
 				return true
 			end
 			if (!trace.Entity:IsVehicle()) then return false end
@@ -161,7 +164,7 @@ else
 		trace.Entity.GPU:Finalize()
 		trace.Entity.GPU = GPULib.WireGPU( trace.Entity )
 		trace.Entity:EGP_Update()
-		LocalPlayer():ChatPrint("GPU RenderTarget reloaded.")
+		LocalPlayer():ChatPrint("[EGP] RenderTarget reloaded.")
 	end
 end
 	function TOOL:UpdateGhost( ent, ply )
@@ -176,7 +179,7 @@ end
 		local flat = self:GetClientNumber("createflat")
 		local Type = self:GetClientNumber("type")
 		if (Type == 1) then
-			if (flat == 1) then
+			if (flat == 0) then
 				ent:SetAngles( trace.HitNormal:Angle() + Angle(90,0,0) )
 				ent:SetPos( trace.HitPos - trace.HitNormal * ent:OBBMins().z )
 			else
