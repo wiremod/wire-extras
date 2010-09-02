@@ -51,7 +51,7 @@ if (SERVER) then
 		-- Check interval
 		if (ply and ply:IsValid() and ply:IsPlayer()) then 
 			if (EGP:CheckInterval( ply ) == false) then 
-				EGP:InsertQueue( Ent, ply, ClearScreen )
+				EGP:InsertQueue( Ent, ply, ClearScreen, "ClearScreen" )
 				return
 			end
 		end
@@ -71,7 +71,7 @@ if (SERVER) then
 		-- Check interval
 		if (ply and ply:IsValid() and ply:IsPlayer()) then 
 			if (EGP:CheckInterval( ply ) == false) then 
-				EGP:InsertQueue( Ent, ply, SaveFrame, FrameName )
+				EGP:InsertQueue( Ent, ply, SaveFrame, "SaveFrame", FrameName )
 				return
 			end
 		end
@@ -93,7 +93,7 @@ if (SERVER) then
 		-- Check interval
 		if (ply and ply:IsValid() and ply:IsPlayer()) then 
 			if (EGP:CheckInterval( ply ) == false) then 
-				EGP:InsertQueue( Ent, ply, LoadFrame, FrameName )
+				EGP:InsertQueue( Ent, ply, LoadFrame, "LoadFrame", FrameName )
 				return
 			end
 		end
@@ -244,7 +244,7 @@ if (SERVER) then
 				E2.prf = E2.prf + #DataToSend * 100
 			end
 			
-			self:AddQueue( Ent, E2.player, SendObjects, DataToSend )
+			self:AddQueue( Ent, E2.player, SendObjects, "Send", DataToSend )
 			
 			for k,v in ipairs( Ent.RenderTable ) do
 				if (v.ChangeOrder) then v.ChangeOrder = nil end
@@ -257,7 +257,7 @@ if (SERVER) then
 				E2.prf = E2.prf + 100
 			end
 			
-			self:AddQueue( Ent, E2.player, ClearScreen )
+			self:AddQueue( Ent, E2.player, ClearScreen, "ClearScreen" )
 		elseif (Action == "SaveFrame") then
 			local Data = {...}
 			if (!Data[1]) then return end
@@ -266,7 +266,7 @@ if (SERVER) then
 				E2.prf = E2.prf + 100
 			end
 			
-			self:AddQueue( Ent, E2.player, SaveFrame, Data[1] )
+			self:AddQueue( Ent, E2.player, SaveFrame, "SaveFrame", Data[1] )
 		elseif (Action == "LoadFrame") then
 			local Data = {...}
 			if (!Data[1]) then return end
@@ -275,7 +275,7 @@ if (SERVER) then
 				E2.prf = E2.prf + 100
 			end
 			
-			self:AddQueue( Ent, E2.player, LoadFrame, Data[1] )
+			self:AddQueue( Ent, E2.player, LoadFrame, "LoadFrame", Data[1] )
 		end
 	end
 else -- SERVER/CLIENT
