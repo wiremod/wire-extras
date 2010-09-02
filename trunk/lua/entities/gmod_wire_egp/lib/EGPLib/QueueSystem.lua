@@ -67,7 +67,6 @@ end
 function EGP:GetNextItem( ply )
 	if (!self.Queue[ply]) then return false end
 	if (#self.Queue[ply] <= 0) then return false end
-	ErrorNoHalt("\nGetting next item. Item n: " .. #self.Queue[ply])
 	return table.remove( self.Queue[ply], 1 )
 end
 
