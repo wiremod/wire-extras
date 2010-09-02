@@ -6,11 +6,11 @@ local EGP = EGP
 EGP.Queue = {}
 
 function EGP:AddQueueObject( Ent, ply, Function, Object )
-	if (!EGP.Queue[ply]) then EGP.Queue[ply] = {} end
-	local n = #EGP.Queue[ply]
+	if (!self.Queue[ply]) then self.Queue[ply] = {} end
+	local n = #self.Queue[ply]
 	if (n > 0) then
-		local LastItem = EGP.Queue[ply][n]
-		if (LastItem.Ent == Ent and LastItem.Function == Function) then
+		local LastItem = self.Queue[ply][n]
+		if (LastItem.Ent == Ent and LastItem.Action == "Object") then
 			local found = false
 			for k,v in ipairs( LastItem.Args ) do
 				if (v.index == Object.index) then
@@ -22,45 +22,53 @@ function EGP:AddQueueObject( Ent, ply, Function, Object )
 				table.insert( LastItem.Args, Object )
 			end
 		else
-			self:AddQueue( Ent, ply, Function,  { Object } )
+			self:AddQueue( Ent, ply, Function, "Object", { Object } )
 		end
 	else
-		self:AddQueue( Ent, ply, Function, { Object } )
+		self:AddQueue( Ent, ply, Function, "Object", { Object } )
 	end
 end
 
-function EGP:AddQueue( Ent, ply, Function, ... )
-	if (!EGP.Queue[ply]) then EGP.Queue[ply] = {} end
-	table.insert( EGP.Queue[ply], { Function = Function, Ent = Ent, Args = ... } )
+function EGP:AddQueue( Ent, ply, Function, Action, ... )
+	if (!self.Queue[ply]) then self.Queue[ply] = {} end
+	local n = #self.Queue[ply]
+	if (n > 0) then
+		local LastItem = self.Queue[ply][n]
+		if (LastItem.Ent == Ent and LastItem.Action == Action) then -- Same item, no point in sending it again
+			return
+		end
+	end
+	self.Queue[ply][n+1] = { Action = Action, Function = Function, Ent = Ent, Args = ... }
 end
 
 function EGP:InsertQueueObjects( Ent, ply, Function, Objects )
-	if (!EGP.Queue[ply]) then EGP.Queue[ply] = {} end
-	local n = #EGP.Queue[ply]
+	if (!self.Queue[ply]) then self.Queue[ply] = {} end
+	local n = #self.Queue[ply]
 	if (n > 0) then
-		local FirstItem = EGP.Queue[ply][1]
-		if (FirstItem.Ent == Ent and FirstItem.Function == Function) then
+		local FirstItem = self.Queue[ply][1]
+		if (FirstItem.Ent == Ent and FirstItem.Action == "Object") then
 			local Args = FirstItem.Args
 			for k,v in ipairs( Objects ) do
 				table.insert( Args, v )
 			end
 		else
-			self:InsertQueue( Ent, ply, Function, Objects )
+			self:InsertQueue( Ent, ply, Function, "Object", Objects )
 		end
 	else
-		self:InsertQueue( Ent, ply, Function, Objects )
+		self:InsertQueue( Ent, ply, Function, "Object", Objects )
 	end
 end
 
-function EGP:InsertQueue( Ent, ply, Function, ... )
-	if (!EGP.Queue[ply]) then EGP.Queue[ply] = {} end
-	table.insert( EGP.Queue[ply], 1, { Function = Function, Ent = Ent, Args = ... } )
+function EGP:InsertQueue( Ent, ply, Function, Action, ... )
+	if (!self.Queue[ply]) then self.Queue[ply] = {} end
+	table.insert( self.Queue[ply], 1, { Action = Action, Function = Function, Ent = Ent, Args = ... } )
 end
 
 function EGP:GetNextItem( ply )
-	if (!EGP.Queue[ply]) then return false end
-	if (#EGP.Queue[ply] <= 0) then return false end
-	return table.remove( EGP.Queue[ply], 1 )
+	if (!self.Queue[ply]) then return false end
+	if (#self.Queue[ply] <= 0) then return false end
+	ErrorNoHalt("\nGetting next item. Item n: " .. #self.Queue[ply])
+	return table.remove( self.Queue[ply], 1 )
 end
 
 local AlreadyChecking = 0
@@ -148,9 +156,9 @@ function EGP:StopQueueTimer( ply )
 end
 
 function EGP:GetQueueItemsForScreen( ply, Ent )
-	if (!EGP.Queue[ply]) then return {} end
+	if (!self.Queue[ply]) then return {} end
 	local ret = {}
-	for k,v in ipairs( EGP.Queue[ply] ) do
+	for k,v in ipairs( self.Queue[ply] ) do
 		if (v.Ent == Ent) then
 			table.insert( ret, v )
 		end
