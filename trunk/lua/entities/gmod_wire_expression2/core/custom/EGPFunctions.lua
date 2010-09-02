@@ -305,11 +305,13 @@ e2function void wirelink:egpWedge( number index, vector2 pos, vector2 size )
 	if (bool) then EGP:DoAction( this, self, "SendObject", obj ) Update(self,this) end
 end
 
+--[[ I'm sticking to my policy of not spamming pointless functions.
 e2function void wirelink:egpWedge( number index, vector2 pos, vector2 size, number angle, number mouthsize )
 	if (!EGP:IsAllowed( self, this )) then return end
 	local bool, obj = EGP:CreateObject( this, EGP.Objects.Names["Wedge"], { index = index, x = pos[1], y = pos[2], w = size[1], h = size[2], size = mouthsize, angle = angle }, self.player )
 	if (bool) then EGP:DoAction( this, self, "SendObject", obj ) Update(self,this) end
 end
+]]
 
 --------------------------------------------------------
 -- Wedge Outline
@@ -320,11 +322,13 @@ e2function void wirelink:egpWedgeOutline( number index, vector2 pos, vector2 siz
 	if (bool) then EGP:DoAction( this, self, "SendObject", obj ) Update(self,this) end
 end
 
+--[[ I'm sticking to my policy of not spamming pointless functions.
 e2function void wirelink:egpWedgeOutline( number index, vector2 pos, vector2 size, number angle, number mouthsize )
 	if (!EGP:IsAllowed( self, this )) then return end
 	local bool, obj = EGP:CreateObject( this, EGP.Objects.Names["WedgeOutline"], { index = index, x = pos[1], y = pos[2], w = size[1], h = size[2], size = mouthsize, angle = angle }, self.player )
 	if (bool) then EGP:DoAction( this, self, "SendObject", obj ) Update(self,this) end
 end
+]]
 
 --------------------------------------------------------
 -- Set functions
@@ -594,10 +598,10 @@ e2function array wirelink:egpVertices( number index )
 				table.insert( ret, {v2.x,v2.y} )
 			end
 			return ret
-		elseif (v.x and v.y and v.x2 and v.y2) then
-			return {{v.x,v.y},{v.x2,v.y2}}
 		elseif (v.x and v.y and v.x2 and v.y2 and v.x3 and v.y3) then
 			return {{v.x,v.y},{v.x2,v.y2},{v.x3,v.y3}}
+		elseif (v.x and v.y and v.x2 and v.y2) then
+			return {{v.x,v.y},{v.x2,v.y2}}
 		end
 	end
 	return {}
@@ -777,6 +781,13 @@ e2function entity egpQueueScreen()
 	end
 end
 
+-- Same as above, except returns wirelink
+e2function wirelink egpQueueScreenWirelink()
+	if (EGP.RunByEGPQueue) then
+		return EGP.RunByEGPQueue_Ent
+	end
+end
+
 -- Returns the player which ordered the current items to be sent (This is usually yourself, but if you're sharing pp with someone it might be them. Good way to check if someone is fucking with your screens)
 e2function entity egpQueuePlayer()
 	if (EGP.RunByEGPQueue) then
@@ -785,7 +796,7 @@ e2function entity egpQueuePlayer()
 end
 
 -- Returns 1 if the current execution was caused by the EGP queue system and the player <ply> was the player whom ordered the item to be sent (This is usually yourself, but if you're sharing pp with someone it might be them.)
-e2function number egpQueueClk( entity ply )
+e2function number egpQueueClkPly( entity ply )
 	if (EGP.RunByEGPQueue and EGP.RunByEGPQueue_ply == ply) then
 		return 1
 	end
