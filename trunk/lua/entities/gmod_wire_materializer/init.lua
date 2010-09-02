@@ -14,7 +14,7 @@ function ENT:Initialize()
 	self.Outputs = WireLib.CreateSpecialOutputs(self.Entity, { "Out" }, { "NORMAL" })
 	self.StringMaterial = ""
     self.ValueSkin = 0
-    self:SetBeamRange(2048)
+    self:SetBeamLength(2048)
 end
 
 function ENT:OnRemove()
@@ -25,32 +25,40 @@ function ENT:Setup(outMat,Range)
     if(outMat)then
 	    WireLib.AdjustSpecialOutputs(self.Entity, { "Material", "Skin" }, { "STRING", "NORMAL" } )
 	end
-	self:SetBeamRange(Range)
+	self:SetBeamLength(Range)
 	self:ShowOutput()
 end
 
+local function CheckPP(ply, ent)
+	if !IsValid(ply) or !IsValid(ent) then return false end
+	if ent:IsPlayer() then return false end
+	if CPPI then
+		-- Temporary, done this way due to certain PP implementations not always returning a value for CPPICanTool
+		if ent == ply then return true end
+		if ent:CPPICanTool( ply, "material" ) == false then return false end
+	end
+	return true
+end
+
 function ENT:TriggerInput(iname, value)
-	if (iname == "Fire") then
-		if (value ~= 0) then
-			 local vStart = self.Entity:GetPos()
-			 local vForward = self.Entity:GetUp()
-			 
-			 local trace = {}
-				 trace.start = vStart
-				 trace.endpos = vStart + (vForward * self:GetBeamRange())
-				 trace.filter = { self.Entity }
-			 local trace = util.TraceLine( trace ) 
+	if iname == "Fire" then
+		if value ~= 0 then
+			local vStart = self.Entity:GetPos()
+			local vForward = self.Entity:GetUp()
 			
-			if (!trace.Entity) then return false end
-            if (!trace.Entity:IsValid() ) then return false end
-            if (trace.Entity:IsWorld()) then return false end
-            if ( CLIENT ) then return true end
-            if(self.StrMaterial ~= "") then trace.Entity:SetMaterial(self.StrMaterial) end
+			local trace = {}
+				trace.start = vStart
+				trace.endpos = vStart + (vForward * self:GetBeamLength())
+				trace.filter = { self.Entity }
+			local trace = util.TraceLine( trace ) 
+			
+            if !CheckPP( self.pl, trace.Entity ) then return end
+            trace.Entity:SetMaterial(self.StrMaterial)
 			trace.Entity:SetSkin(self.ValueSkin)
 		end
-	elseif(iname == "Material") then
-		if value~=0 then self.StrMaterial = value end
-	elseif(iname == "Skin") then
+	elseif iname == "Material" then
+		self.StrMaterial = value
+	elseif iname == "Skin" then
 		self.ValueSkin = math.max(math.floor(value),0)
 	end
 end
@@ -69,21 +77,18 @@ end
 
 function ENT:Think()
     self.BaseClass.Think(self)
-    if(self.Outputs["Material"])then
+    if self.Outputs["Material"] then
         local vStart = self.Entity:GetPos()
 	    local vForward = self.Entity:GetUp()
-			 
+		
 	    local trace = {}
-		  trace.start = vStart
-		  trace.endpos = vStart + (vForward * self:GetBeamRange())
-		  trace.filter = { self.Entity }
+			trace.start = vStart
+			trace.endpos = vStart + (vForward * self:GetBeamLength())
+			trace.filter = { self.Entity }
 	    local trace = util.TraceLine( trace ) 
-			
-        if (!trace.Entity) then return false end
-        if (!trace.Entity:IsValid() ) then return false end
-        if (trace.Entity:IsWorld()) then return false end
-        if ( CLIENT ) then return true end
-    
+		
+		if !IsValid( trace.Entity ) then return end
+		
         local mat = trace.Entity:GetMaterial()
 		local skn = trace.Entity:GetSkin()
 		
@@ -91,8 +96,7 @@ function ENT:Think()
         Wire_TriggerOutput(self.Entity,"Skin",skn)
         
         self:ShowOutput()
-        
     end
     self.Entity:NextThink(CurTime()+0.25)
+	return true
 end
-    
