@@ -666,6 +666,21 @@ e2function vector2 wirelink:egpCursor( entity ply )
 	return {-1,-1}
 end
 
+e2function vector2 egpScrSize( entity ply )
+	if (!ply or !ply:IsValid() or !ply:IsPlayer() or !EGP.ScrHW[ply]) then return {-1,-1} end
+	return EGP.ScrHW[ply]
+end
+
+e2function number egpScrW( entity ply )
+	if (!ply or !ply:IsValid() or !ply:IsPlayer() or !EGP.ScrHW[ply]) then return -1 end
+	return EGP.ScrHW[ply][1]
+end
+
+e2function number egpScrH( entity ply )
+	if (!ply or !ply:IsValid() or !ply:IsPlayer() or !EGP.ScrHW[ply]) then return -1 end
+	return EGP.ScrHW[ply][2]
+end
+
 --------------------------------------------------------
 -- Useful functions
 --------------------------------------------------------

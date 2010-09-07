@@ -228,3 +228,27 @@ end
 function EGP:ValidEGP( Ent )
 	return (Ent and Ent:IsValid() and (Ent:GetClass() == "gmod_wire_egp" or Ent:GetClass() == "gmod_wire_egp_hud" or Ent:GetClass() == "gmod_wire_egp_emitter"))
 end
+
+
+-- Saving Screen width and height
+if (CLIENT) then
+	usermessage.Hook("EGP_ScrWH_Request",function(um)
+		RunConsoleCommand("EGP_ScrWH",ScrW(),ScrH())
+	end)
+else
+	hook.Add("PlayerInitialSpawn","EGP_ScrHW_Request",function(ply)
+		timer.Simple(1,function()
+			if (ply and ply:IsValid() and ply:IsPlayer()) then
+				umsg.Start("EGP_ScrWH_Request",ply) umsg.End()
+			end
+		end)
+	end)
+	
+	EGP.ScrHW = {}
+	
+	concommand.Add("EGP_ScrWH",function(ply,cmd,args)
+		if (args and args[1] and args[2]) then
+			EGP.ScrHW[ply] = { args[1], args[2] }
+		end
+	end)
+end
