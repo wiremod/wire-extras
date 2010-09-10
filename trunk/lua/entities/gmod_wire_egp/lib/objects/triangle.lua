@@ -18,6 +18,7 @@ Obj.Transmit = function( self )
 	EGP.umsg.Short( self.y2 )
 	EGP.umsg.Short( self.x3 )
 	EGP.umsg.Short( self.y3 )
+	EGP.umsg.Short( self.parent )
 	EGP:SendMaterial( self )
 	EGP:SendColor( self )
 end
@@ -29,10 +30,11 @@ Obj.Receive = function( self, um )
 	tbl.y2 = um:ReadShort()
 	tbl.x3 = um:ReadShort()
 	tbl.y3 = um:ReadShort()
+	tbl.parent = um:ReadShort()
 	EGP:ReceiveMaterial( tbl, um )
 	EGP:ReceiveColor( tbl, self, um )
 	return tbl
 end
 Obj.DataStreamInfo = function( self )
-	return { material = self.material, x = self.x, y = self.y, x2 = self.x2, y2 = self.y2, x3 = self.x3, y3 = self.y3, r = self.r, g = self.g, b = self.b, a = self.a }
+	return { material = self.material, x = self.x, y = self.y, x2 = self.x2, y2 = self.y2, x3 = self.x3, y3 = self.y3, r = self.r, g = self.g, b = self.b, a = self.a, parent = self.parent }
 end
