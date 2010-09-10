@@ -34,7 +34,7 @@ EGP.Objects.Base.Receive = function( self, um )
 	return tbl
 end
 EGP.Objects.Base.DataStreamInfo = function( self )
-	return { x = self.x, y = self.y, w = self.w, h = self.h, r = self.r, g = self.g, b = self.b, a = self.a }
+	return { x = self.x, y = self.y, w = self.w, h = self.h, r = self.r, g = self.g, b = self.b, a = self.a, material = self.material, parent = self.parent }
 end
 
 function EGP:NewObject( Name )
