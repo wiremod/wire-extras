@@ -4,17 +4,32 @@
 local EGP = EGP
 
 
-local function makeArray( v )
+local function makeArray( v, fakepos )
 	local ret = {}
 	if (type(v.verticesindex) == "string") then
-		for k,v in ipairs( v[v.verticesindex] ) do
-			ret[#ret+1] = v.x
-			ret[#ret+1] = v.y
+		if (!fakepos) then
+			if (!v["_"..v.verticesindex]) then EGP:AddParentIndexes( v ) end
+			for k,v in ipairs( v["_"..v.verticesindex] ) do
+				ret[#ret+1] = v.x
+				ret[#ret+1] = v.y
+			end
+		else
+			for k,v in ipairs( v[v.verticesindex] ) do
+				ret[#ret+1] = v.x
+				ret[#ret+1] = v.y
+			end
 		end
 	else
-		for k,v2 in ipairs( v.verticesindex ) do
-			ret[#ret+1] = v[v2[1]]
-			ret[#ret+1] = v[v2[2]]
+		if (!fakepos) then
+			for k,v2 in ipairs( v.verticesindex ) do
+				ret[#ret+1] = v["_"..v2[1]]
+				ret[#ret+1] = v["_"..v2[2]]
+			end
+		else
+			for k,v2 in ipairs( v.verticesindex ) do
+				ret[#ret+1] = v[v2[1]]
+				ret[#ret+1] = v[v2[2]]
+			end
 		end
 	end
 	return ret
@@ -56,34 +71,43 @@ function EGP:GetGlobalPos( Ent, index )
 				local hasVertices, data = self:GetGlobalPos( Ent, v.parent )
 				if (hasVertices) then -- obj and parent have vertices
 					local _, _, prnt = self:HasObject( Ent, v.parent )
-					local centerx, centery = getCenter( makeArray( prnt ) )
+					local centerx, centery = getCenter( makeArray( prnt, true ) )
 					local temp = makeArray( v )
 					for i=1,#temp,2 do
 						temp[i] = centerx + temp[i]
 						temp[i+1] = centery + temp[i+1]
 					end
-					return true, makeTable( v, temp )
+					local ret = {}
+					if (type(v.verticesindex) == "string") then ret = { [v.verticesindex] = makeTable( v, temp ) } else ret = makeTable( v, temp ) end
+					return true, ret
 				else -- obj has vertices, parent does not
 					local x, y, ang = data.x, data.y, data.angle
 					local r = makeArray( v )
-					local centerx, centery = getCenter( r )
-					local vec, ang = LocalToWorld( Vector( centerx, centery, 0 ), Angle( 0, 0, 0 ), Vector( x, y, 0 ), Angle( 0, -ang, 0 ) )
 					for i=1,#r,2 do
+						local x_ = r[i]
+						local y_ = r[i+1]
+						local vec, ang = LocalToWorld( Vector( x_, y_, 0 ), Angle( 0, 0, 0 ), Vector( x, y, 0 ), Angle( 0, -ang, 0 ) )
 						r[i] = vec.x
 						r[i+1] = vec.y
 					end
-					return true, makeTable( v, r )					
+					local ret = {}
+					if (type(v.verticesindex) == "string") then ret = { [v.verticesindex] = makeTable( v, r ) }	else ret = makeTable( v, r ) end
+					return true, ret
 				end
-				return true, { [v.verticesindex] = v.vertices }
+				local ret = {}
+				if (type(v.verticesindex) == "string") then ret = { [v.verticesindex] = makeTable( v, makeArray( v ) ) } else ret = makeTable( v, makeArray( v ) ) end
+				return true, ret
 			end
-			return true, v.vertices
-		else -- Object does not have vertices
+			local ret = {}
+			if (type(v.verticesindex) == "string") then ret = { [v.verticesindex] = makeTable( v, makeArray( v ) ) }	else ret = makeTable( v, makeArray( v ) ) end
+			return true, ret
+		else -- Object does not have vertices, parent does not
 			if (v.parent and v.parent != 0) then -- Object is parented
 				local hasVertices, data = self:GetGlobalPos( Ent, v.parent )
 				if (hasVertices) then -- obj does not have vertices, parent does
 					local _, _, prnt = self:HasObject( Ent, v.parent )
-					local centerx, centery = getCenter( makeArray( prnt ) )
-					return false, { x = v._x + centerx, y = v._y + centery, angle = v._angle }
+					local centerx, centery = getCenter( makeArray( prnt, true ) )
+					return false, { x = (v._x or v.x) + centerx, y = (v._y or v.y) + centery, angle = (v._angle or v.angle) }
 				else -- Niether have vertices
 					local x, y, ang = data.x, data.y, data.angle
 					local vec, ang = LocalToWorld( Vector( v._x, v._y, 0 ), Angle( 0, v._angle or 0, 0 ), Vector( x, y, 0 ), Angle( 0, -(ang or 0), 0 ) )
@@ -149,17 +173,18 @@ function EGP:SetParent( Ent, index, parentindex )
 	if (bool) then
 		local bool2, k2, v2 = self:HasObject( Ent, parentindex )
 		if (bool2) then
-		
-			if (CLIENT) then
+			if (CLIENT or SinglePlayer()) then
 				self:AddParentIndexes( v )
 			end
-				
+			
+			if (v.parent and v.parent == parentindex) then return false end
+			
 			if (self:EditObject( v, { parent = parentindex }, Ent:GetPlayer() )) then return true, v end
 		end
 	end
 end
 
-function EGP:RemoveParentIndexes( v )
+function EGP:RemoveParentIndexes( v, hasVertices )
 	if (hasVertices) then
 		-- Remove original positions
 		if (type(v.verticesindex) == "string") then
@@ -181,11 +206,15 @@ end
 function EGP:UnParent( Ent, index )
 	local bool, k, v = self:HasObject( Ent, index )
 	if (bool) then
-		local hasVertices, data = self:GetGlobalPos( Ent, index )
-		
+		local hasVertices, data
 		if (CLIENT) then
-			self:RemoveParentIndexes( v )
+			hasVertices, data = self:GetGlobalPos( Ent, index )
+			self:RemoveParentIndexes( v, hasVertices )
+		else
+			hasVertices, data = self:GetGlobalPos( Ent, index )
 		end
+		
+		if (!v.parent or v.parent == 0) then return false end
 		
 		data.parent = 0
 		

@@ -23,7 +23,7 @@ function ENT:_EGP_Update( bool )
 			surface.DrawRect(0,0,512,512)
 			for k,v in ipairs( Table ) do 
 				if (v.parent and v.parent != 0) then
-					if (!v.IsParented) then EGP:SetParent( self, v.index, v.parentindex ) end
+					if (!v.IsParented) then EGP:SetParent( self, v.index, v.parent ) end
 					local _, data = EGP:GetGlobalPos( self, v.index )
 					EGP:EditObject( v, data )
 				elseif (!v.parent or v.parent == 0 and v.IsParented) then
