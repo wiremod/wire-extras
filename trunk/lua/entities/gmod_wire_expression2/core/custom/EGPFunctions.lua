@@ -681,6 +681,11 @@ e2function number egpScrH( entity ply )
 	return EGP.ScrHW[ply][2]
 end
 
+e2function number wirelink:egpHasObject( index )
+	local bool, _, _ = EGP:HasObject( this, index )
+	return bool and 1 or 0
+end
+
 --------------------------------------------------------
 -- Useful functions
 --------------------------------------------------------
