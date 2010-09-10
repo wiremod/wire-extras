@@ -252,3 +252,23 @@ else
 		end
 	end)
 end
+
+-- Line drawing helper function
+function EGP:DrawLine( x, y, x2, y2, size )
+	if (size < 1) then size = 1 end
+	if (size == 1) then
+		surface.DrawLine( x, y, x2, y2 )
+	else
+		-- Calculate position
+		local x3 = (x + x2) / 2
+		local y3 = (y + y2) / 2
+		
+		-- calculate height
+		local w = math.sqrt( (x2-x) ^ 2 + (y2-y) ^ 2 )
+		
+		-- Calculate angle (Thanks to Fizyk)
+		local angle = math.deg(math.atan2(y-y2,x2-x))
+		
+		surface.DrawTexturedRectRotated( x3, y3, w, size, angle )
+	end
+end
