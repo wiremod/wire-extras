@@ -13,7 +13,7 @@ Obj.Draw = function( self )
 			local x = math.cos(rad)
 			local y = math.sin(rad)
 			
-			rad = math.rad(self.angle)
+			rad = -math.rad(self.angle)
 			local tempx = x * self.w * math.cos(rad) - y * self.h * math.sin(rad) + self.x
 			y = x * self.w * math.sin(rad) + y * self.h * math.cos(rad) + self.y
 			x = tempx
