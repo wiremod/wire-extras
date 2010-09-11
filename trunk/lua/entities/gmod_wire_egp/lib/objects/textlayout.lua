@@ -17,16 +17,17 @@ Obj.Draw = function( self )
 			table.insert( EGP.ValidFonts, font )
 			EGP.ValidFonts_Lookup[font] = true
 		end
-		--surface.SetFont( font )
+		surface.SetFont( font )
 		
 		--if (!self.layouter) then self.layouter = EGP:MakeTextLayouter() end -- Trying to make my own layouter...
 		--self.layouter:SetText( self.text, self.x, self.y, self.w, self.h, self.halign, self.valign, (self.fontid != self.oldfontid) )
 		--self.layouter:DrawText()
 		--self.oldfontid = self.fontid
 		
-		--if (!self.layouter) then self.layouter = MakeTextScreenLayouter() end
-		--self.layouter:DrawText(self.text, self.x, self.y, self.w, self.h, self.halign, self.valign)
+		if (!self.layouter) then self.layouter = MakeTextScreenLayouter() end
+		self.layouter:DrawText(self.text, self.x, self.y, self.w, self.h, self.halign, self.valign)
 		
+		--[[
 		if (!self.layouter) then 
 			self.layouter = EGP:TextLayouter( font ) 
 			self.layouter:SetJustify( false )
@@ -52,6 +53,7 @@ Obj.Draw = function( self )
 			self.oldvalues = table.Copy( self )
 		end
 		self.layouter:Draw()
+		]]
 	end
 end
 Obj.Transmit = function( self )
