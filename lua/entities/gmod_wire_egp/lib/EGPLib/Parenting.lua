@@ -107,11 +107,11 @@ function EGP:GetGlobalPos( Ent, index )
 				if (hasVertices) then -- obj does not have vertices, parent does
 					local _, _, prnt = self:HasObject( Ent, v.parent )
 					local centerx, centery = getCenter( makeArray( prnt, true ) )
-					return false, { x = (v._x or v.x) + centerx, y = (v._y or v.y) + centery, angle = (v._angle or v.angle) }
+					return false, { x = (v._x or v.x) + centerx, y = (v._y or v.y) + centery, angle = -(v._angle or v.angle) }
 				else -- Niether have vertices
 					local x, y, ang = data.x, data.y, data.angle
 					local vec, ang = LocalToWorld( Vector( v._x, v._y, 0 ), Angle( 0, v._angle or 0, 0 ), Vector( x, y, 0 ), Angle( 0, -(ang or 0), 0 ) )
-					return false, { x = vec.x, y = vec.y, angle = ang.y }
+					return false, { x = vec.x, y = vec.y, angle = -ang.y }
 				end					
 			end
 			return false, { x = v.x, y = v.y, angle = v.angle or 0 }
@@ -170,14 +170,16 @@ end
 
 function EGP:SetParent( Ent, index, parentindex )
 	local bool, k, v = self:HasObject( Ent, index )
-	if (bool) then
+	if (bool) then		
 		local bool2, k2, v2 = self:HasObject( Ent, parentindex )
 		if (bool2) then
 			if (CLIENT or SinglePlayer()) then
 				self:AddParentIndexes( v )
 			end
 			
+			-- If it's already parented to that object or if obj == parent
 			if (v.parent and v.parent == parentindex) then return false end
+			if (v.index == parentindex) then return false end
 			
 			if (self:EditObject( v, { parent = parentindex }, Ent:GetPlayer() )) then return true, v end
 		end
