@@ -301,7 +301,7 @@ end
 --------------------------------------------------------
 e2function void wirelink:egpWedge( number index, vector2 pos, vector2 size )
 	if (!EGP:IsAllowed( self, this )) then return end
-	local bool, obj = EGP:CreateObject( this, EGP.Objects.Names["WEdge"], { index = index, x = pos[1], y = pos[2], w = size[1], h = size[2] }, self.player )
+	local bool, obj = EGP:CreateObject( this, EGP.Objects.Names["Wedge"], { index = index, x = pos[1], y = pos[2], w = size[1], h = size[2] }, self.player )
 	if (bool) then EGP:DoAction( this, self, "SendObject", obj ) Update(self,this) end
 end
 
