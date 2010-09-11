@@ -180,7 +180,7 @@ if (SERVER) then
 				if (EGP.umsg.CurrentCost() > 200) then -- Getting close to the max size! Start over
 					if (Done == 1 and EGP.umsg.CurrentCost() > 256) then -- The object was too big
 						ErrorNoHalt("[EGP] Umsg error. An object was too big to send!")
-						table.remove( DataToSend, 1 )
+						--table.remove( DataToSend, 1 )
 					end
 					EGP.umsg.End()
 					for i=1,Done do table.remove( DataToSend, 1 ) end
@@ -301,6 +301,7 @@ else -- SERVER/CLIENT
 				if (index == 0) then break end -- In case the umsg had to abort early
 				
 				local ID = um:ReadChar()
+				
 				if (ID == -128) then -- Remove object
 					local bool, k, v = EGP:HasObject( Ent, index )
 					if (bool) then
