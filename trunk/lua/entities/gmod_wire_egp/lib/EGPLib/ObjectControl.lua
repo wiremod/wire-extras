@@ -5,6 +5,7 @@ local EGP = EGP
 
 EGP.Objects = {}
 EGP.Objects.Names = {}
+EGP.Objects.Names_Inverted = {}
 
 -- This object is not used. It's only a base
 EGP.Objects.Base = {}
@@ -37,20 +38,37 @@ EGP.Objects.Base.DataStreamInfo = function( self )
 	return { x = self.x, y = self.y, w = self.w, h = self.h, r = self.r, g = self.g, b = self.b, a = self.a, material = self.material, parent = self.parent }
 end
 
-function EGP:NewObject( Name )
-	self.Objects[Name] = {}
-	table.Inherit( self.Objects[Name], self.Objects.Base )
-	local ID = table.Count(self.Objects)
-	self.Objects[Name].ID = ID
-	self.Objects.Names[Name] = ID 
-	return self.Objects[Name]
-end
+----------------------------
+-- Get Object
+----------------------------
 
 function EGP:GetObjectByID( ID )
 	for k,v in pairs( EGP.Objects ) do
 		if (v.ID == ID) then return table.Copy( v ) end
 	end
-	ErrorNoHalt( "[EGP] Error! Object with ID '" .. ID .. "' does not exist. Please post this bug message on the EGP thread on the wiremod forums." )
+	ErrorNoHalt( "[EGP] Error! Object with ID '" .. ID .. "' does not exist. Please post this bug message on the EGP thread on the wiremod forums.\n" )
+end
+
+----------------------------
+-- Load all objects
+----------------------------
+
+function EGP:NewObject( Name )
+	-- Create table
+	self.Objects[Name] = {}
+	-- Set info
+	self.Objects[Name].Name = Name
+	table.Inherit( self.Objects[Name], self.Objects.Base )
+	
+	-- Create lookup table
+	local ID = table.Count(self.Objects)
+	self.Objects[Name].ID = ID
+	self.Objects.Names[Name] = ID 
+	
+	-- Inverted lookup table
+	self.Objects.Names_Inverted[ID] = Name
+	
+	return self.Objects[Name]
 end
 
 local folder = "entities/gmod_wire_egp/lib/objects/"
@@ -58,6 +76,82 @@ local files = file.FindInLua(folder.."*.lua")
 for _,v in pairs( files ) do
 	include(folder..v)
 	if (SERVER) then AddCSLuaFile(folder..v) end
+end
+
+----------------------------
+-- Object existance check
+----------------------------
+function EGP:HasObject( Ent, index )
+	if (!EGP:ValidEGP( Ent )) then return false end
+	index = math.Round(math.Clamp(index or 1, 1, self.ConVars.MaxObjects:GetInt()))
+	if (!Ent.RenderTable or #Ent.RenderTable == 0) then return false end
+	for k,v in ipairs( Ent.RenderTable ) do
+		if (v.index == index) then
+			return true, k, v
+		end
+	end
+	return false
+end
+
+----------------------------
+-- Object order changing
+----------------------------
+function EGP:SetOrder( Ent, from, to )
+	if (!Ent.RenderTable or #Ent.RenderTable == 0) then return false end
+	if (Ent.RenderTable[from]) then
+		to = math.Clamp(math.Round(to or 1),1,#Ent.RenderTable)
+		local temp = Ent.RenderTable[from]
+		table.remove( Ent.RenderTable, from )
+		table.insert( Ent.RenderTable, to, temp )
+		if (SERVER) then Ent.RenderTable[to].ChangeOrder = {from,to} end
+		return true
+	end
+	return false
+end
+----------------------------
+-- Create / edit objects
+----------------------------
+
+function EGP:CreateObject( Ent, ObjID, Settings )
+	if (!self:ValidEGP( Ent )) then return false end
+	
+	if (!self.Objects.Names_Inverted[ObjID]) then
+		ErrorNoHalt("Trying to create nonexistant object! Please report this error to Divran at wiremod.com. ObjID: " .. ObjID .. "\n")
+		return false
+	end
+
+	Settings.index = math.Round(math.Clamp(Settings.index or 1, 1, self.ConVars.MaxObjects:GetInt()))
+	
+	local bool, k, v = self:HasObject( Ent, Settings.index )
+	if (bool) then -- Already exists. Change settings:
+		if (v.ID != ObjID) then -- Not the same kind of object, create new
+			local Obj = {}
+			Obj = self:GetObjectByID( ObjID )
+			self:EditObject( Obj, Settings )
+			Obj.index = Settings.index
+			Ent.RenderTable[k] = Obj
+			return true, Obj
+		else
+			return self:EditObject( v, Settings ), v
+		end
+	else -- Did not exist. Create:
+		local Obj = self:GetObjectByID( ObjID )
+		self:EditObject( Obj, Settings )
+		Obj.index = Settings.index
+		table.insert( Ent.RenderTable, Obj )
+		return true, Obj
+	end
+end
+
+function EGP:EditObject( Obj, Settings )
+	local ret = false
+	for k,v in pairs( Settings ) do
+		if (Obj[k] and Obj[k] != v) then
+			Obj[k] = v
+			ret = true
+		end
+	end
+	return ret
 end
 
 
