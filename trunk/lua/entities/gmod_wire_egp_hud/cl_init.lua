@@ -41,6 +41,8 @@ function ENT:ChangePositions( Obj, bool )
 			
 	if (Obj.w) then Obj.w = func(Obj.w,w) end
 	if (Obj.h) then Obj.h = func(Obj.h,h) end
+	
+	Obj.res = bool
 end
 
 function ENT:Initialize()
@@ -51,11 +53,12 @@ function ENT:Initialize()
 	EGP:AddHUDEGP( self )
 end
 
-function ENT:EGP_Update( forcechangepos ) 
+function ENT:EGP_Update() 
 
 	for k,v in ipairs( self.RenderTable ) do
-		if (self.Resolution == true or forcechangepos) then 
-			self:ChangePositions( v, self.Resolution )
+		if (v.res == nil) then v.res = false end
+		if (v.res != self.Resolution) then
+			self:ChangePositions( v, !v.res )
 		end
 		if (v.parent and v.parent != 0) then
 			if (!v.IsParented) then EGP:SetParent( self, v.index, v.parentindex ) end
@@ -75,7 +78,7 @@ end
 function ENT:Draw()
 	self.Resolution = self:GetNWBool("Resolution",false)
 	if (self.Resolution != self.OldResolution) then
-		self:EGP_Update(true)
+		self:EGP_Update()
 	end
 	self.Entity.DrawEntityOutline = function() end
 	self.Entity:DrawModel()
