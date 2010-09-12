@@ -9,6 +9,8 @@ TOOL.Tab			= "Wire"
 TOOL.ClientConVar["model"] = "models/kobilica/wiremonitorbig.mdl"
 TOOL.ClientConVar["type"] = 1
 TOOL.ClientConVar["createflat"] = 1
+TOOL.ClientConVar["weld"] = 0
+TOOL.ClientConVar["weldworld"] = 0
 
 cleanup.Register( "wire_egps" )
 
@@ -103,9 +105,17 @@ if (SERVER) then
 		elseif (Type == 3) then -- Emitter
 			ent = SpawnEmitter( ply, trace.HitPos + trace.HitNormal * 0.25, trace.HitNormal:Angle() + Angle(90,0,0) )
 		end
+		
+		local weld = self:GetClientNumber("weld") != 0 and true or false
+		local weldworld = self:GetClientNumber("weldworld") != 0 and true or false
+		local const
+		if (weld) then
+			const = WireLib.Weld( ent, trace.Entity, trace.PhysicsBone, true, false, weldworld )
+		end
 
 		if (!ent or !ent:IsValid()) then return end
 		undo.Create( "wire_egp" )
+			if (const) then undo.AddEntity( const ) end
 			undo.AddEntity( ent )
 			undo.SetPlayer( ply )
 		undo.Finish()
@@ -155,6 +165,8 @@ else
 	language.Add( "sboxlimit_wire_egps", "You've hit the EGP limit!" )
 	language.Add( "Undone_wire_egp", "Undone EGP" )
 	language.Add( "Tool_wire_egp_createflat", "Create flat to surface" )
+	language.Add( "Tool_wire_egp_weld", "Weld" )
+	language.Add( "Tool_wire_egp_weldworld", "Weld to world" )
 		
 	function TOOL:LeftClick( trace ) return (!trace.Entity or (trace.Entity and !trace.Entity:IsPlayer())) end
 	function TOOL:Reload( trace )
@@ -231,6 +243,8 @@ if CLIENT then
 		panel:AddControl("ComboBox", cbox)
 		
 		panel:AddControl("Checkbox", {Label = "#Tool_wire_egp_createflat",Command = "wire_egp_createflat"})
+		panel:AddControl("Checkbox", {Label = "#Tool_wire_egp_weld",Command="wire_egp_weld"})
+		panel:AddControl("Checkbox", {Label = "#Tool_wire_egp_weldworld",Command="wire_egp_weldworld"})
 	end
 
 end
