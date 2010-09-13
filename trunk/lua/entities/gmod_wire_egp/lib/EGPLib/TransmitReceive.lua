@@ -71,7 +71,7 @@ if (SERVER) then
 		-- Check interval
 		if (ply and ply:IsValid() and ply:IsPlayer()) then 
 			if (EGP:CheckInterval( ply ) == false) then 
-				EGP:InsertQueue( Ent, ply, SaveFrame, "SaveFrame", FrameName )
+				EGP:InsertQueue( Ent, ply, SaveFrame, "SaveFrame", {FrameName} )
 				return
 			end
 		end
@@ -93,7 +93,7 @@ if (SERVER) then
 		-- Check interval
 		if (ply and ply:IsValid() and ply:IsPlayer()) then 
 			if (EGP:CheckInterval( ply ) == false) then 
-				EGP:InsertQueue( Ent, ply, LoadFrame, "LoadFrame", FrameName )
+				EGP:InsertQueue( Ent, ply, LoadFrame, "LoadFrame", {FrameName} )
 				return
 			end
 		end
@@ -107,6 +107,74 @@ if (SERVER) then
 			EGP.umsg.Entity( ply )
 			EGP.umsg.String( FrameName )
 		EGP.umsg.End()
+		
+		EGP:SendQueueItem( ply )
+	end
+	
+	-- Extra Add Text queue item, used by text objects with a lot of text in them
+	umsg.PoolString( "AddText" )
+	local function AddText( Ent, ply, index, text )
+		-- Check interval
+		if (ply and ply:IsValid() and ply:IsPlayer()) then 
+			if (EGP:CheckInterval( ply ) == false) then 
+				EGP:InsertQueue( Ent, ply, AddText, "AddText", {index, text} )
+				return
+			end
+		end
+		
+		local bool, k, v = EGP:HasObject( Ent, index )
+		if (bool) then
+			if (!EGP.umsg.Start("EGP_Transmit_Data")) then return end
+				EGP.umsg.Entity( Ent )
+				EGP.umsg.String( "AddText" )
+				EGP.umsg.Short( index )
+				EGP.umsg.String( text )
+			EGP.umsg.End()
+		end
+		
+		EGP:SendQueueItem( ply )
+	end
+	
+	-- Extra Set Text queue item, used by text objects with a lot of text in them
+	umsg.PoolString( "SetText" )
+	function EGP._SetText( Ent, ply, index, text )
+		-- Check interval
+		if (ply and ply:IsValid() and ply:IsPlayer()) then 
+			if (EGP:CheckInterval( ply ) == false) then 
+				EGP:InsertQueue( Ent, ply, EGP._SetText, "SetText", {index, text} )
+				return
+			end
+		end
+		
+		local bool, k, v = EGP:HasObject( Ent, index )
+		if (bool) then
+			if (#text > 220) then
+				local DataToSend = {}
+				local temp = ""
+				for i=1,#text do
+					temp = temp .. text:sub(i,i)
+					if (#temp >= 220) then
+						table.insert( DataToSend, 1, { index, temp } )
+						temp = ""
+					end
+				end
+				if (temp != "") then
+					table.insert( DataToSend, 1, { index, temp } )
+				end
+				
+				-- This step is required because otherwise it adds the strings backwards to the queue.
+				for i=1,#DataToSend do
+					EGP:InsertQueue( Ent, ply, AddText, "AddText", DataToSend[i] )
+				end
+			else
+				if (!EGP.umsg.Start("EGP_Transmit_Data")) then return end
+					EGP.umsg.Entity( Ent )
+					EGP.umsg.String( "SetText" )
+					EGP.umsg.Short( index )
+					EGP.umsg.String( text )
+				EGP.umsg.End()
+			end
+		end
 		
 		EGP:SendQueueItem( ply )
 	end
@@ -173,7 +241,12 @@ if (SERVER) then
 						EGP.umsg.Short( 0 ) -- Don't change order
 					end
 					
-					v:Transmit() -- Object-specific data
+					 -- Object-specific data
+					if (v.text != nil) then
+						v:Transmit( Ent, ply )
+					else
+						v:Transmit()
+					end
 				end
 				
 				Done = Done + 1
@@ -203,7 +276,7 @@ if (SERVER) then
 		if (Action == "SendObject") then
 			local Data = {...}
 			if (!Data[1]) then return end
-			self:AddQueueObject( Ent, E2.player, SendObjects, Data[1] )
+			self:AddQueueObject( Ent, E2.player, SendObjects, Data )
 			
 			if (E1 and E2.entity and E2.entity:IsValid()) then
 				E2.prf = E2.prf + 100
@@ -266,7 +339,7 @@ if (SERVER) then
 				E2.prf = E2.prf + 100
 			end
 			
-			self:AddQueue( Ent, E2.player, SaveFrame, "SaveFrame", Data[1] )
+			self:AddQueue( Ent, E2.player, SaveFrame, "SaveFrame", Data )
 		elseif (Action == "LoadFrame") then
 			local Data = {...}
 			if (!Data[1]) then return end
@@ -275,7 +348,7 @@ if (SERVER) then
 				E2.prf = E2.prf + 100
 			end
 			
-			self:AddQueue( Ent, E2.player, LoadFrame, "LoadFrame", Data[1] )
+			self:AddQueue( Ent, E2.player, LoadFrame, "LoadFrame", Data )
 		end
 	end
 else -- SERVER/CLIENT
@@ -286,6 +359,7 @@ else -- SERVER/CLIENT
 		local Action = um:ReadString()
 		if (Action == "ClearScreen") then
 			Ent.RenderTable = {}
+			Ent:EGP_Update()
 		elseif (Action == "SaveFrame") then
 			local ply = um:ReadEntity()
 			local FrameName = um:ReadString()
@@ -294,6 +368,21 @@ else -- SERVER/CLIENT
 			local ply = um:ReadEntity()
 			local FrameName = um:ReadString()
 			EGP:LoadFrame( ply, Ent, FrameName )
+			Ent:EGP_Update()
+		elseif (Action == "SetText") then
+			local index = um:ReadShort()
+			local text = um:ReadString()
+			local bool,k,v = EGP:HasObject( Ent, index )
+			if (bool) then
+				if (EGP:EditObject( v, { text = text } )) then Ent:EGP_Update() end
+			end
+		elseif (Action == "AddText") then
+			local index = um:ReadShort()
+			local text = um:ReadString()
+			local bool,k,v = EGP:HasObject( Ent, index )
+			if (bool) then
+				if (EGP:EditObject( v, { text = v.text .. text } )) then Ent:EGP_Update() end
+			end
 		elseif (Action == "ReceiveObjects") then
 			local Nr = um:ReadShort() -- Estimated amount
 			for i=1,Nr do
@@ -350,9 +439,9 @@ else -- SERVER/CLIENT
 					end
 				end
 			end
-		end
-		
-		Ent:EGP_Update()			
+			
+			Ent:EGP_Update()	
+		end	
 	end
 	usermessage.Hook( "EGP_Transmit_Data", function(um) EGP:Receive( um ) end )
 
