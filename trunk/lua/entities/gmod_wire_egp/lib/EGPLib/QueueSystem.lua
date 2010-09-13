@@ -29,7 +29,7 @@ function EGP:AddQueueObject( Ent, ply, Function, Object )
 	end
 end
 
-function EGP:AddQueue( Ent, ply, Function, Action, ... )
+function EGP:AddQueue( Ent, ply, Function, Action, Args )
 	if (!self.Queue[ply]) then self.Queue[ply] = {} end
 	local n = #self.Queue[ply]
 	if (n > 0) then
@@ -38,7 +38,7 @@ function EGP:AddQueue( Ent, ply, Function, Action, ... )
 			return
 		end
 	end
-	self.Queue[ply][n+1] = { Action = Action, Function = Function, Ent = Ent, Args = ... }
+	self.Queue[ply][n+1] = { Action = Action, Function = Function, Ent = Ent, Args = Args }
 end
 
 function EGP:InsertQueueObjects( Ent, ply, Function, Objects )
@@ -59,9 +59,9 @@ function EGP:InsertQueueObjects( Ent, ply, Function, Objects )
 	end
 end
 
-function EGP:InsertQueue( Ent, ply, Function, Action, ... )
+function EGP:InsertQueue( Ent, ply, Function, Action, Args )
 	if (!self.Queue[ply]) then self.Queue[ply] = {} end
-	table.insert( self.Queue[ply], 1, { Action = Action, Function = Function, Ent = Ent, Args = ... } )
+	table.insert( self.Queue[ply], 1, { Action = Action, Function = Function, Ent = Ent, Args = Args } )
 end
 
 function EGP:GetNextItem( ply )
@@ -82,7 +82,7 @@ function EGP:SendQueueItem( ply )
 		local Ent = NextAction.Ent
 		local Args = NextAction.Args
 		if (Args and #Args>0) then
-			Func( Ent, ply, Args )
+			Func( Ent, ply, unpack(Args) )
 		else
 			Func( Ent, ply )
 		end

@@ -56,9 +56,14 @@ Obj.Draw = function( self )
 		]]
 	end
 end
-Obj.Transmit = function( self )
+Obj.Transmit = function( self, Ent, ply )
 	EGP:SendPosSize( self )
-	EGP.umsg.String( self.text )
+	if (#self.text>150) then
+		EGP:InsertQueue( Ent, ply, EGP._SetText, "SetText", {self.index, self.text} )
+		EGP.umsg.String( "" )
+	else
+		EGP.umsg.String( self.text )
+	end
 	EGP.umsg.Char( self.fontid-128 )
 	EGP.umsg.Char( math.Clamp(self.size,0,128)-128 )
 	EGP.umsg.Char( math.Clamp(self.valign,0,2) )
