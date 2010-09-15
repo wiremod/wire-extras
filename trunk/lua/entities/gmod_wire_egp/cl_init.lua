@@ -16,7 +16,16 @@ function ENT:_EGP_Update( bool )
 	if (!bool) then return end
 	self.NeedsUpdate = nil
 	local Table = self.NextUpdate or self.RenderTable
+
 	if (Table) then
+		self.UpdateConstantly = nil
+		-- Check if an object is parented to the cursor
+		for k,v in ipairs( Table ) do
+			if (v.parent == -1) then
+				self.UpdateConstantly = true
+			end
+		end
+					
 		self.GPU:RenderToGPU( function()
 			render.Clear( 0, 0, 0, 0 )
 			surface.SetDrawColor(0,0,0,255)
@@ -41,7 +50,7 @@ function ENT:Draw()
 	self.Entity.DrawEntityOutline = function() end
 	self.Entity:DrawModel()
 	Wire_Render(self.Entity)
-	self:_EGP_Update( self.NeedsUpdate )
+	self:_EGP_Update( self.UpdateConstantly or self.NeedsUpdate )
 	self.GPU:Render()
 end
 
