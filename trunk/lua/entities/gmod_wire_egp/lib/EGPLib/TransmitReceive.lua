@@ -23,10 +23,9 @@ if (SERVER) then
 		
 		local tbl = self.IntervalCheck[ply]
 		
-		if (bool) then
-			return (tbl.umsgs < maxcount)
+		if (bool==true) then
+			return (tbl.umsgs <= maxcount or tbl.time < CurTime())
 		else
-		
 			if (tbl.time < CurTime()) then
 				tbl.umsgs = 1
 				tbl.time = CurTime() + 1
@@ -71,7 +70,7 @@ if (SERVER) then
 		-- Check interval
 		if (ply and ply:IsValid() and ply:IsPlayer()) then 
 			if (EGP:CheckInterval( ply ) == false) then 
-				EGP:InsertQueue( Ent, ply, SaveFrame, "SaveFrame", {FrameName} )
+				EGP:InsertQueue( Ent, ply, SaveFrame, "SaveFrame", FrameName )
 				return
 			end
 		end
@@ -93,7 +92,7 @@ if (SERVER) then
 		-- Check interval
 		if (ply and ply:IsValid() and ply:IsPlayer()) then 
 			if (EGP:CheckInterval( ply ) == false) then 
-				EGP:InsertQueue( Ent, ply, LoadFrame, "LoadFrame", {FrameName} )
+				EGP:InsertQueue( Ent, ply, LoadFrame, "LoadFrame", FrameName )
 				return
 			end
 		end
@@ -117,7 +116,7 @@ if (SERVER) then
 		-- Check interval
 		if (ply and ply:IsValid() and ply:IsPlayer()) then 
 			if (EGP:CheckInterval( ply ) == false) then 
-				EGP:InsertQueue( Ent, ply, AddText, "AddText", {index, text} )
+				EGP:InsertQueue( Ent, ply, AddText, "AddText", index, text )
 				return
 			end
 		end
@@ -141,11 +140,10 @@ if (SERVER) then
 		-- Check interval
 		if (ply and ply:IsValid() and ply:IsPlayer()) then 
 			if (EGP:CheckInterval( ply ) == false) then 
-				EGP:InsertQueue( Ent, ply, EGP._SetText, "SetText", {index, text} )
+				EGP:InsertQueue( Ent, ply, EGP._SetText, "SetText", index, text )
 				return
 			end
 		end
-		
 		local bool, k, v = EGP:HasObject( Ent, index )
 		if (bool) then
 			if (#text > 220) then
@@ -154,17 +152,17 @@ if (SERVER) then
 				for i=1,#text do
 					temp = temp .. text:sub(i,i)
 					if (#temp >= 220) then
-						table.insert( DataToSend, 1, { index, temp } )
+						table.insert( DataToSend, 1, {index, temp} )
 						temp = ""
 					end
 				end
 				if (temp != "") then
-					table.insert( DataToSend, 1, { index, temp } )
+					table.insert( DataToSend, 1, {index, temp} )
 				end
 				
 				-- This step is required because otherwise it adds the strings backwards to the queue.
 				for i=1,#DataToSend do
-					EGP:InsertQueue( Ent, ply, AddText, "AddText", DataToSend[i] )
+					EGP:InsertQueue( Ent, ply, AddText, "AddText", unpack(DataToSend[i]) )
 				end
 			else
 				if (!EGP.umsg.Start("EGP_Transmit_Data")) then return end
@@ -187,7 +185,7 @@ if (SERVER) then
 	
 	umsg.PoolString( "ReceiveObjects" )
 	local function SendObjects( Ent, ply, DataToSend )
-		if (!Ent or !Ent:IsValid() or !ply or !DataToSend) then return end
+		if (!Ent or !Ent:IsValid() or !ply or !ply:IsValid() or !DataToSend) then return end
 		
 		local Done = 0
 		
@@ -198,7 +196,7 @@ if (SERVER) then
 		end
 		
 		-- Check interval
-		if (ply and ply:IsValid() and ply:IsPlayer()) then 
+		if (ply:IsValid() and ply:IsPlayer()) then 
 			if (EGP:CheckInterval( ply ) == false) then 
 				EGP:InsertQueueObjects( Ent, ply, SendObjects, DataToSend )
 				return
@@ -276,7 +274,7 @@ if (SERVER) then
 		if (Action == "SendObject") then
 			local Data = {...}
 			if (!Data[1]) then return end
-			self:AddQueueObject( Ent, E2.player, SendObjects, Data )
+			self:AddQueueObject( Ent, E2.player, SendObjects, Data[1] )
 			
 			if (E1 and E2.entity and E2.entity:IsValid()) then
 				E2.prf = E2.prf + 100
@@ -339,7 +337,7 @@ if (SERVER) then
 				E2.prf = E2.prf + 100
 			end
 			
-			self:AddQueue( Ent, E2.player, SaveFrame, "SaveFrame", Data )
+			self:AddQueue( Ent, E2.player, SaveFrame, "SaveFrame", Data[1] )
 		elseif (Action == "LoadFrame") then
 			local Data = {...}
 			if (!Data[1]) then return end
@@ -348,7 +346,7 @@ if (SERVER) then
 				E2.prf = E2.prf + 100
 			end
 			
-			self:AddQueue( Ent, E2.player, LoadFrame, "LoadFrame", Data )
+			self:AddQueue( Ent, E2.player, LoadFrame, "LoadFrame", Data[1] )
 		end
 	end
 else -- SERVER/CLIENT

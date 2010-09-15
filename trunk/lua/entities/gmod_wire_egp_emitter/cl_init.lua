@@ -67,6 +67,14 @@ end
 ]]
 
 function ENT:EGP_Update() 
+	self.UpdateConstantly = nil
+	-- Check if an object is parented to the cursor
+	for k,v in ipairs( self.RenderTable ) do
+		if (v.parent == -1) then
+			self.UpdateConstantly = true
+		end
+	end
+	
 	for k,v in ipairs( self.RenderTable ) do
 		if (v.parent and v.parent != 0) then
 			if (!v.IsParented) then EGP:SetParent( self, v.index, v.parentindex ) end
@@ -84,6 +92,8 @@ function ENT:Draw()
 	self.Entity:DrawModel()
 	Wire_Render(self.Entity)
 	if (self.RenderTable and #self.RenderTable > 0) then
+		if (self.UpdateConstantly) then self:EGP_Update() end
+	
 		local pos = self:LocalToWorld( Vector( -64, 0, 135 ) )
 		local ang = self:LocalToWorldAngles( Angle(0,0,90) )
 
@@ -94,6 +104,5 @@ function ENT:Draw()
 				EGP:FixMaterial( oldtex )
 			end
 		cam.End3D2D()
-		
 	end
 end

@@ -201,3 +201,55 @@ function EGP:DrawLine( x, y, x2, y2, size )
 		surface.DrawTexturedRectRotated( x3, y3, w, size, angle )
 	end
 end
+
+function EGP:EGPCursor( this, ply )
+	if (!EGP:ValidEGP( this ) or !ply or !ply:IsValid() or !ply:IsPlayer()) then return {-1,-1} end
+	
+	local Normal, Pos, monitor, Ang
+	-- If it's an emitter, set custom normal and pos
+	if (this:GetClass() == "gmod_wire_egp_emitter") then
+		Normal = this:GetRight()
+		Pos = this:LocalToWorld( Vector( -64, 0, 135 ) )
+		
+		monitor = { Emitter = true }
+	else
+		-- Get monitor screen pos & size
+		monitor = WireGPU_Monitors[ this:GetModel() ]
+		
+		-- Monitor does not have a valid screen point
+		if (!monitor) then return {-1,-1} end
+		
+		Ang = this:LocalToWorldAngles( monitor.rot )
+		Pos = this:LocalToWorld( monitor.offset )
+		
+		Normal = Ang:Up()
+	end
+	
+	local Start = ply:GetShootPos()
+	local Dir = ply:GetAimVector()
+	
+	local A = Normal:Dot(Dir)
+	
+	-- If ray is parallel or behind the screen
+	if (A == 0 or A > 0) then return {-1,-1} end
+	
+	local B = Normal:Dot(Pos-Start) / A
+
+	if (B >= 0) then
+		if (monitor.Emitter) then
+			local HitPos = Start + Dir * B
+			HitPos = this:WorldToLocal( HitPos ) - Vector( -64, 0, 135 )
+			local x = HitPos.x*(512/128)
+			local y = HitPos.z*-(512/128)
+			return {x,y}			
+		else
+			local HitPos = WorldToLocal( Start + Dir * B, Angle(), Pos, Ang )
+			local x = (0.5+HitPos.x/(monitor.RS*512/monitor.RatioX)) * 512
+			local y = (0.5-HitPos.y/(monitor.RS*512)) * 512	
+			if (x < 0 or x > 512 or y < 0 or y > 512) then return {-1,-1} end -- Aiming off the screen
+			return {x,y}
+		end
+	end
+	
+	return {-1,-1}
+end
