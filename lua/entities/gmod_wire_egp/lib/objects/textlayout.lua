@@ -59,7 +59,7 @@ end
 Obj.Transmit = function( self, Ent, ply )
 	EGP:SendPosSize( self )
 	if (#self.text>150) then
-		EGP:InsertQueue( Ent, ply, EGP._SetText, "SetText", {self.index, self.text} )
+		EGP:InsertQueue( Ent, ply, EGP._SetText, "SetText", self.index, self.text )
 		EGP.umsg.String( "" )
 	else
 		EGP.umsg.String( self.text )
