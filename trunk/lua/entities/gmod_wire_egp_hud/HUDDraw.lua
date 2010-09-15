@@ -1,4 +1,4 @@
-hook.Add("WireEGP_Initialize","EGP_HUD_Initialize",function()
+hook.Add("Initialize","EGP_HUD_Initialize",function()
 	if (CLIENT) then
 		local EGP_HUD_FirstPrint = true
 		local tbl = {}
