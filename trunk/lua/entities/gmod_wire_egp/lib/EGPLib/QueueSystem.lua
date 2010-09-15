@@ -12,14 +12,28 @@ function EGP:AddQueueObject( Ent, ply, Function, Object )
 		local LastItem = self.Queue[ply][n]
 		if (LastItem.Ent == Ent and LastItem.Action == "Object") then
 			local found = false
-			for k,v in ipairs( LastItem.Args ) do
+			for k,v in ipairs( LastItem.Args[1] ) do
 				if (v.index == Object.index) then
 					found = true
-					self:EditObject( v, Object )
+					--self:EditObject( v, Object )
+					
+					if (v.ID != Object.ID) then -- Not the same kind of object, create new
+						if (v.OnRemove) then v:OnRemove() end
+						local Obj = self:GetObjectByID( Object.ID )
+						self:EditObject( Obj, Object:DataStreamInfo() )
+						Obj.index = v.index
+						if (Obj.OnCreate) then Obj:OnCreate() end
+						LastItem.Args[1][k] = Obj
+					else -- Edit
+						self:EditObject( v, Object:DataStreamInfo() )
+					end
+					
+					break
 				end
 			end
 			if (!found) then
-				table.insert( LastItem.Args, Object )
+				LastItem.Args[1][#LastItem.Args[1]+1] = Object
+				--table.insert( LastItem.Args, Object )
 			end
 		else
 			self:AddQueue( Ent, ply, Function, "Object", { Object } )
@@ -29,7 +43,7 @@ function EGP:AddQueueObject( Ent, ply, Function, Object )
 	end
 end
 
-function EGP:AddQueue( Ent, ply, Function, Action, Args )
+function EGP:AddQueue( Ent, ply, Function, Action, ... )
 	if (!self.Queue[ply]) then self.Queue[ply] = {} end
 	local n = #self.Queue[ply]
 	if (n > 0) then
@@ -38,7 +52,7 @@ function EGP:AddQueue( Ent, ply, Function, Action, Args )
 			return
 		end
 	end
-	self.Queue[ply][n+1] = { Action = Action, Function = Function, Ent = Ent, Args = Args }
+	self.Queue[ply][n+1] = { Action = Action, Function = Function, Ent = Ent, Args = {...} }
 end
 
 function EGP:InsertQueueObjects( Ent, ply, Function, Objects )
@@ -59,9 +73,9 @@ function EGP:InsertQueueObjects( Ent, ply, Function, Objects )
 	end
 end
 
-function EGP:InsertQueue( Ent, ply, Function, Action, Args )
+function EGP:InsertQueue( Ent, ply, Function, Action, ... )
 	if (!self.Queue[ply]) then self.Queue[ply] = {} end
-	table.insert( self.Queue[ply], 1, { Action = Action, Function = Function, Ent = Ent, Args = Args } )
+	table.insert( self.Queue[ply], 1, { Action = Action, Function = Function, Ent = Ent, Args = {...} } )
 end
 
 function EGP:GetNextItem( ply )
