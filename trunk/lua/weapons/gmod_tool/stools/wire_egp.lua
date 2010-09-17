@@ -157,19 +157,159 @@ if (SERVER) then
 		
 		return true
 	end
-else
+end
+if (CLIENT) then
 	language.Add( "Tool_wire_egp_name", "E2 Graphics Processor" )
     language.Add( "Tool_wire_egp_desc", "EGP Tool" )
-    language.Add( "Tool_wire_egp_0", "Primary: Create EGP Screen/HUD/Emitter, Secondary: Link EGP HUD to vehicle, Reload: Respawn and reload the GPU RenderTarget (Client side) - use if the screen is gone due to lag." )
+    language.Add( "Tool_wire_egp_0", "Primary: Create EGP Screen/HUD/Emitter, Secondary: Link EGP HUD to vehicle, Reload: Open the Reload Menu for several lag fixing options." )
 	language.Add( "Tool_wire_egp_1", "Now right click a vehicle, or right click the same EGP HUD again to unlink it." )
 	language.Add( "sboxlimit_wire_egps", "You've hit the EGP limit!" )
 	language.Add( "Undone_wire_egp", "Undone EGP" )
 	language.Add( "Tool_wire_egp_createflat", "Create flat to surface" )
 	language.Add( "Tool_wire_egp_weld", "Weld" )
 	language.Add( "Tool_wire_egp_weldworld", "Weld to world" )
+	
+	local Menu = {}
+	local CurEnt
+	
+	local function CreateToolReloadMenu()
+		local pnl = vgui.Create("DFrame")
+		pnl:SetSize( 200, 114 )
+		pnl:Center()
+		pnl:ShowCloseButton( true )
+		pnl:SetDraggable( false )
+		pnl:SetTitle( "EGP Reload Menu" )
+		pnl:SetDeleteOnClose( false )
+		
+		local w = 200/2-4
+		local h = 20
+		
+		local x1, x2 = 2, 200/2
+		
+		local lbl = vgui.Create("DLabel",pnl)
+		lbl:SetPos( x1+2, 24 )
+		lbl:SetText("Current Screen:")
+		lbl:SizeToContents()
+		
+		local lbl = vgui.Create("DLabel",pnl)
+		lbl:SetPos( x2, 24 )
+		lbl:SetText("All screens on map:")
+		lbl:SizeToContents()
+		
+		local btn = vgui.Create("DButton",pnl)
+		btn:SetText("RenderTarget")
+		btn:SetPos( x1, 40 )
+		btn:SetSize( w, h )
+		function btn:DoClick()
+			pnl:SetVisible( false )
+			CurEnt.GPU:Finalize()
+			CurEnt.GPU = GPULib.WireGPU( CurEnt )
+			CurEnt:EGP_Update()
+			LocalPlayer():ChatPrint("[EGP] RenderTarget reloaded.")
+		end
+		
+		local btn2 = vgui.Create("DButton",pnl)
+		btn2:SetText("Objects")
+		btn2:SetPos( x1, 65 )
+		btn2:SetSize( w, h )
+		function btn2:DoClick()
+			pnl:SetVisible( false )
+			LocalPlayer():ChatPrint("[EGP] Requesting...")
+			RunConsoleCommand("EGP_Request_Reload",CurEnt:EntIndex())
+		end
+		
+		local btn3 = vgui.Create("DButton",pnl)
+		btn3:SetText("Both")
+		btn3:SetPos( x1, 90 )
+		btn3:SetSize( w, h )
+		function btn3:DoClick()
+			pnl:SetVisible( false )
+			if (CurEnt:GetClass() == "gmod_wire_egp_hud" and CurEnt:GetClass() == "gmod_wire_egp_emitter") then
+				LocalPlayer():ChatPrint("[EGP] Entity does not have a RenderTarget")
+			else
+				CurEnt.GPU:Finalize()
+				CurEnt.GPU = GPULib.WireGPU( CurEnt )
+				CurEnt:EGP_Update()
+				LocalPlayer():ChatPrint("[EGP] RenderTarget reloaded.")
+			end	
+			LocalPlayer():ChatPrint("[EGP] Requesting object reload...")
+			RunConsoleCommand("EGP_Request_Reload",CurEnt:EntIndex())
+		end
+		
+		local btn4 = vgui.Create("DButton",pnl)
+		btn4:SetText("RenderTarget")
+		btn4:SetPos( x2, 40 )
+		btn4:SetSize( w, h )
+		function btn4:DoClick()
+			pnl:SetVisible( false )
+			local tbl = ents.FindByClass("gmod_wire_egp")
+			for k,v in pairs( tbl ) do
+				v.GPU:Finalize()
+				v.GPU = GPULib.WireGPU( v )
+				v:EGP_Update()
+			end
+			if (tbl) then
+				LocalPlayer():ChatPrint("[EGP] RenderTargets reloaded on all screens on the map.")
+			end
+		end
+		
+		local btn5 = vgui.Create("DButton",pnl)
+		btn5:SetText("Objects")
+		btn5:SetPos( x2, 65 )
+		btn5:SetSize( w, h )
+		function btn5:DoClick()
+			pnl:SetVisible( false )
+			LocalPlayer():ChatPrint("[EGP] Requesting...")
+			RunConsoleCommand("EGP_Request_Reload")
+		end
+		
+		local btn6 = vgui.Create("DButton",pnl)
+		btn6:SetText("Both")
+		btn6:SetPos( x2, 90 )
+		btn6:SetSize( w, h )
+		function btn6:DoClick()
+			pnl:SetVisible( false )
+			local tbl = ents.FindByClass("gmod_wire_egp")
+			for k,v in pairs( tbl ) do
+				v.GPU:Finalize()
+				v.GPU = GPULib.WireGPU( v )
+				v:EGP_Update()
+			end
+			if (tbl) then
+				LocalPlayer():ChatPrint("[EGP] RenderTargets reloaded on all screens on the map.")
+			end
+			LocalPlayer():ChatPrint("[EGP] Requesting object reload...")
+			RunConsoleCommand("EGP_Request_Reload")
+		end
+		
+		pnl:MakePopup()
+		pnl:SetVisible( false )
+		Menu = { Panel = pnl, SingleRender = btn, SingleObjects = btn2, SingleBoth = btn3, AllRender = btn4, AllObjects = btn5, AllBoth = btn6 }
+	end
 		
 	function TOOL:LeftClick( trace ) return (!trace.Entity or (trace.Entity and !trace.Entity:IsPlayer())) end
 	function TOOL:Reload( trace )
+		
+		if (!Menu.Panel) then CreateToolReloadMenu() end
+	
+		Menu.Panel:SetVisible( true )
+		if (!EGP:ValidEGP( trace.Entity )) then
+			Menu.SingleRender:SetEnabled( false )
+			Menu.SingleObjects:SetEnabled( false )
+			Menu.SingleBoth:SetEnabled( false )
+		else
+			CurEnt = trace.Entity
+			if (CurEnt:GetClass() == "gmod_wire_egp_hud" or CurEnt:GetClass() == "gmod_wire_egp_emitter") then
+				Menu.SingleRender:SetEnabled( false )
+				Menu.SingleBoth:SetEnabled( false)
+			else
+				Menu.SingleRender:SetEnabled( true )
+				Menu.SingleBoth:SetEnabled( true )
+			end
+			Menu.SingleObjects:SetEnabled( true )
+		end
+
+		--[[
 		if (!EGP:ValidEGP( trace.Entity )) then return false end
 		if (trace.Entity:GetClass() == "gmod_wire_egp_hud") then return false end
 		if (trace.Entity:GetClass() == "gmod_wire_egp_emitter") then return false end
@@ -177,52 +317,10 @@ else
 		trace.Entity.GPU = GPULib.WireGPU( trace.Entity )
 		trace.Entity:EGP_Update()
 		LocalPlayer():ChatPrint("[EGP] RenderTarget reloaded.")
+		]]
 	end
-end
-	function TOOL:UpdateGhost( ent, ply )
-		if (!ent or !ent:IsValid()) then return end
-		local trace = ply:GetEyeTrace()
-		
-		if (trace.Entity and trace.Entity:IsPlayer()) then
-			ent:SetNoDraw( true )
-			return
-		end
-		
-		local flat = self:GetClientNumber("createflat")
-		local Type = self:GetClientNumber("type")
-		if (Type == 1) then
-			if (flat == 0) then
-				ent:SetAngles( trace.HitNormal:Angle() + Angle(90,0,0) )
-				ent:SetPos( trace.HitPos - trace.HitNormal * ent:OBBMins().z )
-			else
-				ent:SetAngles( trace.HitNormal:Angle() )
-				ent:SetPos( trace.HitPos - trace.HitNormal * ent:OBBMins().x )
-			end
-		elseif (Type == 2 or Type == 3) then
-			ent:SetPos( trace.HitPos + trace.HitNormal * 0.25 )
-			ent:SetAngles( trace.HitNormal:Angle() + Angle(90,0,0) )
-		end
-		
-		ent:SetNoDraw( false )
-	end
+	--TOOL:Reload(LocalPlayer():GetEyeTrace())
 	
-	function TOOL:Think()
-		local Type = self:GetClientNumber("type")
-		if (!self.GhostEntity or !self.GhostEntity:IsValid()) then
-			local trace = self:GetOwner():GetEyeTrace()
-			self:MakeGhostEntity( Model("models/bull/dynamicbutton.mdl"), trace.HitPos, trace.HitNormal:Angle() + Angle(90,0,0) )
-		elseif (!self.GhostEntity.Type or self.GhostEntity.Type != Type or (self.GhostEntity.Type == 1 and self.GhostEntity:GetModel() != self:GetClientInfo("model"))) then
-			if (Type == 1) then
-				self.GhostEntity:SetModel(self:GetClientInfo("model"))
-			elseif (Type == 2 or Type == 3) then
-				self.GhostEntity:SetModel("models/bull/dynamicbutton.mdl")
-			end
-			self.GhostEntity.Type = Type
-		end
-		self:UpdateGhost( self.GhostEntity, self:GetOwner() )
-	end
-
-if CLIENT then
 	function TOOL.BuildCPanel(panel)
 		if !(EGP) then return end
 		panel:SetSpacing( 10 )
@@ -246,5 +344,47 @@ if CLIENT then
 		panel:AddControl("Checkbox", {Label = "#Tool_wire_egp_weld",Command="wire_egp_weld"})
 		panel:AddControl("Checkbox", {Label = "#Tool_wire_egp_weldworld",Command="wire_egp_weldworld"})
 	end
+end
 
+function TOOL:UpdateGhost( ent, ply )
+	if (!ent or !ent:IsValid()) then return end
+	local trace = ply:GetEyeTrace()
+	
+	if (trace.Entity and trace.Entity:IsPlayer()) then
+		ent:SetNoDraw( true )
+		return
+	end
+	
+	local flat = self:GetClientNumber("createflat")
+	local Type = self:GetClientNumber("type")
+	if (Type == 1) then
+		if (flat == 0) then
+			ent:SetAngles( trace.HitNormal:Angle() + Angle(90,0,0) )
+			ent:SetPos( trace.HitPos - trace.HitNormal * ent:OBBMins().z )
+		else
+			ent:SetAngles( trace.HitNormal:Angle() )
+			ent:SetPos( trace.HitPos - trace.HitNormal * ent:OBBMins().x )
+		end
+	elseif (Type == 2 or Type == 3) then
+		ent:SetPos( trace.HitPos + trace.HitNormal * 0.25 )
+		ent:SetAngles( trace.HitNormal:Angle() + Angle(90,0,0) )
+	end
+	
+	ent:SetNoDraw( false )
+end
+
+function TOOL:Think()
+	local Type = self:GetClientNumber("type")
+	if (!self.GhostEntity or !self.GhostEntity:IsValid()) then
+		local trace = self:GetOwner():GetEyeTrace()
+		self:MakeGhostEntity( Model("models/bull/dynamicbutton.mdl"), trace.HitPos, trace.HitNormal:Angle() + Angle(90,0,0) )
+	elseif (!self.GhostEntity.Type or self.GhostEntity.Type != Type or (self.GhostEntity.Type == 1 and self.GhostEntity:GetModel() != self:GetClientInfo("model"))) then
+		if (Type == 1) then
+			self.GhostEntity:SetModel(self:GetClientInfo("model"))
+		elseif (Type == 2 or Type == 3) then
+			self.GhostEntity:SetModel("models/bull/dynamicbutton.mdl")
+		end
+		self.GhostEntity.Type = Type
+	end
+	self:UpdateGhost( self.GhostEntity, self:GetOwner() )
 end
