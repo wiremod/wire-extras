@@ -470,20 +470,23 @@ if (SERVER) then
 			else
 				tbl.AllTime = CurTime() + 30
 				ply:ChatPrint("[EGP] Request accepted for all screens. Sending...")
-				EGP:SendDataStream( ply, args[1] )
+				local bool, msg = EGP:SendDataStream( ply, args[1] )
+				if (bool == false) then
+					ply:ChatPrint("[EGP] " .. msg )
+				end
 			end
 		end
 	end)
 	
 	function EGP:SendDataStream( ply, entid )
-		if (!ply or !ply:IsValid()) then return false end
+		if (!ply or !ply:IsValid()) then return false, "ERROR: Invalid ply." end
 		local targets
 		if (entid) then
 			local tempent = Entity(entid)
 			if (EGP:ValidEGP( tempent )) then
 				targets = { tempent }
 			else
-				ply:ChatPrint("[EGP] Invalid screen.")
+				return false, "ERROR: Invalid screen."
 			end
 		end
 		if (!targets) then
@@ -491,7 +494,7 @@ if (SERVER) then
 			table.Add( targets, ents.FindByClass("gmod_wire_egp_hud") )
 			table.Add( targets, ents.FindByClass("gmod_wire_egp_emitter") )
 			
-			if (#targets == 0) then ply:ChatPrint("[EGP] There are no EGP screens on the map.") return false end
+			if (#targets == 0) then return false, "There are no EGP screens on the map." end
 		end
 		
 		local DataToSend = {}
@@ -506,15 +509,18 @@ if (SERVER) then
 		end
 		if (DataToSend and #DataToSend>0) then
 			datastream.StreamToClients( ply, "EGP_Request_Transmit", DataToSend )
-			return true
+			return true, #DataToSend
 		end
-		return false
+		return false, "None of the screens have any objects drawn on them."
 	end
 	
 	local function recheck(ply)
 		timer.Simple(10,function(ply)
 			if (ply and ply:IsValid()) then
-				EGP:SendDataStream( ply )
+				local bool, msg = EGP:SendDataStream( ply )
+				if (bool == true) then
+					ply:ChatPrint("[EGP] " .. tostring(msg) .. " EGP Screens found on the server. Sending objects now...")
+				end
 			end
 		end,ply)
 	end
