@@ -449,36 +449,84 @@ require("datastream")
 
 if (SERVER) then
 
-	function EGP:SpawnFunc( ply )
+	EGP.DataStream = {}
+
+	concommand.Add("EGP_Request_Reload",function(ply,cmd,args)
+		if (!EGP.DataStream[ply]) then EGP.DataStream[ply] = {} end
+		local tbl = EGP.DataStream[ply]
+		if (!tbl.SingleTime) then tbl.SingleTime = 0 end
+		if (!tbl.AllTime) then tbl.AllTime = 0 end
+		if (args[1]) then
+			if (tbl.SingleTime > CurTime()) then 
+				ply:ChatPrint("[EGP] This command has anti-spam protection. Try again after 10 seconds.")
+			else
+				tbl.SingleTime = CurTime() + 10
+				ply:ChatPrint("[EGP] Request accepted for single screen. Sending...")
+				EGP:SendDataStream( ply, args[1] )
+			end
+		else
+			if (tbl.AllTime > CurTime()) then 
+				ply:ChatPrint("[EGP] This command has anti-spam protection. Try again after 30 seconds.")
+			else
+				tbl.AllTime = CurTime() + 30
+				ply:ChatPrint("[EGP] Request accepted for all screens. Sending...")
+				EGP:SendDataStream( ply, args[1] )
+			end
+		end
+	end)
+	
+	function EGP:SendDataStream( ply, entid )
+		if (!ply or !ply:IsValid()) then return false end
+		local targets
+		if (entid) then
+			local tempent = Entity(entid)
+			if (EGP:ValidEGP( tempent )) then
+				targets = { tempent }
+			else
+				ply:ChatPrint("[EGP] Invalid screen.")
+			end
+		end
+		if (!targets) then
+			targets = ents.FindByClass("gmod_wire_egp")
+			table.Add( targets, ents.FindByClass("gmod_wire_egp_hud") )
+			table.Add( targets, ents.FindByClass("gmod_wire_egp_emitter") )
+			
+			if (#targets == 0) then ply:ChatPrint("[EGP] There are no EGP screens on the map.") return false end
+		end
+		
+		local DataToSend = {}
+		for k,v in ipairs( targets ) do
+			if (v.RenderTable and #v.RenderTable>0) then
+				local DataToSend2 = {}
+				for k2, v2 in ipairs( v.RenderTable ) do
+					table.insert( DataToSend2, { ID = v2.ID, index = v2.index, Settings = v2:DataStreamInfo() } )
+				end
+				table.insert( DataToSend, { Ent = v, Objects = DataToSend2 } )
+			end
+		end
+		if (DataToSend and #DataToSend>0) then
+			datastream.StreamToClients( ply, "EGP_Request_Transmit", DataToSend )
+			return true
+		end
+		return false
+	end
+	
+	local function recheck(ply)
 		timer.Simple(10,function(ply)
-			if (ply and ply:IsValid()) then -- In case the player crashed
-				local tbl = {}
-				local en = ents.FindByClass("gmod_wire_egp")
-				table.Add( en, ents.FindByClass("gmod_wire_egp_hud") )
-				table.Add( en, ents.FindByClass("gmod_wire_egp_emitter") )
-				for k,v in pairs( en ) do
-					if (v.RenderTable and #v.RenderTable>0) then
-						local DataToSend = {}
-						for k2,v2 in pairs( v.RenderTable ) do 
-							table.insert( DataToSend, { ID = v2.ID, index = v2.index, Settings = v2:DataStreamInfo() } )
-						end
-						table.insert( tbl, { Ent = v, Objects = DataToSend } )
-					end
-				end
-				if (tbl and #tbl>0) then
-					datastream.StreamToClients( ply,"EGP_PlayerSpawn_Transmit", tbl )
-				end
+			if (ply and ply:IsValid()) then
+				EGP:SendDataStream( ply )
 			end
 		end,ply)
 	end
-	hook.Add("PlayerInitialSpawn","EGP_SpawnFunc",function(ply) EGP:SpawnFunc( ply ) end )
+	
+	hook.Add("PlayerInitialSpawn","EGP_SpawnFunc",recheck)
 
 else
 
-	function EGP:ReceiveSpawn( decoded )
+	function EGP:ReceiveDataStream( decoded )
 		for k,v in ipairs( decoded ) do
 			local Ent = v.Ent
-			if (Ent and Ent:IsValid()) then
+			if (EGP:ValidEGP( Ent )) then
 				for k2,v2 in pairs( v.Objects ) do
 					local Obj = EGP:GetObjectByID(v2.ID)
 					EGP:EditObject( Obj, v2.Settings )
@@ -488,7 +536,8 @@ else
 				Ent:EGP_Update()
 			end
 		end
+		LocalPlayer():ChatPrint("[EGP] Received EGP object reload. " .. #decoded .. " screen's objects were reloaded.")
 	end
-	datastream.Hook("EGP_PlayerSpawn_Transmit", function(_,_,_,decoded) EGP:ReceiveSpawn( decoded ) end )
+	datastream.Hook("EGP_Request_Transmit", function(_,_,_,decoded) EGP:ReceiveDataStream( decoded ) end )
 
 end
