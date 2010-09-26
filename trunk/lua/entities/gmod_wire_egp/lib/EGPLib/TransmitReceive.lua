@@ -533,6 +533,7 @@ else
 		for k,v in ipairs( decoded ) do
 			local Ent = v.Ent
 			if (EGP:ValidEGP( Ent )) then
+				Ent.RenderTable = {}
 				for k2,v2 in pairs( v.Objects ) do
 					local Obj = EGP:GetObjectByID(v2.ID)
 					EGP:EditObject( Obj, v2.Settings )
