@@ -11,6 +11,7 @@ TOOL.ClientConVar["type"] = 1
 TOOL.ClientConVar["createflat"] = 1
 TOOL.ClientConVar["weld"] = 0
 TOOL.ClientConVar["weldworld"] = 0
+TOOL.ClientConVar["freeze"] = 1
 
 cleanup.Register( "wire_egps" )
 
@@ -109,8 +110,20 @@ if (SERVER) then
 		local weld = self:GetClientNumber("weld") != 0 and true or false
 		local weldworld = self:GetClientNumber("weldworld") != 0 and true or false
 		local const
-		if (weld) then
-			const = WireLib.Weld( ent, trace.Entity, trace.PhysicsBone, true, false, weldworld )
+		if (trace.Entity) then
+			if (trace.Entity:IsValid() and weld) then
+				const = WireLib.Weld( ent, trace.Entity, trace.PhysicsBone, true, false, weldworld )
+			elseif (trace.Entity:IsWorld() and weldworld) then
+				const = WireLib.Weld( ent, trace.Entity, trace.PhysicsBone, true, false, true )
+			end
+		end
+			
+		if (self:GetClientNumber("freeze") != 0) then
+			local phys = ent:GetPhysicsObject()
+			if (phys) then
+				phys:EnableMotion(false)
+				phys:Wake()
+			end
 		end
 
 		if (!ent or !ent:IsValid()) then return end
@@ -168,6 +181,7 @@ if (CLIENT) then
 	language.Add( "Tool_wire_egp_createflat", "Create flat to surface" )
 	language.Add( "Tool_wire_egp_weld", "Weld" )
 	language.Add( "Tool_wire_egp_weldworld", "Weld to world" )
+	language.Add( "Tool_wire_egp_freeze", "Freeze" )
 	
 	local Menu = {}
 	local CurEnt
@@ -343,6 +357,7 @@ if (CLIENT) then
 		panel:AddControl("Checkbox", {Label = "#Tool_wire_egp_createflat",Command = "wire_egp_createflat"})
 		panel:AddControl("Checkbox", {Label = "#Tool_wire_egp_weld",Command="wire_egp_weld"})
 		panel:AddControl("Checkbox", {Label = "#Tool_wire_egp_weldworld",Command="wire_egp_weldworld"})
+		panel:AddControl("Checkbox", {Label = "#Tool_wire_egp_freeze",Command="wire_egp_freeze"})
 	end
 end
 
