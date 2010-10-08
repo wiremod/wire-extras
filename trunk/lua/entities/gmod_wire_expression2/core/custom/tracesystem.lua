@@ -531,15 +531,15 @@ local function TsRayPlaneIntersection( start, dir, self )
 		
 		for gate,gateShapes in pairs(plyGates) do
 			
-			local continue = false
+			local cont = false
 			
 			//If player is not same player who trace and e2's does not share with other players e2
-			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then continue = true end
+			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then cont = true end
 			
 			//If e2 is not same as e2 that trace and e2 does not share at all
-			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then continue = true end
+			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then cont = true end
 			
-			if (!continue) then
+			if (!cont) then
 				for k,shape in pairs(gateShapes) do
 					
 					if (shape.Model == "plane") then 
@@ -586,15 +586,15 @@ local function TsRayFaceIntersection( start, dir, self )
 		
 		for gate,gateShapes in pairs(plyGates) do
 			
-			local continue = false
+			local cont = false
 			
 			//If player is not same player who trace and e2's does not share with other players e2
-			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then continue = true end
+			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then cont = true end
 			
 			//If e2 is not same as e2 that trace and e2 does not share at all
-			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then continue = true end
+			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then cont = true end
 			
-			if (!continue) then
+			if (!cont) then
 				for k,shape in pairs(gateShapes) do
 					
 					if (shape.Model == "face") then
@@ -642,15 +642,15 @@ local function TsRayBoxIntersection( start, dir, self )
 		
 		for gate,gateShapes in pairs(plyGates) do
 			
-			local continue = false
+			local cont = false
 			
 			//If player is not same player who trace and e2's does not share with other players e2
-			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then continue = true end
+			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then cont = true end
 			
 			//If e2 is not same as e2 that trace and e2 does not share at all
-			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then continue = true end
+			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then cont = true end
 			
-			if (!continue) then
+			if (!cont) then
 				for k,shape in pairs(gateShapes) do
 					
 					if (shape.Model == "box") then
@@ -698,15 +698,15 @@ local function TsRayCircleIntersection( start, dir, self )
 		
 		for gate,gateShapes in pairs(plyGates) do
 			
-			local continue = false
+			local cont = false
 			
 			//If player is not same player who trace and e2's does not share with other players e2
-			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then continue = true end
+			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then cont = true end
 			
 			//If e2 is not same as e2 that trace and e2 does not share at all
-			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then continue = true end
+			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then cont = true end
 			
-			if (!continue) then
+			if (!cont) then
 				for k,shape in pairs(gateShapes) do
 					
 					if (shape.Model == "circle") then
@@ -753,15 +753,15 @@ local function TsRaySphereIntersection( start, dir, self )
 		
 		for gate,gateShapes in pairs(plyGates) do
 			
-			local continue = false
+			local cont = false
 			
 			//If player is not same player who trace and e2's does not share with other players e2
-			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then continue = true end
+			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then cont = true end
 			
 			//If e2 is not same as e2 that trace and e2 does not share at all
-			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then continue = true end
+			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then cont = true end
 			
-			if (!continue) then
+			if (!cont) then
 				for k,shape in pairs(gateShapes) do
 					
 					if (shape.Model == "sphere") then
@@ -831,15 +831,15 @@ local function TsConeSphereIntersection( start, dir, angle, self )
 		
 		for gate,gateShapes in pairs(plyGates) do
 			
-			local continue = false
+			local cont = false
 			
 			//If player is not same player who trace and e2's does not share with other players e2
-			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then continue = true end
+			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then cont = true end
 			
 			//If e2 is not same as e2 that trace and e2 does not share at all
-			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then continue = true end
+			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then cont = true end
 			
-			if (!continue) then
+			if (!cont) then
 				for k,shape in pairs(gateShapes) do
 					
 					if (shape.Model == "sphere") then
