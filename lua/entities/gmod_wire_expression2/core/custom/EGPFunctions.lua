@@ -386,7 +386,7 @@ e2function void wirelink:egpAngle( number index, vector2 worldpos, vector2 axisp
 	if (!EGP:IsAllowed( self, this )) then return end
 	local bool, k, v = EGP:HasObject( this, index )
 	if (bool) then
-		if (v.x and v.y and v.angle) then
+		if (v.x and v.y) then
 			
 			local vec, ang = LocalToWorld(Vector(axispos[1],axispos[2],0), Angle(0,0,0), Vector(worldpos[1],worldpos[2],0), Angle(0,angle,0))
 			
@@ -395,7 +395,10 @@ e2function void wirelink:egpAngle( number index, vector2 worldpos, vector2 axisp
 			
 			angle = -ang.yaw
 			
-			if (EGP:EditObject( v, { x = x, y = y, angle = angle }, self.player )) then EGP:DoAction( this, self, "SendObject", v ) Update(self,this) end
+			local t = { x = x, y = y }
+			if (v.angle) then t.angle = angle end
+			
+			if (EGP:EditObject( v, t, self.player )) then EGP:DoAction( this, self, "SendObject", v ) Update(self,this) end
 		end
 	end
 end
