@@ -205,19 +205,18 @@ e2function void wirelink:egpPoly( number index, ... )
 	if (!EGP:ValidEGP( this )) then return end
 	local args = {...}
 	if (#args<3) then return end -- No less than 3
-	if (#args>17) then return end -- No more than 17
 	
-	 -- Each arg must be a vec2 or vec4
-	for k,v in ipairs( args ) do 
-		if (typeids[k] != "xv2" and typeids[k] != "xv4") then return end 
-	end
-	
+	-- Each arg must be a vec2 or vec4
 	local vertices = {}
 	for k,v in ipairs( args ) do
-		if (typeids[k] == "xv2") then
-			table.insert( vertices, { x = v[1], y = v[2] } )
-		else
-			table.insert( vertices, { x = v[1], y = v[2], u = v[3], v = v[4] } )
+		if (typeids[k] == "xv2" or typeids[k] == "xv4") then
+			n = #vertices
+			if (n > 17) then break end -- No more than 17
+			vertices[n+1] = { x = v[1], y = v[2] }
+			if (typeids[k] == "xv4") then
+				vertices[n+1].u = v[3]
+				vertices[n+1].v = v[4]
+			end
 		end
 	end
 	
@@ -229,19 +228,18 @@ e2function void wirelink:egpPoly( number index, array args )
 	if (!EGP:IsAllowed( self, this )) then return end
 	if (!EGP:ValidEGP( this )) then return end
 	if (#args<3) then return end -- No less than 3
-	if (#args>17) then return end -- No more than 17
 	
 	-- Each arg must be a vec2 or vec4
-	for k,v in ipairs( args ) do 
-		if ((type(v) != "table" or #v != 2) and (type(v) != "table" or #v != 4)) then return end 
-	end
-	
 	local vertices = {}
 	for k,v in ipairs( args ) do
-		if (#v == 2) then
-			table.insert( vertices, { x = v[1], y = v[2] } )
-		else
-			table.insert( vertices, { x = v[1], y = v[2], u = v[3], v = v[4] } )
+		if (type(v) == "table" and (#v == 2 or #v == 4)) then
+			n = #vertices
+			if (n > 17) then break end -- No more than 17
+			vertices[n+1] = { x = v[1], y = v[2] }
+			if (#v == 4) then
+				vertices[n+1].u = v[3]
+				vertices[n+1].v = v[4]
+			end
 		end
 	end
 	
@@ -450,6 +448,7 @@ e2function void wirelink:egpMaterial( number index, string material )
 	end
 end
 
+--[[ I'm removing this function for now because I've been unable to get it working. If you can fix it, please do.
 e2function void wirelink:egpMaterialFromScreen( number index, entity gpu )
 	if (!EGP:IsAllowed( self, this )) then return end
 	local bool, k, v = EGP:HasObject( this, index )
@@ -457,6 +456,7 @@ e2function void wirelink:egpMaterialFromScreen( number index, entity gpu )
 		if (EGP:EditObject( v, { material = gpu }, self.player )) then EGP:DoAction( this, self, "SendObject", v ) Update(self,this) end
 	end
 end
+]]
 
 ----------------------------
 -- Parenting
@@ -621,11 +621,25 @@ end
 -- Additional Functions
 --------------------------------------------------------
 
+__e2setcost(15)
+
+e2function void wirelink:egpCopy( index, fromindex )
+	local bool, k, v = EGP:HasObject( this, fromindex )
+	if (bool) then
+		local copy = table.Copy( v )
+		copy.index = index
+		local bool2, obj = EGP:CreateObject( this, v.ID, copy, self.player )
+		if (bool2) then EGP:DoAction( this, self, "SendObject", obj ) Update(self,this) end
+	end
+end
+
 __e2setcost(20)
 
 e2function vector2 wirelink:egpCursor( entity ply )
 	return EGP:EGPCursor( this, ply )
 end
+
+__e2setcost(10)
 
 e2function vector2 egpScrSize( entity ply )
 	if (!ply or !ply:IsValid() or !ply:IsPlayer() or !EGP.ScrHW[ply]) then return {-1,-1} end
@@ -641,6 +655,8 @@ e2function number egpScrH( entity ply )
 	if (!ply or !ply:IsValid() or !ply:IsPlayer() or !EGP.ScrHW[ply]) then return -1 end
 	return EGP.ScrHW[ply][2]
 end
+
+__e2setcost(15)
 
 e2function number wirelink:egpHasObject( index )
 	local bool, _, _ = EGP:HasObject( this, index )
