@@ -5,17 +5,19 @@ Obj.size = 1
 Obj.Draw = function( self )
 	if (self.a>0 and self.w > 0 and self.h > 0) then
 		local vertices = {}
+		local ang = -math.rad(self.angle)
+		local c = math.cos(ang)
+		local s = math.sin(ang)
 		for i=0,360,10 do
 			local rad = math.rad(i)
 			local x = math.cos(rad)
 			local y = math.sin(rad)
 			
-			rad = -math.rad(self.angle)
-			local tempx = x * self.w * math.cos(rad) - y * self.h * math.sin(rad) + self.x
-			y = x * self.w * math.sin(rad) + y * self.h * math.cos(rad) + self.y
+			local tempx = x * self.w * c - y * self.h * s + self.x
+			y = x * self.w * s + y * self.h * c + self.y
 			x = tempx
 			
-			table.insert( vertices, { x = x, y = y } )
+			vertices[#vertices+1] = { x = x, y = y, u = u, v = v }
 		end
 		
 		surface.SetDrawColor( self.r, self.g, self.b, self.a )

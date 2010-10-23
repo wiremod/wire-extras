@@ -624,6 +624,7 @@ end
 __e2setcost(15)
 
 e2function void wirelink:egpCopy( index, fromindex )
+	if (!EGP:IsAllowed( self, this )) then return end
 	local bool, k, v = EGP:HasObject( this, fromindex )
 	if (bool) then
 		local copy = table.Copy( v )
@@ -661,6 +662,28 @@ __e2setcost(15)
 e2function number wirelink:egpHasObject( index )
 	local bool, _, _ = EGP:HasObject( this, index )
 	return bool and 1 or 0
+end
+
+__e2setcost(10)
+
+local function errorcheck( x, y )
+	local xMul = x[2]-x[1]
+	local yMul = y[2]-y[1]
+	if (xMul == 0 or yMul == 0) then error("Invalid EGP scale") end
+end
+
+e2function void wirelink:egpScale( vector2 xScale, vector2 yScale )
+	if (!EGP:IsAllowed( self, this )) then return end
+	errorcheck(xScale,yScale)
+	EGP:DoAction( this, self, "SetScale", xScale, yScale )
+end
+
+e2function void wirelink:egpResolution( vector2 topleft, vector2 bottomright )
+	if (!EGP:IsAllowed( self, this )) then return end
+	local xScale = { topleft[1], bottomright[1] }
+	local yScale = { topleft[2], bottomright[2] }
+	errorcheck(xScale,yScale)
+	EGP:DoAction( this, self, "SetScale", xScale, yScale )
 end
 
 --------------------------------------------------------
