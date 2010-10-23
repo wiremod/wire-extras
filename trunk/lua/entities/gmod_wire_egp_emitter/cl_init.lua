@@ -88,9 +88,11 @@ function ENT:EGP_Update()
 end
 
 function ENT:Draw()
-	self.Entity.DrawEntityOutline = function() end
-	self.Entity:DrawModel()
-	Wire_Render(self.Entity)
+	-- If someone knows of a way to make the stuff draw even when the entity isn't on the player's screen, please let me know.
+	-- These two don't work because they make it draw the stuff behind all other entities... which looks like crap and will make it fuck up inside contraptions.
+	-- self:SetRenderBounds(Vector(-3.4,-512,-0.25),Vector(3.4,512,512))
+	-- self:SetRenderBounds(Vector()*-1024,Vector()*1024) fails
+	
 	if (self.RenderTable and #self.RenderTable > 0) then
 		if (self.UpdateConstantly) then self:EGP_Update() end
 	
@@ -105,4 +107,7 @@ function ENT:Draw()
 			end
 		cam.End3D2D()
 	end
+	self.Entity.DrawEntityOutline = function() end
+	self.Entity:DrawModel()
+	Wire_Render(self.Entity)
 end
