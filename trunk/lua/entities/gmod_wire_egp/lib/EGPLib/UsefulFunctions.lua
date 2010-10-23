@@ -3,6 +3,17 @@
 --------------------------------------------------------
 local EGP = EGP
 
+function EGP:SetScale( ent, x, y )
+	if (!self:ValidEGP( ent ) or !x or !y) then return end
+	ent.xScale = { x[1], x[2] }
+	ent.yScale = { y[1], y[2] }
+	if (x[1] != 0 or x[2] != 512 or y[1] != 0 or y[2] != 512) then
+		ent.Scaling = true
+	else
+		ent.Scaling = false
+	end
+end
+
 ----------------------------
 -- IsDifferent check
 ----------------------------

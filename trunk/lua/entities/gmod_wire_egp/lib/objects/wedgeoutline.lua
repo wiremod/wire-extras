@@ -7,18 +7,25 @@ Obj.Draw = function( self )
 		
 		self.size = math.Clamp(self.size,0,359)
 		
-		table.insert( vertices, { x = self.x, y = self.y } )
-		for i=0,359-self.size,math.floor(360-self.size)/36 do
+		vertices[1] = { x = self.x, y = self.y }
+		local to = 360
+		local step = 10
+		if (self.size != 0) then
+			to = 359-self.size
+			step = math.floor((360-self.size)/36)
+		end
+		local ang = -math.rad(self.angle)
+		local c = math.cos(ang)
+		local s = math.sin(ang)
+		for i=0,to,step do
 			local rad = math.rad(i)
 			local x = math.cos(rad)
 			local y = math.sin(rad)
-			
-			rad = -math.rad(self.angle)
-			local tempx = x * self.w * math.cos(rad) - y * self.h * math.sin(rad) + self.x
-			y = x * self.w * math.sin(rad) + y * self.h * math.cos(rad) + self.y
+			local tempx = x * self.w * c - y * self.h * s + self.x
+			y = x * self.w * s + y * self.h * c + self.y
 			x = tempx
 			
-			table.insert( vertices, { x = x, y = y } )
+			vertices[#vertices+1] = { x = x, y = y }
 		end
 		
 		surface.SetDrawColor( self.r, self.g, self.b, self.a )

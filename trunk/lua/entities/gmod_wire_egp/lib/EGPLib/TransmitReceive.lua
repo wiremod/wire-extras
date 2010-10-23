@@ -183,6 +183,10 @@ if (SERVER) then
 		end
 	end
 	
+	local function SetScale( ent, ply, x, y )
+		EGP:SetScale( ent, x, y )
+	end
+	
 	umsg.PoolString( "ReceiveObjects" )
 	local function SendObjects( Ent, ply, DataToSend )
 		if (!Ent or !Ent:IsValid() or !ply or !ply:IsValid() or !DataToSend) then return end
@@ -215,6 +219,11 @@ if (SERVER) then
 				-- Check if the object doesn't exist serverside anymore (It may have been removed by a command in the queue before this, like egpClear or egpRemove)
 				if (!EGP:HasObject( Ent, v.index )) then
 					EGP:CreateObject( Ent, v.ID, v )
+				end
+				
+				-- Scale the positions and size
+				if (Ent.Scaling) then
+					EGP:ScaleObject( Ent, v )
 				end
 			
 				EGP.umsg.Short( v.index ) -- Send index of object
@@ -347,6 +356,9 @@ if (SERVER) then
 			end
 			
 			self:AddQueue( Ent, E2.player, LoadFrame, "LoadFrame", Data[1] )
+		elseif (Action == "SetScale") then
+			local Data = {...}
+			self:AddQueue( Ent, E2.player, SetScale, "SetScale", Data[1], Data[2] )
 		end
 	end
 else -- SERVER/CLIENT

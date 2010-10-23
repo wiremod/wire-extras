@@ -71,7 +71,7 @@ function EGP:GetGlobalPos( Ent, index )
 				if (v.parent == -1) then -- object is parented to the cursor
 					local xy = {0,0}
 					if (CLIENT) then
-						xy = EGP:EGPCursor( Ent, LocalPlayer() )
+						xy = self:EGPCursor( Ent, LocalPlayer() )
 					end
 					local x, y = xy[1], xy[2]
 					local r = makeArray( v )
@@ -125,7 +125,7 @@ function EGP:GetGlobalPos( Ent, index )
 				if (v.parent == -1) then -- Object is parented to the cursor
 					local xy = {0,0}
 					if (CLIENT) then
-						xy = EGP:EGPCursor( Ent, LocalPlayer() )
+						xy = self:EGPCursor( Ent, LocalPlayer() )
 					end
 					local x, y = xy[1], xy[2]
 					local vec, ang = LocalToWorld( Vector( v._x, v._y, 0 ), Angle( 0, v._angle or 0, 0 ), Vector( x, y, 0 ), Angle() )
@@ -148,35 +148,53 @@ function EGP:GetGlobalPos( Ent, index )
 	end
 end
 
+--------------------------------------------------------
+-- Scaling functions
+-- This isn't really parenting but it needs the makeArray and makeTable functions to work, so I'll put it here
+--------------------------------------------------------
 
+function EGP:ScaleObject( ent, v )
+	if (!self:ValidEGP( ent )) then return end
+	local xScale = ent.xScale
+	local yScale = ent.yScale
+	if (!xScale or !yScale) then return end
 
---[[ old function
-function EGP:GetGlobalPos( Ent, index )
-	local bool, k, v = self:HasObject( Ent, index )
-	if (bool) then
-		if (v.parent and v.parent != 0) then
-			local x, y, ang = self:GetGlobalPos( Ent, v.parent )
-			local vec, ang = LocalToWorld( Vector( v._x or 0, v._y or 0, 0 ), Angle( 0, v._angle or 0, 0 ), Vector( x or 0, y or 0, 0 ), Angle( 0, -ang or 0, 0 ) )
-			return vec.x, vec.y, ang.y
+	local xMin = xScale[1]
+	local xMax = xScale[2]
+	local yMin = yScale[1]
+	local yMax = yScale[2]
+	
+	local xMul = 512/(xMax-xMin)
+	local yMul = 512/(yMax-yMin)
+	
+	if (v.verticesindex) then -- Object has vertices
+		local r = makeArray( v, true )
+		for i=1,#r,2 do
+			r[i] = (r[i] - xMin) * xMul
+			r[i+1] = (r[i+1]- yMin) * yMul
 		end
-		return v.x, v.y, v.angle or 0
+		local settings = {}
+		if (type(v.verticesindex) == "string") then settings = { [v.verticesindex] = makeTable( v, r ) } else settings = makeTable( v, r ) end
+		self:EditObject( v, settings )
+	else
+		if (v.x) then
+			v.x = (v.x - xMin) * xMul
+		end
+		if (v.y) then
+			v.y = (v.y - yMin) * yMul
+		end
+		if (v.w) then
+			v.w = v.w * xMul
+		end
+		if (v.h) then
+			v.h = v.h * yMul
+		end			
 	end
 end
-]]
 
---[[ I have not yet found a use for this, but I'll keep it just in case
-function EGP:GetLocalPos( Ent, index )
-	local bool, k, v = self:HasObject( Ent, index )
-	if (bool) then
-		if (v.parent and v.parent != 0) then
-			local x, y, ang = self:GetLocalPos( Ent, v.parent )
-			local vec, ang = WorldToLocal( Vector( v.x or 0, v.y or 0, 0 ), Angle( 0, v.angle or 0, 0 ), Vector( x or 0, y or 0, 0 ), Angle( 0, -ang or 0, 0 ) )
-			return vec.x, vec.y, ang.y
-		end
-		return v.x, v.y, v.angle
-	end
-end
-]]
+--------------------------------------------------------
+-- Parenting functions
+--------------------------------------------------------
 
 function EGP:AddParentIndexes( v )
 	if (v.verticesindex) then
