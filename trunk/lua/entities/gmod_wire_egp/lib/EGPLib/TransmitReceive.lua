@@ -483,7 +483,7 @@ if (SERVER) then
 		local targets
 		if (entid) then
 			local tempent = Entity(entid)
-			if (EGP:ValidEGP( tempent )) then
+			if (self:ValidEGP( tempent )) then
 				targets = { tempent }
 			else
 				return false, "ERROR: Invalid screen."
@@ -532,11 +532,15 @@ else
 	function EGP:ReceiveDataStream( decoded )
 		for k,v in ipairs( decoded ) do
 			local Ent = v.Ent
-			if (EGP:ValidEGP( Ent )) then
+			if (self:ValidEGP( Ent )) then
 				Ent.RenderTable = {}
 				for k2,v2 in pairs( v.Objects ) do
-					local Obj = EGP:GetObjectByID(v2.ID)
-					EGP:EditObject( Obj, v2.Settings )
+					local Obj = self:GetObjectByID(v2.ID)
+					self:EditObject( Obj, v2.Settings )
+					-- If parented, reset the parent indexes
+					if (Obj.parent and Obj.parent != 0) then
+						self:AddParentIndexes( Obj )
+					end
 					Obj.index = v2.index
 					table.insert( Ent.RenderTable, Obj )
 				end
