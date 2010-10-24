@@ -3,6 +3,15 @@
 --------------------------------------------------------
 local EGP = EGP
 
+local function addUV( v, t ) -- Polygon u v fix
+	if (v.verticesindex) then
+		local t2 = v[v.verticesindex]
+		for k,v in ipairs( t ) do
+			t[k].u = t2[k].u
+			t[k].v = t2[k].v
+		end
+	end		
+end
 
 local function makeArray( v, fakepos )
 	local ret = {}
@@ -83,7 +92,11 @@ function EGP:GetGlobalPos( Ent, index )
 						r[i+1] = vec.y
 					end
 					local ret = {}
-					if (type(v.verticesindex) == "string") then ret = { [v.verticesindex] = makeTable( v, r ) }	else ret = makeTable( v, r ) end
+					if (type(v.verticesindex) == "string") then 
+						local temp = makeTable( v, r )
+						addUV( v, temp )
+						ret = { [v.verticesindex] = temp }	
+					else ret = makeTable( v, r ) end
 					return true, ret
 				else
 					local hasVertices, data = self:GetGlobalPos( Ent, v.parent )
@@ -109,7 +122,11 @@ function EGP:GetGlobalPos( Ent, index )
 							r[i+1] = vec.y
 						end
 						local ret = {}
-						if (type(v.verticesindex) == "string") then ret = { [v.verticesindex] = makeTable( v, r ) }	else ret = makeTable( v, r ) end
+						if (type(v.verticesindex) == "string") then
+							local temp = makeTable( v, r )
+							addUV( v, temp )
+							ret = { [v.verticesindex] = temp }	
+						else ret = makeTable( v, r ) end
 						return true, ret
 					end
 				end
@@ -146,6 +163,9 @@ function EGP:GetGlobalPos( Ent, index )
 			return false, { x = v.x, y = v.y, angle = v.angle or 0 }
 		end
 	end
+	-- Shouldn't ever get down here
+	ErrorNoHalt("[EGP] Parenting error. Tried to get position of nonexistant object (index = " .. index .. ")")
+	return false, {x=0,y=0,angle=0}
 end
 
 --------------------------------------------------------
@@ -215,6 +235,34 @@ function EGP:AddParentIndexes( v )
 	v.IsParented = true
 end
 
+local function GetChildren( Ent, Obj )
+	local ret = {}
+	for k,v in ipairs( Ent.RenderTable ) do
+		if (v.parent == Obj.index) then
+			ret[#ret+1] = v
+		end
+	end
+	return ret
+end
+
+local function CheckParents( Ent, Obj, parentindex, checked )
+	if (Obj.index == parentindex) then 
+		return false
+	end
+	if (!checked[Obj.index]) then
+		checked[Obj.index] = true
+		local ret = true
+		for k,v in ipairs( GetChildren( Ent, Obj )) do
+			if (!CheckParents( Ent, v, parentindex, checked )) then
+				ret = false
+				break
+			end
+		end
+		return ret
+	end
+	return false
+end
+
 function EGP:SetParent( Ent, index, parentindex )
 	local bool, k, v = self:HasObject( Ent, index )
 	if (bool) then		
@@ -227,9 +275,12 @@ function EGP:SetParent( Ent, index, parentindex )
 			if (parentindex != -1) then -- Parent to cursor?
 				if (SERVER) then parentindex = math.Clamp(parentindex,1,self.ConVars.MaxObjects:GetInt()) end
 				
-				-- If it's already parented to that object or if obj == parent
+				-- If it's already parented to that object
 				if (v.parent and v.parent == parentindex) then return false end
-				if (v.index == parentindex) then return false end
+				-- If the user is trying to parent it to itself
+				if (v.parent and v.parent == v.index) then return false end
+				-- If the user is trying to create a circle of parents, causing an infinite loop
+				if (!CheckParents( Ent, v, parentindex, {} )) then return false end
 			end
 			
 			if (self:EditObject( v, { parent = parentindex }, Ent:GetPlayer() )) then return true, v end
