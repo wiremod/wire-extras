@@ -97,8 +97,8 @@ if (SERVER) then
 			end
 		end
 		
-		local Frame = EGP:LoadFrame( ply, Ent, FrameName )
-		if (!Frame) then return end
+		local bool, Frame = EGP:LoadFrame( ply, Ent, FrameName )
+		if (!bool) then return end
 
 		if (!EGP.umsg.Start( "EGP_Transmit_Data" )) then return end
 			EGP.umsg.Entity( Ent )
@@ -106,6 +106,8 @@ if (SERVER) then
 			EGP.umsg.Entity( ply )
 			EGP.umsg.String( FrameName )
 		EGP.umsg.End()
+		
+		Ent.RenderTable = Frame
 		
 		EGP:SendQueueItem( ply )
 	end
@@ -274,6 +276,8 @@ if (SERVER) then
 		EGP.umsg.End()
 		
 		removetbl( removetable, Ent )
+		
+		EGP:SendQueueItem( ply )
 	end
 	
 	----------------------------
@@ -331,9 +335,6 @@ if (SERVER) then
 				if (v.ChangeOrder) then v.ChangeOrder = nil end
 			end
 		elseif (Action == "ClearScreen") then
-			Ent.OldRenderTable = {}
-			Ent.RenderTable = {}
-			
 			if (E2 and E2.entity and E2.entity:IsValid()) then
 				E2.prf = E2.prf + 100
 			end

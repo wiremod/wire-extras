@@ -16,10 +16,10 @@ __e2setcost(15)
 e2function void wirelink:egpSaveFrame( string index )
 	if (!EGP:ValidEGP( this )) then return end
 	if (!index or index == "") then return end
-	--local bool, frame = EGP:LoadFrame( self.player, nil, index )
-	--if (bool) then
-	--	if (!EGP:IsDifferent( this.RenderTable, frame )) then return end
-	--end
+	local bool, frame = EGP:LoadFrame( self.player, nil, index )
+	if (bool) then
+		if (!EGP:IsDifferent( this.RenderTable, frame )) then return end
+	end
 	EGP:DoAction( this, self, "SaveFrame", index )
 	Update(self,this)
 end
@@ -27,10 +27,10 @@ end
 e2function void wirelink:egpSaveFrame( index )
 	if (!EGP:ValidEGP( this )) then return end
 	if (!index) then return end
-	--local bool, frame = EGP:LoadFrame( self.player, nil, tostring(index) )
-	--if (bool) then
-	--	if (!EGP:IsDifferent( this.RenderTable, frame )) then return end
-	--end
+	local bool, frame = EGP:LoadFrame( self.player, nil, tostring(index) )
+	if (bool) then
+		if (!EGP:IsDifferent( this.RenderTable, frame )) then return end
+	end
 	EGP:DoAction( this, self, "SaveFrame", tostring(index) )
 	Update(self,this)
 end
@@ -44,25 +44,25 @@ __e2setcost(15)
 e2function void wirelink:egpLoadFrame( string index )
 	if (!EGP:IsAllowed( self, this )) then return end
 	if (!index or index == "") then return end
-	--local bool, frame = EGP:LoadFrame( self.player, nil, index )
-	--if (bool) then
-	--	if (EGP:IsDifferent( this.RenderTable, frame )) then
+	local bool, frame = EGP:LoadFrame( self.player, nil, index )
+	if (bool) then
+		if (EGP:IsDifferent( this.RenderTable, frame )) then
 			EGP:DoAction( this, self, "LoadFrame", index )
 			Update(self,this)
-	--	end
-	--end
+		end
+	end
 end
 
 e2function void wirelink:egpLoadFrame( number index )
 	if (!EGP:IsAllowed( self, this )) then return end
 	if (!index) then return end
-	--local bool, frame = EGP:LoadFrame( self.player, nil, tostring(index) )
-	--if (bool) then
-	--	if (EGP:IsDifferent( this.RenderTable, frame )) then
+	local bool, frame = EGP:LoadFrame( self.player, nil, tostring(index) )
+	if (bool) then
+		if (EGP:IsDifferent( this.RenderTable, frame )) then
 			EGP:DoAction( this, self, "LoadFrame", tostring(index) )
 			Update(self,this)
-	--	end
-	--end
+		end
+	end
 end
 
 --------------------------------------------------------
@@ -495,8 +495,7 @@ end
 e2function void wirelink:egpClear()
 	if (!EGP:IsAllowed( self, this )) then return end
 	if (EGP:ValidEGP( this )) then
-		this.RenderTable = {}
-		EGP:DoAction( this, self, "ClearScreen")
+		EGP:DoAction( this, self, "ClearScreen" )
 		Update(self,this)
 	end
 end
