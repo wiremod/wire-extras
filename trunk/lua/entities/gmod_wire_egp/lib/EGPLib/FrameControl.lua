@@ -17,7 +17,7 @@ function EGP:LoadFrame( ply, Ent, index )
 		return (EGP.Frames[ply][index] != nil), EGP.Frames[ply][index]
 	else
 		local frame = EGP.Frames[ply][index]
-		if (!frame) then return end
+		if (!frame) then return false end
 		Ent.RenderTable = frame
 		Ent:EGP_Update()
 	end
