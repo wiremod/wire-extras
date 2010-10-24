@@ -223,6 +223,7 @@ if (SERVER) then
 				
 				-- Scale the positions and size
 				if (Ent.Scaling) then
+					v = table.Copy(v) -- Make a copy of the table so it doesn't overwrite the serverside object
 					EGP:ScaleObject( Ent, v )
 				end
 			
