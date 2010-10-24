@@ -213,8 +213,30 @@ function EGP:DrawLine( x, y, x2, y2, size )
 	end
 end
 
+local function ScaleCursor( this, x, y )
+	if (this.Scaling) then			
+		local xMin = this.xScale[1]
+		local xMax = this.xScale[2]
+		local yMin = this.yScale[1]
+		local yMax = this.yScale[2]
+		
+		x = (x * (xMax-xMin)) / 512 + xMin
+		y = (y * (yMax-yMin)) / 512 + yMin
+	end
+	
+	return x, y
+end
+
+local function ReturnFailure( this )
+	if (this.Scaling) then
+		return {this.xScale[1]-1,this.yScale[1]-1}
+	end
+	return {-1,-1}
+end
+
 function EGP:EGPCursor( this, ply )
-	if (!EGP:ValidEGP( this ) or !ply or !ply:IsValid() or !ply:IsPlayer()) then return {-1,-1} end
+	if (!EGP:ValidEGP( this )) then return {-1,-1} end
+	if (!ply or !ply:IsValid() or !ply:IsPlayer()) then return ReturnFailure( this ) end
 	
 	local Normal, Pos, monitor, Ang
 	-- If it's an emitter, set custom normal and pos
@@ -242,7 +264,7 @@ function EGP:EGPCursor( this, ply )
 	local A = Normal:Dot(Dir)
 	
 	-- If ray is parallel or behind the screen
-	if (A == 0 or A > 0) then return {-1,-1} end
+	if (A == 0 or A > 0) then return ReturnFailure( this ) end
 	
 	local B = Normal:Dot(Pos-Start) / A
 
@@ -252,15 +274,17 @@ function EGP:EGPCursor( this, ply )
 			HitPos = this:WorldToLocal( HitPos ) - Vector( -64, 0, 135 )
 			local x = HitPos.x*(512/128)
 			local y = HitPos.z*-(512/128)
+			x, y = ScaleCursor( this, x, y )
 			return {x,y}			
 		else
 			local HitPos = WorldToLocal( Start + Dir * B, Angle(), Pos, Ang )
 			local x = (0.5+HitPos.x/(monitor.RS*512/monitor.RatioX)) * 512
 			local y = (0.5-HitPos.y/(monitor.RS*512)) * 512	
-			if (x < 0 or x > 512 or y < 0 or y > 512) then return {-1,-1} end -- Aiming off the screen
+			if (x < 0 or x > 512 or y < 0 or y > 512) then return ReturnFailure( this ) end -- Aiming off the screen 
+			x, y = ScaleCursor( this, x, y )
 			return {x,y}
 		end
 	end
-	
-	return {-1,-1}
+
+	return ReturnFailure( this )
 end
