@@ -834,10 +834,10 @@ registerCallback("postexecute",function(self)
 			if (v == true) then
 				EGP:SendQueueItem( self.player )
 				EGP:StartQueueTimer( self.player )
-				self.data.EGP[k] = nil
+				self.data.EGP.UpdatesNeeded[k] = nil
 			end
 		else
-			self.data.EGP[k] = nil
+			self.data.EGP.UpdatesNeeded[k] = nil
 		end
 	end
 end)
