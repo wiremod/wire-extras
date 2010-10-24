@@ -12,7 +12,6 @@ function ENT:Initialize()
 	self:SetSolid(SOLID_VPHYSICS)
 	
 	self.RenderTable = {}
-	self.OldRenderTable = {}
 	
 	self:SetUseType(SIMPLE_USE)
 	

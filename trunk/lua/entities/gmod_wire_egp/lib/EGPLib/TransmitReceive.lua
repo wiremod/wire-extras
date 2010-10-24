@@ -55,8 +55,6 @@ if (SERVER) then
 			end
 		end
 		
-		Ent.RenderTable = {}
-		Ent.OldRenderTable = {}
 		if (!EGP.umsg.Start( "EGP_Transmit_Data" )) then return end
 			EGP.umsg.Entity( Ent )
 			EGP.umsg.String( "ClearScreen" )
@@ -83,7 +81,6 @@ if (SERVER) then
 			EGP.umsg.String( FrameName )
 		EGP.umsg.End()
 		
-		EGP:SaveFrame( ply, Ent, FrameName )
 		EGP:SendQueueItem( ply )
 	end
 	
@@ -97,7 +94,7 @@ if (SERVER) then
 			end
 		end
 		
-		local bool, Frame = EGP:LoadFrame( ply, Ent, FrameName )
+		local bool, _ = EGP:LoadFrame( ply, Ent, FrameName )
 		if (!bool) then return end
 
 		if (!EGP.umsg.Start( "EGP_Transmit_Data" )) then return end
@@ -106,8 +103,6 @@ if (SERVER) then
 			EGP.umsg.Entity( ply )
 			EGP.umsg.String( FrameName )
 		EGP.umsg.End()
-		
-		Ent.RenderTable = Frame
 		
 		EGP:SendQueueItem( ply )
 	end
@@ -219,9 +214,9 @@ if (SERVER) then
 			for k,v in ipairs( DataToSend ) do
 				
 				-- Check if the object doesn't exist serverside anymore (It may have been removed by a command in the queue before this, like egpClear or egpRemove)
-				if (!EGP:HasObject( Ent, v.index )) then
-					EGP:CreateObject( Ent, v.ID, v )
-				end
+				--if (!EGP:HasObject( Ent, v.index )) then
+				--	EGP:CreateObject( Ent, v.ID, v )
+				--end
 				
 				-- Scale the positions and size
 				if (Ent.Scaling) then
@@ -234,7 +229,7 @@ if (SERVER) then
 				if (v.remove == true) then
 					EGP.umsg.Char( -128 ) -- Object is to be removed, send a 0
 					if (Ent.RenderTable[k]) then
-						table.insert( removetable, k )
+						removetable[#removetable+1] = k
 					end
 				else
 					EGP.umsg.Char( v.ID - 128 ) -- Else send the ID of the object
@@ -288,20 +283,27 @@ if (SERVER) then
 		if (Action == "SendObject") then
 			local Data = {...}
 			if (!Data[1]) then return end
-			self:AddQueueObject( Ent, E2.player, SendObjects, Data[1] )
 			
 			if (E1 and E2.entity and E2.entity:IsValid()) then
 				E2.prf = E2.prf + 100
 			end
+			
+			self:AddQueueObject( Ent, E2.player, SendObjects, Data[1] )
 		elseif (Action == "RemoveObject") then
 			local Data = {...}
 			if (!Data[1]) then return end
-			self:AddQueueObject( Ent, E2.player, SendObjects, { index = Data[1], remove = true } )
 			
 			if (E1 and E2.entity and E2.entity:IsValid()) then
 				E2.prf = E2.prf + 100
 			end
-		elseif (Action == "Send") then -- This isn't used at the moment, but I left it here in case I need it
+			
+			local bool, k, v = EGP:HasObject( Ent, Data[1] )
+			if (bool) then
+				table.remove( Ent.RenderTable, k )
+			end
+			
+			self:AddQueueObject( Ent, E2.player, SendObjects, { index = Data[1], remove = true } )
+		--[[elseif (Action == "Send") then -- This isn't used at the moment, but I left it here in case I need it
 			local DataToSend = {}
 
 			for k,v in ipairs( Ent.RenderTable ) do
@@ -333,11 +335,13 @@ if (SERVER) then
 			
 			for k,v in ipairs( Ent.RenderTable ) do
 				if (v.ChangeOrder) then v.ChangeOrder = nil end
-			end
+			end]]
 		elseif (Action == "ClearScreen") then
 			if (E2 and E2.entity and E2.entity:IsValid()) then
 				E2.prf = E2.prf + 100
 			end
+			
+			Ent.RenderTable = {}
 			
 			self:AddQueue( Ent, E2.player, ClearScreen, "ClearScreen" )
 		elseif (Action == "SaveFrame") then
@@ -348,6 +352,7 @@ if (SERVER) then
 				E2.prf = E2.prf + 100
 			end
 			
+			EGP:SaveFrame( E2.player, Ent, Data[1] )
 			self:AddQueue( Ent, E2.player, SaveFrame, "SaveFrame", Data[1] )
 		elseif (Action == "LoadFrame") then
 			local Data = {...}
@@ -355,6 +360,11 @@ if (SERVER) then
 			
 			if (E2 and E2.entity and E2.entity:IsValid()) then
 				E2.prf = E2.prf + 100
+			end
+			
+			local bool, frame = EGP:LoadFrame( E2.player, Ent, Data[1] )
+			if (bool) then
+				Ent.RenderTable = frame
 			end
 			
 			self:AddQueue( Ent, E2.player, LoadFrame, "LoadFrame", Data[1] )
