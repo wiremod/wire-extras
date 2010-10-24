@@ -11,7 +11,6 @@ function ENT:Initialize()
 	--self:DrawShadow( false )
 	
 	self.RenderTable = {}
-	self.OldRenderTable = {}
 	
 	self:SetUseType(SIMPLE_USE)
 	
