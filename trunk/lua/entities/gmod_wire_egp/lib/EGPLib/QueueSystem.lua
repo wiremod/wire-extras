@@ -33,7 +33,6 @@ function EGP:AddQueueObject( Ent, ply, Function, Object )
 			end
 			if (!found) then
 				LastItem.Args[1][#LastItem.Args[1]+1] = Object
-				--table.insert( LastItem.Args, Object )
 			end
 		else
 			self:AddQueue( Ent, ply, Function, "Object", { Object } )
@@ -124,7 +123,7 @@ function EGP:SendQueueItem( ply )
 				EGP.RunByEGPQueue_Ent = nil
 				EGP.RunByEGPQueue = nil	
 			end
-		end		
+		end
 	end
 end
 
