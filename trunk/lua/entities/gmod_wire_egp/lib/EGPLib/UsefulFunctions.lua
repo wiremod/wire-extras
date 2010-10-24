@@ -3,6 +3,16 @@
 --------------------------------------------------------
 local EGP = EGP
 
+----------------------------
+-- Table IsEmpty
+----------------------------
+
+function EGP:EmptyTable( tbl ) return next(tbl) == nil end
+
+----------------------------
+-- SetScale
+----------------------------
+
 function EGP:SetScale( ent, x, y )
 	if (!self:ValidEGP( ent ) or !x or !y) then return end
 	ent.xScale = { x[1], x[2] }
@@ -18,6 +28,8 @@ end
 -- IsDifferent check
 ----------------------------
 function EGP:IsDifferent( tbl1, tbl2 )
+	if (self:EmptyTable( tbl1 ) != self:EmptyTable( tbl2 )) then return true end -- One is empty, the other is not
+
 	for k,v in ipairs( tbl1 ) do
 		if (!tbl2[k] or tbl2[k].ID != v.ID) then -- Different ID?
 			return true
