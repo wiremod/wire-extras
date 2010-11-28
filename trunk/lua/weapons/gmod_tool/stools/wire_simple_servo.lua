@@ -57,7 +57,7 @@ function TOOL:LeftClick( trace )
 	end
 	
 	// Create the wheel
-	local servoEnt = MakeWireServo( ply, trace.HitPos, Ang, model )
+	local servoEnt = MakeWireSimpleServo( ply, trace.HitPos, Ang, model )
 			
 	local CurPos = servoEnt:GetPos()
 	local NearestPoint = servoEnt:NearestPoint( CurPos - (trace.HitNormal * 512) )
@@ -74,7 +74,7 @@ function TOOL:LeftClick( trace )
 	local LPos1 = servoEnt:GetPhysicsObject():WorldToLocal( TargetPos + trace.HitNormal )
 	local LPos2 = targetPhys:WorldToLocal( trace.HitPos )
 	
-	local constraint, axis = constraint.Axis( servoEnt, trace.Entity, 0, trace.PhysicsBone, LPos1,	LPos2, friction, 0, nocollide, false, ply )
+	local constraint, axis = constraint.Axis( servoEnt, trace.Entity, 0, trace.PhysicsBone, LPos1,	LPos2, friction, 0, nocollide, false )
 	
 	undo.Create("WireSimpleServo")
 	undo.AddEntity( axis )
@@ -118,7 +118,7 @@ if ( SERVER ) then
 	/*---------------------------------------------------------
 	   For duplicator, creates the wheel.
 	---------------------------------------------------------*/
-	function MakeWireServo( pl, Pos, Ang, Model )
+	function MakeWireSimpleServo( pl, Pos, Ang, Model )
 		
 		if ( !pl:CheckLimit( "wire_servos" ) ) then return false end
 		
@@ -140,7 +140,7 @@ if ( SERVER ) then
 		
 	end
 
-	duplicator.RegisterEntityClass( "gmod_wire_simple_servo", MakeWireServo, "Pos", "Ang", "model", "Vel", "aVel", "frozen" )
+	duplicator.RegisterEntityClass( "gmod_wire_simple_servo", MakeWireSimpleServo, "Pos", "Ang", "model", "Vel", "aVel", "frozen" )
 	
 	
 end
