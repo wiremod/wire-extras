@@ -379,8 +379,6 @@ function ENT:TriggerInput(iname, value)
 						self.Constraint:Remove()
 						self.Constraint = nil
 					end
-						//Debug
-						Msg( "Case1 init\n" )
 				elseif ( self.chosenAngle < self.initAngle ) then
 					self.acqCase = 2
 					self:Forward( -1 )
@@ -388,9 +386,7 @@ function ENT:TriggerInput(iname, value)
 					if self.Constraint then
 						self.Constraint:Remove()
 						self.Constraint = nil
-					end
-						//Debug
-						Msg( "Case2 init\n" )						
+					end					
 				else
 					self:Forward( 0 )
 				end
@@ -402,9 +398,7 @@ function ENT:TriggerInput(iname, value)
 					if self.Constraint then
 						self.Constraint:Remove()
 						self.Constraint = nil
-					end
-						//Debug
-						Msg( "Case3 init\n" )					
+					end				
 				elseif ( self.chosenAngle < self.initAngle ) then
 					self.acqCase = 4
 					self:Forward( 1 )
@@ -412,9 +406,7 @@ function ENT:TriggerInput(iname, value)
 					if self.Constraint then
 						self.Constraint:Remove()
 						self.Constraint = nil
-					end
-						//Debug
-						Msg( "Case4 init\n" )					
+					end				
 				else
 					self:Forward( 0 )
 				end

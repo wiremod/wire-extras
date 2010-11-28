@@ -63,5 +63,6 @@ function ENT:Think()
         end
         self.Entity:SetAngles(Angle(Angles.p,finalAngle,Angles.r))
     end
-    self.Entity:NextThink(CurTime()+0.05)
+    self.Entity:NextThink(CurTime())
+	return true
 end
