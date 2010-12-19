@@ -254,6 +254,71 @@ local function RaySphereIntersection( Start, Dir, Pos, Radius )
 	
 end
 
+local function RayAAEllipsoidIntersection( Start, Dir, Pos, Size )
+	
+	local RayPos = Start - Pos
+	local RayDir = Norm(Dir)
+	
+	--This boosts my performance by only having to do ^2 once per variable, instead of 3.
+	local ElipsoidRadiusX2 = Size.x^2
+	local ElipsoidRadiusY2 = Size.y^2
+	local ElipsoidRadiusZ2 = Size.z^2
+
+	local A = RayDir.x^2 / ElipsoidRadiusX2
+		+ RayDir.y^2 / ElipsoidRadiusY2
+		+ RayDir.z^2 / ElipsoidRadiusZ2
+
+	local B = (2 * RayPos.x * RayDir.x) / ElipsoidRadiusX2
+		+ (2 * RayPos.y * RayDir.y) / ElipsoidRadiusY2
+		+ (2 * RayPos.z * RayDir.z) / ElipsoidRadiusZ2
+
+	local C = RayPos.x^2 / ElipsoidRadiusX2
+		+ RayPos.y^2 / ElipsoidRadiusY2
+		+ RayPos.z^2 / ElipsoidRadiusZ2
+		- 1
+
+	local D = (B^2) - (4 * A * C)
+
+	if (D >= 0) then
+		D = sqrt(D)
+		
+		local Hit1 = (-B + D) / (2 * A)
+		local Hit2 = (-B - D) / (2 * A)
+		
+		if (Hit1 < Hit2) then
+			return Start + RayDir * Hit1
+		else
+			return Start + RayDir * Hit2
+		end
+	end
+	
+	return false
+	
+end
+
+local function RayOEllipsoidIntersection( Start, Dir, Pos, Size, Ang )
+	
+	//To use an oriented-bounding-box we make the ray local (so we can use the AABB code)
+	local localRayStart = WorldToLocal( Start, Angle(0,0,0), Pos, Ang )
+	
+	//The direction need to be local to 0,0,0 though
+	local localRayDir = WorldToLocal( Dir, Angle(0,0,0), Vector(0,0,0), Ang )
+	
+	//Use AABB code as that is easyer than calculating the normals of the faces and their angle aroudn that axis
+	local localHitPos = RayAAEllipsoidIntersection( localRayStart, localRayDir, Vector(0,0,0), Size )
+	
+	//But we want the returned hitpos to be a world coord
+	if (localHitPos) then
+		local hitPos = LocalToWorld( localHitPos, Angle(0,0,0), Pos, Ang )
+
+		return hitPos
+	end
+	
+	return false
+	
+end
+
+
 local function ConeSphereIntersection( Start, Dir, Pos, Radius, Ang )
 	
 	local HitPos = RaySphereIntersection( Start, Dir, Pos, Radius )
@@ -308,7 +373,8 @@ local models = {
 	"face",
 	"box",
 	"circle",
-	"sphere"
+	"sphere",
+	"ellipsoid"
 }
 
 local function ShapeCreate( index, model, radius, rotation, pos, normal, size, ang, self )
@@ -801,6 +867,62 @@ local function TsRaySphereIntersection( start, dir, self )
 	
 end
 
+local function TsRayEllipsoidIntersection( start, dir, self )
+	
+	local traces = {}
+	
+	for ply, plyGates in pairs(shapes) do
+		
+		for gate, gateShapes in pairs(plyGates) do
+			
+			local cont = false
+			
+			//If player is not same player who trace and e2's does not share with other players e2
+			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then cont = true end
+			
+			//If e2 is not same as e2 that trace and e2 does not share at all
+			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then cont = true end
+			
+			if (!cont) then
+				for k,shape in pairs(gateShapes) do
+					
+					if (shape.Model == "ellipsoid") then
+						
+						local pos, ang, normal, rotation
+						if (shape.Parent) then
+							pos, ang, normal, rotation = GetWorldData(shape)
+						else
+							pos, ang, normal, rotation = shape.Pos, shape.Ang, shape.Normal, shape.Rotation
+						end
+						
+						local hitPos = RayOEllipsoidIntersection( start, dir, pos, shape.Size, ang )
+						
+						if (hitPos) then
+							local trace = {}
+							
+							FillTraceData( trace, shape )
+							
+							trace.HitAngle = 0
+							trace.StartPos = start
+							trace.HitPos = hitPos
+							trace.HitNormal = Norm(hitPos - pos)
+							
+							table.insert( traces, trace )
+						end
+						
+					end
+					
+				end
+			end
+			
+		end
+		
+	end
+	
+	return traces
+	
+end
+
 
 local function TsRayIntersection( start, dir, self )
 	
@@ -811,12 +933,14 @@ local function TsRayIntersection( start, dir, self )
 	local rayBox = TsRayBoxIntersection( start, dir, self)
 	local rayCircle = TsRayCircleIntersection( start, dir, self )
 	local raySphere = TsRaySphereIntersection( start, dir, self )
+	local rayEllipsoid = TsRayEllipsoidIntersection( start, dir, self )
 	
 	table.Add(traces,rayPlane)
 	table.Add(traces,rayFace)
 	table.Add(traces,rayBox)
 	table.Add(traces,rayCircle)
 	table.Add(traces,raySphere)
+	table.Add(traces,rayEllipsoid)
 	
 	return traces
 	
@@ -1132,6 +1256,29 @@ e2function vector raySphereIntersection( vector start, vector dir, vector pos, n
 	return LuaVecToE2Vec( hitPos )
 end
 
+e2function vector rayAAEllipsoidIntersection( vector start, vector dir, vector pos, vector size )
+	start = E2VecToLuaVec( start )
+	dir = E2VecToLuaVec( dir )
+	pos = E2VecToLuaVec( pos )
+	size = E2VecToLuaVec( size )
+	
+	hitPos = RayAAEllipsoidIntersection( start, dir, pos, size )
+	
+	return LuaVecToE2Vec( hitPos )
+end
+
+e2function vector rayOEllipsoidIntersection( vector start, vector dir, vector pos, vector size, angle ang )
+	start = E2VecToLuaVec( start )
+	dir = E2VecToLuaVec( dir )
+	pos = E2VecToLuaVec( pos )
+	size = E2VecToLuaVec( size )
+	ang = E2AngToLuaAng( ang )
+	
+	hitPos = RayOEllipsoidIntersection( start, dir, pos, size, ang )
+	
+	return LuaVecToE2Vec( hitPos )
+end
+
 e2function vector coneSphereIntersection( vector start, vector dir, vector pos, number radius, number ang )
 	start = E2VecToLuaVec( start )
 	dir = E2VecToLuaVec( dir )
@@ -1276,6 +1423,17 @@ e2function tracedata tsRaySphereIntersection( vector start, vector dir )
 	dir = E2VecToLuaVec( dir )
 	
 	local traces =  TsRaySphereIntersection( start, dir, self )
+	
+	SortByDistance( traces, start )
+	
+	return traces
+end
+
+e2function tracedata tsRayEllipsoidIntersection( vector start, vector dir )
+	start = E2VecToLuaVec( start )
+	dir = E2VecToLuaVec( dir )
+	
+	local traces =  TsRayEllipsoidIntersection( start, dir, self )
 	
 	SortByDistance( traces, start )
 	
