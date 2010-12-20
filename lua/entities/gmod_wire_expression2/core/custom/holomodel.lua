@@ -5,7 +5,7 @@
 local wire_holograms_modelany = CreateConVar("wire_holograms_modelany",0,{FCVAR_ARCHIVE})
 registerCallback("postinit",function()
 	local wire_holograms_size_max = wire_holograms.wire_holograms_size_max
-	local scale_queue = wire_holograms.scale_queue
+	local add_scale_queue = wire_holograms.add_scale_queue
 	local ModelList = wire_holograms.ModelList
 	local CheckIndex = wire_holograms.CheckIndex
 	local rescale = wire_holograms.rescale
@@ -35,7 +35,7 @@ registerCallback("postinit",function()
 		end
 		
 		if Holo.scale ~= scale then
-			table.insert(scale_queue, { Holo, scale })
+			add_scale_queue( Holo, scale )
 			Holo.scale = scale
 		end
 	end
