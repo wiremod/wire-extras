@@ -33,10 +33,10 @@ local function PlaceDecal( Ent, Pos1, Pos2, decal )
 end
 
 function ENT:Initialize()
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Inputs = WireLib.CreateSpecialInputs(self.Entity, { "Paint", "Decal" }, { "NORMAL", "STRING" })
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self.Inputs = WireLib.CreateSpecialInputs(self, { "Paint", "Decal" }, { "NORMAL", "STRING" })
 	self.Decal = "Blood"
 	self.PlaySound = true
 	self.PaintRate = 0
@@ -44,7 +44,7 @@ function ENT:Initialize()
 end
 
 function ENT:OnRemove()
-	Wire_Remove(self.Entity)
+	Wire_Remove(self)
 end
 
 function ENT:Setup(Range, decal, playsound, paintrate)
@@ -60,13 +60,13 @@ function ENT:TriggerInput(iname, value)
 		if self.PaintRate <= 0.01 and value ~= 0 then
 			if self.PlaySound then self:EmitSound("SprayCan.Paint") end
 		
-			local vStart = self.Entity:GetPos()
-			local vForward = self.Entity:GetUp()
+			local vStart = self:GetPos()
+			local vForward = self:GetUp()
 			 
 			local trace = {}
 				trace.start = vStart
 				trace.endpos = vStart + (vForward * self:GetBeamLength())
-				trace.filter = { self.Entity }
+				trace.filter = { self }
 			local trace = util.TraceLine( trace ) 
 			
 			local Pos1 = trace.HitPos + trace.HitNormal
@@ -88,13 +88,13 @@ function ENT:Think()
 	if self.PaintRate > 0.01 and self.Painting then
 		if self.PlaySound then self:EmitSound("SprayCan.Paint") end
 	
-		local vStart = self.Entity:GetPos()
-		local vForward = self.Entity:GetUp()
+		local vStart = self:GetPos()
+		local vForward = self:GetUp()
 			 
 		local trace = {}
 			trace.start = vStart
 			trace.endpos = vStart + (vForward * self:GetBeamLength())
-			trace.filter = { self.Entity }
+			trace.filter = { self }
 		local trace = util.TraceLine( trace ) 
 			
 		local Pos1 = trace.HitPos + trace.HitNormal
@@ -102,7 +102,7 @@ function ENT:Think()
 
 		PlaceDecal( trace.Entity, Pos1, Pos2, self.Decal )
 		
-		self.Entity:NextThink(CurTime()+self.PaintRate)
+		self:NextThink(CurTime()+self.PaintRate)
 		return true
 	end
 end
@@ -112,6 +112,6 @@ function ENT:ShowOutput()
 end
 
 function ENT:OnRestore()
-    Wire_Restored(self.Entity)
+    Wire_Restored(self)
 end
 

@@ -28,12 +28,12 @@ function ENT:Setup(tx)
 	
 	if WireAddon then
 		if self.is_tx then
-			self.Inputs = Wire_CreateInputs(self.Entity, {"On", "TxWatts", "BaseMHz", "Channel1", "Channel2", "Channel3", "Channel4", "Channel5", "Channel6", "Channel7", "Channel8"})
+			self.Inputs = Wire_CreateInputs(self, {"On", "TxWatts", "BaseMHz", "Channel1", "Channel2", "Channel3", "Channel4", "Channel5", "Channel6", "Channel7", "Channel8"})
 			-- transmitters consume energy. 1 energy unit = 1 watt per second, 8 channels = 8 energy units (8 watts) per second
-			if ResourceDistribution then ResourceDistribution.AddResource(self.Entity, "energy", 0) end
+			if ResourceDistribution then ResourceDistribution.AddResource(self, "energy", 0) end
 		else -- it's a receiver
-			self.Inputs = Wire_CreateInputs(self.Entity, {"BaseMHz"})
-			self.Outputs = Wire_CreateOutputs(self.Entity, {"Channel1", "Ch1dBm", "Channel2", "Ch2dBm", "Channel3", "Ch3dBm", "Channel4", "Ch4dBm", "Channel5", "Ch5dBm", "Channel6", "Ch6dBm", "Channel7", "Ch7dBm", "Channel8", "Ch8dBm"})
+			self.Inputs = Wire_CreateInputs(self, {"BaseMHz"})
+			self.Outputs = Wire_CreateOutputs(self, {"Channel1", "Ch1dBm", "Channel2", "Ch2dBm", "Channel3", "Ch3dBm", "Channel4", "Ch4dBm", "Channel5", "Ch5dBm", "Channel6", "Ch6dBm", "Channel7", "Ch7dBm", "Channel8", "Ch8dBm"})
 		end
 	else
 		print("This version of Radio Systems requires the 'Wire' addon to be installed.\n")
@@ -113,8 +113,8 @@ end
 function ENT:Randomize()
 	for i=1, 8 do
 		local c = tostring(i)
-		Wire_TriggerOutput(self.Entity, "Channel" .. c, math.random() * 10)
-		Wire_TriggerOutput(self.Entity, "Ch" .. c .. "dBm", -math.random()*1000)
+		Wire_TriggerOutput(self, "Channel" .. c, math.random() * 10)
+		Wire_TriggerOutput(self, "Ch" .. c .. "dBm", -math.random()*1000)
 	end
 end
 
@@ -294,8 +294,8 @@ function ENT:Think()
 				
 				if receiveCh ~= 0 then
 					local c = tostring(receiveCh)
-					Wire_TriggerOutput(self.Entity, "Channel" .. c, sig)
-					Wire_TriggerOutput(self.Entity, "Ch" .. c .. "dBm", dBm)
+					Wire_TriggerOutput(self, "Channel" .. c, sig)
+					Wire_TriggerOutput(self, "Ch" .. c .. "dBm", dBm)
 					setset[receiveCh] = true
 				end
 			end
@@ -304,10 +304,10 @@ function ENT:Think()
 		-- set the remaining channels randomly
 		for i=1,8 do
 			if not setset[i] then
-				Wire_TriggerOutput(self.Entity, "Channel" .. tostring(i), math.random() * 10)
-				Wire_TriggerOutput(self.Entity, "Ch" .. tostring(i) .. "dBm", -math.random()*1000)
+				Wire_TriggerOutput(self, "Channel" .. tostring(i), math.random() * 10)
+				Wire_TriggerOutput(self, "Ch" .. tostring(i) .. "dBm", -math.random()*1000)
 			end
 		end
 	end
-	self.Entity:NextThink(CurTime() + ThinkInterval)
+	self:NextThink(CurTime() + ThinkInterval)
 end

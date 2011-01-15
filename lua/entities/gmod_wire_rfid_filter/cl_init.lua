@@ -7,8 +7,8 @@ function ENT:Draw()
 	self.BaseClass.Draw(self)
 
 	local target = self:GetLinkedTargetFinder()
-	if (target) and (target:IsValid()) and (LocalPlayer():GetEyeTrace().Entity == self.Entity) and (EyePos():Distance(self.Entity:GetPos()) < 4096) then
-	    local start = self.Entity:GetPos()
+	if (target) and (target:IsValid()) and (LocalPlayer():GetEyeTrace().Entity == self) and (EyePos():Distance(self:GetPos()) < 4096) then
+	    local start = self:GetPos()
 		local endpos = target:GetPos()
 		local scroll = -3*CurTime()
 

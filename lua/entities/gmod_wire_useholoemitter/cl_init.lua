@@ -8,7 +8,7 @@ local matpoint = Material( "sprites/gmdm_pickups/light" );
 function ENT:Initialize( )
 	// point list
 	self.PointList = {};
-	self.LastClear = self.Entity:GetNetworkedBool("Clear");
+	self.LastClear = self:GetNetworkedBool("Clear");
 	
 	// active point
 	self.ActivePoint = Vector( 0, 0, 0 );
@@ -27,30 +27,30 @@ end
 function ENT:Think( )
 	// read point.
 	local point = Vector(
-		self.Entity:GetNetworkedFloat( "X" ),
-		self.Entity:GetNetworkedFloat( "Y" ),
-		self.Entity:GetNetworkedFloat( "Z" )
+		self:GetNetworkedFloat( "X" ),
+		self:GetNetworkedFloat( "Y" ),
+		self:GetNetworkedFloat( "Z" )
 	);
 
-	lastclear = self.Entity:GetNetworkedInt("Clear")
+	lastclear = self:GetNetworkedInt("Clear")
 	if(lastclear != self.LastClear) then
 		self.PointList = {}
 		self.LastClear = lastclear
 	end
 	
 	// did the point differ from active point?
-	if( point != self.ActivePoint && self.Entity:GetNetworkedBool( "Active" ) ) then
+	if( point != self.ActivePoint && self:GetNetworkedBool( "Active" ) ) then
 		// fetch color.
-		local _, _, _, a = self.Entity:GetColor();
+		local _, _, _, a = self:GetColor();
 	
 		// store this point inside the point list
 		local tempfaderate
 		if (SinglePlayer()) then
-			tempfaderate = math.Clamp( self.Entity:GetNetworkedFloat( "FadeRate" ), 0.1, 255 )
+			tempfaderate = math.Clamp( self:GetNetworkedFloat( "FadeRate" ), 0.1, 255 )
 		else
 			-- Due to a request, in Multiplayer, the people can controle this with a CL side cvar (aVoN)
 			local minfaderate = GetConVarNumber("cl_wire_holoemitter_minfaderate") or 10;
-			tempfaderate = math.Clamp( self.Entity:GetNetworkedFloat( "FadeRate" ),minfaderate, 255 )
+			tempfaderate = math.Clamp( self:GetNetworkedFloat( "FadeRate" ),minfaderate, 255 )
 		end
 		table.insert( self.PointList, { pos = self.ActivePoint, alpha = a, faderate = tempfaderate } );
 		
@@ -64,13 +64,13 @@ end
 // draw
 function ENT:Draw( )
 	// render model
-	self.Entity:DrawModel();
+	self:DrawModel();
 	
 	// are we rendering?
-	if( !self.Entity:GetNetworkedBool( "Active" ) ) then return; end
+	if( !self:GetNetworkedBool( "Active" ) ) then return; end
 	
 	// read emitter.
-	local emitter = self.Entity:GetNetworkedEntity( "grid" );
+	local emitter = self:GetNetworkedEntity( "grid" );
 	if( !emitter || !emitter:IsValid() ) then return; end
 	
 	// calculate emitter position.
@@ -81,18 +81,18 @@ function ENT:Draw( )
 	local usegps = emitter:GetNetworkedBool( "UseGPS" )
 
 	// draw beam?
-	local drawbeam	= self.Entity:GetNetworkedBool( "ShowBeam" );
-	local groundbeam	= self.Entity:GetNetworkedBool( "GroundBeam" );
+	local drawbeam	= self:GetNetworkedBool( "ShowBeam" );
+	local groundbeam	= self:GetNetworkedBool( "GroundBeam" );
 	
 	// read point size
-	local size	= self.Entity:GetNetworkedFloat( "PointSize" );
+	local size	= self:GetNetworkedFloat( "PointSize" );
 	local beamsize	= size * 0.25;
 	
 	// read color
-	local r, g, b, a = self.Entity:GetColor();
+	local r, g, b, a = self:GetColor();
 	local color = Color( r, g, b, a );
 	
-	self.Entity:SetRenderBounds( Vector()*-16384, Vector()*16384 )	
+	self:SetRenderBounds( Vector()*-16384, Vector()*16384 )	
 	// calculate pixel point.
 	local pixelpos
 	if (usegps == true) then
@@ -105,7 +105,7 @@ function ENT:Draw( )
 	if( drawbeam && groundbeam) then
 		render.SetMaterial( matbeam );
 		render.DrawBeam(
-			self.Entity:GetPos(),
+			self:GetPos(),
 			pixelpos,
 			beamsize,
 			0, 1,
@@ -157,7 +157,7 @@ function ENT:Draw( )
 				if (groundbeam) then
 					render.SetMaterial( matbeam );
 					render.DrawBeam(
-						self.Entity:GetPos(),
+						self:GetPos(),
 						pixelpos,
 						beamsize,
 						0, 1,
