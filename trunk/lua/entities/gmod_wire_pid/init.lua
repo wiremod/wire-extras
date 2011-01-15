@@ -8,13 +8,13 @@ ENT.WireDebugName = "PID"
 
 function ENT:Initialize()
 	/* Make Physics work */
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 
 	/* Set wire I/O */
-	self.Inputs = Wire_CreateInputs(self.Entity, { "In", "Set Point", "Enable" })
-	self.Outputs = Wire_CreateOutputs(self.Entity, { "Out" })
+	self.Inputs = Wire_CreateInputs(self, { "In", "Set Point", "Enable" })
+	self.Outputs = Wire_CreateOutputs(self, { "Out" })
 
 	/* Initialize values */
 	self.set = 0
@@ -28,7 +28,7 @@ function ENT:Initialize()
 	self.enabled = 1
 	self.limit = 100
 
-	local phys = self.Entity:GetPhysicsObject()
+	local phys = self:GetPhysicsObject()
 	if (phys:IsValid() == true) then
 		phys:Wake()
 	end
@@ -69,7 +69,7 @@ function ENT:TriggerInput(iname, value)
 
 	/* If we're not enabled, set the output to zero and exit */
 	if (self.enabled == 0) then
-		Wire_TriggerOutput(self.Entity, "Out", 0)
+		Wire_TriggerOutput(self, "Out", 0)
 		return
 	end
 
@@ -113,7 +113,7 @@ function ENT:TriggerInput(iname, value)
 		end
 	end
 
-	Wire_TriggerOutput(self.Entity, "Out", self.out)
+	Wire_TriggerOutput(self, "Out", self.out)
 end
 
 

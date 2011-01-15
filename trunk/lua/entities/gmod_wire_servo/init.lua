@@ -13,10 +13,10 @@ ENT.OverlayDelay = 0
 ---------------------------------------------------------*/
 function ENT:Initialize()
 
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Entity:SetUseType( SIMPLE_USE )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self:SetUseType( SIMPLE_USE )
 	
 	self:SetToggle( false )
 	
@@ -32,8 +32,8 @@ function ENT:Initialize()
 	self.Direct = 0
 	self.WeldMode = 0
 	
-	self.Inputs = Wire_CreateInputs(self.Entity, { "A: Angle", "B: Direction", "C: SpeedMod" })
-	self.Outputs = Wire_CreateOutputs(self.Entity, { "Angle" })
+	self.Inputs = Wire_CreateInputs(self, { "A: Angle", "B: Direction", "C: SpeedMod" })
+	self.Outputs = Wire_CreateOutputs(self, { "Angle" })
 	
 end
 
@@ -63,9 +63,9 @@ end
 ---------------------------------------------------------*/
 function ENT:SetAxis( vec )
 	
-	self.Axis = self.Entity:GetPos() + vec * 512
-	self.Axis = self.Entity:NearestPoint( self.Axis )
-	self.Axis = self.Entity:WorldToLocal( self.Axis )
+	self.Axis = self:GetPos() + vec * 512
+	self.Axis = self:NearestPoint( self.Axis )
+	self.Axis = self:WorldToLocal( self.Axis )
 
 end
 
@@ -99,7 +99,7 @@ end
 ---------------------------------------------------------*/
 function ENT:InitWeld()
 
-	self.Constraint = constraint.Weld( self.Entity, self.ServoBase, 0, self.ServoBone, 0 )
+	self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
 
 end
 
@@ -111,7 +111,7 @@ end
 ---------------------------------------------------------*/
 function ENT:DoVectorChoice()
 
-	local axisVector = self.Entity:LocalToWorld( self.Axis ) - self.Entity:GetPos()
+	local axisVector = self:LocalToWorld( self.Axis ) - self:GetPos()
 	axisVector:Normalize()
 	local debugANGLE = math.deg( math.acos( self.ServoBase:GetRight():DotProduct( axisVector ) ) )
 	
@@ -156,8 +156,8 @@ function ENT:Think()
 			chosenBaseVector = self.ServoBase:GetRight() // If we have no angle problems, GetRight works fine
 		end
 	
-	local servoVector = self.Entity:GetRight()
-	local axisVector = self.Entity:LocalToWorld( self.Axis ) - self.Entity:GetPos()
+	local servoVector = self:GetRight()
+	local axisVector = self:LocalToWorld( self.Axis ) - self:GetPos()
 	axisVector:Normalize()
 		
 	local baseVector1 = chosenBaseVector:Cross( axisVector )
@@ -178,48 +178,48 @@ function ENT:Think()
 			if ( self.acqCase == 1 && ( ( self.curAngle + .01 ) < self.initAngle  || ( self.curAngle - .01 ) > self.chosenAngle ) ) then
 				self:Forward(0)
 				if self.WeldMode == 1 then
-					self.Constraint = constraint.Weld( self.Entity, self.ServoBase, 0, self.ServoBone, 0 )
+					self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
 				else
-					local servV = self.Entity:GetPhysicsObject():GetAngleVelocity()
+					local servV = self:GetPhysicsObject():GetAngleVelocity()
 					local baseV = self.ServoBase:GetPhysicsObject():GetAngleVelocity()
 					local diff = servV - baseV
-					self.Entity:GetPhysicsObject():AddAngleVelocity( -1 * diff )
+					self:GetPhysicsObject():AddAngleVelocity( -1 * diff )
 				end
 				self.doAcq = 0
 				self.acqCase = 0			
 			elseif ( self.acqCase == 2 && ( self.curAngle + .01 ) < self.initAngle  && ( self.curAngle - .01 ) > self.chosenAngle ) then
 				self:Forward(0)
 				if self.WeldMode == 1 then
-					self.Constraint = constraint.Weld( self.Entity, self.ServoBase, 0, self.ServoBone, 0 )
+					self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
 				else
-					local servV = self.Entity:GetPhysicsObject():GetAngleVelocity()
+					local servV = self:GetPhysicsObject():GetAngleVelocity()
 					local baseV = self.ServoBase:GetPhysicsObject():GetAngleVelocity()
 					local diff = servV - baseV
-					self.Entity:GetPhysicsObject():AddAngleVelocity( -1 * diff )
+					self:GetPhysicsObject():AddAngleVelocity( -1 * diff )
 				end			
 				self.doAcq = 0
 				self.acqCase = 0
 			elseif ( self.acqCase == 3 && ( self.curAngle - .01 ) > self.initAngle  && ( self.curAngle + .01 ) < self.chosenAngle ) then
 				self:Forward(0)
 				if self.WeldMode == 1 then
-					self.Constraint = constraint.Weld( self.Entity, self.ServoBase, 0, self.ServoBone, 0 )
+					self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
 				else
-					local servV = self.Entity:GetPhysicsObject():GetAngleVelocity()
+					local servV = self:GetPhysicsObject():GetAngleVelocity()
 					local baseV = self.ServoBase:GetPhysicsObject():GetAngleVelocity()
 					local diff = servV - baseV
-					self.Entity:GetPhysicsObject():AddAngleVelocity( -1 * diff )
+					self:GetPhysicsObject():AddAngleVelocity( -1 * diff )
 				end			
 				self.doAcq = 0
 				self.acqCase = 0	
 			elseif ( self.acqCase == 4 && ( ( self.curAngle - .01 ) > self.initAngle || ( self.curAngle + .01 ) < self.chosenAngle ) ) then
 				self:Forward(0)
 				if self.WeldMode == 1 then
-					self.Constraint = constraint.Weld( self.Entity, self.ServoBase, 0, self.ServoBone, 0 )
+					self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
 				else
-					local servV = self.Entity:GetPhysicsObject():GetAngleVelocity()
+					local servV = self:GetPhysicsObject():GetAngleVelocity()
 					local baseV = self.ServoBase:GetPhysicsObject():GetAngleVelocity()
 					local diff = servV - baseV
-					self.Entity:GetPhysicsObject():AddAngleVelocity( -1 * diff )
+					self:GetPhysicsObject():AddAngleVelocity( -1 * diff )
 				end		
 				self.doAcq = 0
 				self.acqCase = 0
@@ -228,11 +228,11 @@ function ENT:Think()
 	end
 
 		if ( CurTime() >= self.OutputThink ) then
-			Wire_TriggerOutput( self.Entity, "Angle", self.curAngle )
+			Wire_TriggerOutput( self, "Angle", self.curAngle )
 			self.OutputThink = CurTime() + .3 // We don't want to update our wired outputs as often as we want to check our angles
 		end
 	
-	self.Entity:NextThink( CurTime() + .001 )
+	self:NextThink( CurTime() + .001 )
 	
 	return true
 		
@@ -245,7 +245,7 @@ end
 ---------------------------------------------------------*/
 function ENT:OnTakeDamage( dmginfo )
 
-	self.Entity:TakePhysicsDamage( dmginfo )
+	self:TakePhysicsDamage( dmginfo )
 
 end
 
@@ -257,7 +257,7 @@ end
 function ENT:GetMotor()
 
 	if (!self.Motor) then
-		self.Motor = constraint.FindConstraintEntity( self.Entity, "Motor" )
+		self.Motor = constraint.FindConstraintEntity( self, "Motor" )
 		if (!self.Motor or !self.Motor:IsValid()) then
 			self.Motor = nil
 		end
@@ -267,7 +267,7 @@ function ENT:GetMotor()
 end
 
 //function ENT:SetDirection( dir )
-//	self.Entity:SetNetworkedInt( 1, dir )
+//	self:SetNetworkedInt( 1, dir )
 //	self.Direction = dir
 //end
 
@@ -286,7 +286,7 @@ end
 function ENT:Forward( mul )
 
 	// Is this key invalid now? If so return false to remove it
-	if ( !self.Entity:IsValid() ) then return false end
+	if ( !self:IsValid() ) then return false end
 	local Motor = self:GetMotor()
 	if ( Motor and !Motor:IsValid() ) then
 		Msg("Servo doesn't have a motor!\n"); 

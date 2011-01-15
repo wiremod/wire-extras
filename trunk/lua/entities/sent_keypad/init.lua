@@ -10,23 +10,23 @@ util.PrecacheSound("buttons/button15.wav")
 ENT.WireDebugName = "Keypad"
 
 function ENT:Initialize()
-	self.Entity:SetModel( "models/props_lab/keypad.mdl" )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:SetModel( "models/props_lab/keypad.mdl" )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 	
-	local phys = self.Entity:GetPhysicsObject()
+	local phys = self:GetPhysicsObject()
 	if (phys:IsValid()) then
 		phys:Wake()
 	end
 	
-	if self.AddOutputs then self.Outputs = Wire_CreateOutputs(self.Entity, { "Valid", "Invalid" }) end
+	if self.AddOutputs then self.Outputs = Wire_CreateOutputs(self, { "Valid", "Invalid" }) end
 end
 
 function ENT:AddPassword(Pass)
 	Pass = util.CRC(Pass)
 	
-	self.Entity.Pass = Pass
+	self.Pass = Pass
 end
 
 local function CorrectPassword(Ent, Pass)

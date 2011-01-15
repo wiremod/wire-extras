@@ -11,11 +11,11 @@ util.PrecacheSound('buttons/button11.wav')
 
 local MODEL = Model("models/keycardspawner/keycardspawner.mdl")
 function ENT:Initialize()
-	self.Entity:SetModel( MODEL )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Inputs = Wire_CreateInputs(self.Entity, { "Spawn" })
+	self:SetModel( MODEL )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self.Inputs = Wire_CreateInputs(self, { "Spawn" })
 	self:ShowOutput()
 end
 
@@ -25,11 +25,11 @@ end
 
 function ENT:TriggerInput(iname, value)
 	if (iname == "Spawn" and value == 1) then
-                local keycard = MakeWireKeycard(self.Entity:GetOwner(), self.Entity:GetAngles(), self.Entity:GetPos() + (self.Entity:GetUp() * 4), self.LockCode)
+                local keycard = MakeWireKeycard(self:GetOwner(), self:GetAngles(), self:GetPos() + (self:GetUp() * 4), self.LockCode)
 		if (keycard) then
-			self.Entity:EmitSound('buttons/button9.wav')
+			self:EmitSound('buttons/button9.wav')
         	else
-			self.Entity:EmitSound('buttons/button11.wav')
+			self:EmitSound('buttons/button11.wav')
 		end
 	end
 end

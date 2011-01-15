@@ -12,12 +12,12 @@ ENT.WireDebugName = "Simple Servo"
 ---------------------------------------------------------*/
 function ENT:Initialize()
 
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Entity:SetUseType( SIMPLE_USE )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self:SetUseType( SIMPLE_USE )
 	
-    self.Inputs = Wire_CreateInputs(self.Entity, { "Angle", "Speed" })
+    self.Inputs = Wire_CreateInputs(self, { "Angle", "Speed" })
 	
 	self.Angle = 0
 	self.Speed = 0
@@ -43,7 +43,7 @@ function ENT:Think()
     self.BaseClass:Think()
     
     local Angles = {};
-    Angles = self.Entity:GetAngles()
+    Angles = self:GetAngles()
     
     local finalAngle = 0
     
@@ -61,8 +61,8 @@ function ENT:Think()
                 finalAngle = Angles.y-self.Speed
             end
         end
-        self.Entity:SetAngles(Angle(Angles.p,finalAngle,Angles.r))
+        self:SetAngles(Angle(Angles.p,finalAngle,Angles.r))
     end
-    self.Entity:NextThink(CurTime())
+    self:NextThink(CurTime())
 	return true
 end
