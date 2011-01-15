@@ -20,10 +20,10 @@ function ___comp___(a,o,b)
 end
 
 function ENT:Initialize()
-	self.Entity:SetModel( MODEL )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:SetModel( MODEL )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 	
 	self.A=0
 	self.B=0
@@ -45,7 +45,7 @@ function ENT:OnRemove()
 		Target.Think_OMGRFIDBACKUPLOL = nil
 		Target.RFID_FILTER_LINKED = nil
 	end
-	Wire_Remove(self.Entity)
+	Wire_Remove(self)
 end
 
 function ENT:Setup(a,b,c,d,ca,cb,cc,cd,typ,ent_target)
@@ -156,5 +156,5 @@ function ENT:ShowOutput()
 end
 
 function ENT:OnRestore()
-    Wire_Restored(self.Entity)
+    Wire_Restored(self)
 end

@@ -7,23 +7,23 @@ include('shared.lua')
 ENT.WireDebugName = "Materializer"
 
 function ENT:Initialize()
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Inputs = WireLib.CreateSpecialInputs(self.Entity, { "Fire", "Material", "Skin" }, { "NORMAL", "STRING", "NORMAL" } )
-	self.Outputs = WireLib.CreateSpecialOutputs(self.Entity, { "Out" }, { "NORMAL" })
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self.Inputs = WireLib.CreateSpecialInputs(self, { "Fire", "Material", "Skin" }, { "NORMAL", "STRING", "NORMAL" } )
+	self.Outputs = WireLib.CreateSpecialOutputs(self, { "Out" }, { "NORMAL" })
 	self.StringMaterial = ""
     self.ValueSkin = 0
     self:SetBeamLength(2048)
 end
 
 function ENT:OnRemove()
-	Wire_Remove(self.Entity)
+	Wire_Remove(self)
 end
 
 function ENT:Setup(outMat,Range)
     if(outMat)then
-	    WireLib.AdjustSpecialOutputs(self.Entity, { "Material", "Skin" }, { "STRING", "NORMAL" } )
+	    WireLib.AdjustSpecialOutputs(self, { "Material", "Skin" }, { "STRING", "NORMAL" } )
 	end
 	self:SetBeamLength(Range)
 	self:ShowOutput()
@@ -43,13 +43,13 @@ end
 function ENT:TriggerInput(iname, value)
 	if iname == "Fire" then
 		if value ~= 0 then
-			local vStart = self.Entity:GetPos()
-			local vForward = self.Entity:GetUp()
+			local vStart = self:GetPos()
+			local vForward = self:GetUp()
 			
 			local trace = {}
 				trace.start = vStart
 				trace.endpos = vStart + (vForward * self:GetBeamLength())
-				trace.filter = { self.Entity }
+				trace.filter = { self }
 			local trace = util.TraceLine( trace ) 
 			
             if !CheckPP( self.pl, trace.Entity ) then return end
@@ -72,19 +72,19 @@ function ENT:ShowOutput()
 end
 
 function ENT:OnRestore()
-    Wire_Restored(self.Entity)
+    Wire_Restored(self)
 end
 
 function ENT:Think()
     self.BaseClass.Think(self)
     if self.Outputs["Material"] then
-        local vStart = self.Entity:GetPos()
-	    local vForward = self.Entity:GetUp()
+        local vStart = self:GetPos()
+	    local vForward = self:GetUp()
 		
 	    local trace = {}
 			trace.start = vStart
 			trace.endpos = vStart + (vForward * self:GetBeamLength())
-			trace.filter = { self.Entity }
+			trace.filter = { self }
 	    local trace = util.TraceLine( trace ) 
 		
 		if !IsValid( trace.Entity ) then return end
@@ -92,11 +92,11 @@ function ENT:Think()
         local mat = trace.Entity:GetMaterial()
 		local skn = trace.Entity:GetSkin()
 		
-        Wire_TriggerOutput(self.Entity,"Material",mat)
-        Wire_TriggerOutput(self.Entity,"Skin",skn)
+        Wire_TriggerOutput(self,"Material",mat)
+        Wire_TriggerOutput(self,"Skin",skn)
         
         self:ShowOutput()
     end
-    self.Entity:NextThink(CurTime()+0.25)
+    self:NextThink(CurTime()+0.25)
 	return true
 end

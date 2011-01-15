@@ -11,10 +11,10 @@ function ENT:Initialize()
 	self.active = false -- TX enabled (if TX)
 	self.txchannels = {} -- tx data
 	self.txwatts = 0 -- tx power
-	self.Entity:SetModel("models/radio/ra_uplink_dish.mdl")
-	self.Entity:PhysicsInit(SOLID_VPHYSICS)
-	self.Entity:SetMoveType(MOVETYPE_VPHYSICS)
-	self.Entity:SetSolid(SOLID_VPHYSICS)
-	local phys = self.Entity:GetPhysicsObject()
+	self:SetModel("models/radio/ra_uplink_dish.mdl")
+	self:PhysicsInit(SOLID_VPHYSICS)
+	self:SetMoveType(MOVETYPE_VPHYSICS)
+	self:SetSolid(SOLID_VPHYSICS)
+	local phys = self:GetPhysicsObject()
 	if(phys:IsValid()) then phys:Wake() end
 end

@@ -49,47 +49,47 @@ end
 
 function ENT:Initialize()
 	/* Make Physics work */
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )  
-	self.Entity:SetSolid( SOLID_VPHYSICS )        
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )  
+	self:SetSolid( SOLID_VPHYSICS )        
 
-	self.Entity:DrawShadow(false)
+	self:DrawShadow(false)
 
 	/* Set wire I/O */
-	self.Entity.Inputs = WireLib.CreateSpecialInputs(self.Entity, {"Wire", "Input", "Output", "SkewX", "SkewY", "TargetAssist", "ClearWire", "CreateWirelink"}, {"NORMAL", "STRING", "STRING", "NORMAL", "NORMAL", "NORMAL", "NORMAL", "NORMAL"})
-	self.Entity.Outputs = WireLib.CreateSpecialOutputs(self.Entity, { "Stage", "Success", "TargetInputs", "TargetOutputs", "TargetEntity" }, {"NORMAL", "NORMAL", "STRING", "STRING", "ENTITY"})
+	self.Inputs = WireLib.CreateSpecialInputs(self, {"Wire", "Input", "Output", "SkewX", "SkewY", "TargetAssist", "ClearWire", "CreateWirelink"}, {"NORMAL", "STRING", "STRING", "NORMAL", "NORMAL", "NORMAL", "NORMAL", "NORMAL"})
+	self.Outputs = WireLib.CreateSpecialOutputs(self, { "Stage", "Success", "TargetInputs", "TargetOutputs", "TargetEntity" }, {"NORMAL", "NORMAL", "STRING", "STRING", "ENTITY"})
 
 	/* Initialize values */
-	self.Entity.Owner = self.Entity.pl
+	self.Owner = self.pl
 	
-	self.Entity.SkewX = 0
-	self.Entity.SkewY = 0
-	self.Entity.WireInSkewX = 0
-	self.Entity.WireInSkewY = 0
-	self.Entity.WireFire = 0
-	self.Entity.PreviousWireFire = 0
-	self.Entity.Range = 2
-	self.Entity.Stage = 0
-	self.Entity.Success = 0
-	self.Entity.ClearLink = 0
-	self.Entity.TargetAssist = 0
-	self.Entity.TargetAssistTimer = 0
-	self.Entity.LastLaserLineUpdate = CurTime()
-	self.Entity.TargetEntity = nil
-	self.Entity.CreateWirelink = 0
-	self.Entity.PreviousCreateWirelink = 0
-	self.Entity.TargetPos = Vector(0,0,0)
-	self.Entity.DefaultColor = {255,255,255,255}
-	self.Entity.TargetPos_Input = 0
+	self.SkewX = 0
+	self.SkewY = 0
+	self.WireInSkewX = 0
+	self.WireInSkewY = 0
+	self.WireFire = 0
+	self.PreviousWireFire = 0
+	self.Range = 2
+	self.Stage = 0
+	self.Success = 0
+	self.ClearLink = 0
+	self.TargetAssist = 0
+	self.TargetAssistTimer = 0
+	self.LastLaserLineUpdate = CurTime()
+	self.TargetEntity = nil
+	self.CreateWirelink = 0
+	self.PreviousCreateWirelink = 0
+	self.TargetPos = Vector(0,0,0)
+	self.DefaultColor = {255,255,255,255}
+	self.TargetPos_Input = 0
 	
 	
-	self.Entity.InputName = ""
-	self.Entity.OutputName = ""
-	self.Entity.Ents = {}
+	self.InputName = ""
+	self.OutputName = ""
+	self.Ents = {}
 	
-	self.Entity.WireWidth = 1
-	self.Entity.WireMaterial = "cable/rope"
-	self.Entity.WireColor = Vector(255,255,255)
+	self.WireWidth = 1
+	self.WireMaterial = "cable/rope"
+	self.WireColor = Vector(255,255,255)
 	
 	self:SetBeamRange(250)
 	self:SetOverlayText( "Wired Wirer" )
@@ -97,7 +97,7 @@ end
 
 function ENT:Setup(Range, WireWidth, WireMaterial, WireColor, Wiretype_Input, TargetPos_Input)
     self:SetBeamRange(math.Clamp(math.abs(Range), 2, math.abs(Range)+10))
-	self.Entity.Range = math.Clamp(math.abs(Range), 2, math.abs(Range)+10)
+	self.Range = math.Clamp(math.abs(Range), 2, math.abs(Range)+10)
 	
 	local Inputs = {"Wire", "Input", "Output", "SkewX", "SkewY", "TargetAssist", "ClearWire", "CreateWirelink"}
 	local InputTypes = {"NORMAL", "STRING", "STRING", "NORMAL", "NORMAL", "NORMAL", "NORMAL", "NORMAL"}
@@ -120,38 +120,38 @@ function ENT:Setup(Range, WireWidth, WireMaterial, WireColor, Wiretype_Input, Ta
 		end
 	end
 	
-	WireLib.AdjustSpecialInputs(self.Entity, Inputs, InputTypes)
+	WireLib.AdjustSpecialInputs(self, Inputs, InputTypes)
 	
-	self.Entity.WireWidth = WireWidth
-	self.Entity.WireMaterial = WireMaterial
-	self.Entity.WireColor = WireColor
+	self.WireWidth = WireWidth
+	self.WireMaterial = WireMaterial
+	self.WireColor = WireColor
 	
-	self.Entity.TargetPos_Input = TargetPos_Input
+	self.TargetPos_Input = TargetPos_Input
 	
 end
 
 function ENT:OnRemove()
-	Wire_Remove(self.Entity)
+	Wire_Remove(self)
 end
 
 function ENT:Think()
-	self.Entity.BaseClass.Think(self)
+	self.BaseClass.Think(self)
 	
 	/* Make sure the gate updates even if we don't receive any input */
 	self:TriggerInput()
 	
 	//update the overlay
 	local Txt = "Wired Wirer"
-	if(self.Entity.Success == 1) then
+	if(self.Success == 1) then
 		Txt = Txt.." - Target is wire"
-	elseif(self.Entity.Success == 2) then
+	elseif(self.Success == 2) then
 		Txt = Txt.." - Target is wire and has the corect input/output"
-	elseif(self.Entity.Success == 3) then
+	elseif(self.Success == 3) then
 		Txt = Txt.." - In process of wiring"
 	end
 	self:SetOverlayText( Txt )
 	
-	self.Entity:NextThink(CurTime()+0.5)
+	self:NextThink(CurTime()+0.5)
 	return true
 end
 
@@ -172,111 +172,111 @@ end
 function ENT:TriggerInput(iname, value)
 	/* Change variables to reflect input */
 	if (iname == "SkewX") then
-		self.Entity.WireInSkewX = math.max(-100, math.min(value, 100))
+		self.WireInSkewX = math.max(-100, math.min(value, 100))
 	elseif (iname == "SkewY") then
-		self.Entity.WireInSkewY = math.max(-100, math.min(value, 100))
+		self.WireInSkewY = math.max(-100, math.min(value, 100))
 	elseif (iname == "Input") then
-		self.Entity.InputName = value
+		self.InputName = value
 	elseif (iname == "Output") then
-		self.Entity.OutputName = value
+		self.OutputName = value
 	elseif (iname == "Wire") then
-		self.Entity.WireFire = value
+		self.WireFire = value
 	elseif (iname == "TargetAssist") then
 		if(value != 0) then 
-			self.Entity.TargetAssist = 1 
+			self.TargetAssist = 1 
 		else 
-			self.Entity.TargetAssist = 0
+			self.TargetAssist = 0
 		end
 	elseif (iname == "ClearWire") then
-		self.Entity.ClearLink = value
+		self.ClearLink = value
 	elseif (iname == "CreateWirelink") then
-		self.Entity.CreateWirelink = value
-	elseif (iname == "WireWidth" and value != self.Entity.WireWidth) then
-		self.Entity.WireWidth = math.Clamp(math.abs(value),0,15)
-	elseif (iname == "WireMaterial" and value != "" and value != FixMaterialName(self.Entity.WireMaterial)) then
-		self.Entity.WireMaterial = FixMaterialName(value)
-	elseif (iname == "WireColor" and value != self.Entity.WireColor) then
-		self.Entity.WireColor = Vector(math.Clamp(math.abs(value.x),0,255),math.Clamp(math.abs(value.x),0,255),math.Clamp(math.abs(value.x),0,255))
+		self.CreateWirelink = value
+	elseif (iname == "WireWidth" and value != self.WireWidth) then
+		self.WireWidth = math.Clamp(math.abs(value),0,15)
+	elseif (iname == "WireMaterial" and value != "" and value != FixMaterialName(self.WireMaterial)) then
+		self.WireMaterial = FixMaterialName(value)
+	elseif (iname == "WireColor" and value != self.WireColor) then
+		self.WireColor = Vector(math.Clamp(math.abs(value.x),0,255),math.Clamp(math.abs(value.x),0,255),math.Clamp(math.abs(value.x),0,255))
 	elseif (iname == "TargetPos") then
-		self.Entity.TargetPos = Vector(value[1],value[2],value[3])
+		self.TargetPos = Vector(value[1],value[2],value[3])
 	elseif (iname == "TargetX") then
-		self.Entity.TargetPos = Vector(value,self.Entity.TargetPos.y,self.Entity.TargetPos.z)
+		self.TargetPos = Vector(value,self.TargetPos.y,self.TargetPos.z)
 	elseif (iname == "TargetY") then
-		self.Entity.TargetPos = Vector(self.Entity.TargetPos.x,value,self.Entity.TargetPos.z)
+		self.TargetPos = Vector(self.TargetPos.x,value,self.TargetPos.z)
 	elseif (iname == "TargetZ") then
-		self.Entity.TargetPos = Vector(self.Entity.TargetPos.x,self.Entity.TargetPos.y,value)
+		self.TargetPos = Vector(self.TargetPos.x,self.TargetPos.y,value)
 	end
 	
 	
 //============= Start of Target Assist ===============================================
 	
 	/*if the timer is past 0.7 seconds, do a target find to help the Target Assist*/
-	if(CurTime()-0.7 >= self.Entity.TargetAssistTimer) then
-		self.Entity.TargetEntity = nil
-		self.Entity.TargetAssistTimer = CurTime()
-		if(self.Entity.TargetAssist == 1) then
+	if(CurTime()-0.7 >= self.TargetAssistTimer) then
+		self.TargetEntity = nil
+		self.TargetAssistTimer = CurTime()
+		if(self.TargetAssist == 1) then
 			//find the end position of the trace so that it can sort them corectly, but don't do it
 			local Endpos = Vector(0,0,0)
-			if(self.Entity.WireInSkewX == 0 and self.Entity.WireInSkewY == 0) then
+			if(self.WireInSkewX == 0 and self.WireInSkewY == 0) then
 				//find the end of the line
 				Endpos = Vector(0,0,0)
-				local MidSphere = self.Entity:GetPos() + self.Entity:GetUp()*self.Entity.Range
-				if (self.Entity.SkewX == 0 and self.Entity.SkewY == 0) then
+				local MidSphere = self:GetPos() + self:GetUp()*self.Range
+				if (self.SkewX == 0 and self.SkewY == 0) then
 					Endpos = MidSphere
 				else
-					local skew = Vector(self.Entity.SkewX, self.Entity.SkewY, 1)
-					skew = skew*(self.Entity.Range/skew:Length())
-					local beam_x = self.Entity:GetRight()*skew.x
-					local beam_y = self.Entity:GetForward()*skew.y
-					local beam_z = self.Entity:GetUp()*skew.z
-					Endpos = self.Entity:GetPos() + beam_x + beam_y + beam_z
+					local skew = Vector(self.SkewX, self.SkewY, 1)
+					skew = skew*(self.Range/skew:Length())
+					local beam_x = self:GetRight()*skew.x
+					local beam_y = self:GetForward()*skew.y
+					local beam_z = self:GetUp()*skew.z
+					Endpos = self:GetPos() + beam_x + beam_y + beam_z
 				end
 			else
 				//find the end of the line
 				Endpos = Vector(0,0,0)
-				local MidSphere = self.Entity:GetPos() + self.Entity:GetUp()*self.Entity.Range
-				if (self.Entity.SkewX == 0 and self.Entity.SkewY == 0) then
+				local MidSphere = self:GetPos() + self:GetUp()*self.Range
+				if (self.SkewX == 0 and self.SkewY == 0) then
 					Endpos = MidSphere
 				else
-					local skew = Vector(self.Entity.WireInSkewX, self.Entity.WireInSkewY, 1)
-					skew = skew*(self.Entity.Range/skew:Length())
-					local beam_x = self.Entity:GetRight()*skew.x
-					local beam_y = self.Entity:GetForward()*skew.y
-					local beam_z = self.Entity:GetUp()*skew.z
-					Endpos = self.Entity:GetPos() + beam_x + beam_y + beam_z
+					local skew = Vector(self.WireInSkewX, self.WireInSkewY, 1)
+					skew = skew*(self.Range/skew:Length())
+					local beam_x = self:GetRight()*skew.x
+					local beam_y = self:GetForward()*skew.y
+					local beam_z = self:GetUp()*skew.z
+					Endpos = self:GetPos() + beam_x + beam_y + beam_z
 				end
 			end
 			
 			//find all of the ents in the sphere centerd at the pos of the wirer and with a radius of the trace lenth
-			local PreFilterEnts = ents.FindInSphere(self.Entity:GetPos(), self.Entity.Range)
-			self.Entity.Ents = {}
+			local PreFilterEnts = ents.FindInSphere(self:GetPos(), self.Range)
+			self.Ents = {}
 			
 			//clip them to just wire things owned by you
-			self.Entity.TargetEntity = nil
+			self.TargetEntity = nil
 			local i = 1
 			for i, CurrentEnt in pairs(PreFilterEnts) do
-				if(CurrentEnt and CurrentEnt:IsValid() and CurrentEnt != self.Entity and IsWire(CurrentEnt) and getOwner(self.Entity, CurrentEnt) == self.Entity.pl) then
-					if(!self.Entity.TargetEntity) then self.Entity.TargetEntity = CurrentEnt end
-					table.insert(self.Entity.Ents,CurrentEnt)
+				if(CurrentEnt and CurrentEnt:IsValid() and CurrentEnt != self and IsWire(CurrentEnt) and getOwner(self, CurrentEnt) == self.pl) then
+					if(!self.TargetEntity) then self.TargetEntity = CurrentEnt end
+					table.insert(self.Ents,CurrentEnt)
 				end
 			end
 			i = 1
 			
 			//clip the entities that are not in front of the wirer
-			PreFilterEnts = self.Entity.Ents
-			self.Entity.Ents = {}
-			self.Entity.TargetEntity = nil
-			local planeVec = self.Entity:GetUp()
-			local relPos = self.Entity:GetPos():Dot(planeVec)
+			PreFilterEnts = self.Ents
+			self.Ents = {}
+			self.TargetEntity = nil
+			local planeVec = self:GetUp()
+			local relPos = self:GetPos():Dot(planeVec)
 			for i, CurrentEnt in pairs(PreFilterEnts) do
 				if(CurrentEnt and (CurrentEnt:GetPos():Dot(planeVec) - relPos) >= 0) then
-					if(!self.Entity.TargetEntity) then self.Entity.TargetEntity = CurrentEnt end
-					table.insert(self.Entity.Ents,CurrentEnt)
+					if(!self.TargetEntity) then self.TargetEntity = CurrentEnt end
+					table.insert(self.Ents,CurrentEnt)
 				end
 			end
 			
 			//sort them by distance to the trace
-			local selfEnt = self.Entity
+			local selfEnt = self
 			local P1 = selfEnt:GetPos()
 			local P2 = Endpos
 			table.sort(self.Ents, 
@@ -293,18 +293,18 @@ function ENT:TriggerInput(iname, value)
 			StableBubbleSort(self.Ents,function(a, b)
 					if a == nil || !a:IsValid() then return false end
 					if b == nil || !b:IsValid() then return true end
-					if(self.Entity.Stage == 1) then
-						if(a.Outputs and self.Entity.OutputName != "" and a.Outputs[self.Entity.OutputName]) then 
+					if(self.Stage == 1) then
+						if(a.Outputs and self.OutputName != "" and a.Outputs[self.OutputName]) then 
 							return true //if a has the correct output do nothing
-						elseif(b.Outputs and self.Entity.OutputName != "" and b.Outputs[self.Entity.OutputName]) then 
+						elseif(b.Outputs and self.OutputName != "" and b.Outputs[self.OutputName]) then 
 							return false //if b has the correct output switch a and b
 						else
 							return true //else do nothing
 						end
 					else
-						if(a.Inputs and self.Entity.InputName != "" and a.Inputs[self.Entity.InputName]) then 
+						if(a.Inputs and self.InputName != "" and a.Inputs[self.InputName]) then 
 							return true //if a has the correct do nothing
-						elseif(b.Inputs and self.Entity.InputName != "" and b.Inputs[self.Entity.InputName]) then
+						elseif(b.Inputs and self.InputName != "" and b.Inputs[self.InputName]) then
 							return false //if b has the correct input switch a and b
 						else
 							return true //else do nothing
@@ -316,10 +316,10 @@ function ENT:TriggerInput(iname, value)
 			
 			
 			//get the first entity
-			self.Entity.TargetEntity = nil
-			for i, CurrentEnt in pairs(self.Entity.Ents) do 
-				if(!self.Entity.TargetEntity) then 
-					self.Entity.TargetEntity = CurrentEnt 
+			self.TargetEntity = nil
+			for i, CurrentEnt in pairs(self.Ents) do 
+				if(!self.TargetEntity) then 
+					self.TargetEntity = CurrentEnt 
 					break
 				end 
 			end
@@ -330,60 +330,60 @@ function ENT:TriggerInput(iname, value)
 //===================end of target assist find========================
 	
 	//set the trace to the correct pos
-	if(self.Entity.TargetEntity and self.Entity.TargetEntity:IsValid() and self.Entity.TargetAssist == 1) then //Target Assist Trace
-		self.Entity.SkewX = -1*self.Entity:WorldToLocal(self.Entity.TargetEntity:GetPos()).y/self.Entity:WorldToLocal(self.Entity.TargetEntity:GetPos()).z
-		self.Entity.SkewY = self.Entity:WorldToLocal(self.Entity.TargetEntity:GetPos()).x/self.Entity:WorldToLocal(self.Entity.TargetEntity:GetPos()).z
-	elseif(self.Entity.TargetAssist == 0 and self.Entity.TargetPos != Vector(0,0,0) and self.Entity.TargetPos_Input == 1) then //Using Target Vector Position Trace
+	if(self.TargetEntity and self.TargetEntity:IsValid() and self.TargetAssist == 1) then //Target Assist Trace
+		self.SkewX = -1*self:WorldToLocal(self.TargetEntity:GetPos()).y/self:WorldToLocal(self.TargetEntity:GetPos()).z
+		self.SkewY = self:WorldToLocal(self.TargetEntity:GetPos()).x/self:WorldToLocal(self.TargetEntity:GetPos()).z
+	elseif(self.TargetAssist == 0 and self.TargetPos != Vector(0,0,0) and self.TargetPos_Input == 1) then //Using Target Vector Position Trace
 		//is the point within reach
-		if(self.Entity.TargetPos:Distance(self.Entity:GetPos()) < self.Entity.Range) then
-			local planeVec = self.Entity:GetUp()
-			local relPos = self.Entity:GetPos():Dot(planeVec)
+		if(self.TargetPos:Distance(self:GetPos()) < self.Range) then
+			local planeVec = self:GetUp()
+			local relPos = self:GetPos():Dot(planeVec)
 			//and in front
-			if((self.Entity.TargetPos:Dot(planeVec) - relPos) >= 0) then
+			if((self.TargetPos:Dot(planeVec) - relPos) >= 0) then
 				//set skew
-				self.Entity.SkewX = -1*self.Entity:WorldToLocal(self.Entity.TargetPos).y/self.Entity:WorldToLocal(self.Entity.TargetPos).z
-				self.Entity.SkewY = self.Entity:WorldToLocal(self.Entity.TargetPos).x/self.Entity:WorldToLocal(self.Entity.TargetPos).z
+				self.SkewX = -1*self:WorldToLocal(self.TargetPos).y/self:WorldToLocal(self.TargetPos).z
+				self.SkewY = self:WorldToLocal(self.TargetPos).x/self:WorldToLocal(self.TargetPos).z
 			else //else default to the front
-				self.Entity.SkewX = 0
-				self.Entity.SkewY = 0
+				self.SkewX = 0
+				self.SkewY = 0
 			end
 		else
-			self.Entity.SkewX = 0
-			self.Entity.SkewY = 0
+			self.SkewX = 0
+			self.SkewY = 0
 		end
 	else //using skew trace
-		self.Entity.SkewX = self.Entity.WireInSkewX
-		self.Entity.SkewY = self.Entity.WireInSkewY
+		self.SkewX = self.WireInSkewX
+		self.SkewY = self.WireInSkewY
 	end
 	
 	//set the skews of the visual ranger (not the trace) only every 0.1 seconds
-	if((self.Entity.LastLaserLineUpdate+0.1) < CurTime()) then
-		self:SetSkewX(self.Entity.SkewX)
-		self:SetSkewY(self.Entity.SkewY)
-		self.Entity.LastLaserLineUpdate = CurTime()
+	if((self.LastLaserLineUpdate+0.1) < CurTime()) then
+		self:SetSkewX(self.SkewX)
+		self:SetSkewY(self.SkewY)
+		self.LastLaserLineUpdate = CurTime()
 	end
 	
 //===============Start the Wirings======================
 	
 	//start the trace
 	local trace = {}
-	trace.start = self.Entity:GetPos()
-	if (self.Entity.SkewX == 0 and self.Entity.SkewY == 0) then
-		trace.endpos = trace.start + self.Entity:GetUp()*self.Entity.Range
+	trace.start = self:GetPos()
+	if (self.SkewX == 0 and self.SkewY == 0) then
+		trace.endpos = trace.start + self:GetUp()*self.Range
 	else
-		local skew = Vector(self.Entity.SkewX, self.Entity.SkewY, 1)
-		skew = skew*(self.Entity.Range/skew:Length())
-		local beam_x = self.Entity:GetRight()*skew.x
-		local beam_y = self.Entity:GetForward()*skew.y
-		local beam_z = self.Entity:GetUp()*skew.z
+		local skew = Vector(self.SkewX, self.SkewY, 1)
+		skew = skew*(self.Range/skew:Length())
+		local beam_x = self:GetRight()*skew.x
+		local beam_y = self:GetForward()*skew.y
+		local beam_z = self:GetUp()*skew.z
 		trace.endpos = trace.start + beam_x + beam_y + beam_z
 	end
-	trace.filter = { self.Entity }
-	if (self.Entity.trace_water) then trace.mask = -1 end
+	trace.filter = { self }
+	if (self.trace_water) then trace.mask = -1 end
 	trace = util.TraceLine(trace)
 	
 	//save the color
-	local StartColor = {self.Entity:GetColor()}
+	local StartColor = {self:GetColor()}
 	local UsedColors = { {255,181,26,StartColor[4]},
 						 {0,255,0,StartColor[4]},
 						 {0,0,255,StartColor[4]} }
@@ -400,38 +400,38 @@ function ENT:TriggerInput(iname, value)
 		end
 	end
 	if( IsAUsedColor == true ) then
-		StartColor = self.Entity.DefaultColor 
-		local TempCol = {self.Entity:GetColor()}
+		StartColor = self.DefaultColor 
+		local TempCol = {self:GetColor()}
 		StartColor = {StartColor[1],StartColor[2],StartColor[3],TempCol[4]}
 	else
-		StartColor = {self.Entity:GetColor()}
-		self.Entity.DefaultColor = {self.Entity:GetColor()}
+		StartColor = {self:GetColor()}
+		self.DefaultColor = {self:GetColor()}
 	end
 	
 	//color the ranger based on the pos and set the sucsess num
-	self.Entity.Success = 0
+	self.Success = 0
 	if(trace.Hit) then
 		//if it is wire, owned by you, and a valid entity
-		if(trace.Entity:IsValid() and (IsWire(trace.Entity) == true) and getOwner(self.Entity, trace.Entity) == self.Entity.pl) then
+		if(trace.Entity:IsValid() and (IsWire(trace.Entity) == true) and getOwner(self, trace.Entity) == self.pl) then
 			//set the target entity
-			Wire_TriggerOutput(self.Entity, "Stage", self.Entity.Stage)
+			Wire_TriggerOutput(self, "Stage", self.Stage)
 			//color it yellow
-			self.Entity:SetColor(255,181,26,StartColor[4])
+			self:SetColor(255,181,26,StartColor[4])
 			DefaultToStartColor = false
-			self.Entity.Success = 1
+			self.Success = 1
 			//if it is an input
-			if( trace.Entity.Inputs and self.Entity.Stage == 0 ) then
+			if( trace.Entity.Inputs and self.Stage == 0 ) then
 				//check the wire
-				if(self.Entity.InputName != "" and trace.Entity.Inputs[self.Entity.InputName]) then
+				if(self.InputName != "" and trace.Entity.Inputs[self.InputName]) then
 					//color it green
-					self.Entity:SetColor(0,255,0,StartColor[4])
+					self:SetColor(0,255,0,StartColor[4])
 					DefaultToStartColor = false
-					self.Entity.Success = 2
+					self.Success = 2
 					//check for the goahead to wire
-					if(self.Entity.WireFire != 0 and self.Entity.PreviousWireFire == 0) then
+					if(self.WireFire != 0 and self.PreviousWireFire == 0) then
 						//start the wire
-						Wire_Link_Start(self.Entity.pl:UniqueID(), trace.Entity, trace.Entity:WorldToLocal(trace.HitPos), self.Entity.InputName, self.Entity.WireMaterial, self.Entity.WireColor, self.Entity.WireWidth)
-						self.Entity.Stage = 1
+						Wire_Link_Start(self.pl:UniqueID(), trace.Entity, trace.Entity:WorldToLocal(trace.HitPos), self.InputName, self.WireMaterial, self.WireColor, self.WireWidth)
+						self.Stage = 1
 						//effect on wire
 						local effectdata = EffectData()
 							effectdata:SetOrigin( trace.HitPos )
@@ -443,18 +443,18 @@ function ENT:TriggerInput(iname, value)
 					end
 				end	
 			//if it is an output
-			elseif( trace.Entity.Outputs and self.Entity.Stage == 1 ) then
+			elseif( trace.Entity.Outputs and self.Stage == 1 ) then
 				//check the wire
-				if(self.Entity.OutputName != "" and trace.Entity.Outputs[self.Entity.OutputName]) then
+				if(self.OutputName != "" and trace.Entity.Outputs[self.OutputName]) then
 					//color it green
-					self.Entity:SetColor(0,255,0,StartColor[4])
+					self:SetColor(0,255,0,StartColor[4])
 					DefaultToStartColor = false
-					self.Entity.Success = 2
+					self.Success = 2
 					//check for the goahead to wire
-					if(self.Entity.WireFire != 0 and self.Entity.PreviousWireFire == 0) then
+					if(self.WireFire != 0 and self.PreviousWireFire == 0) then
 						//end the wire
-						Wire_Link_End(self.Entity.pl:UniqueID(), trace.Entity, trace.Entity:WorldToLocal(trace.HitPos), self.Entity.OutputName, self.Entity.pl)
-						self.Entity.Stage = 0
+						Wire_Link_End(self.pl:UniqueID(), trace.Entity, trace.Entity:WorldToLocal(trace.HitPos), self.OutputName, self.pl)
+						self.Stage = 0
 						//effect on wire
 						local effectdata = EffectData()
 							effectdata:SetOrigin( trace.HitPos )
@@ -468,7 +468,7 @@ function ENT:TriggerInput(iname, value)
 			end
 			
 			//create a wirelink
-			if(self.Entity.CreateWirelink != 0 and self.Entity.PreviousCreateWirelink == 0 and !trace.Entity.extended) then
+			if(self.CreateWirelink != 0 and self.PreviousCreateWirelink == 0 and !trace.Entity.extended) then
 				trace.Entity.extended = true
 				RefreshSpecialOutputs(trace.Entity)
 				//effect on creation of wirelink
@@ -480,14 +480,14 @@ function ENT:TriggerInput(iname, value)
 					effectdata:SetRadius( 2 )
 				util.Effect( "Sparks", effectdata )
 			end
-		elseif(	self.Entity.Stage == 1 ) then
-			self.Entity:SetColor(0,0,255,StartColor[4])
+		elseif(	self.Stage == 1 ) then
+			self:SetColor(0,0,255,StartColor[4])
 			DefaultToStartColor = false
-			self.Entity.Success = 3
+			self.Success = 3
 		end
 		
 		//create a wire node for "Preaty Wiring"
-		if(trace.Entity:IsValid() and !trace.Entity:IsWorld() and self.Entity.Stage == 1 and self.Entity.WireFire != 0 and self.Entity.PreviousWireFire == 0 and getOwner(self.Entity, trace.Entity) == self.Entity.pl) then
+		if(trace.Entity:IsValid() and !trace.Entity:IsWorld() and self.Stage == 1 and self.WireFire != 0 and self.PreviousWireFire == 0 and getOwner(self, trace.Entity) == self.pl) then
 					//effect on node
 					local effectdata = EffectData()
 						effectdata:SetOrigin( trace.HitPos )
@@ -496,41 +496,41 @@ function ENT:TriggerInput(iname, value)
 						effectdata:SetScale( 0.5 )
 						effectdata:SetRadius( 2 )
 					util.Effect( "Sparks", effectdata )
-					Wire_Link_Node(self.Entity.pl:UniqueID(), trace.Entity, trace.Entity:WorldToLocal(trace.HitPos+trace.HitNormal))
+					Wire_Link_Node(self.pl:UniqueID(), trace.Entity, trace.Entity:WorldToLocal(trace.HitPos+trace.HitNormal))
 		end
-	elseif(	self.Entity.Stage == 1 ) then
-		self.Entity:SetColor(0,0,255,StartColor[4])
+	elseif(	self.Stage == 1 ) then
+		self:SetColor(0,0,255,StartColor[4])
 		DefaultToStartColor = false
-		self.Entity.Success = 3
+		self.Success = 3
 	end
 	
 	if(DefaultToStartColor == true) then
-		self.Entity:SetColor(StartColor[1],StartColor[2],StartColor[3],StartColor[4])
+		self:SetColor(StartColor[1],StartColor[2],StartColor[3],StartColor[4])
 	end
 	
 	//set self.PreviousWireFire and self.PreviousCreateWirelink so that there isn't a never ending cycle
-	self.Entity.PreviousWireFire = self.Entity.WireFire
-	self.Entity.PreviousCreateWirelink = self.Entity.CreateWirelink
+	self.PreviousWireFire = self.WireFire
+	self.PreviousCreateWirelink = self.CreateWirelink
 	
 	//if clear wire is equal to one, calcel the current link if one is started, or delete the wire leading to the current input if it exists, also display a little effect
-	if(self.Entity.ClearLink == 1) then
-		if(self.Entity.Stage == 1) then
-			Wire_Link_Cancel(self.Entity.pl:UniqueID())
-			self.Entity.Stage = 0
+	if(self.ClearLink == 1) then
+		if(self.Stage == 1) then
+			Wire_Link_Cancel(self.pl:UniqueID())
+			self.Stage = 0
 			//effect on cancel
 			local effectdata = EffectData()
-				effectdata:SetOrigin( self.Entity:GetPos()+5*self.Entity:GetUp() )
-				effectdata:SetNormal( self.Entity:GetUp() )
+				effectdata:SetOrigin( self:GetPos()+5*self:GetUp() )
+				effectdata:SetNormal( self:GetUp() )
 				effectdata:SetMagnitude( 2 )
 				effectdata:SetScale( 0.5 )
 				effectdata:SetRadius( 2 )
 			util.Effect( "Sparks", effectdata )
-		elseif(self.Entity.Stage == 0)then
-			if(trace.Hit and trace.Entity:IsValid() and (IsWire(trace.Entity) == true) and getOwner(self.Entity, trace.Entity) == self.Entity.pl
-				and trace.Entity.Inputs and self.Entity.InputName != "" and trace.Entity.Inputs[self.Entity.InputName]
-				and	trace.Entity.Inputs[self.Entity.InputName].Src  and trace.Entity.Inputs[self.Entity.InputName].Src:IsValid()) then
+		elseif(self.Stage == 0)then
+			if(trace.Hit and trace.Entity:IsValid() and (IsWire(trace.Entity) == true) and getOwner(self, trace.Entity) == self.pl
+				and trace.Entity.Inputs and self.InputName != "" and trace.Entity.Inputs[self.InputName]
+				and	trace.Entity.Inputs[self.InputName].Src  and trace.Entity.Inputs[self.InputName].Src:IsValid()) then
 				
-				Wire_Link_Clear(trace.Entity, self.Entity.InputName)
+				Wire_Link_Clear(trace.Entity, self.InputName)
 				//effect on clear
 				local effectdata = EffectData()
 					effectdata:SetOrigin( trace.HitPos )
@@ -549,7 +549,7 @@ function ENT:TriggerInput(iname, value)
 	local Outputs = ""
 	if(trace.Hit) then
 		//if it is wire, owned by you, and a valid entity
-		if(trace.Entity:IsValid() and getOwner(self.Entity, trace.Entity) == self.Entity.pl) then
+		if(trace.Entity:IsValid() and getOwner(self, trace.Entity) == self.pl) then
 			//get inputs
 			if(trace.Entity.Inputs != nil) then
 				for Index,value in pairs(trace.Entity.Inputs) do
@@ -570,10 +570,10 @@ function ENT:TriggerInput(iname, value)
 	end
 	
 	//trigger the outputs
-	Wire_TriggerOutput(self.Entity, "Stage", self.Entity.Stage)
-	Wire_TriggerOutput(self.Entity, "Success", self.Entity.Success)
-	Wire_TriggerOutput(self.Entity, "TargetInputs", Inputs)
-	Wire_TriggerOutput(self.Entity, "TargetOutputs", Outputs)
+	Wire_TriggerOutput(self, "Stage", self.Stage)
+	Wire_TriggerOutput(self, "Success", self.Success)
+	Wire_TriggerOutput(self, "TargetInputs", Inputs)
+	Wire_TriggerOutput(self, "TargetOutputs", Outputs)
 	
 	if(trace.Hit and trace.Entity:IsValid() and (IsWire(trace.Entity) == true) and getOwner(self, trace.Entity) == self.pl) then
 		Wire_TriggerOutput(self, "TargetEntity", trace.Entity)

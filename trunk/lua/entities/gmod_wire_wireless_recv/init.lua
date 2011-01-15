@@ -14,9 +14,9 @@ function GetWirelessRecv()
 end
 
 function ENT:Initialize()
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 	
 	self.Key=0;
 	self.SendMsg=0;
@@ -92,7 +92,7 @@ function ENT:UpdateRMessage()
 			self:SetOverlayText("Wireless Receiver - Connected")
 		end
 		
-		Wire_TriggerOutput(self.Entity, "Connected", 1 )
+		Wire_TriggerOutput(self, "Connected", 1 )
 	
 	else
 	
@@ -102,13 +102,13 @@ function ENT:UpdateRMessage()
 			self:SetOverlayText("Wireless Receiver - Scanning")
 		end
 		
-		Wire_TriggerOutput(self.Entity, "Connected", 0 )
+		Wire_TriggerOutput(self, "Connected", 0 )
 		
 	end
 	
-	Wire_TriggerOutput(self.Entity, "Count", #self.Buff )
+	Wire_TriggerOutput(self, "Count", #self.Buff )
 	
-	Wire_TriggerOutput(self.Entity, "Message", self.Buff[1] or 0 )
+	Wire_TriggerOutput(self, "Message", self.Buff[1] or 0 )
 	
 end
 
@@ -128,8 +128,8 @@ function ENT:Think()
 		local Closest=0;
 		local CDistance=0;
 		
-		if self.Entity then
-			local myPos = self.Entity:GetPos();
+		if self then
+			local myPos = self:GetPos();
 			for _,Server in pairs( GetWirelessSrv() ) do
 				if Server then
 					if Server.Key == self.Key then

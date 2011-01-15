@@ -43,7 +43,7 @@ end
 // draw
 function ENT:Draw( )
 	// render model
-	self.Entity:DrawModel();
+	self:DrawModel();
 	
     if(!self.Memory) then return; end
     
@@ -51,7 +51,7 @@ function ENT:Draw( )
 	if( self.Memory[0] == 0 ) then return; end
 	
 	// read emitter.
-	local emitter = self.Entity:GetNetworkedEntity( "grid" );
+	local emitter = self:GetNetworkedEntity( "grid" );
 	if( !emitter || !emitter:IsValid() ) then return; end
 	
 	// calculate emitter position.
@@ -78,10 +78,10 @@ function ENT:Draw( )
 	local beamsize	= size * 0.25;
 	
 	// read color
-	local r, g, b, a = self.Entity:GetColor();
+	local r, g, b, a = self:GetColor();
 	local color = Color( r, g, b, a );
 	
-	self.Entity:SetRenderBounds( Vector()*-8192, Vector()*8192 )	
+	self:SetRenderBounds( Vector()*-8192, Vector()*8192 )	
 	
 	local num_points = math.Min(self.Memory[4],GetConVarNumber("hsholoemitter_max_points"))
     if (perPointColor) then
@@ -110,7 +110,7 @@ function ENT:Draw( )
 		if( drawbeam == true) then
 			render.SetMaterial( matbeam );
 			render.DrawBeam(
-				self.Entity:GetPos(),
+				self:GetPos(),
 				pixelpos,
 				beamsize,
 				0, 1,

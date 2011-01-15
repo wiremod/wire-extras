@@ -7,7 +7,7 @@ ENT.RenderGroup = RENDERGROUP_BOTH
    Desc: Draw it!
 ---------------------------------------------------------*/
 function ENT:Draw()
-	self.Entity:DrawModel()
+	self:DrawModel()
 end
 
 /*---------------------------------------------------------

@@ -6,13 +6,13 @@ resource.AddFile("materials/VGUI/entities/lever.vtf")]]
 
 function ENT:Initialize() 
 	lastswitch=CurTime()
-	self.Entity:SetModel( "models/props_mining/control_lever01.mdl" )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )     
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )   
-	self.Entity:SetSolid( SOLID_VPHYSICS )               
-	local phys = self.Entity:GetPhysicsObject()  
-	if not (WireAddon == nil) then self.Inputs = Wire_CreateInputs(self.Entity, { "Lock"}) end	
-	if not (WireAddon == nil) then self.Outputs = Wire_CreateOutputs(self.Entity, { "A"}) end
+	self:SetModel( "models/props_mining/control_lever01.mdl" )
+	self:PhysicsInit( SOLID_VPHYSICS )     
+	self:SetMoveType( MOVETYPE_VPHYSICS )   
+	self:SetSolid( SOLID_VPHYSICS )               
+	local phys = self:GetPhysicsObject()  
+	if not (WireAddon == nil) then self.Inputs = Wire_CreateInputs(self, { "Lock"}) end	
+	if not (WireAddon == nil) then self.Outputs = Wire_CreateOutputs(self, { "A"}) end
 	if (phys:IsValid()) then  		
 		phys:Wake()
 	end
@@ -45,7 +45,7 @@ end
 
 function ENT:Think()
 	
-	if not (WireAddon == nil) then Wire_TriggerOutput(self.Entity, "A", self.on) end
+	if not (WireAddon == nil) then Wire_TriggerOutput(self, "A", self.on) end
 end
 
 function ENT:Use()
@@ -53,16 +53,16 @@ function ENT:Use()
 
 		if (self.on == 1) then
 			self.on=0
-			local sequence = self.Entity:LookupSequence("close")
+			local sequence = self:LookupSequence("close")
 			self:ResetSequence( sequence ) 
 		else
-			local sequence = self.Entity:LookupSequence("open")
+			local sequence = self:LookupSequence("open")
 			self:ResetSequence( sequence ) 
 			self.on=1
 		end
 		
 		lastswitch=CurTime()
-		local phys = self.Entity:GetPhysicsObject()  
+		local phys = self:GetPhysicsObject()  
 		if (phys:IsValid()) then  		
 			phys:Wake()  	
 			phys:EnableMotion(True)

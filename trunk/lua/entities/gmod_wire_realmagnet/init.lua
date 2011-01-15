@@ -8,11 +8,11 @@ ENT.LastOverlayUpdate=1
 ENT.WireDebugName = "Magnet"
 
 function ENT:Initialize()
-	--self.Entity:SetModel("models/props_junk/gascan001a.mdl")
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Inputs = Wire_CreateInputs(self.Entity, { "On", "Strength", "Effect length" })
+	--self:SetModel("models/props_junk/gascan001a.mdl")
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self.Inputs = Wire_CreateInputs(self, { "On", "Strength", "Effect length" })
 	
 	self.TargetPlayers = false
 	
@@ -24,11 +24,11 @@ function ENT:Initialize()
 end
 
 function ENT:OnRemove()
-	Wire_Remove(self.Entity)
+	Wire_Remove(self)
 end
 
 function ENT:Setup(mdl,trgmetal,str,leng,mdlfilter)
-	self.Entity:SetModel(mdl)
+	self:SetModel(mdl)
     self:SetPropFilter(mdlfilter)
 	self:SetTargetOnlyMetal(trgmetal)
 	self:SetStrength(str)
@@ -38,10 +38,10 @@ end
 function ENT:Think()
 	if self:IsOn()==true then 
 		--print(tostring(self:GetLength()))
-		local entsTA=ents.FindInSphere(self.Entity:GetPos(),self:GetLength())
-		local myPos=self.Entity:GetPos()
+		local entsTA=ents.FindInSphere(self:GetPos(),self:GetLength())
+		local myPos=self:GetPos()
 		for k,ent in pairs(entsTA) do
-			if ent:IsValid() and ent!=self.Entity and ent:GetModel()!=nil and ent:GetModel()!="" then
+			if ent:IsValid() and ent!=self and ent:GetModel()!=nil and ent:GetModel()!="" then
 				//model
 				if self:GetPropFilter()==nil or self:GetPropFilter()=="" or (self:GetPropFilter()!="" and string.find( ent:GetModel(),self:GetPropFilter())!=nil) then//(self:IsTargetOnlyMetal()==false) or (self:IsTargetOnlyMetal()==true and tr.MatType != MAT_METAL Stuff not done yet
 					local phys = ent:GetPhysicsObject(); 
@@ -78,7 +78,7 @@ function ENT:Think()
 		self:ShowOutput()
 		self.LastOverlayUpdate=CurTime()
 	end*/
-	self.Entity:NextThink( CurTime() +  self.CachedTickRate) 
+	self:NextThink( CurTime() +  self.CachedTickRate) 
 	return true
 	
 end
@@ -118,7 +118,7 @@ function ENT:ShowOutput()
 end
 
 function ENT:OnRestore()
-    Wire_Restored(self.Entity)
+    Wire_Restored(self)
 end
 function ENT:SpawnFunction( ply, tr)
 

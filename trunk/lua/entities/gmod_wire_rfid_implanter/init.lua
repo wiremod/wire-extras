@@ -13,12 +13,12 @@ function ENT:ShowOutput(a,b,c,d)
 end
 
 function ENT:Initialize()
-	self.Entity:SetModel( MODEL )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Inputs = Wire_CreateInputs(self.Entity, { "Fire", "A", "B", "C", "D", "Remove" })
-	self.Outputs = Wire_CreateOutputs(self.Entity, { "Out" })
+	self:SetModel( MODEL )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self.Inputs = Wire_CreateInputs(self, { "Fire", "A", "B", "C", "D", "Remove" })
+	self.Outputs = Wire_CreateOutputs(self, { "Out" })
 	self.A = 0;
 	self.B = 0;
 	self.C = 0;
@@ -29,7 +29,7 @@ function ENT:Initialize()
 end
 
 function ENT:OnRemove()
-	Wire_Remove(self.Entity)
+	Wire_Remove(self)
 end
 
 function ENT:Setup(Range, col)
@@ -39,13 +39,13 @@ end
 
 function ENT:TriggerInput(iname, value)
 	if ((iname == "Fire" or iname=="Remove") and value~=0) then
-		local vStart = self.Entity:GetPos()
-		local vForward = self.Entity:GetUp()
+		local vStart = self:GetPos()
+		local vForward = self:GetUp()
 		
 		local trace = {}
 		  trace.start = vStart
 		  trace.endpos = vStart + (vForward * self:GetBeamLength())
-		  trace.filter = { self.Entity }
+		  trace.filter = { self }
 		local trace = util.TraceLine( trace ) 
 		
 		if (!trace.Entity) then return false end
@@ -82,32 +82,32 @@ end
 function ENT:Think()
 	self.BaseClass.Think(self)
 	
-	local vStart = self.Entity:GetPos()
-	local vForward = self.Entity:GetUp()
+	local vStart = self:GetPos()
+	local vForward = self:GetUp()
 	
     local trace = {}
 	   trace.start = vStart
 	   trace.endpos = vStart + (vForward * self:GetBeamLength())
-	   trace.filter = { self.Entity }
+	   trace.filter = { self }
 	local trace = util.TraceLine( trace ) 
 	
 	local ent = trace.Entity
 
 	if (!trace.Entity or !trace.Entity:IsValid() or trace.Entity:IsWorld() or !trace.Entity:GetPhysicsObject()) then
-		if(!self.NoColorChg and Color(self.Entity:GetColor()) != Color(255,255,255,255))then
-            self.Entity:SetColor(255, 255, 255, 255)
+		if(!self.NoColorChg and Color(self:GetColor()) != Color(255,255,255,255))then
+            self:SetColor(255, 255, 255, 255)
         end
 		return false
 	end
     
-    if(!self.NoColorChg and Color(self.Entity:GetColor()) != Color(0,255,0,255))then
-        self.Entity:SetColor(0, 255, 0, 255)
+    if(!self.NoColorChg and Color(self:GetColor()) != Color(0,255,0,255))then
+        self:SetColor(0, 255, 0, 255)
     end
     
-    self.Entity:NextThink(CurTime()+0.125)
+    self:NextThink(CurTime()+0.125)
 end
 
 function ENT:OnRestore()
-    Wire_Restored(self.Entity)
+    Wire_Restored(self)
 end
 
