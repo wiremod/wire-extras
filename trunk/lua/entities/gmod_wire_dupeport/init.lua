@@ -7,13 +7,13 @@ ENT.WireDebugName = "Dupe Teleporter"
 ENT.OverlayDelay = 0
 
 function ENT:Initialize()
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Entity:SetUseType( SIMPLE_USE )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self:SetUseType( SIMPLE_USE )
 	
-	self.Outputs = WireLib.CreateSpecialOutputs(self.Entity,{"Entity Scaned","Entity Serialised","Spawn Available","Deserialisable Input Available","Data Output","Sending","Blocks Sended","Receiving","Blocks Received","Serialised Output Block Count","Serialised Input Block Count"},{"NORMAL","NORMAL","NORMAL","NORMAL","STRING","NORMAL","NORMAL","NORMAL","NORMAL","NORMAL","NORMAL"})
-	self.Inputs = WireLib.CreateSpecialInputs(self.Entity,{"Read Entity","Serialise Entity","Spawn Entity","Deserialise Input","Data Input","Start Data Sending","Piece Size","Clear Input","Spawn Player SteamID"},{"NORMAL","NORMAL","NORMAL","NORMAL","STRING","NORMAL","NORMAL","NORMAL","STRING"})
+	self.Outputs = WireLib.CreateSpecialOutputs(self,{"Entity Scaned","Entity Serialised","Spawn Available","Deserialisable Input Available","Data Output","Sending","Blocks Sended","Receiving","Blocks Received","Serialised Output Block Count","Serialised Input Block Count"},{"NORMAL","NORMAL","NORMAL","NORMAL","STRING","NORMAL","NORMAL","NORMAL","NORMAL","NORMAL","NORMAL"})
+	self.Inputs = WireLib.CreateSpecialInputs(self,{"Read Entity","Serialise Entity","Spawn Entity","Deserialise Input","Data Input","Start Data Sending","Piece Size","Clear Input","Spawn Player SteamID"},{"NORMAL","NORMAL","NORMAL","NORMAL","STRING","NORMAL","NORMAL","NORMAL","STRING"})
 	
 	self.OutHeadEntityIdx	= nil
 	self.OutHoldAngle 		= nil
@@ -64,25 +64,25 @@ function ENT:Think()
 		if (self.OutBlockSendNum == -1) then
 			self.OutBlockSendNum = 0
 			
-			Wire_TriggerOutput(self.Entity,"Data Output","Data:Start:"..self.OutBlockCount)
+			Wire_TriggerOutput(self,"Data Output","Data:Start:"..self.OutBlockCount)
 			
-			Wire_TriggerOutput(self.Entity,"Sending",1)
+			Wire_TriggerOutput(self,"Sending",1)
 		else
 			if (self.OutBlockSendNum == self.OutBlockCount) then
 				self.SendingData = false
 				self.OutBlockSendNum = -1
-				Wire_TriggerOutput(self.Entity,"Sending",0)
-				Wire_TriggerOutput(self.Entity,"Blocks Sended",0)
-				Wire_TriggerOutput(self.Entity,"Data Output","")
+				Wire_TriggerOutput(self,"Sending",0)
+				Wire_TriggerOutput(self,"Blocks Sended",0)
+				Wire_TriggerOutput(self,"Data Output","")
 			else
-				Wire_TriggerOutput(self.Entity,"Data Output","Data:"..self.OutBlockSendNum..":"..self.OutBlocks[self.OutBlockSendNum])
-				Wire_TriggerOutput(self.Entity,"Blocks Sended",self.OutBlockSendNum+1)
+				Wire_TriggerOutput(self,"Data Output","Data:"..self.OutBlockSendNum..":"..self.OutBlocks[self.OutBlockSendNum])
+				Wire_TriggerOutput(self,"Blocks Sended",self.OutBlockSendNum+1)
 				self.OutBlockSendNum = self.OutBlockSendNum + 1
 			end
 		end
 	end
 	
-	self.Entity:NextThink( CurTime() + 0.1 )
+	self:NextThink( CurTime() + 0.1 )
 end
 
 function ENT:TriggerInput(iname, value)
@@ -92,12 +92,12 @@ function ENT:TriggerInput(iname, value)
 						
 			if ( CLIENT ) then return true end
 			
-			local StartPos = self.Entity:GetPos()
+			local StartPos = self:GetPos()
 			
 			local tr = {}
 			tr.start = StartPos
-			tr.endpos = StartPos + self.Entity:GetUp() * 100
-			tr.filter = { self.Entity }
+			tr.endpos = StartPos + self:GetUp() * 100
+			tr.filter = { self }
 			local trace = util.TraceLine( tr )
 			
 			if (trace.Entity && trace.Entity:IsValid()) then
@@ -106,7 +106,7 @@ function ENT:TriggerInput(iname, value)
 				
 				AdvDupe.Copy( trace.Entity, self.OutEntities, self.OutConstraints, StartPos )
 				
-				local angle  = self.Entity:GetAngles()
+				local angle  = self:GetAngles()
 					
 				self.OutHeadEntityIdx	= trace.Entity:EntIndex()
 				self.OutHoldAngle 		= angle
@@ -119,7 +119,7 @@ function ENT:TriggerInput(iname, value)
 				self.OutNumOfConst		= table.Count(self.OutConstraints)	or 0
 				
 				self.Copied	= true
-				Wire_TriggerOutput(self.Entity, "Entity Scaned", 1)
+				Wire_TriggerOutput(self, "Entity Scaned", 1)
 			end
 		end
 	elseif (iname == "Spawn Entity") then
@@ -127,9 +127,9 @@ function ENT:TriggerInput(iname, value)
 			if ( CLIENT ) then	return true	end
 			if ( self.SpawnData ) then
 				local ply = self:GetUserEntity(self.SpawnSteamID)
-				local angle  = self.Entity:GetAngles()
+				local angle  = self:GetAngles()
 				if (ply) then
-					AdvDupe.StartPaste( ply, self.InEntities, self.InConstraints, self.InHeadEntityIdx, self.Entity:GetPos(), self.Entity:GetAngles()-self.InHoldAngle, self.InNumOfEnts, self.InNumOfConst, false, false, nil, true, self.Entity, true )
+					AdvDupe.StartPaste( ply, self.InEntities, self.InConstraints, self.InHeadEntityIdx, self:GetPos(), self:GetAngles()-self.InHoldAngle, self.InNumOfEnts, self.InNumOfConst, false, false, nil, true, self, true )
 				end
 			end
 		end
@@ -189,7 +189,7 @@ function ENT:TriggerInput(iname, value)
 				DictStr
 				}, "\n")
 				
-			Wire_TriggerOutput(self.Entity, "Entity Serialised", 1)
+			Wire_TriggerOutput(self, "Entity Serialised", 1)
 			
 			local length = string.len(self.OutSerialised)
 			self.OutBlocks = {}
@@ -201,7 +201,7 @@ function ENT:TriggerInput(iname, value)
 					self.OutBlocks[(i-1)/self.PieceSize] = string.sub(self.OutSerialised,i,length)
 				end
 			end
-			Wire_TriggerOutput(self.Entity,"Serialised Output Block Count",self.OutBlockCount)
+			Wire_TriggerOutput(self,"Serialised Output Block Count",self.OutBlockCount)
 		end
 	elseif (iname == "Deserialise Input") then
 		if (value > 0 && self.InSerialised != "" && !self.SendingData) then
@@ -266,8 +266,8 @@ function ENT:TriggerInput(iname, value)
 					
 					self.InBlocks = {}
 					self.InBlockCount = tonumber(string.sub(value,12,string.len(value)))
-					Wire_TriggerOutput(self.Entity,"Serialised Input Block Count",self.InBlockCount)
-					Wire_TriggerOutput(self.Entity,"Receiving",1)
+					Wire_TriggerOutput(self,"Serialised Input Block Count",self.InBlockCount)
+					Wire_TriggerOutput(self,"Receiving",1)
 				elseif (self.ReceivingData) then
 					pos = string.instr(value,":",6)
 					BlockNum = tonumber(string.sub(value,6,pos-1))
@@ -283,11 +283,11 @@ function ENT:TriggerInput(iname, value)
 						end
 						
 						self.ReceivingData = false
-						Wire_TriggerOutput(self.Entity,"Blocks Received",self.InBlockCount)
-						Wire_TriggerOutput(self.Entity,"Deserialisable Input Available",1)
-						Wire_TriggerOutput(self.Entity,"Receiving",0)
+						Wire_TriggerOutput(self,"Blocks Received",self.InBlockCount)
+						Wire_TriggerOutput(self,"Deserialisable Input Available",1)
+						Wire_TriggerOutput(self,"Receiving",0)
 					else
-						Wire_TriggerOutput(self.Entity,"Blocks Received",BlockNum+1)
+						Wire_TriggerOutput(self,"Blocks Received",BlockNum+1)
 					end
 				end
 			end
@@ -327,9 +327,9 @@ function ENT:ClearClipBoard()
 	self.OutBlocks			= nil
 	self.Copied				= false
 	
-	Wire_TriggerOutput(self.Entity, "Entity Scaned", 0)
-	Wire_TriggerOutput(self.Entity, "Entity Serialised", 0)
-	Wire_TriggerOutput(self.Entity, "Serialised Output Block Count",0)
+	Wire_TriggerOutput(self, "Entity Scaned", 0)
+	Wire_TriggerOutput(self, "Entity Serialised", 0)
+	Wire_TriggerOutput(self, "Serialised Output Block Count",0)
 end
 
 function ENT:ClearInputClipBoard()
@@ -348,10 +348,10 @@ function ENT:ClearInputClipBoard()
 	self.ReceivingData		= false
 	self.SpawnData			= false
 	
-	Wire_TriggerOutput(self.Entity,"Spawn Available",0)
-	Wire_TriggerOutput(self.Entity,"Deserialisable Input Available",0)
-	Wire_TriggerOutput(self.Entity,"Serialised Input Block Count",0)
-	Wire_TriggerOutput(self.Entity,"Blocks Received",0)
+	Wire_TriggerOutput(self,"Spawn Available",0)
+	Wire_TriggerOutput(self,"Deserialisable Input Available",0)
+	Wire_TriggerOutput(self,"Serialised Input Block Count",0)
+	Wire_TriggerOutput(self,"Blocks Received",0)
 end
 
 function ENT:DupeLoadCallBack( Entities, Constraints, HeadEntityIdx, NumOfEnts, NumOfConst, HoldAngle )
@@ -369,7 +369,7 @@ function ENT:DupeLoadCallBack( Entities, Constraints, HeadEntityIdx, NumOfEnts, 
 		self.InNumOfConst		= NumOfConst
 		
 		self.SpawnData			= true
-		Wire_TriggerOutput(self.Entity, "Spawn Available", 1)
+		Wire_TriggerOutput(self, "Spawn Available", 1)
 		
 	end
 end

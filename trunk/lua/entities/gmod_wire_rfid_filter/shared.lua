@@ -14,9 +14,9 @@ ENT.AdminSpawnable		= false
 
 
 function ENT:SetLinkedTargetFinder(tf)
-	self.Entity:SetNetworkedEntity("LinkedTargetFinder", tf)
+	self:SetNetworkedEntity("LinkedTargetFinder", tf)
 end
 
 function ENT:GetLinkedTargetFinder()
-	return self.Entity:GetNetworkedEntity("LinkedTargetFinder")
+	return self:GetNetworkedEntity("LinkedTargetFinder")
 end

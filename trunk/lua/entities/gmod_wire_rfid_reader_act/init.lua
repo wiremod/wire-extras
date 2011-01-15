@@ -9,11 +9,11 @@ ENT.WireDebugName = "RFID User Reader"
 local MODEL = Model("models/jaanus/wiretool/wiretool_siren.mdl")
 
 function ENT:Initialize()
-	self.Entity:SetModel( MODEL )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Outputs = Wire_CreateOutputs(self.Entity, { "State", "A", "B", "C", "D" })
+	self:SetModel( MODEL )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self.Outputs = Wire_CreateOutputs(self, { "State", "A", "B", "C", "D" })
 	self.A=0
 	self.B=0
 	self.C=0
@@ -21,11 +21,11 @@ function ENT:Initialize()
 	self.State=0
 	self.Target=nil
 	self.NoColorChg=false
-	Wire_TriggerOutput(self.Entity,"State",0)
-	Wire_TriggerOutput(self.Entity,"A",0)
-	Wire_TriggerOutput(self.Entity,"B",0)
-	Wire_TriggerOutput(self.Entity,"C",0)
-	Wire_TriggerOutput(self.Entity,"D",0)
+	Wire_TriggerOutput(self,"State",0)
+	Wire_TriggerOutput(self,"A",0)
+	Wire_TriggerOutput(self,"B",0)
+	Wire_TriggerOutput(self,"C",0)
+	Wire_TriggerOutput(self,"D",0)
 	self:ShowOutput()
 end
 
@@ -35,7 +35,7 @@ function ENT:OnRemove()
 		self.Target.Use_OMGRFIDBACKUPLOL = nil
 		self.Target.RFID_READER_ACT_LINKED = nil
 	end
-	Wire_Remove(self.Entity)
+	Wire_Remove(self)
 end
 
 function ENT:Setup(ent_target,col)
@@ -80,40 +80,40 @@ function ENT:Think()
 			self.PrevUser = nil
 		end
 
-		self.Entity:NextThink(CurTime()+0.05)
+		self:NextThink(CurTime()+0.05)
 		return true
 	end
-	self.Entity:NextThink(CurTime()+0.05)
+	self:NextThink(CurTime()+0.05)
 end
 
 function ENT:Switch(on)
-	if (not self.Entity:IsValid()) then return end
+	if (not self:IsValid()) then return end
 
 	self:SetOn( on )
 
 	if (on) then
 		if (self.PrevUser and self.PrevUser.__RFID_HASRFID) then
-			if !self.NoColorChg then self.Entity:SetColor(0, 255, 0, 255) end
-			Wire_TriggerOutput(self.Entity,"State",1)                  self.State=1
-			Wire_TriggerOutput(self.Entity,"A",self.PrevUser.__RFID_A) self.A=self.PrevUser.__RFID_A
-			Wire_TriggerOutput(self.Entity,"B",self.PrevUser.__RFID_B) self.B=self.PrevUser.__RFID_B
-			Wire_TriggerOutput(self.Entity,"C",self.PrevUser.__RFID_C) self.C=self.PrevUser.__RFID_C
-			Wire_TriggerOutput(self.Entity,"D",self.PrevUser.__RFID_D) self.D=self.PrevUser.__RFID_D
+			if !self.NoColorChg then self:SetColor(0, 255, 0, 255) end
+			Wire_TriggerOutput(self,"State",1)                  self.State=1
+			Wire_TriggerOutput(self,"A",self.PrevUser.__RFID_A) self.A=self.PrevUser.__RFID_A
+			Wire_TriggerOutput(self,"B",self.PrevUser.__RFID_B) self.B=self.PrevUser.__RFID_B
+			Wire_TriggerOutput(self,"C",self.PrevUser.__RFID_C) self.C=self.PrevUser.__RFID_C
+			Wire_TriggerOutput(self,"D",self.PrevUser.__RFID_D) self.D=self.PrevUser.__RFID_D
 		else
-			if !self.NoColorChg then self.Entity:SetColor(255, 0, 0, 255) end
-			Wire_TriggerOutput(self.Entity,"State",-1) self.State=-1
-			Wire_TriggerOutput(self.Entity,"A",0)      self.A=0
-			Wire_TriggerOutput(self.Entity,"B",0)      self.B=0
-			Wire_TriggerOutput(self.Entity,"C",0)      self.C=0
-			Wire_TriggerOutput(self.Entity,"D",0)      self.D=0
+			if !self.NoColorChg then self:SetColor(255, 0, 0, 255) end
+			Wire_TriggerOutput(self,"State",-1) self.State=-1
+			Wire_TriggerOutput(self,"A",0)      self.A=0
+			Wire_TriggerOutput(self,"B",0)      self.B=0
+			Wire_TriggerOutput(self,"C",0)      self.C=0
+			Wire_TriggerOutput(self,"D",0)      self.D=0
 		end
 	else
-		if !self.NoColorChg then self.Entity:SetColor(255, 255, 255, 255) end
-		Wire_TriggerOutput(self.Entity,"State",0)  self.State=0
-		Wire_TriggerOutput(self.Entity,"A",0)      self.A=0
-		Wire_TriggerOutput(self.Entity,"B",0)      self.B=0
-		Wire_TriggerOutput(self.Entity,"C",0)      self.C=0
-		Wire_TriggerOutput(self.Entity,"D",0)      self.D=0
+		if !self.NoColorChg then self:SetColor(255, 255, 255, 255) end
+		Wire_TriggerOutput(self,"State",0)  self.State=0
+		Wire_TriggerOutput(self,"A",0)      self.A=0
+		Wire_TriggerOutput(self,"B",0)      self.B=0
+		Wire_TriggerOutput(self,"C",0)      self.C=0
+		Wire_TriggerOutput(self,"D",0)      self.D=0
 	end
 	self:ShowOutput(self.Target, self.State, self.A,self.B,self.C,self.D)
 	return true
@@ -133,5 +133,5 @@ function ENT:ShowOutput(t,s,a,b,c,d)
 end
 
 function ENT:OnRestore()
-    Wire_Restored(self.Entity)
+    Wire_Restored(self)
 end

@@ -14,9 +14,9 @@ function GetWirelessSrv()
 end
 
 function ENT:Initialize()
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )																			
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:PhysicsInit( SOLID_VPHYSICS )																			
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 	
 	self.Key=0;
 	self.clientNum=1;
@@ -34,15 +34,15 @@ end
 function BTClientUpdateMessage( self )
 
 	if ( self.Connected != 0 ) then
-		Wire_TriggerOutput(self.Entity, "Connected", 1 )
+		Wire_TriggerOutput(self, "Connected", 1 )
 	else
-		Wire_TriggerOutput(self.Entity, "Connected", 0 )
+		Wire_TriggerOutput(self, "Connected", 0 )
 	end
 
-	Wire_TriggerOutput(self.Entity, "ID", self.clientID )
-	Wire_TriggerOutput(self.Entity, "Count", #self.Buff )
+	Wire_TriggerOutput(self, "ID", self.clientID )
+	Wire_TriggerOutput(self, "Count", #self.Buff )
 	
-	Wire_TriggerOutput(self.Entity, "Message", self.Buff[1] or 0 )
+	Wire_TriggerOutput(self, "Message", self.Buff[1] or 0 )
 	
 end
 
@@ -204,7 +204,7 @@ function ENT:UpdateMsg()
 	if ( Cli != 0 ) then
 		Cli:UpdateMessage();
 		local CliCount=self:CountActiveClients();
-		Wire_TriggerOutput(self.Entity, "Clients", CliCount )
+		Wire_TriggerOutput(self, "Clients", CliCount )
 		
 		if self.Key != 0 then
 			self:SetOverlayText("Wireless Hub (" .. self.Key .. ") - " .. CliCount .. " connected")
@@ -220,10 +220,10 @@ function ENT:UpdateMsg()
 			self:SetOverlayText("Wireless Hub - 0 connected")
 		end
 		
-		Wire_TriggerOutput(self.Entity, "Clients", 0 )
-		Wire_TriggerOutput(self.Entity, "Connected", 0 )
-		Wire_TriggerOutput(self.Entity, "ID", 0 )
-		Wire_TriggerOutput(self.Entity, "Count", 0 )
+		Wire_TriggerOutput(self, "Clients", 0 )
+		Wire_TriggerOutput(self, "Connected", 0 )
+		Wire_TriggerOutput(self, "ID", 0 )
+		Wire_TriggerOutput(self, "Count", 0 )
 	end
 end
 

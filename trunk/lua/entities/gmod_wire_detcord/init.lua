@@ -11,15 +11,15 @@ ENT.OverlayDelay = 0
    Desc: First function called. Use to set up your entity
 ---------------------------------------------------------*/
 function ENT:Initialize()
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 	
-	local phys = self.Entity:GetPhysicsObject()
+	local phys = self:GetPhysicsObject()
 	if phys:IsValid() then phys:Wake() end
 	self.isDetcord = true
 	
-	self.Inputs = Wire_CreateInputs(self.Entity, {"Detonate"})
+	self.Inputs = Wire_CreateInputs(self, {"Detonate"})
 end
 
 /*---------------------------------------------------------
@@ -72,7 +72,7 @@ function ENT:Detonate()
 	local en = ents.FindInSphere(self:GetPos(), self.range)
 
 	local effectdata = EffectData()
-        effectdata:SetOrigin( self.Entity:GetPos() )
+        effectdata:SetOrigin( self:GetPos() )
         util.Effect( "Explosion", effectdata, true, true )
 	
 	for k,v in pairs(en) do

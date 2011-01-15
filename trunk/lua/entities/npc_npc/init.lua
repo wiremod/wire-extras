@@ -43,10 +43,10 @@ function ENT:Think()
 			else 
 				self:SetSchedule( SCHED_IDLE_STAND ) //This is done when Go does have a value, it's just not 1.
 			end
-		self.Entity:NextThink( CurTime() + 1 ) //To slow possible twitchy-ness
+		self:NextThink( CurTime() + 1 ) //To slow possible twitchy-ness
 	else //The variable isn't set until input from the controller is there so....
 		self:SetSchedule( SCHED_COWER ) //If this occurs then NPCGPS wasn't set properly = very bad. Hence the cower
-		self.Entity:NextThink( CurTime() + 1 ) //This is to delay the npc 10 seconds to wait for the controller variable to be set
+		self:NextThink( CurTime() + 1 ) //This is to delay the npc 10 seconds to wait for the controller variable to be set
 		return true
 	end 
 end

@@ -6,24 +6,24 @@ include('shared.lua')
 ENT.WireDebugName = "RAM-card"
 
 function ENT:SetupBase()
-	self.Entity:SetModel( "models/keycard/keycard.mdl" )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Entity:SetUseType( SIMPLE_USE )
+	self:SetModel( "models/keycard/keycard.mdl" )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self:SetUseType( SIMPLE_USE )
 	
 	self.CardOwner = nil
 	self.CardOwnerName = nil
 	
 	self.IsRamCard = true
-	self.Entity.IsRamCard = true
+	self.IsRamCard = true
 	
 	self.Socket = nil
 	self.Memory = {}
 	
-	self.Entity:SetOverlayText("Wire RAM-Card\nDefault ("..self.SizePrint..")")
+	self:SetOverlayText("Wire RAM-Card\nDefault ("..self.SizePrint..")")
 	
-	local phys = self.Entity:GetPhysicsObject()
+	local phys = self:GetPhysicsObject()
 	if (phys:IsValid()) then
 		phys:Wake()
 	end
@@ -35,7 +35,7 @@ function ENT:Think() --//think function of the card. any actions can be done in 
 		self:ResetSocket()
 	end
 	
-	self.Entity:NextThink( CurTime() + 1 )
+	self:NextThink( CurTime() + 1 )
 	return true
 end
 

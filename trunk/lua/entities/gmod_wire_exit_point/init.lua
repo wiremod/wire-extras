@@ -14,9 +14,9 @@ if (CLIENT) then
 end
 
 function ENT:Initialize()
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 	
 	self.Entities = {}
 	self.Position = Vector(50,0,10)
@@ -24,7 +24,7 @@ function ENT:Initialize()
 	
 	AddExitPoint( self )
 	
-	self.Inputs = WireLib.CreateInputs( self.Entity, { "Entities [ARRAY]", "Position [VECTOR]", "Global" } )
+	self.Inputs = WireLib.CreateInputs( self, { "Entities [ARRAY]", "Position [VECTOR]", "Global" } )
 	self:SetOverlayText( "Number of entities linked: 0\nPosition: " .. tostring(self.Position) .. "\nGlobal: No" )
 end
 
