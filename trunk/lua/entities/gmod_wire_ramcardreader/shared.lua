@@ -11,25 +11,25 @@ ENT.Spawnable			= false
 ENT.AdminSpawnable		= false
 
 function ENT:SetRange(length)
-	self.Entity:SetNetworkedFloat("BeamLength", length)
+	self:SetNetworkedFloat("BeamLength", length)
 end
 
 function ENT:GetRange()
-	return self.Entity:GetNetworkedFloat("BeamLength") or 0
+	return self:GetNetworkedFloat("BeamLength") or 0
 end
 
 function ENT:SetReadMode(mode)
-	self.Entity:SetNetworkedFloat("ReadMode", mode)
+	self:SetNetworkedFloat("ReadMode", mode)
 end
 
 function ENT:GetReadMode()
-	return self.Entity:GetNetworkedFloat("ReadMode") or 0
+	return self:GetNetworkedFloat("ReadMode") or 0
 end
 
 function ENT:SetLCMatchMode(mode)
-        self.Entity:SetNetworkedFloat("LCMatchMode", mode)
+        self:SetNetworkedFloat("LCMatchMode", mode)
 end
 
 function ENT:GetLCMatchMode()
-        return self.Entity:GetNetworkedFloat("LCMatchMode") or 0
+        return self:GetNetworkedFloat("LCMatchMode") or 0
 end

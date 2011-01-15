@@ -11,39 +11,39 @@ ENT.LastClear           = 0;
 function ENT:Initialize( )
 	// set model
 	util.PrecacheModel( "models/jaanus/wiretool/wiretool_range.mdl" );
-	self.Entity:SetModel( "models/jaanus/wiretool/wiretool_range.mdl" );
+	self:SetModel( "models/jaanus/wiretool/wiretool_range.mdl" );
 	
 	// setup physics
-	self.Entity:PhysicsInit( SOLID_VPHYSICS );
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS );
-	self.Entity:SetSolid( SOLID_VPHYSICS );
+	self:PhysicsInit( SOLID_VPHYSICS );
+	self:SetMoveType( MOVETYPE_VPHYSICS );
+	self:SetSolid( SOLID_VPHYSICS );
 	
 	// vars
-	self.Entity:SetNetworkedFloat( "X", 0 );
-	self.Entity:SetNetworkedFloat( "Y", 0 );
-	self.Entity:SetNetworkedFloat( "Z", 0 );
-	self.Entity:SetNetworkedFloat( "FadeRate", 50 );
-	self.Entity:SetNetworkedFloat( "PointSize", 0.2 );
-	self.Entity:SetNetworkedBool( "ShowBeam", true );
-	self.Entity:SetNetworkedBool( "GroundBeam", true );
-	self.Entity:SetNetworkedBool( "Active", false );
-	self.Entity:SetNetworkedBool( "UseGPS", false );
-	self.Entity:SetNetworkedInt( "LastClear", 0 );
-	self.Entity:SetNetworkedEntity( "grid", self.Entity );
+	self:SetNetworkedFloat( "X", 0 );
+	self:SetNetworkedFloat( "Y", 0 );
+	self:SetNetworkedFloat( "Z", 0 );
+	self:SetNetworkedFloat( "FadeRate", 50 );
+	self:SetNetworkedFloat( "PointSize", 0.2 );
+	self:SetNetworkedBool( "ShowBeam", true );
+	self:SetNetworkedBool( "GroundBeam", true );
+	self:SetNetworkedBool( "Active", false );
+	self:SetNetworkedBool( "UseGPS", false );
+	self:SetNetworkedInt( "LastClear", 0 );
+	self:SetNetworkedEntity( "grid", self );
 
 	// create inputs.
-	self.Inputs = WireLib.CreateSpecialInputs( self.Entity, { "X", "Y", "Z", "Vector", "Active", "FadeRate", "Clear" }, { "NORMAL", "NORMAL", "NORMAL", "VECTOR", "NORMAL", "NORMAL", "NORMAL" } );
-	self.Outputs = WireLib.CreateSpecialOutputs( self.Entity, { "Pressed X","Pressed Y","Pressed Z","Pressed Vector" }, {"NORMAL","NORMAL","NORMAL","VECTOR"} )
+	self.Inputs = WireLib.CreateSpecialInputs( self, { "X", "Y", "Z", "Vector", "Active", "FadeRate", "Clear" }, { "NORMAL", "NORMAL", "NORMAL", "VECTOR", "NORMAL", "NORMAL", "NORMAL" } );
+	self.Outputs = WireLib.CreateSpecialOutputs( self, { "Pressed X","Pressed Y","Pressed Z","Pressed Vector" }, {"NORMAL","NORMAL","NORMAL","VECTOR"} )
 	
-	Wire_TriggerOutput( self.Entity,"Pressed X",0)
-	Wire_TriggerOutput( self.Entity,"Pressed Y",0)
-	Wire_TriggerOutput( self.Entity,"Pressed Z",0)
-	Wire_TriggerOutput( self.Entity,"Pressed Vector",Vector(0,0,0))
+	Wire_TriggerOutput( self,"Pressed X",0)
+	Wire_TriggerOutput( self,"Pressed Y",0)
+	Wire_TriggerOutput( self,"Pressed Z",0)
+	Wire_TriggerOutput( self,"Pressed Vector",Vector(0,0,0))
 end
 
 // link to grid
 function ENT:LinkToGrid( ent )
-	self.Entity:SetNetworkedEntity( "grid", ent );
+	self:SetNetworkedEntity( "grid", ent );
 end
 
 // trigger input
@@ -52,18 +52,18 @@ function ENT:TriggerInput( inputname, value, iter )
 	if(not value) then return end;
 	if (inputname == "Clear" and value != 0)  then
 		self.LastClear = self.LastClear + 1
-		self.Entity:SetNetworkedInt( "Clear", self.LastClear );
+		self:SetNetworkedInt( "Clear", self.LastClear );
 		
 	elseif ( inputname == "Active" ) then
-		self.Entity:SetNetworkedBool( "Active", value > 0 );
+		self:SetNetworkedBool( "Active", value > 0 );
 		
 	// store float values.
 	elseif ( inputname == "Vector" ) and ( type(value) == "Vector" ) then
-		self.Entity:SetNetworkedFloat( "X", value.x );
-		self.Entity:SetNetworkedFloat( "Y", value.y );
-		self.Entity:SetNetworkedFloat( "Z", value.z );
+		self:SetNetworkedFloat( "X", value.x );
+		self:SetNetworkedFloat( "Y", value.y );
+		self:SetNetworkedFloat( "Z", value.z );
 	elseif (inputname && inputname != "") then
-		self.Entity:SetNetworkedFloat( inputname, tonumber(value) );
+		self:SetNetworkedFloat( inputname, tonumber(value) );
 	end
 end
 
@@ -118,7 +118,7 @@ end
 function ENT:BuildDupeInfo()
 	local info = self.BaseClass.BuildDupeInfo(self) or {}
 
-	grid = self.Entity:GetNetworkedEntity( "grid" )
+	grid = self:GetNetworkedEntity( "grid" )
 	if (grid) and (grid:IsValid()) then
 		info.holoemitter_grid = grid:EntIndex()
 	end

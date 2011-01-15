@@ -11,21 +11,21 @@ ENT.LastClear       = 0;
 function ENT:Initialize( )
 	// set model
 	util.PrecacheModel( "models/jaanus/wiretool/wiretool_range.mdl" );
-	self.Entity:SetModel( "models/jaanus/wiretool/wiretool_range.mdl" );
+	self:SetModel( "models/jaanus/wiretool/wiretool_range.mdl" );
 	
 	// setup physics
-	self.Entity:PhysicsInit( SOLID_VPHYSICS );
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS );
-	self.Entity:SetSolid( SOLID_VPHYSICS );
+	self:PhysicsInit( SOLID_VPHYSICS );
+	self:SetMoveType( MOVETYPE_VPHYSICS );
+	self:SetSolid( SOLID_VPHYSICS );
 	
 	// vars
-	self.Entity:SetNetworkedBool( "UseGPS", false );
-	self.Entity:SetNetworkedInt( "LastClear", 0 );
-	self.Entity:SetNetworkedEntity( "grid", self.Entity );
+	self:SetNetworkedBool( "UseGPS", false );
+	self:SetNetworkedInt( "LastClear", 0 );
+	self:SetNetworkedEntity( "grid", self );
 
 	// create inputs.
-	self.Inputs = Wire_CreateInputs( self.Entity, { "Active", "Reset" } )
-	self.Outputs = Wire_CreateOutputs( self.Entity, { "Memory" } )
+	self.Inputs = Wire_CreateInputs( self, { "Active", "Reset" } )
+	self.Outputs = Wire_CreateOutputs( self, { "Memory" } )
 	
 	self:Setup()
 end
@@ -54,13 +54,13 @@ end
 
 // link to grid
 function ENT:LinkToGrid( ent )
-	self.Entity:SetNetworkedEntity( "grid", ent );
+	self:SetNetworkedEntity( "grid", ent );
 end
 
 function ENT:BuildDupeInfo()
 	local info = self.BaseClass.BuildDupeInfo(self) or {}
 
-	grid = self.Entity:GetNetworkedEntity( "grid" )
+	grid = self:GetNetworkedEntity( "grid" )
 	if (grid) and (grid:IsValid()) then
 		info.holoemitter_grid = grid:EntIndex()
 	end

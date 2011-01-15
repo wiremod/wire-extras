@@ -41,7 +41,7 @@ end
 function ENT:ClientCheckRegister()
 	local ply = LocalPlayer()
 	local plyuid = ply:UniqueID()
-	return (ply != self:GetPlayer() && !self.Entity:GetNetworkedBool(plyuid))
+	return (ply != self:GetPlayer() && !self:GetNetworkedBool(plyuid))
 end
 
 // Used by STool for unregister control panel

@@ -14,9 +14,9 @@ EMP_IGNORE_INPUTS["Strip weapons"]=true;
 EMP_IGNORE_INPUTS["Damage Health"]=true;
 
 function ENT:Initialize()
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 	
 	self.multiplier=1;
 	self.active=0;
@@ -55,9 +55,9 @@ end
 
 function ENT:BuildIgnoreList()
 
-	local queue={self.Entity}
+	local queue={self}
 	self.ignore={}
-	self.ignore[ self.Entity:EntIndex() ] =  self.Entity
+	self.ignore[ self:EntIndex() ] =  self
 
 	while ( # queue > 0 ) do
 	
@@ -141,7 +141,7 @@ function ENT:ConfigInOuts()
 		self.Inputs = Wire_CreateInputs(self, { "Active" , "Distance" } )
 	elseif ( self.Type == "Wind" || self.Type == "Vortex" ) then
 		self.Inputs = Wire_CreateInputs(self, { "Active" , "Distance","Multiplier", "Direction.X" , "Direction.Y", "Direction.Z", "Direction" } )
-		WireLib.AdjustSpecialInputs(self.Entity, { "Active", "Distance","Multiplier", "Direction.X" , "Direction.Y", "Direction.Z", "Direction"}, { "NORMAL","NORMAL", "NORMAL", "NORMAL", "NORMAL","NORMAL", "VECTOR"})
+		WireLib.AdjustSpecialInputs(self, { "Active", "Distance","Multiplier", "Direction.X" , "Direction.Y", "Direction.Z", "Direction"}, { "NORMAL","NORMAL", "NORMAL", "NORMAL", "NORMAL","NORMAL", "VECTOR"})
 	else
 		self.Inputs = Wire_CreateInputs(self, { "Active" , "Distance" , "Multiplier" } )
 	end
@@ -265,7 +265,7 @@ function ENT:Gravity_Logic()
 
 	local NewObjs={};
 
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos(), self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos(), self.prox || 10 ) ) do
 		self:Toogle_Prop_Gravity( contact , false );
 		NewObjs[ contact:EntIndex() ] = contact;	
 	end
@@ -402,7 +402,7 @@ function ENT:Static_Logic()
 
 	local NewObjs={};
 
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos(), self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos(), self.prox || 10 ) ) do
 		self:Slow_Prop( contact , false );
 		NewObjs[ contact:EntIndex() ] = contact;	
 	end
@@ -504,9 +504,9 @@ end
 
 function ENT:Pull_Logic()
 
-	local Center=self.Entity:GetPos();
+	local Center=self:GetPos();
 	
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos(), self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos(), self.prox || 10 ) ) do
 	
 		local Path = Center-contact:GetPos();
 		local Length = Path:Length();
@@ -524,10 +524,10 @@ end
 
 function ENT:Push_Logic()
 
-	local Center=self.Entity:GetPos(); 
+	local Center=self:GetPos(); 
 	local HalfProx=self.prox / 2;
 	
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos(), self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos(), self.prox || 10 ) ) do
 		
 		local Path = contact:GetPos()-Center;
 		local Length = Path:Length();
@@ -541,10 +541,10 @@ end
 
 function ENT:Push_Logic()
 
-	local Center=self.Entity:GetPos(); 
+	local Center=self:GetPos(); 
 	local HalfProx=self.prox / 2;
 	
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos(), self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos(), self.prox || 10 ) ) do
 		
 		local Path = contact:GetPos()-Center;
 		local Length = Path:Length();
@@ -559,10 +559,10 @@ end
 
 function ENT:Push_Logic()
 
-	local Center=self.Entity:GetPos(); 
+	local Center=self:GetPos(); 
 	local HalfProx=self.prox / 2;
 	
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos(), self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos(), self.prox || 10 ) ) do
 		
 		local Path = contact:GetPos()-Center;
 		local Length = Path:Length();
@@ -584,7 +584,7 @@ function ENT:Wind_Logic()
 
 	local Up = self.direction:Normalize();
 	
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos(), self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos(), self.prox || 10 ) ) do
 		
 		self:PullPushProp( contact , Up * self.multiplier );		
 		
@@ -599,14 +599,14 @@ end
 
 function ENT:GetEverythingInSphere( center , range )
 
-	local Objs=ents.FindInSphere( self.Entity:GetPos(), range )
+	local Objs=ents.FindInSphere( self:GetPos(), range )
 	
 	if self.arc >= 0 && self.arc < 360 then
 		
 		local rgc=math.cos( (self.arc/360) * math.pi ); //decrease arc by half, 0-360 isntead of 0-180
 		local Tmp={}
-		local upvec=self.Entity:GetUp();
-		local pos = self.Entity:GetPos();
+		local upvec=self:GetUp();
+		local pos = self:GetPos();
 		
 		for _,obj in pairs( Objs ) do
 			if obj:GetMoveType() != MOVETYPE_NOCLIP then
@@ -622,8 +622,8 @@ function ENT:GetEverythingInSphere( center , range )
 	else
 	
 		local Tmp={}
-		local upvec=self.Entity:GetUp();
-		local pos = self.Entity:GetPos();
+		local upvec=self:GetUp();
+		local pos = self:GetPos();
 		
 		for _,obj in pairs( Objs ) do
 			if obj:GetMoveType() != MOVETYPE_NOCLIP then
@@ -642,7 +642,7 @@ end
 function ENT:Vortex_Logic()
 
 	local Up = self.direction:Normalize();
-	local Center=self.Entity:GetPos(); 
+	local Center=self:GetPos(); 
 	local HalfProx=self.prox / 2;
 
 	for _,contact in pairs( self:GetEverythingInSphere( Center , self.prox || 10 ) ) do
@@ -686,7 +686,7 @@ end
 
 function ENT:Flame_Logic()
 
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos() , self.prox || 10 ) ) do
 		self:Flame_Apply( contact , true );
 	end
 	
@@ -694,7 +694,7 @@ end
 
 function ENT:Flame_Disable()
 
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos() , self.prox || 10 ) ) do
 		self:Flame_Apply( contact , false );
 	end
 	
@@ -778,7 +778,7 @@ end
 
 function ENT:Heal_Logic()
 	
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos() , self.prox || 10 ) ) do
 		if contact:IsNPC() || contact:IsPlayer() then
 			
 			self:Health_Apply( contact , true );
@@ -794,7 +794,7 @@ end
 
 function ENT:Death_Logic()
 
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos() , self.prox || 10 ) ) do
 		if contact:IsNPC() || contact:IsPlayer() then
 			self:Crush_Apply( contact , true )//cheat and use crushing effect, just do it on npcs/players tho.
 		end
@@ -808,7 +808,7 @@ end
 
 function ENT:Crush_Logic()
 
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos() , self.prox || 10 ) ) do
 		self:Crush_Apply( contact , true )
 	end
 	
@@ -870,7 +870,7 @@ function ENT:EMP_Logic()
 	
 	local NewObjs={};
 
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos() , self.prox || 10 ) ) do
 		self:EMP_Apply( contact , true );
 		NewObjs[ contact:EntIndex() ] = contact;	
 	end
@@ -887,7 +887,7 @@ end
 
 function ENT:EMP_Disable()
 
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos() , self.prox || 10 ) ) do
 		self:EMP_Apply( contact , false );
 	end
 	
@@ -920,7 +920,7 @@ function ENT:NoCollide_Logic()
 	local obj;
 	local Valid={};
 
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos() , self.prox || 10 ) ) do
 
 		myid=contact:EntIndex();
 		
@@ -975,7 +975,7 @@ end
 
 function ENT:Battery_Logic()
 
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos() , self.prox || 10 ) ) do
 		if contact:IsNPC() || contact:IsPlayer() then
 			
 			self:Battery_Apply( contact , true );
@@ -990,7 +990,7 @@ function ENT:Speed_Logic()
 	local NewObjs={};
 	local doo=nil;
 
-	for _,contact in pairs( self:GetEverythingInSphere( self.Entity:GetPos() , self.prox || 10 ) ) do
+	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos() , self.prox || 10 ) ) do
 		
 		if ( self.multiplier > 0 ) then
 			self:VelModProp( contact , 1+self.multiplier );
