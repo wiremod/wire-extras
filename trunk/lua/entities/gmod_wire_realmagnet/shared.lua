@@ -19,35 +19,35 @@ ENT.AdminSpawnable		= false
 
 function ENT:SetOn( boolon )
 	
-	self.Entity:SetNetworkedBool( "On", boolon, true )
-	self.Entity:GetTable().On=boolon
+	self:SetNetworkedBool( "On", boolon, true )
+	self:GetTable().On=boolon
 end
 
 function ENT:IsOn( name )
-	if SERVER then return self.Entity:GetTable().On end
-	return self.Entity:GetNetworkedBool( "On" )
+	if SERVER then return self:GetTable().On end
+	return self:GetNetworkedBool( "On" )
 end
 
 function ENT:SetBackwards( boolon )
 	
-	self.Entity:SetNetworkedBool( "Backwards", boolon, true )
-	self.Entity:GetTable().Backwards=boolon
+	self:SetNetworkedBool( "Backwards", boolon, true )
+	self:GetTable().Backwards=boolon
 end
 
 function ENT:IsBackwards( name )
-	if SERVER then return self.Entity:GetTable().Backwards end
-	return self.Entity:GetNetworkedBool( "Backwards" )
+	if SERVER then return self:GetTable().Backwards end
+	return self:GetNetworkedBool( "Backwards" )
 end
 
 
 function ENT:SetTargetOnlyMetal( boolon )
-	self.Entity:SetNetworkedBool( "TargetOnlyMetal", boolon, true )
-	self.Entity:GetTable().TargetOnlyMetal=boolon
+	self:SetNetworkedBool( "TargetOnlyMetal", boolon, true )
+	self:GetTable().TargetOnlyMetal=boolon
 end
 
 function ENT:IsTargetOnlyMetal( name )
-	if SERVER then return self.Entity:GetTable().TargetOnlyMetal end
-	return self.Entity:GetNetworkedBool( "TargetOnlyMetal" ) or true
+	if SERVER then return self:GetTable().TargetOnlyMetal end
+	return self:GetNetworkedBool( "TargetOnlyMetal" ) or true
 end
 
 
@@ -58,32 +58,32 @@ function ENT:SetStrength(Strength)
 		Strength=math.abs(Strength)
 	end
 	Strength=math.min(Strength,GetConVarNumber("sbox_wire_magnets_maxstrength"))
-	self.Entity:SetNetworkedFloat("Strength", Strength)
-	self.Entity:GetTable().Strength=Strength
+	self:SetNetworkedFloat("Strength", Strength)
+	self:GetTable().Strength=Strength
 end
 
 function ENT:GetStrength()
-	if SERVER then return self.Entity:GetTable().Strength or 0 end
-	return self.Entity:GetNetworkedFloat("Strength") or 0
+	if SERVER then return self:GetTable().Strength or 0 end
+	return self:GetNetworkedFloat("Strength") or 0
 end
 function ENT:SetLength(len)
 	--print("set len:"..len)
-	self.Entity:SetNetworkedFloat("Length", math.min(len,GetConVarNumber("sbox_wire_magnets_maxstrength")))
-	self.Entity:GetTable().Len=math.min(len,GetConVarNumber("sbox_wire_magnets_maxstrength"))
+	self:SetNetworkedFloat("Length", math.min(len,GetConVarNumber("sbox_wire_magnets_maxstrength")))
+	self:GetTable().Len=math.min(len,GetConVarNumber("sbox_wire_magnets_maxstrength"))
 end
 
 function ENT:GetLength()
-	--PrintTable(self.Entity:GetTable())
-	if SERVER then return self.Entity:GetTable().Len or 0 end
-	return self.Entity:GetNetworkedFloat("Length") or 0
+	--PrintTable(self:GetTable())
+	if SERVER then return self:GetTable().Len or 0 end
+	return self:GetNetworkedFloat("Length") or 0
 end
 function ENT:SetPropFilter(pf)
-	self.Entity:SetNetworkedString("PropFilter", pf)
-	self.Entity:GetTable().PropFilter=pf
+	self:SetNetworkedString("PropFilter", pf)
+	self:GetTable().PropFilter=pf
 end
 
 function ENT:GetPropFilter()
-	if SERVER then return self.Entity:GetTable().PropFilter end
-	return self.Entity:GetNetworkedString("PropFilter") or ""
+	if SERVER then return self:GetTable().PropFilter end
+	return self:GetNetworkedString("PropFilter") or ""
 end
 

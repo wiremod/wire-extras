@@ -11,14 +11,14 @@ include( 'shared.lua' )
 ENT.WireDebugName = "Damage Scale"
 
 function ENT:Initialize() 
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )     
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )   
-	self.Entity:SetSolid( SOLID_VPHYSICS )               
-	local phys = self.Entity:GetPhysicsObject() 
+	self:PhysicsInit( SOLID_VPHYSICS )     
+	self:SetMoveType( MOVETYPE_VPHYSICS )   
+	self:SetSolid( SOLID_VPHYSICS )               
+	local phys = self:GetPhysicsObject() 
 
-	self.Outputs = WireLib.CreateSpecialOutputs(self.Entity, { "Damage", "Entity" } , { "NORMAL", "ENTITY" } )
+	self.Outputs = WireLib.CreateSpecialOutputs(self, { "Damage", "Entity" } , { "NORMAL", "ENTITY" } )
 
-	self.Inputs = Wire_CreateInputs(self.Entity, { "On", "Refresh" })	
+	self.Inputs = Wire_CreateInputs(self, { "On", "Refresh" })	
 
 	if (phys:IsValid()) then  		
 		phys:Wake()  	
@@ -48,14 +48,14 @@ end
 
 function ENT:Think()
 	if ( self.On != 0 ) then
-		Wire_TriggerOutput(self.Entity, "Damage", self.Damage)			
-		Wire_TriggerOutput( self.Entity, "Entity", self.Enti )	
+		Wire_TriggerOutput(self, "Damage", self.Damage)			
+		Wire_TriggerOutput( self, "Entity", self.Enti )	
 		self:SetOverlayText( "The Damage Is "..self.Damage )
 		
 			if ( self.Damage > 0 ) then
 				self.Damage = 0 			
 					if ( self.Refresh >= 0 )	then	
-						self.Entity:NextThink( CurTime() + self.Refresh + 0.01 )
+						self:NextThink( CurTime() + self.Refresh + 0.01 )
 						return true
 					end						
 			end 

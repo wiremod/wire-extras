@@ -9,12 +9,12 @@ ENT.WireDebugName = "KeycardReader"
 local MODEL = Model("models/jaanus/wiretool/wiretool_range.mdl")
 
 function ENT:Initialize()
-	self.Entity:SetModel( MODEL )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Inputs = Wire_CreateInputs(self.Entity, { "ReadLocation", "WriteEnabled", "WriteLocation", "WriteValue" })
-	self.Outputs = Wire_CreateOutputs(self.Entity, {"Value", "SignedBy", "CardID", "Writable"})
+	self:SetModel( MODEL )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self.Inputs = Wire_CreateInputs(self, { "ReadLocation", "WriteEnabled", "WriteLocation", "WriteValue" })
+	self.Outputs = Wire_CreateOutputs(self, {"Value", "SignedBy", "CardID", "Writable"})
 	self:SetReadMode(0) // 0 = Beam, 1 = Area
         self:SetLCMatchMode(0) // 0 = Inclusive, 1 = Exclusive
         self:SetRange(256)
@@ -76,26 +76,26 @@ function ENT:Think()
 
         if(self:GetReadMode() == 0) then        
 
-            local vStart = self.Entity:GetPos()
-	    local vForward = self.Entity:GetUp()
+            local vStart = self:GetPos()
+	    local vForward = self:GetUp()
 		 
             local trace = {}
 	        trace.start = vStart
                 trace.endpos = vStart + (vForward * self:GetRange())
-                trace.filter = { self.Entity }
+                trace.filter = { self }
             local trace = util.TraceLine( trace ) 
 			
             foundEnt = trace.Entity            
 
-            if (!foundEnt) then self.Entity:ZeroOutputs() return false end
-            if (!foundEnt:IsValid() ) then self.Entity:ZeroOutputs() return false end
-            if (foundEnt:IsWorld()) then self.Entity:ZeroOutputs() return false end
-            if (foundEnt:GetClass() ~= "gmod_wire_keycard") then self.Entity:ZeroOutputs() return false end
+            if (!foundEnt) then self:ZeroOutputs() return false end
+            if (!foundEnt:IsValid() ) then self:ZeroOutputs() return false end
+            if (foundEnt:IsWorld()) then self:ZeroOutputs() return false end
+            if (foundEnt:GetClass() ~= "gmod_wire_keycard") then self:ZeroOutputs() return false end
             
 
 	else
             local i
-            local nearbyEnts = ents.FindInSphere(self.Entity:GetPos(), self:GetRange())
+            local nearbyEnts = ents.FindInSphere(self:GetPos(), self:GetRange())
 	    local keycardEnts = ents.FindByClass("gmod_wire_keycard")
 	    local nkEnts = {}
             for _,k in pairs(keycardEnts) do
@@ -106,22 +106,22 @@ function ENT:Think()
                 end
             end
 
-            if (table.Count(nkEnts) == 0) then self.Entity:ZeroOutputs() return false end
+            if (table.Count(nkEnts) == 0) then self:ZeroOutputs() return false end
 
             local nearestDist = self:GetRange()
 
             
             for _,k in pairs(nkEnts) do
-                local dist = self.Entity:GetPos():Distance(k:GetPos())
+                local dist = self:GetPos():Distance(k:GetPos())
                 if (dist <= nearestDist) then
                     nearestDist = dist
                     foundEnt = k
                 end
             end
 
-            if (!foundEnt) then self.Entity:ZeroOutputs() return false end
-            if (!foundEnt:IsValid() ) then self.Entity:ZeroOutputs() return false end
-            if (foundEnt:IsWorld()) then self.Entity:ZeroOutputs() return false end
+            if (!foundEnt) then self:ZeroOutputs() return false end
+            if (!foundEnt:IsValid() ) then self:ZeroOutputs() return false end
+            if (foundEnt:IsWorld()) then self:ZeroOutputs() return false end
         end
         
         if ( CLIENT ) then return true end
@@ -138,7 +138,7 @@ function ENT:Think()
         // This has the consequence of deliberately ignoring the card rather than just not
         // seeing it. A near card that isn't yours will force 0 on the outputs all the time.
         if (self.Writable == 0 and self:GetLCMatchMode() == 1) then
-            self.Entity:ZeroOutputs()
+            self:ZeroOutputs()
             return false
         end
 
@@ -160,20 +160,20 @@ function ENT:Think()
 	end
 
     
-        Wire_TriggerOutput(self.Entity,"Value", value)
-        Wire_TriggerOutput(self.Entity,"SignedBy", userid)
-        Wire_TriggerOutput(self.Entity,"CardID", cardid)
-	Wire_TriggerOutput(self.Entity,"Writable", self.Writable)
+        Wire_TriggerOutput(self,"Value", value)
+        Wire_TriggerOutput(self,"SignedBy", userid)
+        Wire_TriggerOutput(self,"CardID", cardid)
+	Wire_TriggerOutput(self,"Writable", self.Writable)
         self:ShowOutput()
 
-        self.Entity:NextThink(CurTime()+0.25)
+        self:NextThink(CurTime()+0.25)
 end
     
 function ENT:ZeroOutputs()
 	self.Writable = 0
-	Wire_TriggerOutput(self.Entity,"Value", 0)
-        Wire_TriggerOutput(self.Entity,"SignedBy", 0)
-        Wire_TriggerOutput(self.Entity,"CardID", 0)
-        Wire_TriggerOutput(self.Entity,"Writable", self.Writable)
+	Wire_TriggerOutput(self,"Value", 0)
+        Wire_TriggerOutput(self,"SignedBy", 0)
+        Wire_TriggerOutput(self,"CardID", 0)
+        Wire_TriggerOutput(self,"Writable", self.Writable)
 	self:ShowOutput()
 end

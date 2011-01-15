@@ -9,12 +9,12 @@ include('shared.lua')
 local MODEL = Model("models/jaanus/wiretool/wiretool_siren.mdl")
 
 function ENT:Initialize()
-	self.Entity:SetModel( MODEL )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:SetModel( MODEL )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 
-	self.Inputs = Wire_CreateInputs( self.Entity, { "Activate" } )	
+	self.Inputs = Wire_CreateInputs( self, { "Activate" } )	
 	
 	self:SetOverlayText( "Collide Toggle - Deactivated" )
 	

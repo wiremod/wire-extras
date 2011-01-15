@@ -9,14 +9,14 @@ local model = "models/jaanus/wiretool/wiretool_siren.mdl"
 ENT.WireDebugName = "Npc Controller"
 
 function ENT:Initialize() 
-	self.Entity:SetModel( model ) 	
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )     
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )   
-	self.Entity:SetSolid( SOLID_VPHYSICS )               
-	local phys = self.Entity:GetPhysicsObject()  
+	self:SetModel( model ) 	
+	self:PhysicsInit( SOLID_VPHYSICS )     
+	self:SetMoveType( MOVETYPE_VPHYSICS )   
+	self:SetSolid( SOLID_VPHYSICS )               
+	local phys = self:GetPhysicsObject()  
 		if WireAddon then //Changed this part to conform
-			self.Inputs = Wire_CreateInputs(self.Entity, { "X", "Y", "Z", "Go" })
-			self.Outputs = Wire_CreateOutputs(self.Entity, { "On"})
+			self.Inputs = Wire_CreateInputs(self, { "X", "Y", "Z", "Go" })
+			self.Outputs = Wire_CreateOutputs(self, { "On"})
 		end 
 	if (phys:IsValid()) then  		
 		phys:Wake()  	
@@ -46,7 +46,7 @@ function ENT:Think()
 		self:SetOverlayText( " Npc is idle " )
 	end
 	if WireAddon then
-		Wire_TriggerOutput( self.Entity, "On", self.ison )
+		Wire_TriggerOutput( self, "On", self.ison )
 	end
 end
 	

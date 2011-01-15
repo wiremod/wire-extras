@@ -11,19 +11,19 @@ local CARD_IN_SOCKET_CONSTRAINT_POWER = 2000
 local CARD_IN_ATTACH_RANGE = 3
 
 function ENT:Initialize()
-	self.Entity:SetModel( "models/keycardspawner/keycardspawner.mdl" )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Inputs = Wire_CreateInputs(self.Entity, { "Clk", "AddrRead", "AddrWrite", "Data" })
-	self.Outputs = Wire_CreateOutputs(self.Entity, {"Card Connected","Data","Cells"})
+	self:SetModel( "models/keycardspawner/keycardspawner.mdl" )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self.Inputs = Wire_CreateInputs(self, { "Clk", "AddrRead", "AddrWrite", "Data" })
+	self.Outputs = Wire_CreateOutputs(self, {"Card Connected","Data","Cells"})
 	
 	self.PluggedCard = nil
 	self.CardWeld = nil
 	self.CardNoCollide = nil
 	
-	self.Entity:SetOverlayText("Wire RAM-Card\nReader/Writer\nNo Card plugged in")
-	Wire_TriggerOutput(self.Entity,"Card Connected",0)
+	self:SetOverlayText("Wire RAM-Card\nReader/Writer\nNo Card plugged in")
+	Wire_TriggerOutput(self,"Card Connected",0)
 end
 
 function ENT:Think()
@@ -37,13 +37,13 @@ function ENT:Think()
 		self.CardNoCollide = nil
 		self.PluggedCard = nil
 		
-		self.Entity:SetOverlayText("Wire RAM-Card\nReader/Writer\nNo Card plugged in")
+		self:SetOverlayText("Wire RAM-Card\nReader/Writer\nNo Card plugged in")
 		
-		Wire_TriggerOutput(self.Entity,"Card Connected",0)
-		Wire_TriggerOutput(self.Entity,"Cells",0)
-		Wire_TriggerOutput(self.Entity,"Data",0)
+		Wire_TriggerOutput(self,"Card Connected",0)
+		Wire_TriggerOutput(self,"Cells",0)
+		Wire_TriggerOutput(self,"Data",0)
 		
-		self.Entity:NextThink( CurTime() + NEW_CARD_WAIT_TIME )
+		self:NextThink( CurTime() + NEW_CARD_WAIT_TIME )
 		return true
 	end
 	
@@ -52,15 +52,15 @@ function ENT:Think()
 	end
 	
 	if (self.PluggedCard && self.PluggedCard:IsValid()) then
-		self.Entity:NextThink( CurTime() + 1 )
+		self:NextThink( CurTime() + 1 )
 	else
-		self.Entity:NextThink( CurTime() + 0.2 )
+		self:NextThink( CurTime() + 0.2 )
 	end
 	return true
 end
 
 function ENT:SearchCards()
-	local sockCenter = self.Entity:GetPos() + self.Entity:GetUp() * 5
+	local sockCenter = self:GetPos() + self:GetUp() * 5
 	local local_ents = ents.FindInSphere( sockCenter, CARD_IN_ATTACH_RANGE )
 	for key, card in pairs(local_ents) do
 		// If we find a plug, try to attach it to us
@@ -78,17 +78,17 @@ end
 
 function ENT:PlugCard( card )
 	self.PluggedCard = card
-	local newpos = self.Entity:GetPos() + self.Entity:GetUp() * 5
-	local socketAng = self.Entity:GetAngles() + Vector(90,0,0)
+	local newpos = self:GetPos() + self:GetUp() * 5
+	local socketAng = self:GetAngles() + Vector(90,0,0)
 	card:SetPos( newpos )
 	card:SetAngles( socketAng )
 	
-	self.CardNoCollide = constraint.NoCollide(self.Entity, card, 0, 0)
+	self.CardNoCollide = constraint.NoCollide(self, card, 0, 0)
 	if (!self.CardNoCollide) then
 	    return
 	end
 	
-	self.CardWeld = constraint.Weld( self.Entity, card, 0, 0, CARD_IN_SOCKET_CONSTRAINT_POWER, true )
+	self.CardWeld = constraint.Weld( self, card, 0, 0, CARD_IN_SOCKET_CONSTRAINT_POWER, true )
 	if (!self.CardWeld && !self.CardWeld:IsValid()) then
 	    self.CardNoCollide:Remove()
 	    self.CardNoCollide = nil
@@ -96,15 +96,15 @@ function ENT:PlugCard( card )
 	end
 	
 	card:DeleteOnRemove( self.CardWeld )
-	self.Entity:DeleteOnRemove( self.CardWeld )
+	self:DeleteOnRemove( self.CardWeld )
 	self.CardWeld:DeleteOnRemove( self.CardNoCollide )
 	
 	self.PluggedCard = card
 	card:SetSocket( self )
 	
-	self.Entity:SetOverlayText("Wire RAM-Card\nReader/Writer\nA Card is plugged in")
-	Wire_TriggerOutput(self.Entity,"Card Connected",1)
-	Wire_TriggerOutput(self.Entity,"Cells",self.PluggedCard:GetSize())
+	self:SetOverlayText("Wire RAM-Card\nReader/Writer\nA Card is plugged in")
+	Wire_TriggerOutput(self,"Card Connected",1)
+	Wire_TriggerOutput(self,"Cells",self.PluggedCard:GetSize())
 end
 
 --Address 0 is handled by the Reader/Writer, and says, if a card is connected.  If you write a 0 to cell 0, the card will be thrown out
@@ -122,9 +122,9 @@ function ENT:WriteCell( Address, value )
 				self.CardNoCollide = nil
 				self.PluggedCard = nil
 				
-				self.Entity:SetOverlayText("Wire RAM-Card\nReader/Writer\nNo Card plugged in")
-				Wire_TriggerOutput(self.Entity,"Card Connected",0)
-				self.Entity:NextThink( CurTime() + NEW_CARD_WAIT_TIME )
+				self:SetOverlayText("Wire RAM-Card\nReader/Writer\nNo Card plugged in")
+				Wire_TriggerOutput(self,"Card Connected",0)
+				self:NextThink( CurTime() + NEW_CARD_WAIT_TIME )
 			end
 		end
 		return true
@@ -171,12 +171,12 @@ function ENT:TriggerInput( iname, value )
 	elseif (iname == "AddrRead") then
 		if (self.PluggedCard && self.PluggedCard:IsValid()) then
 			if (value >= 0 && value < self.PluggedCard:GetSize()) then
-				Wire_TriggerOutput(self.Entity,"Data",self:ReadCell(value+2))
+				Wire_TriggerOutput(self,"Data",self:ReadCell(value+2))
 			else
-				Wire_TriggerOutput(self.Entity,"Data",0)
+				Wire_TriggerOutput(self,"Data",0)
 			end
 		else
-			Wire_TriggerOutput(self.Entity,"Data",0)
+			Wire_TriggerOutput(self,"Data",0)
 		end
 	elseif (iname == "Clk") then
 		if (self.PluggedCard && self.PluggedCard:IsValid()) then

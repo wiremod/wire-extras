@@ -9,17 +9,17 @@ ENT.WireDebugName = "Microphone"
 local MODEL = Model("models/jaanus/wiretool/wiretool_range.mdl")
 
 function ENT:Initialize()
-	self.Entity:SetModel( MODEL )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Inputs = Wire_CreateInputs(self.Entity, { "On" })
-	self.Outputs = Wire_CreateOutputs(self.Entity, { "Level" })
+	self:SetModel( MODEL )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self.Inputs = Wire_CreateInputs(self, { "On" })
+	self.Outputs = Wire_CreateOutputs(self, { "Level" })
 	self.Range = 512
 	self.Sensitivity = 1
 	self.Level = 0
 	self.IsOn = true
-	self.Entity:SetName("wiremicrophone"..tostring(self.Entity))
+	self:SetName("wiremicrophone"..tostring(self))
 	
 	self:ShowOutput()
 end
@@ -27,7 +27,7 @@ end
 function ENT:AcceptInput(input, activator, caller, value)
 	if input=="OnSoundLevelChanged" then
 		self.Level = value
-		Wire_TriggerOutput(self.Entity, "Level", self.Level)
+		Wire_TriggerOutput(self, "Level", self.Level)
 		self:ShowOutput()
 		return true
 	end
@@ -42,7 +42,7 @@ function ENT:TriggerInput(iname, value)
 		else
 			self.Microphone:Fire("Disable","",0)
 			self.Level = 0
-			Wire_TriggerOutput(self.Entity, "Level", 0)
+			Wire_TriggerOutput(self, "Level", 0)
 			self:ShowOutput()
 		end
 	end
@@ -53,7 +53,7 @@ function ENT:OnRemove()
 		self.Microphone:Fire("Disable","",0)
 		self.Microphone:Remove()
 	end
-	Wire_Remove(self.Entity)
+	Wire_Remove(self)
 end
 
 function ENT:Setup(range, sen, on, hearcombat, hearworld, hearplayer, hearbullet, hearexplo)
@@ -76,8 +76,8 @@ function ENT:Setup(range, sen, on, hearcombat, hearworld, hearplayer, hearbullet
 	
 	-- Create teh microphone
 	self.Microphone = ents.Create("env_microphone")
-	self.Microphone:SetPos(self.Entity:GetPos())
-	self.Microphone:SetKeyValue("target","wiremicrophone"..tostring(self.Entity))
+	self.Microphone:SetPos(self:GetPos())
+	self.Microphone:SetKeyValue("target","wiremicrophone"..tostring(self))
 	self.Microphone:SetKeyValue("Sensitivity",sen)
 	self.Microphone:SetKeyValue("MaxRange",range)
 	self.Microphone:SetKeyValue("spawnflags",hearcombat + 2*hearworld + 4*hearplayer + 8*hearbullet + 32*hearexplo)
@@ -91,9 +91,9 @@ function ENT:Setup(range, sen, on, hearcombat, hearworld, hearplayer, hearbullet
 	end
 	self.IsOn = on
 	
-	self.Microphone:Fire("addoutput","SoundLevel wiremicrophone"..tostring(self.Entity)..",OnSoundLevelChanged",0)
+	self.Microphone:Fire("addoutput","SoundLevel wiremicrophone"..tostring(self)..",OnSoundLevelChanged",0)
 	
-	self.Microphone:SetParent(self.Entity)
+	self.Microphone:SetParent(self)
 end
 
 function ENT:Think()
@@ -107,6 +107,6 @@ function ENT:ShowOutput()
 end
 
 function ENT:OnRestore()
-    Wire_Restored(self.Entity)
+    Wire_Restored(self)
 end
 

@@ -9,35 +9,35 @@ local MODEL = Model("models/keycard/keycard.mdl")
 local numValues = 32
 
 function ENT:Initialize()
-	self.Entity:SetModel( MODEL )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Entity:SetUseType( SIMPLE_USE )
-        self.Entity:ResetValues()
+	self:SetModel( MODEL )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self:SetUseType( SIMPLE_USE )
+        self:ResetValues()
         Msg("Initialized\n")
 end
 
 function ENT:Setup(pl)
 	self.CardID = math.random(1000000)
-	self.Entity:SetCardOwner(pl)
+	self:SetCardOwner(pl)
 end
 
 function ENT:Use(activator, caller)
 	if (!activator:IsValid() or !activator:IsPlayer()) then return false end
-	self.Entity:SetCardOwner(activator)
+	self:SetCardOwner(activator)
 end
 
 function ENT:SetValue(index, value)
         Msg("Setting value "..index.." to  "..value.."\n")
         index = math.Clamp(index, 0, numValues - 1)
 	self.Values[index] = (value or 0)
-	self.Entity:ShowOutput()
+	self:ShowOutput()
 end
 
 function ENT:SetLockCode(value)
 	self.LockCode = (value or 0)
-	self.Entity:ShowOutput()
+	self:ShowOutput()
 end
 
 function ENT:GetLockCode()
@@ -67,7 +67,7 @@ end
 
 function ENT:SetCardOwner(owner)
 	self.CardOwner = owner
-	self.Entity:ShowOutput()
+	self:ShowOutput()
 end
 
 function ENT:ShowOutput()

@@ -6,17 +6,17 @@ include('shared.lua')
 ENT.WireDebugName = "RAM-card"
 
 function ENT:SetupBase()
-	self.Entity:SetModel( "models/keycard/keycard.mdl" )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Entity:SetUseType( SIMPLE_USE )
+	self:SetModel( "models/keycard/keycard.mdl" )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self:SetUseType( SIMPLE_USE )
 	
 	self.OwnerObj = nil
 	self.OwnerID = nil
 	
 	self.IsRamCard = true
-	self.Entity.IsRamCard = true
+	self.IsRamCard = true
 	
 	self.OwnerIDPart1 = 0
 	self.OwnerIDPart2 = 0
@@ -26,10 +26,10 @@ function ENT:SetupBase()
 	self.Memory = {}
 	self.CurrentDist = 0
 	
-	self.Entity:SetOverlayText("Wire RAM-Card\nProximity ("..self.SizePrint..")\nMax Owner Distance: "..self.MaxDist.."\nUser Disconnected!")
-	Msg(self.Entity:EntIndex())
+	self:SetOverlayText("Wire RAM-Card\nProximity ("..self.SizePrint..")\nMax Owner Distance: "..self.MaxDist.."\nUser Disconnected!")
+	Msg(self:EntIndex())
 	
-	local phys = self.Entity:GetPhysicsObject()
+	local phys = self:GetPhysicsObject()
 	if (phys:IsValid()) then
 		phys:Wake()
 	end
@@ -62,11 +62,11 @@ function ENT:Think() --//think function of the card. any actions can be done in 
 		self:ResetSocket()
 	end
 	if (!self.OwnerObj) then Msg("No OwnerObj\n") end
-	if (!self.Entity.OwnerObj) then Msg("No OwnerObj in Entity\n") end
+	if (!self.OwnerObj) then Msg("No OwnerObj in Entity\n") end
 	
 	if (self.OwnerObj && self.OwnerObj:IsValid()) then
-		self.CurrentDist = self.Entity:GetPos():Distance(self.OwnerObj:GetPos())
-		self.Entity:SetOverlayText("Wire RAM-Card\nProximity ("..self.SizePrint..")\nMax Owner Distance: "..self.MaxDist.."\nDistance Now: "..self.CurrentDist)
+		self.CurrentDist = self:GetPos():Distance(self.OwnerObj:GetPos())
+		self:SetOverlayText("Wire RAM-Card\nProximity ("..self.SizePrint..")\nMax Owner Distance: "..self.MaxDist.."\nDistance Now: "..self.CurrentDist)
 	elseif (self.OwnerID && !self.OwnerObj:IsValid()) then
 		for _,ply in pairs( player.GetAll() ) do
 			if (ply:SteamID() == self.OwnerID) then
@@ -78,10 +78,10 @@ function ENT:Think() --//think function of the card. any actions can be done in 
 		self.CurrentDist = -1
 	end
 	if (!self.OwnerObj || !self.OwnerObj:IsValid()) then
-		self.Entity:SetOverlayText("Wire RAM-Card\nProximity ("..self.SizePrint..")\nMax Owner Distance: "..self.MaxDist.."\nUser Disconnected!")
+		self:SetOverlayText("Wire RAM-Card\nProximity ("..self.SizePrint..")\nMax Owner Distance: "..self.MaxDist.."\nUser Disconnected!")
 	end
 	
-	self.Entity:NextThink( CurTime() + 0.25 )
+	self:NextThink( CurTime() + 0.25 )
 	return true
 end
 

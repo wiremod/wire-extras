@@ -7,9 +7,9 @@ include('shared.lua')
 ENT.WireDebugName = "Adv. HUD Indicator"
 
 function ENT:Initialize()
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 
 	self.A = 0
 	self.AR = 0
@@ -63,7 +63,7 @@ function ENT:Initialize()
 	self.RegisteredPlayers = {}
 	self.PrefixText = "Adv. Hud: "
 
-	self.Inputs = Wire_CreateInputs(self.Entity, { "Value", "HideHUD", "ScreenX", "ScreenY" })
+	self.Inputs = Wire_CreateInputs(self, { "Value", "HideHUD", "ScreenX", "ScreenY" })
 
 end
 
@@ -86,14 +86,14 @@ end
 function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, flags)
 
 	local ply = self:GetPlayer()
-	local eindex = self.Entity:EntIndex()
+	local eindex = self:EntIndex()
 
 	// If user updates with the STool to take indicator off of HUD
 	if (!showinhud && self.ShowInHUD) then
 		self:UnRegisterPlayer(ply)
 
 		// Adjust inputs back to normal
-		//Wire_AdjustInputs(self.Entity, { "Value" })
+		//Wire_AdjustInputs(self, { "Value" })
 	elseif (showinhud) then
 		// Basic style is useless without a value
 		// to show so set a default if necessary
@@ -109,11 +109,11 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 
 		// Add name if desired
 		if (hudaddname) then
-			self.Entity:SetNetworkedString("WireName", huddesc)
-		elseif (self.Entity:GetNetworkedString("WireName") == huddesc) then
+			self:SetNetworkedString("WireName", huddesc)
+		elseif (self:GetNetworkedString("WireName") == huddesc) then
 			// Only remove it if the HUD Description was there
 			// because there might be another name on it
-			self.Entity:SetNetworkedString("WireName", "")
+			self:SetNetworkedString("WireName", "")
 		end
 
 	end
@@ -334,8 +334,8 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 	end
 
 	//--Update the SENT--//
-	//--Wire_AdjustInputs(self.Entity, newInputs)
-	WireLib.AdjustSpecialInputs(self.Entity, newInputs, newInputTypes, newInputDesc)
+	//--Wire_AdjustInputs(self, newInputs)
+	WireLib.AdjustSpecialInputs(self, newInputs, newInputTypes, newInputDesc)
 
 	for k,inputName in pairs(newInputs) do
 		if( inputName == "Value" ) then self:TriggerInput("Value", self.A)
@@ -372,7 +372,7 @@ function ENT:SetupHUDStyle(hudstyle, rplayer)
 	local ainfo = self.AR.."|"..self.AG.."|"..self.AB
 	local binfo = self.BR.."|"..self.BG.."|"..self.BB
 	umsg.Start("AdvHUDIndicatorStylePercent", pl)
-		umsg.Short(self.Entity:EntIndex())
+		umsg.Short(self:EntIndex())
 		umsg.String(ainfo)
 		umsg.String(binfo)
 	umsg.End()
@@ -381,7 +381,7 @@ end
 // Hook this player to the HUD Indicator
 function ENT:RegisterPlayer(ply, hookhidehud, podonly)
 	local plyuid = ply:UniqueID()
-	local eindex = self.Entity:EntIndex()
+	local eindex = self:EntIndex()
 
 
 	//--Flag Options--//
@@ -399,7 +399,7 @@ function ENT:RegisterPlayer(ply, hookhidehud, podonly)
 	if (!self.RegisteredPlayers[plyuid]) then
 		self.RegisteredPlayers[plyuid] = { ply = ply, hookhidehud = hookhidehud, podonly = podonly }
 		// This is used to check for pod-only status in ClientCheckRegister()
-		self.Entity:SetNetworkedBool( plyuid, util.tobool(podonly) )
+		self:SetNetworkedBool( plyuid, util.tobool(podonly) )
 	end
 
 	umsg.Start("AdvHUDIndicatorRegister", ply)
@@ -454,7 +454,7 @@ end
 function ENT:UnRegisterPlayer(ply)
 	if IsValid(ply) then
 		umsg.Start("AdvHUDIndicatorUnRegister", ply)
-			umsg.Short(self.Entity:EntIndex())
+			umsg.Short(self:EntIndex())
 		umsg.End()
 	end
 	self.RegisteredPlayers[ply:UniqueID()] = nil
@@ -487,8 +487,8 @@ function ENT:TriggerInput(iname, value)
 		//--local g = math.Clamp((self.BG-self.AG)*factor+self.AG, 0, 255)
 		//--local b = math.Clamp((self.BB-self.AB)*factor+self.AB, 0, 255)
 		//--local a = math.Clamp((self.BA-self.AA)*factor+self.AA, 0, 255)
-		//--self.Entity:SetColor(r, g, b, a)
-		self.Entity:SetColor(255, 255, 255, 255)
+		//--self:SetColor(r, g, b, a)
+		self:SetColor(255, 255, 255, 255)
 	elseif (iname == "HideHUD") then
 		if (self.PrevHideHUD == (value > 0)) then return end
 
@@ -572,7 +572,7 @@ function ENT:TriggerInput(iname, value)
 				if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 					//--Build a new usermessage to update the position
 					umsg.Start("AdvHUDIndicator_STRING", rplayer.ply)
-						umsg.Short(self.Entity:EntIndex())	//--Entity inded
+						umsg.Short(self:EntIndex())	//--Entity inded
 						umsg.String( self.displayText )				//-- The new string to set --//
 					umsg.End()								//--Send message
 				end
@@ -634,7 +634,7 @@ function ENT:TriggerInput(iname, value)
 				if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 					//--Build a new usermessage to update the position
 					umsg.Start("AdvHUDIndicator_EXIO", rplayer.ply)
-						umsg.Short(self.Entity:EntIndex())	//--Entity index
+						umsg.Short(self:EntIndex())	//--Entity index
 						umsg.Short( EXIO_update )			//-- The variable to update --//
 						umsg.Float( EXIO_value )			//-- The value to set --//
 					umsg.End()								//--Send message
@@ -659,7 +659,7 @@ function ENT:TriggerInput(iname, value)
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 						//--Build a new usermessage to update the position
 						umsg.Start("AdvHUDIndicatorUpdate3DPositionTwo", rplayer.ply)
-							umsg.Short(self.Entity:EntIndex())	//--Entity index
+							umsg.Short(self:EntIndex())	//--Entity index
 							umsg.Float( self.world_end_x )				//--X Position update
 							umsg.Float( self.world_end_y )				//--Y Position update
 							umsg.Float( self.world_end_z )				//--Z Position update
@@ -676,7 +676,7 @@ function ENT:TriggerInput(iname, value)
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 						//--Build a new usermessage to update the position
 						umsg.Start("AdvHUDIndicatorUpdatePositionTwo", rplayer.ply)
-							umsg.Short(self.Entity:EntIndex())	//--Entity index
+							umsg.Short(self:EntIndex())	//--Entity index
 							umsg.Float( self.xEnd )				//--X Position update
 							umsg.Float( self.yEnd )				//--Y Position update
 							umsg.Short( self.positionMethod )	//--The method to position the indicator with.
@@ -694,7 +694,7 @@ function ENT:TriggerInput(iname, value)
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 						//--Build a new usermessage to update the position
 						umsg.Start("AdvHUDIndicatorUpdate3DPosition", rplayer.ply)
-							umsg.Short(self.Entity:EntIndex())	//--Entity index
+							umsg.Short(self:EntIndex())	//--Entity index
 							umsg.Float( self.world_x )				//--X Position update
 							umsg.Float( self.world_y )				//--Y Position update
 							umsg.Float( self.world_z )				//--Z Position update
@@ -712,7 +712,7 @@ function ENT:TriggerInput(iname, value)
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 						//--Build a new usermessage to update the position
 						umsg.Start("AdvHUDIndicatorUpdatePosition", rplayer.ply)
-							umsg.Short(self.Entity:EntIndex())	//--Entity index
+							umsg.Short(self:EntIndex())	//--Entity index
 							umsg.Float( self.xPos )				//--X Position update
 							umsg.Float( self.yPos )				//--Y Position update
 							umsg.Short( self.positionMethod )	//--The method to position the indicator with.
@@ -749,7 +749,7 @@ function ENT:ShowOutput(factor, value)
 		end
 
 		umsg.Start("AdvHUDIndicatorFactor", rf)
-			umsg.Short(self.Entity:EntIndex())
+			umsg.Short(self:EntIndex())
 			// Send both to ensure that all styles work properly
 			umsg.Float(factor)
 			umsg.Float(value)
@@ -765,7 +765,7 @@ function ENT:SendHUDInfo(hidehud)
 		if IsValid(rplayer.ply) then
 			if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 				umsg.Start("AdvHUDIndicatorHideHUD", rplayer.ply)
-					umsg.Short(self.Entity:EntIndex())
+					umsg.Short(self:EntIndex())
 					// Check player's preference
 					if (rplayer.hookhidehud) then
 						umsg.Bool(hidehud)
@@ -855,7 +855,7 @@ function ENT:Think()
 		self.PodPly = nil
 	end
 
-	self.Entity:NextThink(CurTime() + 0.025)
+	self:NextThink(CurTime() + 0.025)
 	return true
 end
 

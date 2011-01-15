@@ -28,14 +28,14 @@ surface.CreateFont("Trebuchet", 24, 400, true, false, "Trebuchet24AA" )
 local highlight_key, highlight_until
 function ENT:Draw()
 	
-	self.Entity:DrawModel()
+	self:DrawModel()
 	local Ply = LocalPlayer()
 	
-	local Dist = (Ply:GetShootPos() - self.Entity:GetPos()):Length()
+	local Dist = (Ply:GetShootPos() - self:GetPos()):Length()
 	if (Dist > 750) then return end
 	
-	local pos = self.Entity:GetPos() + (self.Entity:GetForward() * 1.1)
-	local ang = self.Entity:GetAngles()
+	local pos = self:GetPos() + (self:GetForward() * 1.1)
+	local ang = self:GetAngles()
 	local rot = Vector(-90, 90, 0)
 	
 	ang:RotateAroundAxis(ang:Right(), 	rot.x)
@@ -45,11 +45,11 @@ function ENT:Draw()
 	cam.Start3D2D(pos, ang, 0.05)
 		local trace = Ply:GetEyeTrace()
 		
-		local pos = self.Entity:WorldToLocal(trace.HitPos)
-		local Num = self.Entity:GetNetworkedInt("keypad_num")
-		local Access = self.Entity:GetNetworkedBool("keypad_access")
-		local ShowAccess = self.Entity:GetNetworkedBool("keypad_showaccess")
-		local Secure = self.Entity:GetNetworkedBool("keypad_secure")
+		local pos = self:WorldToLocal(trace.HitPos)
+		local Num = self:GetNetworkedInt("keypad_num")
+		local Access = self:GetNetworkedBool("keypad_access")
+		local ShowAccess = self:GetNetworkedBool("keypad_showaccess")
+		local Secure = self:GetNetworkedBool("keypad_secure")
 		
 		surface.SetDrawColor(0, 0, 0, 255)
 		surface.DrawRect(X-5, Y-5, W+10, H+10)
@@ -79,7 +79,7 @@ function ENT:Draw()
 				surface.SetDrawColor(150, 150, 150, 255)
 			end
 			
-			if highlight_current_key or (trace.Entity == self.Entity and x >= 0 and y >= 0 and x <= 1 and y <= 1) then
+			if highlight_current_key or (trace.Entity == self and x >= 0 and y >= 0 and x <= 1 and y <= 1) then
 				if (k <= 9) then
 					surface.SetDrawColor(200, 200, 200, 255)
 				elseif (k == 10) then
@@ -90,11 +90,11 @@ function ENT:Draw()
 				
 				if Ply:KeyDown(IN_USE) and not Ply.KeyOnce and not highlight_current_key then
 					if (k <= 9) then
-						Ply:ConCommand("gmod_keypad "..self.Entity:EntIndex().." "..k.."\n")
+						Ply:ConCommand("gmod_keypad "..self:EntIndex().." "..k.."\n")
 					elseif (k == 10) then
-						Ply:ConCommand("gmod_keypad "..self.Entity:EntIndex().." reset\n")
+						Ply:ConCommand("gmod_keypad "..self:EntIndex().." reset\n")
 					elseif (k == 11) then
-						Ply:ConCommand("gmod_keypad "..self.Entity:EntIndex().." accept\n")
+						Ply:ConCommand("gmod_keypad "..self:EntIndex().." accept\n")
 					end
 					Ply.KeyOnce = true
 				end

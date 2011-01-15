@@ -14,29 +14,29 @@ function ENT:Initialize()
 
 	self.animov = 0
 
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 
 	if WireAddon ~= nil then
-		self.Inputs = Wire_CreateInputs(self.Entity, { "Open", "Close", "Lock", "AutoClose", "CloseTime" })
-		self.Outputs = Wire_CreateOutputs(self.Entity, { "IsOpened", "FullyOpen", "FullyClosed", "Blocked" })
+		self.Inputs = Wire_CreateInputs(self, { "Open", "Close", "Lock", "AutoClose", "CloseTime" })
+		self.Outputs = Wire_CreateOutputs(self, { "IsOpened", "FullyOpen", "FullyClosed", "Blocked" })
 	end
 	
 	self.xent = nil
 	self.xclass = ""
 
 	self.xswitch = switch {
-		["xtopen"] = function(x) self.Entity:SetOpen(1) end,		
-		["xtclose"] = function(x) self.Entity:SetOpen(0) end,
-		["xtbopen"] = function(x) self.Entity:SetOpen(0) self.Entity:SetBlocked(1) end,
-		["xtbclose"] = function(x) self.Entity:SetOpen(1) self.Entity:SetBlocked(1) end,
-		["xtubopen"] = function(x) self.Entity:SetOpen(1) self.Entity:SetBlocked(0) end,
-		["xtubclose"] = function(x) self.Entity:SetOpen(0) self.Entity:SetBlocked(0) end,
-		["xtfopen"] = function(x) self.Entity:SetFully(1) end,
-		["xtfclose"] = function(x) self.Entity:SetFully(0) end,
-		["xtabegun"] = function(x) if(self.animov <= 0) then self.Entity:SetOpen(1 - self.isopen) else self.animov = (self.animov - 1) end end,
-		["xtadone"] = function(x) self.Entity:SetFully(self.isopen) end,
+		["xtopen"] = function(x) self:SetOpen(1) end,		
+		["xtclose"] = function(x) self:SetOpen(0) end,
+		["xtbopen"] = function(x) self:SetOpen(0) self:SetBlocked(1) end,
+		["xtbclose"] = function(x) self:SetOpen(1) self:SetBlocked(1) end,
+		["xtubopen"] = function(x) self:SetOpen(1) self:SetBlocked(0) end,
+		["xtubclose"] = function(x) self:SetOpen(0) self:SetBlocked(0) end,
+		["xtfopen"] = function(x) self:SetFully(1) end,
+		["xtfclose"] = function(x) self:SetFully(0) end,
+		["xtabegun"] = function(x) if(self.animov <= 0) then self:SetOpen(1 - self.isopen) else self.animov = (self.animov - 1) end end,
+		["xtadone"] = function(x) self:SetFully(self.isopen) end,
 		-- ["xtremove"] = function(x) self:Remove() end, --damn, there is no OnRemove event fired :/
 	}
 
@@ -48,9 +48,9 @@ end
 
 function ENT:TriggerInput(iname, value)
 	if (iname == "Open") and (value != 0) then
-		self.Entity:openself()
+		self:openself()
 	elseif(iname == "Close") and (value != 0) then
-		self.Entity:closeself()
+		self:closeself()
 	elseif(iname == "Lock") then
 		if(value != 0) then
 			self.xent:Fire("lock","",0)
@@ -78,17 +78,17 @@ function ENT:Think()
 	if(self.animov < 0) then self.animov = 0 end
 	if (self.autoclose == 1) and (self.isopen == 1) then
 		if self.xautoclose <= CurTime() then
-			self.Entity:closeself()
+			self:closeself()
 		end
 	end
-	self.Entity:NextThink(CurTime()+0.5)
+	self:NextThink(CurTime()+0.5)
 	return true
 end
 
 function ENT:closeself()
 	if (self.isopen == 1) then
 		self.animov = self.animov + 1
-		self.Entity:SetOpen(0)
+		self:SetOpen(0)
 		if (self.xclass == "prop_dynamic") then
 			self.xent:Fire("setanimation","close",0)
 		elseif (self.xclass == "prop_door_rotating") then
@@ -101,7 +101,7 @@ function ENT:openself()
 	if (self.isopen == 0) then
 		self.animov = self.animov + 1
 		self.xent:Fire("setanimation","open","0")
-		self.Entity:SetOpen(1)
+		self:SetOpen(1)
 	end
 end
 
@@ -117,23 +117,23 @@ function ENT:SetOpen(val)
 		return		
 	end
 
-	Wire_TriggerOutput(self.Entity, "FullyOpen", 0)
-	Wire_TriggerOutput(self.Entity, "FullyClosed", 0)
-	Wire_TriggerOutput(self.Entity, "IsOpened", val)
+	Wire_TriggerOutput(self, "FullyOpen", 0)
+	Wire_TriggerOutput(self, "FullyClosed", 0)
+	Wire_TriggerOutput(self, "IsOpened", val)
 end
 
 function ENT:SetFully(val)
 	if (val == 0) then
-		self.Entity:SetOpen(0)
+		self:SetOpen(0)
 	elseif (val == 1) then
-		self.Entity:SetOpen(1)
+		self:SetOpen(1)
 	else
 		return	
 	end
 
-	self.Entity:SetBlocked(0)
-	Wire_TriggerOutput(self.Entity, "FullyOpen", self.isopen)
-	Wire_TriggerOutput(self.Entity, "FullyClosed", (1 - self.isopen))
+	self:SetBlocked(0)
+	Wire_TriggerOutput(self, "FullyOpen", self.isopen)
+	Wire_TriggerOutput(self, "FullyClosed", (1 - self.isopen))
 end
 
 function ENT:SetBlocked(val)
@@ -146,7 +146,7 @@ function ENT:SetBlocked(val)
 		return
 	end
 
-	Wire_TriggerOutput(self.Entity, "Blocked", self.blocked)
+	Wire_TriggerOutput(self, "Blocked", self.blocked)
 end
 
 function ENT:AcceptInput(name, activator, caller)

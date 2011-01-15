@@ -8,11 +8,11 @@ ENT.OverlayDelay = 0.1
 
 function ENT:Initialize()
 		
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
-	self.Inputs = Wire_CreateInputs(self.Entity,{"X", "Y", "Z", "On"})
-	self.Entity:SetGravity(0)
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
+	self.Inputs = Wire_CreateInputs(self,{"X", "Y", "Z", "On"})
+	self:SetGravity(0)
 	
 	self.Xp = 0
 	self.Yp = 0
@@ -22,7 +22,7 @@ function ENT:Initialize()
 end
 
 function ENT:TriggerInput(iname,value) 
-		local phys = self.Entity:GetPhysicsObject()
+		local phys = self:GetPhysicsObject()
 		if (iname == "X") then
 		
 			self.Xp = value
@@ -44,10 +44,10 @@ function ENT:TriggerInput(iname,value)
 		if (self.On == 1) then
 		
 		//########################Rotation code goes here, finally
-		self.LastPosition = self.Entity:GetPos()
+		self.LastPosition = self:GetPos()
 		self.Target = Vector(self.Xp, self.Yp, self.Zp)
 		AimVec = ( self.Target - self.LastPosition ):Angle()				
-		self.Entity:SetAngles(AimVec)
+		self:SetAngles(AimVec)
 		phys:Wake()
 		//######################## End rotation code
 				
