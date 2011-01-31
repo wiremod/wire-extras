@@ -29,9 +29,11 @@ registerCallback("postinit",function()
 end)
 
 local function SetHoloAnim( Holo, Animation, Frame, Rate )
-	Holo.ent:ResetSequence(Animation)
-	Holo.ent:SetCycle(Frame)
-	Holo.ent:SetPlaybackRate(Rate)
+	if (Holo and Animation and Frame and Rate) then
+		Holo.ent:ResetSequence(Animation)
+		Holo.ent:SetCycle(Frame)
+		Holo.ent:SetPlaybackRate(Rate)
+	end
 end
 
 e2function void holoAnim(index, string animation)
@@ -39,7 +41,6 @@ e2function void holoAnim(index, string animation)
 	if not Holo then return end
 	
 	local Sequence = Holo.ent:LookupSequence(animation)
-	if not Sequence then return end
 	
 	SetHoloAnim(Holo, Sequence, 0, 1)
 end
@@ -49,7 +50,6 @@ e2function void holoAnim(index, string animation, frame)
 	if not Holo then return end
 	
 	local Sequence = Holo.ent:LookupSequence(animation)
-	if not Sequence then return end
 
 	SetHoloAnim(Holo, Sequence, frame, 1)
 end
@@ -59,28 +59,24 @@ e2function void holoAnim(index, string animation, frame, rate)
 	if not Holo then return end
 	
 	local Sequence = Holo.ent:LookupSequence(animation)
-	if not Sequence then return end
 
 	SetHoloAnim(Holo, Sequence, frame, rate)
 end
 
 e2function void holoAnim(index, animation)
 	local Holo = CheckIndex(self, index)
-	if not Holo then return end
 	
 	SetHoloAnim(Holo, animation, 0, 1)
 end
 
 e2function void holoAnim(index, animation, frame)
 	local Holo = CheckIndex(self, index)
-	if not Holo then return end
 	
 	SetHoloAnim(Holo, animation, frame, 1)
 end
 
 e2function void holoAnim(index, animation, frame, rate)
 	local Holo = CheckIndex(self, index)
-	if not Holo then return end
 	
 	SetHoloAnim(Holo, animation, frame, rate)
 end
