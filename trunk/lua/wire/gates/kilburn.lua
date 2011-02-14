@@ -1,47 +1,8 @@
-AddCSLuaFile( "wire/gates/kilburn.lua" )
-
 //***********************************************************
 //		String Gates
 //***********************************************************
 
 GateActions("String")
-
-GateActions["string_concat"] = {
-	name = "Concatenate",
-	inputs = { "A", "B", "C", "D", "E", "F", "G", "H" },
-	inputtypes = { "STRING","STRING","STRING","STRING","STRING","STRING","STRING","STRING" },
-	compact_inputs = 2,
-	outputs = { "Str" },
-	outputtypes = { "STRING" },
-	output = function(gate, ...)
-		local result = ""
-		for k,v in ipairs(arg) do
-			if (v) then result = result..v end
-		end
-		return result
-	end,
-	label = function(Out, ...)
-		local txt = ""
-		for k,v in ipairs(arg) do
-			if (v) then txt = txt..v..".." end
-		end
-		return string.sub(txt, 1, -3).." = "..Out.Str
-	end
-}
-
-GateActions["string_compare"] = {
-	name = "Compare",
-	inputs = { "A", "B" },
-	inputtypes = { "STRING", "STRING" },
-	outputs = { "Out" },
-	output = function(gate, A, B)
-		if A==B then return 1
-		else         return 0 end
-	end,
-	label = function(Out, A, B)
-		return A.." == "..B.." = "..Out.Out
-	end
-}
 
 GateActions["string_comparei"] = {
 	name = "Compare (Ignore Case)",
@@ -57,89 +18,6 @@ GateActions["string_comparei"] = {
 	end
 }
 
-GateActions["string_find"] = {
-	name = "Find",
-	inputs = { "A", "B", "StartIndex" },
-	inputtypes = { "STRING", "STRING" },
-	outputs = { "Out" },
-	output = function(gate, A, B, StartIndex)
-		local r = string.find(A,B,StartIndex)
-		if r==nil then r=0 end
-		return r
-	end,
-	label = function(Out, A, B)
-		return "Find "..B.." in "..A.." = "..Out.Out
-	end
-}
-
-GateActions["string_rep"] = {
-	name = "Repeat",
-	inputs = { "A", "Num" },
-	inputtypes = { "STRING" },
-	outputs = { "Str" },
-	outputtypes = { "STRING" },
-	output = function(gate, A, Num)
-		return string.rep(A,Num)
-	end,
-	label = function(Out, A, Num)
-		return A.." * "..Num.." = "..Out.Str
-	end
-}
-
-GateActions["string_reverse"] = {
-	name = "Reverse",
-	inputs = { "A" },
-	inputtypes = { "STRING" },
-	outputs = { "Out" },
-	outputtypes = { "STRING" },
-	output = function(gate, A)
-		return string.reverse(A)
-	end,
-	label = function(Out, A)
-		return "Reverse("..A..") = "..Out.Out
-	end
-}
-
-GateActions["string_identity"] = {
-	name = "Identity (String)",
-	inputs = { "A" },
-	inputtypes = { "STRING" },
-	outputs = { "Out" },
-	outputtypes = { "STRING" },
-	output = function(gate, A)
-		return A
-	end,
-	label = function(Out, A)
-		return A.." = "..Out.Out
-	end
-}
-
-GateActions["string_len"] = {
-	name = "Length",
-	inputs = { "A" },
-	inputtypes = { "STRING" },
-	outputs = { "Out" },
-	output = function(gate, A)
-		return string.len(A)
-	end,
-	label = function(Out, A)
-		return "#"..A.." = "..Out.Out
-	end
-}
-
-GateActions["string_trim"] = {
-	name = "Trim",
-	inputs = { "A" },
-	inputtypes = { "STRING" },
-	outputs = { "Out" },
-	outputtypes = { "STRING" },
-	output = function(gate, A)
-		return string.Trim(A)
-	end,
-	label = function(Out, A, B)
-		return "Trim("..A..") = "..Out.Out
-	end
-}
 --[[  doesn't work well, take this out
 
 GateActions["string_format"] = {
@@ -204,114 +82,6 @@ GateActions["string_right"] = {
 	end
 }
 
-GateActions["string_sub"] = {
-	name = "Sub",
-	inputs = { "A", "Start", "End" },
-	inputtypes = { "STRING" },
-	outputs = { "Out" },
-	outputtypes = { "STRING" },
-	output = function(gate, A, Start, End)
-		return string.sub(A,Start,End)
-	end,
-	label = function(Out, A, Start, End)
-		return A.." ["..Start..","..End.."] = "..Out.Out
-	end
-}
-
-GateActions["string_repl"] = {
-	name = "Replace",
-	inputs = { "A", "Find", "Replace" },
-	inputtypes = { "STRING","STRING","STRING" },
-	outputs = { "Out" },
-	outputtypes = { "STRING" },
-	output = function(gate, A, Find, Replace)
-		return string.gsub(A,Find,Replace)
-	end,
-	label = function(Out, A, Find, Replace)
-		return "Replace("..A..","..Find..","..Replace..") = "..Out.Out
-	end
-}
-
-GateActions["string_lower"] = {
-	name = "Lower",
-	inputs = { "A" },
-	inputtypes = { "STRING" },
-	outputs = { "Out" },
-	outputtypes = { "STRING" },
-	output = function(gate, A)
-		return string.lower(A)
-	end,
-	label = function(Out, A, B)
-		return "Lower("..A..") = "..Out.Out
-	end
-}
-
-GateActions["string_upper"] = {
-	name = "Upper",
-	inputs = { "A" },
-	inputtypes = { "STRING" },
-	outputs = { "Out" },
-	outputtypes = { "STRING" },
-	output = function(gate, A)
-		return string.upper(A)
-	end,
-	label = function(Out, A, B)
-		return "Upper("..A..") = "..Out.Out
-	end
-}
-
-GateActions["string_char"] = {
-	name = "Byte > Character",
-	inputs = { "A" },
-	outputs = { "Out" },
-	outputtypes = { "STRING" },
-	output = function(gate, A)
-		return string.char(A)
-	end,
-	label = function(Out, A, B)
-		return "Char("..A..") = "..Out.Out
-	end
-}
-
-GateActions["string_byte"] = {
-	name = "Character > Byte",
-	inputs = { "A", "B" },
-	inputtypes = { "STRING" },
-	outputs = { "Out" },
-	output = function(gate, A,B)
-		return string.byte(A,B)
-	end,
-	label = function(Out, A, B)
-		return "Byte("..A.."["..B.."]) = "..Out.Out
-	end
-}
-
-GateActions["string_tostring"] = {
-	name = "Number > String",
-	inputs = { "A" },
-	outputs = { "Out" },
-	outputtypes = { "STRING" },
-	output = function(gate, A)
-		return tostring(A)
-	end,
-	label = function(Out, A)
-		return A.." = "..Out.Out
-	end
-}
-
-GateActions["string_tonumber"] = {
-	name = "String > Number",
-	inputs = { "A" },
-	inputtypes = { "STRING" },
-	outputs = { "Out" },
-	output = function(gate, A)
-		return (tonumber(A) or 0)
-	end,
-	label = function(Out, A)
-		return A.." = "..Out.Out
-	end
-}
-
 GateActions["string_entinfo"] = {
 	name = "Entity String Decoder",
 	inputs = { "Ent" },
@@ -346,25 +116,6 @@ GateActions["string_if"] = {
 	end,
 	label = function(Out, A, B, C)
 		return "if "..A.." then "..B.." else "..C.." = "..Out.Out
-	end
-}
-
-GateActions["string_select"] = {
-	name = "Select (String)",
-	inputs = { "Choice", "A", "B", "C", "D", "E", "F", "G", "H" },
-	inputtypes = { "NORMAL", "STRING", "STRING", "STRING", "STRING", "STRING", "STRING", "STRING", "STRING" },
-	outputs = { "Out" },
-	outputtypes = { "STRING" },
-	output = function(gate, Choice, ...)
-		local idx = math.floor(Choice)
-		if (idx > 0) and (idx <= 8) then
-			return arg[idx]
-		end
-		
-		return ""
-	end,
-	label = function(Out, Choice)
-		return "Select Choice:"..Choice.." Out:"..Out.Out
 	end
 }
 
