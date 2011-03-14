@@ -12,11 +12,12 @@ registerCallback("postinit",function()
 	
 	
 	local function temprescale( Holo, scale )
-		local maxval = wire_holograms_size_max:GetInt() * 12.5
+		local maxval = wire_holograms_size_max:GetInt() * 12
 
 		scale = Vector(scale[1],scale[2],scale[3])
 		local size = Holo.ent:OBBMaxs()-Holo.ent:OBBMins()
 		local cl = math.Clamp
+
 		local vec = Vector(size.x*scale.x,size.y*scale.y,size.z*scale.z)
 		
 		if (math.abs(vec.x) > maxval) then -- Is the hologram going to be bigger than the maximum allowed size if we scale it now?
@@ -56,12 +57,13 @@ registerCallback("postinit",function()
 		local index, size = op1[1](self, op1), op2[1](self, op2)
 		local Holo = CheckIndex(self, index)
 		if not Holo then return end
+
+		local propsize = Holo.ent:OBBMaxs()-Holo.ent:OBBMins()
+		local x,y,z
 		
-		local offset = 0.5
-		local propsize = Holo.ent:OBBMaxs() - Holo.ent:OBBMins()
-		local x = (size[1] / (propsize.x - offset) - 0.025)
-		local y = (size[2] / (propsize.y - offset) - 0.025)
-		local z = (size[3] / (propsize.z - offset) - 0.025)
+		x = size[1] / propsize.x
+		y = size[2] / propsize.y
+		z = size[3] / propsize.z
 		
 		if (Holo.modelany) then temprescale( Holo, Vector(x,y,z) ) return end
 		
@@ -76,6 +78,7 @@ registerCallback("postinit",function()
 		if not Holo then return end
 		
 		if (ModelList[model]) then
+			model = ModelList[model]
 			Holo.ent:SetModel( Model( "models/Holograms/"..model..".mdl") )
 			Holo.modelany = false
 			return
@@ -98,6 +101,7 @@ registerCallback("postinit",function()
 		Holo.ent:SetSkin(skin)
 		
 		if (ModelList[model]) then
+			model = ModelList[model]
 			Holo.ent:SetModel( Model( "models/Holograms/"..model..".mdl") )
 			Holo.modelany = false
 			return
