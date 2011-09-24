@@ -36,7 +36,7 @@ hook.Add( "PlayerLeaveVehicle", "wire_expression2_camera_exitvehicle", function(
 	end
 end)
 hook.Add( "EntityRemoved", "wire_expression2_camera_player_disconnected", function( ply )
-	if ply:IsPlayer() then
+	if ply and ply:IsValid() and ply:IsPlayer() then
 		local camera = ply:GetViewEntity()
 		if camera and camera:IsValid() and camera.IsE2Camera then
 			camera.user = nil
