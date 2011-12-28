@@ -19,6 +19,7 @@ E2Lib.RegisterExtension("tracesystem", false)
 local v = _R.Vector
 local Length = v.Length
 local Dot = v.Dot
+local Cross = v.Cross
 local Distance = v.Distance
 local sqrt = math.sqrt
 --]]
@@ -51,7 +52,7 @@ local function LuaAngToE2Ang( Ang )
 	
 end
 
-//Default function make 1,0,0 have a length below 1
+//Default function make 1,0,0 have a length below 1, use this instead.
 local function Norm( Vec )
 	
 	return Vec / Length(Vec)
@@ -112,6 +113,38 @@ local function RayFaceIntersection( Start, Dir, Pos, Normal, Size, Rotation )
 				return hitPos
 				
 			end
+		end
+		
+	end
+	
+	return false
+	
+end
+
+local function RayPolygonIntersection( Start, Dir, Vertices )
+	
+	local Vertex1 = Vertices[1]
+	local Vertex2 = Vertices[2]
+	local Vertex3 = Vertices[3]
+	
+	local V1V2 = Norm(Vertex2 - Vertex1)
+	local V1V3 = Norm(Vertex3 - Vertex1)
+	
+	local normal = Cross(V1V2, V1V3)
+	if Dot( Dir, normal ) > 0 then normal:Mul(-1) end
+	
+	local hitPos = RayPlaneIntersection( Start, Dir, Vertex1, normal )
+	
+	if (hitPos) then
+		
+		local V1Hit = Norm(hitPos - Vertex1)
+		
+		if	Dot( V1V2, V1V3 ) < Dot( V1V2, V1Hit ) and
+			Dot( V1V3, V1V2 ) < Dot( V1V3, V1Hit ) and
+			Dot( V1V2, Norm(Vertex3 - Vertex2) ) > Dot( V1V2, Norm(hitPos - Vertex2) ) then
+			
+			return hitPos
+			
 		end
 		
 	end
@@ -374,12 +407,15 @@ local models = {
 	"box",
 	"circle",
 	"sphere",
-	"ellipsoid"
+	"ellipsoid",
+	"polygon"
 }
 
-local function ShapeCreate( index, model, radius, rotation, pos, normal, size, ang, self )
+local function ShapeCreate( index, model, radius, rotation, pos, normal, size, ang, vertices, self )
 	
 	if (!table.HasValue( models, model )) then return "Invalid model." end
+	
+	if (model == "polygon") then return ShapeCreatePolygon( index, vertices, self ) end
 	
 	if (!shapes[self.player][self.entity][index]) then
 		playerAmount[self.player] = playerAmount[self.player]+1
@@ -400,6 +436,38 @@ local function ShapeCreate( index, model, radius, rotation, pos, normal, size, a
 	shape.Normal = normal
 	shape.Size = size
 	shape.Ang = ang
+	
+	shape.Vertices = {}
+	
+	shapes[self.player][self.entity][index] = shape
+	
+	return ""
+	
+end
+
+local function ShapeCreatePolygon( index, vertices, self )
+	
+	if (!shapes[self.player][self.entity][index]) then
+		playerAmount[self.player] = playerAmount[self.player]+1
+	end
+	
+	local shape = {}
+	
+	//Unmodifiable
+	shape.Index = index
+	shape.Entity = self.entity
+	shape.Owner = self.player
+	
+	//Modifiable
+	shape.Model = "polygon"
+	shape.Vertices = vertices
+	shape.Pos = (vertices[1] + vertices[2] + vertices[3]) / 3
+	
+	shape.Radius = 0
+	shape.Rotation = 0
+	shape.Normal = Vector(0,0,0)
+	shape.Size = Vector(0,0,0)
+	shape.Ang = Angle(0,0,0)
 	
 	shapes[self.player][self.entity][index] = shape
 	
@@ -448,9 +516,27 @@ local function ShapePos( index, pos, self )
 	if (!shape) then return "Invalid index." end
 	
 	if (shape.Parent) then
-		shape.Pos = shape.Parent.WorldToLocal(pos)
+		shape.Pos = shape.Parent:WorldToLocal(pos)
 	else
 		shape.Pos = pos
+	end
+	
+	return ""
+	
+end
+
+local function ShapeVertices( index, vertices, self )
+	
+	local shape = shapes[self.player][self.entity][index]
+	if (!shape) then return "Invalid index." end
+	
+	if (shape.Parent) then
+		vertices[1] = shape.Parent:WorldToLocal(vertices[1])
+		vertices[2] = shape.Parent:WorldToLocal(vertices[2])
+		vertices[3] = shape.Parent:WorldToLocal(vertices[3])
+		shape.Vertices = vertices
+	else
+		shape.Vertices = vertices
 	end
 	
 	return ""
@@ -463,7 +549,7 @@ local function ShapeAng( index, ang, self )
 	if (!shape) then return "Invalid index." end
 	
 	if (shape.Parent) then
-		shape.Ang = shape.Parent.WorldToLocal(ang)
+		shape.Ang = shape.Parent:WorldToLocal(ang)
 	else
 		shape.Ang = ang
 	end
@@ -505,17 +591,24 @@ local function ShapeParent( index, parent, self )
 	
 	if (parent) then
 		
-		local pos, ang, normal, rotation
+		local pos, ang, normal, rotation, vertex1, vertex2, vertex3
 		if (shape.Parent) then
-			pos, ang, normal, rotation = GetWorldData(shape)
+			pos, ang, normal, rotation, vertex1, vertex2, vertex3 = GetWorldData(shape)
 		else
 			pos, ang, normal, rotation = shape.Pos, shape.Ang, shape.Normal, shape.Rotation
+			local vertices = shape.Vertices
+			vertex1, vertex2, vertex3 = unpack(vertices)
 		end
 		
 		shape.Pos = parent:WorldToLocal(pos)
 		shape.Ang = parent:WorldToLocalAngles(ang)
 		shape.Normal = WorldToLocal( normal, Angle(0,0,0), Vector(0,0,0), parent:GetAngles() )
 		shape.Rotation = rotation //Work on
+		
+		vertex1 = parent:WorldToLocal(vertex1)
+		vertex2 = parent:WorldToLocal(vertex2)
+		vertex3 = parent:WorldToLocal(vertex3)
+		shape.Vertices = { vertex1, vertex2, vertex3 }
 		
 	end
 	
@@ -560,17 +653,24 @@ local function GetWorldData(shape)
 	local normal = LocalToWorld( shape.Normal, Angle(0,0,0), Vector(0,0,0), shape.Parent:GetAngles() )
 	local rotation = shape.Rotation //Work On
 	
-	return pos, ang, normal, rotation
+	local vertices = shape.Vertices
+	local vertex1 = parent:LocalToWorld(vertices[1])
+	local vertex2 = parent:LocalToWorld(vertices[2])
+	local vertex3 = parent:LocalToWorld(vertices[3])
+	
+	return pos, ang, normal, rotation, {vertex1, vertex2, vertex3}
 	
 end
 
 local function FillTraceData( trace, shape )
 	
-	local pos, ang, normal, rotation
+	local pos, ang, normal, rotation, vertices
 	if (shape.Parent) then
-		pos, ang, normal, rotation = GetWorldData(shape)
+		pos, ang, normal, rotation, vertex1, vertex2, vertex3 = GetWorldData(shape)
+		vertices = { vertex1, vertex2, vertex3 }
 	else
 		pos, ang, normal, rotation = shape.Pos, shape.Ang, shape.Normal, shape.Rotation
+		vertices = shape.Vertices
 	end
 	
 	trace.Hit = 1
@@ -581,6 +681,7 @@ local function FillTraceData( trace, shape )
 	trace.HitNormal = normal
 	trace.Size = shape.Size
 	trace.Pos = pos
+	trace.Vertices = vertices
 	trace.Ang = ang
 	trace.Parent = shape.Parent
 	trace.HitEntity = shape.Entity
@@ -673,6 +774,61 @@ local function TsRayFaceIntersection( start, dir, self )
 						end
 						
 						local hitPos = RayFaceIntersection( start, dir, pos, normal, shape.Size, rotation )
+						
+						if (hitPos) then
+							local trace = {}
+							
+							FillTraceData( trace, shape )
+							
+							trace.HitAngle = 0
+							trace.StartPos = start
+							trace.HitPos = hitPos
+							
+							table.insert( traces, trace )
+						end
+						
+					end
+					
+				end
+			end
+			
+		end
+		
+	end
+	
+	return traces
+	
+end
+
+local function TsRayPolygonIntersection( start, dir, self )
+	
+	local traces = {}
+	
+	for ply,plyGates in pairs(shapes) do
+		
+		for gate,gateShapes in pairs(plyGates) do
+			
+			local cont = false
+			
+			//If player is not same player who trace and e2's does not share with other players e2
+			if (ply ~= self.player and (sharing[ply][gate] ~= 2 or sharing[self.player][self.entity] ~= 2)) then cont = true end
+			
+			//If e2 is not same as e2 that trace and e2 does not share at all
+			if (gate ~= self.entity and (sharing[ply][gate] == 0 or sharing[self.player][self.entity] == 0)) then cont = true end
+			
+			if (!cont) then
+				for k,shape in pairs(gateShapes) do
+					
+					if (shape.Model == "polygon") then
+						
+						local pos, ang, normal, rotation, vertices
+						if (shape.Parent) then
+							pos, ang, normal, rotation, vertices = GetWorldData(shape)
+						else
+							pos, ang, normal, rotation, vertices = shape.Pos, shape.Ang, shape.Normal, shape.Rotation, shape.Vertices
+						end
+						
+						local hitPos = RayPolygonIntersection( start, dir, vertices )
 						
 						if (hitPos) then
 							local trace = {}
@@ -930,6 +1086,7 @@ local function TsRayIntersection( start, dir, self )
 	
 	local rayPlane = TsRayPlaneIntersection( start, dir, self )
 	local rayFace = TsRayFaceIntersection( start, dir, self )
+	local rayPolygon = TsRayPolygonIntersection( start, dir, self )
 	local rayBox = TsRayBoxIntersection( start, dir, self)
 	local rayCircle = TsRayCircleIntersection( start, dir, self )
 	local raySphere = TsRaySphereIntersection( start, dir, self )
@@ -937,6 +1094,7 @@ local function TsRayIntersection( start, dir, self )
 	
 	table.Add(traces,rayPlane)
 	table.Add(traces,rayFace)
+	table.Add(traces,rayPolygon)
 	table.Add(traces,rayBox)
 	table.Add(traces,rayCircle)
 	table.Add(traces,raySphere)
@@ -1107,6 +1265,14 @@ local function GetHitOrigin( traces, index )
 	
 end
 
+local function GetHitVertices( traces, index )
+	
+	if (traces[index]) then
+		return traces[index].Vertices
+	end
+	
+end
+
 local function GetHitAng( traces, index )
 	
 	if (traces[index]) then
@@ -1212,6 +1378,18 @@ e2function vector rayFaceIntersection( vector start, vector dir, vector pos, vec
 	return LuaVecToE2Vec( hitPos )
 end
 
+e2function vector rayPolygonIntersection( vector start, vector dir, vector vertex1, vector vertex2, vector vertex3 )
+	start = E2VecToLuaVec( start )
+	dir = E2VecToLuaVec( dir )
+	vertex1 = E2VecToLuaVec( vertex1 )
+	vertex2 = E2VecToLuaVec( vertex2 )
+	vertex3 = E2VecToLuaVec( vertex3 )
+	
+	hitPos = RayPolygonIntersection( start, dir, {vertex1, vertex2, vertex3} )
+	
+	return LuaVecToE2Vec( hitPos )
+end
+
 e2function vector rayAABBoxIntersection( vector start, vector dir, vector pos, vector size )
 	start = E2VecToLuaVec( start )
 	dir = E2VecToLuaVec( dir )
@@ -1303,7 +1481,7 @@ e2function void tsShapeShare( number share )
 	return ShapeShare( share, self )
 end
 
-e2function string tsShapeCreate( number index, string model, number radius, rotation, vector pos, vector normal, vector size, angle ang )
+e2function string tsShapeCreate( number index, string model, number radius, rotation, vector pos, vector normal, vector size, angle ang, vector vertex1, vector vertex2, vector vertex3 )
 	if (!ShapeCanCreate( self.player )) then return "Limit reached" end
 	
 	pos = E2VecToLuaVec( pos )
@@ -1311,13 +1489,27 @@ e2function string tsShapeCreate( number index, string model, number radius, rota
 	size = E2VecToLuaVec( size )
 	ang = E2AngToLuaAng( ang )
 	
-	return ShapeCreate( index, model, radius, rotation, pos, normal, size, ang, self )
+	vertex1 = E2VecToLuaVec( vertex1 )
+	vertex2 = E2VecToLuaVec( vertex2 )
+	vertex3 = E2VecToLuaVec( vertex3 )
+	
+	return ShapeCreate( index, model, radius, rotation, pos, normal, size, ang, vertices, self )
 end
 
 e2function string tsShapeCreate( number index )
 	if (!ShapeCanCreate( self.player )) then return "Limit reached" end
 	
-	return ShapeCreate( index, "", 0, 0, Vector(0,0,0), Vector(0,0,0), Vector(0,0,0), Angle(0,0,0), self )
+	return ShapeCreate( index, "", 0, 0, Vector(0,0,0), Vector(0,0,0), Vector(0,0,0), Angle(0,0,0), {}, self )
+end
+
+e2function string tsShapePolygon( number index, vector vertex1, vector vertex2, vector vertex3 )
+	if (!ShapeCanCreate( self.player )) then return "Limit reached" end
+	
+	vertex1 = E2VecToLuaVec( vertex1 )
+	vertex2 = E2VecToLuaVec( vertex2 )
+	vertex3 = E2VecToLuaVec( vertex3 )
+	
+	return ShapeCreatePolygon( index, {vertex1, vertex2, vertex3}, self )
 end
 
 e2function string tsShapeModel( number index, string model )
@@ -1336,6 +1528,14 @@ e2function string tsShapePos( number index, vector pos )
 	pos = E2VecToLuaVec( pos )
 	
 	return ShapePos( index, pos, self )
+end
+
+e2function string tsShapeVertices( number index, vector vertex1, vector vertex2, vector vertex3 )
+	vertex1 = E2VecToLuaVec( vertex1 )
+	vertex2 = E2VecToLuaVec( vertex2 )
+	vertex3 = E2VecToLuaVec( vertex3 )
+	
+	return ShapeVertices( index, {vertex1, vertex2, vertex3}, self )
 end
 
 e2function string tsShapeAng( number index, angle ang )
@@ -1390,6 +1590,17 @@ e2function tracedata tsRayFaceIntersection( vector start, vector dir )
 	dir = E2VecToLuaVec( dir )
 	
 	local traces = TsRayFaceIntersection( start, dir, self )
+	
+	SortByDistance( traces, start )
+	
+	return traces
+end
+
+e2function tracedata tsRayPolygonIntersection( vector start, vector dir )
+	start = E2VecToLuaVec( start )
+	dir = E2VecToLuaVec( dir )
+	
+	local traces = TsRayPolygonIntersection( start, dir, self )
 	
 	SortByDistance( traces, start )
 	
@@ -1557,6 +1768,14 @@ e2function vector tracedata:pos( number index )
 	local pos = GetHitOrigin( this, index )
 	
 	return LuaVecToE2Vec(pos)
+end
+
+e2function vector tracedata:vertices( )
+	return GetHitVertices( this, 1 )
+end
+
+e2function vector tracedata:vertices( number index )
+	return GetHitVertices( this, index )
 end
 
 e2function angle tracedata:ang( )
