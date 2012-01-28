@@ -49,12 +49,10 @@ util.PrecacheSound("weapons/pistol/pistol_empty.wav")
 cleanup.Register( "wireconstraints" )
 
 function TOOL:LeftClick( trace )
-
-
 	if (trace.Entity:IsValid()) and (trace.Entity:IsPlayer()) then return end
 
 	// If there's no physics object then we can't constraint it!
-	if ( SERVER && !util.IsValidPhysicsObject( trace.Entity, trace.PhysicsBone ) ) then return false end
+	--if ( SERVER && !util.IsValidPhysicsObject( trace.Entity, trace.PhysicsBone ) ) then return false end  -- You don't need this for wiring! -Grocel
 
 	local stage = self:GetStage()
 	
@@ -69,6 +67,7 @@ function TOOL:LeftClick( trace )
 			local winput = self.CurrentInput
 			table.insert(self.enttbl, wents)
 			table.insert(self.inputtbl, winput)
+			wents.OldColorR, wents.OldColorG, wents.OldColorB, wents.OldColorA = wents:GetColor()
 			wents:SetColor(0,255,0,150)
 			return true
 		end
@@ -80,12 +79,12 @@ function TOOL:LeftClick( trace )
 			return true
 		end
 		
-		if (not trace.Entity.Outputs) then
+		if (!WireLib.HasPorts(trace.Entity) or !trace.Entity.Outputs) then
 			self:SetStage(0)
 		
 			Wire_Link_Cancel(self:GetOwner():UniqueID())
 
-	        self:GetOwner():SendLua( "GAMEMODE:AddNotify('Wire source invalid!', NOTIFY_GENERIC, 7);" )
+			self:GetOwner():SendLua( "GAMEMODE:AddNotify('Wire source invalid!', NOTIFY_GENERIC, 7);" )
 			self.inputtbl = {}
 			self.enttbl = {}
 			return
@@ -112,10 +111,10 @@ function TOOL:LeftClick( trace )
 		for k,_ in pairs(trace.Entity.Outputs) do
 			if (oname) then
 				self:SelectComponent(nil)
-		        self.CurrentOutput = self.Outputs[1] //oname
-		        self.OutputEnt = trace.Entity
-		        self.OutputPos = trace.Entity:WorldToLocal(trace.HitPos)
-		    	//self:GetWeapon():SetNetworkedString("WireCurrentInput", "Output:"..self.CurrentOutput)
+				self.CurrentOutput = self.Outputs[1] //oname
+				self.OutputEnt = trace.Entity
+				self.OutputPos = trace.Entity:WorldToLocal(trace.HitPos)
+				//self:GetWeapon():SetNetworkedString("WireCurrentInput", "Output:"..self.CurrentOutput)
 				
 				local txt = "Output: "..self.CurrentOutput
 				if (self.OutputsDesc) and (self.OutputsDesc[self.CurrentOutput]) then
@@ -134,15 +133,22 @@ function TOOL:LeftClick( trace )
 		    oname = k
 		end
 		
-	local material	= self:GetClientInfo("material")
-	local width		= self:GetClientNumber("width")
-	local color     = Color(self:GetClientNumber("color_r"), self:GetClientNumber("color_g"), self:GetClientNumber("color_b"))
+		local material	= self:GetClientInfo("material")
+		local width		= self:GetClientNumber("width")
+		local color     = Color(self:GetClientNumber("color_r"), self:GetClientNumber("color_g"), self:GetClientNumber("color_b"))
 
-	for k,v in pairs(self.enttbl) do
-		Wire_Link_Start(self:GetOwner():UniqueID(), v, v:WorldToLocal(v:GetPos()), self.inputtbl[k], material, color, width)
-		Wire_Link_End(self:GetOwner():UniqueID(), trace.Entity, trace.Entity:WorldToLocal(trace.HitPos), oname, self:GetOwner())
-		v:SetColor(255,255,255,255)
-	end
+		for k,v in pairs(self.enttbl) do
+			if (IsValid(v)) then
+				Wire_Link_Start(self:GetOwner():UniqueID(), v, v:WorldToLocal(v:GetPos()), self.inputtbl[k], material, color, width)
+				Wire_Link_End(self:GetOwner():UniqueID(), trace.Entity, trace.Entity:WorldToLocal(trace.HitPos), oname, self:GetOwner())
+				v:SetColor(v.OldColorR or 255, v.OldColorG or 255, v.OldColorB or 255, v.OldColorA or 255)
+				v.OldColorR = nil
+				v.OldColorG = nil
+				v.OldColorB = nil
+				v.OldColorA = nil
+			end
+		end
+
 		self.inputtbl = {}
 		self.enttbl = {}
 		self:SelectComponent(nil)
@@ -154,15 +160,21 @@ function TOOL:LeftClick( trace )
 			return true
 		end
 		
-	local material	= self:GetClientInfo("material")
-	local width		= self:GetClientNumber("width")
-	local color     = Color(self:GetClientNumber("color_r"), self:GetClientNumber("color_g"), self:GetClientNumber("color_b"))
-	
-	for k,v in pairs(self.enttbl) do
-		Wire_Link_Start(self:GetOwner():UniqueID(), v, v:WorldToLocal(v:GetPos()), self.inputtbl[k], material, color, width)
-		Wire_Link_End(self:GetOwner():UniqueID(), self.OutputEnt, self.OutputPos, self.CurrentOutput, self:GetOwner())
-		v:SetColor(255,255,255,255)
-	end
+		local material	= self:GetClientInfo("material")
+		local width		= self:GetClientNumber("width")
+		local color     = Color(self:GetClientNumber("color_r"), self:GetClientNumber("color_g"), self:GetClientNumber("color_b"))
+		
+		for k,v in pairs(self.enttbl) do
+			if (IsValid(v)) then
+				Wire_Link_Start(self:GetOwner():UniqueID(), v, v:WorldToLocal(v:GetPos()), self.inputtbl[k], material, color, width)
+				Wire_Link_End(self:GetOwner():UniqueID(), self.OutputEnt, self.OutputPos, self.CurrentOutput, self:GetOwner())
+				v:SetColor(v.OldColorR or 255, v.OldColorG or 255, v.OldColorB or 255, v.OldColorA or 255)
+				v.OldColorR = nil
+				v.OldColorG = nil
+				v.OldColorB = nil
+				v.OldColorA = nil
+			end
+		end
 		self:GetWeapon():SetNetworkedString("WireCurrentInput", "")
 		self.CurrentOutput = nil
 		self.OutputEnt = nil
@@ -172,7 +184,6 @@ function TOOL:LeftClick( trace )
 		self.enttbl = {}
 		self:SelectComponent(nil)
 		self:SetStage(0)
-
 	end
 
 	return true
@@ -180,14 +191,12 @@ end
 
 
 function TOOL:RightClick( trace )
+	if (trace.Entity:IsValid()) and (trace.Entity:IsPlayer()) then return end
+
 	local stage = self:GetStage()
 
-	if (stage < 2) then
-		if (not trace.Entity:IsValid()) or (trace.Entity:IsPlayer()) then return end
-	end
-
 	// If there's no physics object then we can't constraint it!
-	if ( SERVER && !util.IsValidPhysicsObject( trace.Entity, trace.PhysicsBone ) ) then return false end
+	--if ( SERVER && !util.IsValidPhysicsObject( trace.Entity, trace.PhysicsBone ) ) then return false end  -- You don't need this for wiring! -Grocel
 
 	if (stage == 0) then
 		if (CLIENT) then return end
@@ -220,7 +229,7 @@ function TOOL:RightClick( trace )
 			end*/
 			
 			local txt = ""
-			if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) and (self.CurrentInput)
+			if (IsValid(self.CurrentComponent)) and (WireLib.HasPorts(self.CurrentComponent)) and (self.CurrentInput)
 			  and (self.CurrentComponent.Inputs) and (self.CurrentComponent.Inputs[self.CurrentInput])
 			  and (self.CurrentComponent.Inputs[self.CurrentInput].Src) then
 				txt = "%"..(self.CurrentInput or "")
@@ -237,7 +246,7 @@ function TOOL:RightClick( trace )
 			self:GetWeapon():SetNetworkedString("WireCurrentInput", txt)
 			
 			
-			if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) then
+			if (IsValid(self.CurrentComponent)) then
 			    self.CurrentComponent:SetNetworkedBeamString("BlinkWire", self.CurrentInput)
 			end
 		end
@@ -278,7 +287,24 @@ function TOOL:Reload(trace)
 end
 
 function TOOL:Holster()
+	for k,v in pairs(self.enttbl) do
+		if (IsValid(v)) then
+			v:SetColor(v.OldColorR or 255, v.OldColorG or 255, v.OldColorB or 255, v.OldColorA or 255)
+			v.OldColorR = nil
+			v.OldColorG = nil
+			v.OldColorB = nil
+			v.OldColorA = nil
+		end
+	end
+	self:GetWeapon():SetNetworkedString("WireCurrentInput", "")
+	self.CurrentOutput = nil
+	self.OutputEnt = nil
+	self.OutputPos = nil
+	--Making sure ents and inputs are cleared.
+	self.inputtbl = {}
+	self.enttbl = {}
 	self:SelectComponent(nil)
+	self:SetStage(0)
 end
 
 
@@ -410,7 +436,7 @@ function TOOL:SelectComponent(ent)
 
 	if (self.CurrentComponent == ent) then return end
 	
-    if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) then
+    if (IsValid(self.CurrentComponent)) then
  	    self.CurrentComponent:SetNetworkedBeamString("BlinkWire", "")
 	end
 	
@@ -447,7 +473,7 @@ function TOOL:SelectComponent(ent)
 	if (self.CurrentInput) and (self.CurrentInput ~= "") then self.LastValidInput = self.CurrentInput end
 	
 	local txt = ""
-	if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) and (self.CurrentInput)
+	if (IsValid(self.CurrentComponent)) and (WireLib.HasPorts(self.CurrentComponent)) and (WireLib.HasPorts(self.CurrentComponent)) and (self.CurrentInput)
 	  and (self.CurrentComponent.Inputs) and (self.CurrentComponent.Inputs[self.CurrentInput])
 	  and (self.CurrentComponent.Inputs[self.CurrentInput].Src) then
     	txt = "%"..(self.CurrentInput or "")
@@ -463,7 +489,7 @@ function TOOL:SelectComponent(ent)
 	end
 	self:GetWeapon():SetNetworkedString("WireCurrentInput", txt)
 	
-	if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) then
+	if (IsValid(self.CurrentComponent)) then
 	    self.CurrentComponent:SetNetworkedBeamString("BlinkWire", self.CurrentInput)
 	end
 end

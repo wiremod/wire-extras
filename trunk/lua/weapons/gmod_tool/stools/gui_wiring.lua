@@ -31,17 +31,18 @@ cleanup.Register( "wireconstraints" )
 local Components = {}
 
 local function IsWire(entity) --try to find out if the entity is wire
-	if entity.IsWire == true then return true end --this shold always be true if the ent is wire compatible, but only is if the base of the entity is "base_wire_entity" THIS NEEDS TO BE FIXED
-	if entity.Inputs or entity.Outputs then return true end --this is how the wire STool gun does it
+	if (WireLib.HasPorts(entity)) then return true end
+	--if entity.IsWire == true then return true end --this shold always be true if the ent is wire compatible, but only is if the base of the entity is "base_wire_entity" THIS NEEDS TO BE FIXED <-- CHALLENGE ACCEPTED! -Grocel
+	--if entity.Inputs or entity.Outputs then return true end --this is how the wire STool gun does it
 	return false
 end
 
 function TOOL:LeftClick(trace)
 	local ent = trace.Entity
-	if (not ent:IsValid()) then return end
-	if CLIENT then return true end
+	if (!ent:IsValid()) then return end
+	if (!IsWire(ent)) then return end
+	if (CLIENT) then return true end
 
-	if(!IsWire(ent)) then return end
 	
 	ply_idx = self:GetOwner()
 	Components[ply_idx] = Components[ply_idx] or {}
@@ -59,11 +60,10 @@ end
 
 function TOOL:RightClick(trace)
 	local ent = trace.Entity
-	if (not ent:IsValid()) then return end
-	if CLIENT then return true end
+	if (!ent:IsValid()) then return end
+	if (!IsWire(ent)) then return end
+	if (CLIENT) then return true end
 
-	if(!IsWire(ent)) then return end
-	
 	ply_idx = self:GetOwner()
 	if not Components[ply_idx] then return end
 
@@ -74,13 +74,11 @@ function TOOL:RightClick(trace)
 		end
 	end
 	
-	if ent.OldColorR then
-		ent:SetColor(ent.OldColorR, ent.OldColorG, ent.OldColorB, ent.OldColorA)
-		ent.OldColorR = nil
-		ent.OldColorG = nil
-		ent.OldColorB = nil
-		ent.OldColorA = nil
-	end
+	ent:SetColor(ent.OldColorR or 255, ent.OldColorG or 255, ent.OldColorB or 255, ent.OldColorA or 255)
+	ent.OldColorR = nil
+	ent.OldColorG = nil
+	ent.OldColorB = nil
+	ent.OldColorA = nil
 	
 	return true
 end
@@ -118,6 +116,7 @@ if CLIENT then
 	local function GUIWiring_RecvEntPart(um)
 		local ent = um:ReadEntity()
 		if not (ent and ent:IsValid()) then return end
+		if not (IsWire(ent)) then return end
 		local cMsg = um:ReadShort()
 		local tMsg = um:ReadShort()
 		local strMsg = um:ReadString()
@@ -140,6 +139,7 @@ if CLIENT then
 	local function GUIWiring_RecvWL(um)
 		local ent = um:ReadEntity()
 		if not (ent and ent:IsValid()) then return end
+		if not (IsWire(ent)) then return end
 		local btn = DWLMakers[tostring(ent)]
 		if not (btn and btn:IsValid()) then return end
 		local dat = glon.decode(um:ReadString())
@@ -189,6 +189,7 @@ if CLIENT then
 		local iname = inb.Port.Name
 		local oent = outb.Entity
 		local oname = outb.Port.Name
+		if not (IsWire(ient) and IsWire(oent)) then return end
 		GUIWiring_SetDisplayWire(ient,iname,oent,oname)
 		inb.Port.Src = oent
 		inb.Port.SrcId = outb.BtnId
@@ -410,6 +411,7 @@ if CLIENT then
 	PANEL.Port = nil
 	PANEL.PVK = ""
 	function PANEL:SetPort(ent,port)
+		if not IsWire(ent) then return end
 		self.IsWirelinkCreator = nil
 		self.Entity = ent
 		port.Entity = port.Entity or ent
@@ -544,7 +546,7 @@ if SERVER then
 	local function GUIWring_WirelinkCmd(ply,cmd,args)
 		if not (#args == 1 and ply:IsValid() and ply:IsPlayer()) then return end
 		local ent = ents.GetByIndex(args[1])
-		if ValidEntity(ent) then
+		if IsValid(ent) and IsWire(ent) then
 			GUIWiring_Wirelink(ply,ent)
 		end
 	end
@@ -575,7 +577,7 @@ if SERVER then
 		local inp = args[2]
 		local oent = ents.GetByIndex(args[3])
 		local out = args[4]
-		if ValidEntity(ent) and inp != "" and ValidEntity(oent) and out != "" then
+		if IsValid(ent) and IsWire(ent) and inp != "" and IsValid(oent) and IsWire(oent) and out != "" then
 			GUIWiring_DoWire(ply,ent,inp,oent,out)
 		end		
 	end
@@ -584,7 +586,7 @@ if SERVER then
 		if not (#args == 2 and ply:IsValid() and ply:IsPlayer()) then return end
 		local ent = ents.GetByIndex(args[1])
 		local inp = args[2]
-		if ValidEntity(ent) and inp != "" then
+		if IsValid(ent) and IsWire(ent) and inp != "" then
 			GUIWiring_UnWire(ply,ent,inp)
 		end
 	end
@@ -598,8 +600,8 @@ if SERVER then
 		wOn[ply] = nil
 		if not Components[ply] then return end
 		for _,v in pairs(Components[ply]) do
-			if v.OldColorR then
-				v:SetColor(v.OldColorR, v.OldColorG, v.OldColorB, v.OldColorA)
+			if (IsValid(v)) then
+				v:SetColor(v.OldColorR or 255, v.OldColorG or 255, v.OldColorB or 255, v.OldColorA or 255)
 				v.OldColorR = nil
 				v.OldColorG = nil
 				v.OldColorB = nil
@@ -802,7 +804,7 @@ function TOOL.BuildCPanel(panel)
 	panel:AddControl("Slider", {
 		Label = "#GUI_WiringTool_width",
 		Type = "Float",
-		Min = "1",
+		Min = "0",
 		Max = "20",
 		Command = "gui_wiring_width"
 	})
