@@ -1340,8 +1340,9 @@ registerType("tracedata", "xtd", {},
 )
 
 e2function tracedata operator=(tracedata lhs, tracedata rhs)
-	self.vars[lhs] = rhs
-	self.vclk[lhs] = true
+	local scope = self.Scopes[ args[4] ]
+	scope[lhs] = rhs
+	scope.vclk[lhs] = true
 	return rhs
 end
 
@@ -1361,7 +1362,7 @@ e2function vector rayPlaneIntersection( vector start, vector dir, vector pos, ve
 	pos = E2VecToLuaVec( pos )
 	normal = E2VecToLuaVec( normal )
 	
-	hitPos = RayPlaneIntersection( start, dir, pos, normal )
+	local hitPos = RayPlaneIntersection( start, dir, pos, normal )
 	
 	return LuaVecToE2Vec( hitPos )
 end
@@ -1373,7 +1374,7 @@ e2function vector rayFaceIntersection( vector start, vector dir, vector pos, vec
 	normal = E2VecToLuaVec( normal )
 	size = E2VecToLuaVec( size )
 	
-	hitPos = RayFaceIntersection( start, dir, pos, normal, size, ang )
+	local hitPos = RayFaceIntersection( start, dir, pos, normal, size, ang )
 	
 	return LuaVecToE2Vec( hitPos )
 end
@@ -1385,7 +1386,7 @@ e2function vector rayPolygonIntersection( vector start, vector dir, vector verte
 	vertex2 = E2VecToLuaVec( vertex2 )
 	vertex3 = E2VecToLuaVec( vertex3 )
 	
-	hitPos = RayPolygonIntersection( start, dir, {vertex1, vertex2, vertex3} )
+	local hitPos = RayPolygonIntersection( start, dir, {vertex1, vertex2, vertex3} )
 	
 	return LuaVecToE2Vec( hitPos )
 end
@@ -1396,7 +1397,7 @@ e2function vector rayAABBoxIntersection( vector start, vector dir, vector pos, v
 	pos = E2VecToLuaVec( pos )
 	size = E2VecToLuaVec( size )
 	
-	hitPos = RayAABBoxIntersection( start, dir, pos, size )
+	local hitPos = RayAABBoxIntersection( start, dir, pos, size )
 	
 	return LuaVecToE2Vec( hitPos )
 end
@@ -1408,7 +1409,7 @@ e2function vector rayOBBoxIntersection( vector start, vector dir, vector pos, ve
 	size = E2VecToLuaVec( size )
 	ang = E2AngToLuaAng( ang )
 	
-	hitPos = RayOBBoxIntersection( start, dir, pos, size, ang )
+	local hitPos = RayOBBoxIntersection( start, dir, pos, size, ang )
 	
 	return LuaVecToE2Vec( hitPos )
 end
@@ -1419,7 +1420,7 @@ e2function vector rayCircleIntersection( vector start, vector dir, vector pos, v
 	pos = E2VecToLuaVec( pos )
 	normal = E2VecToLuaVec( normal )
 	
-	hitPos = RayCircleIntersection( start, dir, pos, normal, radius )
+	local hitPos = RayCircleIntersection( start, dir, pos, normal, radius )
 	
 	return LuaVecToE2Vec( hitPos )
 end
@@ -1429,7 +1430,7 @@ e2function vector raySphereIntersection( vector start, vector dir, vector pos, n
 	dir = E2VecToLuaVec( dir )
 	pos = E2VecToLuaVec( pos )
 	
-	hitPos = RaySphereIntersection( start, dir, pos, radius )
+	local hitPos = RaySphereIntersection( start, dir, pos, radius )
 	
 	return LuaVecToE2Vec( hitPos )
 end
@@ -1440,7 +1441,7 @@ e2function vector rayAAEllipsoidIntersection( vector start, vector dir, vector p
 	pos = E2VecToLuaVec( pos )
 	size = E2VecToLuaVec( size )
 	
-	hitPos = RayAAEllipsoidIntersection( start, dir, pos, size )
+	local hitPos = RayAAEllipsoidIntersection( start, dir, pos, size )
 	
 	return LuaVecToE2Vec( hitPos )
 end
@@ -1452,7 +1453,7 @@ e2function vector rayOEllipsoidIntersection( vector start, vector dir, vector po
 	size = E2VecToLuaVec( size )
 	ang = E2AngToLuaAng( ang )
 	
-	hitPos = RayOEllipsoidIntersection( start, dir, pos, size, ang )
+	local hitPos = RayOEllipsoidIntersection( start, dir, pos, size, ang )
 	
 	return LuaVecToE2Vec( hitPos )
 end
@@ -1462,7 +1463,7 @@ e2function vector coneSphereIntersection( vector start, vector dir, vector pos, 
 	dir = E2VecToLuaVec( dir )
 	pos = E2VecToLuaVec( pos )
 	
-	hitPos = ConeSphereIntersection( start, dir, pos, radius, ang )
+	local hitPos = ConeSphereIntersection( start, dir, pos, radius, ang )
 	
 	return LuaVecToE2Vec( hitPos )
 end
