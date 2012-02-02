@@ -194,7 +194,7 @@ e2function void cameraToggle( index, toggle, entity vehicle )
 			camera.user = nil
 		end
 	else
-		if not vehicle or not vehicle:IsValid() or not E2Lib.isOwner( self, vehicle ) then return end
+		if not vehicle or not vehicle:IsValid() or not vehicle:IsVehicle() or not E2Lib.isOwner( self, vehicle ) then return end
 		local driver = vehicle:GetDriver()
 		if not driver or not driver:IsValid() then return end
 		
