@@ -437,7 +437,7 @@ local function ShapeCreate( index, model, radius, rotation, pos, normal, size, a
 	shape.Size = size
 	shape.Ang = ang
 	
-	shape.Vertices = {}
+	shape.Vertices = nil
 	
 	shapes[self.player][self.entity][index] = shape
 	
@@ -591,13 +591,12 @@ local function ShapeParent( index, parent, self )
 	
 	if (parent) then
 		
-		local pos, ang, normal, rotation, vertex1, vertex2, vertex3
+		local pos, ang, normal, rotation, vertices
 		if (shape.Parent) then
-			pos, ang, normal, rotation, vertex1, vertex2, vertex3 = GetWorldData(shape)
+			pos, ang, normal, rotation, vertices = GetWorldData(shape)
 		else
 			pos, ang, normal, rotation = shape.Pos, shape.Ang, shape.Normal, shape.Rotation
 			local vertices = shape.Vertices
-			vertex1, vertex2, vertex3 = unpack(vertices)
 		end
 		
 		shape.Pos = parent:WorldToLocal(pos)
@@ -605,10 +604,13 @@ local function ShapeParent( index, parent, self )
 		shape.Normal = WorldToLocal( normal, Angle(0,0,0), Vector(0,0,0), parent:GetAngles() )
 		shape.Rotation = rotation //Work on
 		
-		vertex1 = parent:WorldToLocal(vertex1)
-		vertex2 = parent:WorldToLocal(vertex2)
-		vertex3 = parent:WorldToLocal(vertex3)
-		shape.Vertices = { vertex1, vertex2, vertex3 }
+		if vertices then
+			shape.Vertices[1] = parent:WorldToLocal(vertices[1])
+			shape.Vertices[2] = parent:WorldToLocal(vertices[2])
+			shape.Vertices[3] = parent:WorldToLocal(vertices[3])
+		else
+			shape.Vertices = nil
+		end
 		
 	end
 	
@@ -654,11 +656,13 @@ local function GetWorldData(shape)
 	local rotation = shape.Rotation //Work On
 	
 	local vertices = shape.Vertices
-	local vertex1 = parent:LocalToWorld(vertices[1])
-	local vertex2 = parent:LocalToWorld(vertices[2])
-	local vertex3 = parent:LocalToWorld(vertices[3])
+	if vertices then
+		vertices[1] = parent:LocalToWorld(vertices[1])
+		vertices[2] = parent:LocalToWorld(vertices[2])
+		vertices[3] = parent:LocalToWorld(vertices[3])
+	end
 	
-	return pos, ang, normal, rotation, {vertex1, vertex2, vertex3}
+	return pos, ang, normal, rotation, vertices
 	
 end
 
@@ -666,8 +670,7 @@ local function FillTraceData( trace, shape )
 	
 	local pos, ang, normal, rotation, vertices
 	if (shape.Parent) then
-		pos, ang, normal, rotation, vertex1, vertex2, vertex3 = GetWorldData(shape)
-		vertices = { vertex1, vertex2, vertex3 }
+		pos, ang, normal, rotation, vertices = GetWorldData(shape)
 	else
 		pos, ang, normal, rotation = shape.Pos, shape.Ang, shape.Normal, shape.Rotation
 		vertices = shape.Vertices
