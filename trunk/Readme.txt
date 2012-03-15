@@ -10,12 +10,9 @@ Simply checkout this SVN repository to a folder of your choice, in your garrysmo
 Addons listed in this format:
 
 Addon Contributed - developer - license (if not GPL v3)
-hyperlink
+URL
 
 -----------------
-
-EGP e2 Graphics Processor - Goluch / Doridian
-http://www.wiremod.com/forum/e2-development/16225-release-egp-e2-graphics-processor.html
 
 Wire Touch Plate - Asphid_Jackal / TomyLobo
 http://www.wiremod.com/forum/ideas-suggestions/16284-pressure-pad-3.html#post158700 (Asphid_Jackal's original release)
@@ -26,17 +23,10 @@ http://www.wiremod.com/forum/wiremod-addons/6571-advanced-hud-tools.html
 Borsty's Wire Ents -
 http://www.wiremod.com/forum/wiremod-addons/6888-wire-highspeed-ranger-2.html
 	Dynamic Memory
-	Wire Highspeed ranger 
-	Wire RT Camera
+	Wire Highspeed ranger
 
 Buoyancy Stool - RabidToaster
 http://forums.facepunchstudios.com/showthread.php?p=10186318
-
-Detonation Cord - philxyz
-http://www.wiremod.com/forum/ideas-suggestions/6139-wire-detonation-cord-demolitions.html
-
-Directional Radios - philxyz (Decided to go for it based on request by -=Fox=-)
-http://www.wiremod.com/forum/ideas-suggestions/525-wire-directional-radios.html
 
 Door Stool - Doridian
 http://forums.facepunchstudios.com/showthread.php?t=480569
@@ -66,7 +56,6 @@ http://www.wiremod.com/forum/wiremod-addons/5018-insanely-huge-memory-chips-phi-
 
 _Kilburn's Addons
 http://www.wiremod.com/forum/wiremod-addons/4294-addons-wire-mod-mods-wire-addon.html
-	Wire String Gates
 	Wire Materializer
 	Wire Painter
 	Wire Motor
@@ -77,7 +66,7 @@ Keycards - adb
 http://www.wiremod.com/forum/wiremod-addons/2143-wire-keycards.html - (Placed in public domain by Author)
 
 Keypad - Robbis_1 and TomyLobo
-http://forums.facepunchstudios.com/showthread.php?t=276931
+http://facepunch.com/threads/276931
 
 Lever - cpf
 http://www.wiremod.com/forum/wiremod-addons/4097-wire-lever.html
@@ -87,9 +76,6 @@ http://www.wiremod.com/forum/wiremod-addons/2545-multi-wire-tool.html
 
 No Collide Addon - splat2010
 http://www.wiremod.com/forum/wiremod-addons/4777-no-collide-addon.html
-
-Notifier - high6
-http://www.wiremod.com/forum/wiremod-addons/3204-notifier.html
 
 PID Controller (super delta) - Moyer
 http://www.wiremod.com/forum/wiremod-addons/5061-pid-controller.html
@@ -109,20 +95,11 @@ http://www.wiremod.com/forum/wiremod-addons/5850-wire-simple-servo.html
 Simulate Data Stool - ZeitJT
 http://www.wiremod.com/forum/wiremod-addons/8135-simulate-data-stool.html
 
-Wire Detcord - Philxyz
-http://www.wiremod.com/forum/ideas-suggestions/6139-wire-detonation-cord-demolitions.html
-
 Wired Damage Scale - Hitman271
 http://www.wiremod.com/forum/wiremod-addons/6346-wired-damage-scale.html
 
-Wire Highspeed ranger - Borsty
-http://www.wiremod.com/forum/wiremod-addons/6888-wire-highspeed-ranger.html
-
 Wired Npcs - Hitman271
 http://www.wiremod.com/forum/wiremod-addons/5930-wired-npc.html
-
-Wired RT Camera - Hurricaaane
-http://www.wiremod.com/forum/wiremod-addons/11063-wired-rt-camera-zoom-input.html
 
 Wired Wirer - Jeremydeath
 http://www.wiremod.com/forum/wiremod-addons/9941-jeremydeaths-various-wire-addons.html
@@ -142,4 +119,4 @@ http://www.wiremod.com/forum/wiremod-lua-coding/18875-release-adv-entity-marker-
 Multi Exit Point Controller
 http://www.wiremod.com/forum/wiremod-lua-coding/18914-release-multi-exit-point-controller.html
 
-Copyright CoreyLee Hassell (Anticept), and respective developers, 2007-2009.
+Copyright CoreyLee Hassell (Anticept), and respective developers, 2007-2012.
