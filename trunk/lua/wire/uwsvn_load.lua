@@ -18,7 +18,6 @@ include("wire/uwsvn/UpdateCheck.lua")
 if SERVER then
 	include("wire/uwsvn/server/exitpoint.lua")
 	include("wire/uwsvn/server/player_tfextension.lua")
-	include("wire/uwsvn/server/sv_radiosystems.lua")
 end
 
 -- client includes
