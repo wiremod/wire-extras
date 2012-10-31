@@ -369,7 +369,7 @@ local function ConeSphereIntersection( Start, Dir, Pos, Radius, Ang )
 	HitPos = Pos + Norm(HitPos-Pos) * Radius
 	
 	//Get angle between the vector we aim and vector to the circle "hitpos"
-	VecAng = math.Rad2Deg( math.acos( Dot( Norm(Dir), Norm(HitPos-Start) ) ) )
+	VecAng = math.deg( math.acos( Dot( Norm(Dir), Norm(HitPos-Start) ) ) )
 	
 	if (VecAng <= Ang) then return HitPos, VecAng end
 	
