@@ -94,14 +94,14 @@ function ENT:Think()
 	local ent = trace.Entity
 
 	if (!trace.Entity or !trace.Entity:IsValid() or trace.Entity:IsWorld() or !trace.Entity:GetPhysicsObject()) then
-		if(!self.NoColorChg and self:GetColor() != Color(255,255,255,255))then
-            self:SetColor(Color(255,255,255,255))
+		if(!self.NoColorChg and Color(self:GetColor()) != Color(255,255,255,255))then
+            self:SetColor(255, 255, 255, 255)
         end
 		return false
 	end
     
-    if(!self.NoColorChg and self:GetColor() != Color(0,255,0,255))then
-        self:SetColor(Color(0,255,0,255))
+    if(!self.NoColorChg and Color(self:GetColor()) != Color(0,255,0,255))then
+        self:SetColor(0, 255, 0, 255)
     end
     
     self:NextThink(CurTime()+0.125)
