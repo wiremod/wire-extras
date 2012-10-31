@@ -152,7 +152,7 @@ end
 function TOOL:UpdateGhostWireTargetFilter(ent, player)
 	if  not ent or not ent:IsValid() then return end
 
-	local tr = utilx.GetPlayerTrace(player, player:GetCursorAimVector())
+	local tr = util.GetPlayerTrace(player, player:GetAimVector())
 	local trace = util.TraceLine(tr)
 
 	if not trace.Hit or trace.Entity:IsPlayer() or trace.Entity:GetClass() == "gmod_wire_rfid_filter" then
