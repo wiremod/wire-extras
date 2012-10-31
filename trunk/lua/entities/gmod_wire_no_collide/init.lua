@@ -43,11 +43,11 @@ function ENT:TriggerInput(iname, value)
 				// Only save the colour and material if previous state was on
 				if (self.PreviousValue > 0) then
 					entInfo.OnMaterial = entInfo.Ent:GetMaterial()
-					entInfo.OnColor = {entInfo.Ent:GetColor()}
+					entInfo.OnColor = entInfo.Ent:GetColor()
 				end
 				
 	            entInfo.Ent:SetMaterial(entInfo.OffMaterial)
-	            entInfo.Ent:SetColor( entInfo.OffColor[1], entInfo.OffColor[2], entInfo.OffColor[3], entInfo.OffColor[4] )
+	            entInfo.Ent:SetColor( entInfo.OffColor )
 				
 				entInfo.Ent:SetCollisionGroup(entInfo.CollisionGroup)
 				entInfo.Ent.CollisionGroup = entInfo.CollisionGroup
@@ -66,13 +66,13 @@ function ENT:TriggerInput(iname, value)
 				// Only save the colour, material and CollisionGroup if previous state was off
 				if (self.PreviousValue == 0) then
 					entInfo.OffMaterial = entInfo.Ent:GetMaterial()
-					entInfo.OffColor = {entInfo.Ent:GetColor()}
+					entInfo.OffColor = entInfo.Ent:GetColor()
 					
 					entInfo.CollisionGroup = entInfo.Ent:GetCollisionGroup()
 				end
 				
 	            entInfo.Ent:SetMaterial(entInfo.OnMaterial)
-	            entInfo.Ent:SetColor( entInfo.OnColor[1], entInfo.OnColor[2], entInfo.OnColor[3], entInfo.OnColor[4] )
+	            entInfo.Ent:SetColor( entInfo.OnColor )
 				
 	            
 				entInfo.Ent:SetCollisionGroup( COLLISION_GROUP_WORLD )

@@ -121,7 +121,7 @@ function TOOL:LeftClick( trace )
 		local Ang1, Ang2 = Norm1:Angle(), (Norm2 * -1):Angle()
 		local TargetAngle = Phys1:AlignAngles( Ang1, Ang2 )
 		
-		Phys1:SetAngle( TargetAngle )
+		Phys1:SetAngles( TargetAngle )
 		
 		// Move the object so that the hitpos on our object is at the second hitpos
 		local TargetPos = WPos2 + (Phys1:GetPos() - self:GetPos(1))

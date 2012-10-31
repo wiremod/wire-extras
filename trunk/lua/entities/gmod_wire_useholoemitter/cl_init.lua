@@ -41,11 +41,12 @@ function ENT:Think( )
 	// did the point differ from active point?
 	if( point != self.ActivePoint && self:GetNetworkedBool( "Active" ) ) then
 		// fetch color.
-		local _, _, _, a = self:GetColor();
+		local  c = self:GetColor();
+		local  a = c.a;
 	
 		// store this point inside the point list
 		local tempfaderate
-		if (SinglePlayer()) then
+		if (game.SinglePlayer()) then
 			tempfaderate = math.Clamp( self:GetNetworkedFloat( "FadeRate" ), 0.1, 255 )
 		else
 			-- Due to a request, in Multiplayer, the people can controle this with a CL side cvar (aVoN)
@@ -89,8 +90,8 @@ function ENT:Draw( )
 	local beamsize	= size * 0.25;
 	
 	// read color
-	local r, g, b, a = self:GetColor();
-	local color = Color( r, g, b, a );
+	local color = self:GetColor();
+	local r, g, b, a = color.r, color.g, color.b, color.a; // seems to need those later -MrFaul- 31.10.2012
 	
 	self:SetRenderBounds( Vector()*-16384, Vector()*16384 )	
 	// calculate pixel point.

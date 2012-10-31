@@ -148,7 +148,7 @@ hook.Add("PlayerBindPress", "keypad_PlayerBindPress", function(ply, bind, presse
 	
 	local trace = ply:GetEyeTraceNoCursor()
 	local ent = trace.Entity
-	if not ValidEntity(ent) then return end
+	if not IsValid(ent) then return end
 	
 	if ent:GetClass() ~= "sent_keypad" and ent:GetClass() ~= "sent_keypad_wire" then return end
 	

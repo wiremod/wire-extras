@@ -55,7 +55,7 @@ function TOOL:LeftClick(trace)
 end
 
 function TOOL:UpdateGhost(ent, player)
-	if not ent or not ValidEntity(ent) then return end
+	if not ent or not IsValid(ent) then return end
 
 	local trace = player:GetEyeTrace()
 	if not trace or not trace.Hit then return end
@@ -77,7 +77,7 @@ end
 
 function TOOL:Think()
 	local m = self:GetClientInfo("model")
-	if not ValidEntity(self.GhostEntity) or self.GhostEntity:GetModel() != m then
+	if not IsValid(self.GhostEntity) or self.GhostEntity:GetModel() != m then
 		self:MakeGhostEntity(m, Vector(0,0,0), Angle(0,0,0))
 	end
 
@@ -89,7 +89,7 @@ function TOOL:RightClick(trace)
 	if not tr_ent or not tr_ent:IsValid() then return false end
 	
 	local model = tr_ent:GetModel()
-	if SinglePlayer() and SERVER then
+	if game.SinglePlayer() and SERVER then
 		self:GetOwner():ConCommand( "wire_touchplate_model " .. model ) -- this will run serverside if SP
 		self:GetOwner():ChatPrint( "Touchplate model changed to '" .. model .. "'" )
 	elseif CLIENT then -- else we can just as well run it client side instead
