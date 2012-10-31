@@ -51,8 +51,8 @@ function TOOL:LeftClick(trace)
 	
 	table.insert(Components[ply_idx], ent)
 	
-	ent.OldColor = ent:GetColor()
-	ent:SetColor(Color(255,0,0,128))
+	ent.OldColorR, ent.OldColorG, ent.OldColorB, ent.OldColorA = ent:GetColor()
+	ent:SetColor(255,0,0,128)
 	
 	return true
 end
@@ -74,8 +74,11 @@ function TOOL:RightClick(trace)
 		end
 	end
 	
-	ent:SetColor(ent.OldColor or Color(255,255,255,255))
-	ent.OldColor = nil
+	ent:SetColor(ent.OldColorR or 255, ent.OldColorG or 255, ent.OldColorB or 255, ent.OldColorA or 255)
+	ent.OldColorR = nil
+	ent.OldColorG = nil
+	ent.OldColorB = nil
+	ent.OldColorA = nil
 	
 	return true
 end
@@ -427,11 +430,11 @@ if CLIENT then
 		self.Entity.Inputs[self.Port.Name] = self
 		DInpButtons[self.PVK] = self
 	end
-	function PANEL:Paint(w, h)
-		derma.SkinHook( "Paint", "Button", self, w, h )
+	function PANEL:Paint()
+		derma.SkinHook( "Paint", "Button", self )
 		surface.SetDrawColor(self.CR,self.CG,self.CB,self.CA)
 		surface.DrawRect(0,0,self:GetWide(),self:GetTall())
-		derma.SkinHook( "PaintOver", "Button", self, w, h )
+		derma.SkinHook( "PaintOver", "Button", self )
 		return false
 	end
 	function PANEL:SetDefaultColor()
@@ -598,8 +601,11 @@ if SERVER then
 		if not Components[ply] then return end
 		for _,v in pairs(Components[ply]) do
 			if (IsValid(v)) then
-				v:SetColor(v.OldColor or Color(255,255,255,255))
-				v.OldColor = nil
+				v:SetColor(v.OldColorR or 255, v.OldColorG or 255, v.OldColorB or 255, v.OldColorA or 255)
+				v.OldColorR = nil
+				v.OldColorG = nil
+				v.OldColorB = nil
+				v.OldColorA = nil
 			end
 		end
 		Components[ply] = nil

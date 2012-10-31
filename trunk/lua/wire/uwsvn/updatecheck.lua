@@ -4,12 +4,12 @@ function WireLib.GetUWSVNVersion()
 	local exported = true
 	
 	-- Try getting the version using the .svn files:
-	if (file.Exists("wire/uwsvn/.svn/entries", "LUA")) then
-		version = string.Explode("\n", file.Read("wire/uwsvn/.svn/entries", "LUA") or "")[4]
+	if (file.Exists("lua/wire/uwsvn/.svn/entries", true)) then
+		version = string.Explode("\n", file.Read("lua/wire/uwsvn/.svn/entries", true) or "")[4]
 		exported = false
 		plainversion = version
-	elseif (file.Exists("wire_version.txt", "DATA")) then -- Try getting the version by reading the text file:
-		plainversion = file.Read("unsvn_version.txt", "DATA")
+	elseif (file.Exists("wire_version.txt")) then -- Try getting the version by reading the text file:
+		plainversion = file.Read("unsvn_version.txt")
 		version = plainversion .. " (EXPORTED)"
 	end
 	

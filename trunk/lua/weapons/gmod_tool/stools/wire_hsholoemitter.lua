@@ -44,7 +44,7 @@ function TOOL:LeftClick( trace )
 	
 	if ( trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_hsholoemitter" && trace.Entity.pl == ply ) then
 		trace.Entity:Setup()
-		trace.Entity:SetColor( Color(r, g, b, a ))
+		trace.Entity:SetColor( r, g, b, a );
 		return true
 	end
 
@@ -95,7 +95,7 @@ if ( SERVER ) then
 		end
 
 		// setup the emitter.
-		emitter:SetColor(Color( r, g, b, a ));
+		emitter:SetColor( r, g, b, a );
 		emitter:SetPlayer( pl );
 		
 		// store the color on the table.
@@ -121,7 +121,7 @@ function TOOL:UpdateGhostWireHSHoloemitter( ent, player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
+	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 

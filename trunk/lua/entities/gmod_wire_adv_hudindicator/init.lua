@@ -488,7 +488,7 @@ function ENT:TriggerInput(iname, value)
 		//--local b = math.Clamp((self.BB-self.AB)*factor+self.AB, 0, 255)
 		//--local a = math.Clamp((self.BA-self.AA)*factor+self.AA, 0, 255)
 		//--self:SetColor(r, g, b, a)
-		self:SetColor( Color(255, 255, 255, 255))
+		self:SetColor(255, 255, 255, 255)
 	elseif (iname == "HideHUD") then
 		if (self.PrevHideHUD == (value > 0)) then return end
 

@@ -32,7 +32,7 @@ if SERVER then
 		end
 
 
-                if not IsValid(wdc) then return nil end
+                if not ValidEntity(wdc) then return nil end
 		wdc:Setup()
                 wdc:SetPos(Pos)
 		wdc:SetAngles(Ang)
@@ -107,7 +107,7 @@ end
 function TOOL:UpdateGhostWireDetcord(ent, player)
 	if not ent or not ent:IsValid() then return end
 
-	local tr = util.GetPlayerTrace(player, player:GetAimVector())
+	local tr = utilx.GetPlayerTrace(player, player:GetCursorAimVector())
 	local trace = util.TraceLine(tr)
 
 	if not trace.Hit or trace.Entity:IsPlayer() then

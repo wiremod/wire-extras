@@ -112,7 +112,7 @@ end
 function TOOL:UpdateGhostWireMaterializer( ent, player )
 	if !IsValid(ent) then return end
 	
-	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
+	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
 	local trace 	= util.TraceLine( tr )
 	
 	if !trace.Hit or trace.Entity:IsPlayer() or trace.Entity:GetClass() == "gmod_wire_materializer" then
