@@ -11,10 +11,10 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-	language.Add( "Tool_wire_dynmemory_name", "Dynamic Memory Chip Tool (Wire)" )
-	language.Add( "Tool_wire_dynmemory_desc", "Spawns a Dynamic Memory Chip" )
-	language.Add( "Tool_wire_dynmemory_pers", "Persistant Memory" )
-	language.Add( "Tool_wire_dynmemory_0", "Primary: Create/Update Memory Chip" )
+	language.Add( "Tool.wire_dynmemory.name", "Dynamic Memory Chip Tool (Wire)" )
+	language.Add( "Tool.wire_dynmemory.desc", "Spawns a Dynamic Memory Chip" )
+	language.Add( "Tool.wire_dynmemory.pers", "Persistant Memory" )
+	language.Add( "Tool.wire_dynmemory.0", "Primary: Create/Update Memory Chip" )
 	
 	language.Add( "sboxlimit_wire_dynmemorys", "You've hit the Dynamic Memory Chips limit!" )
 	language.Add( "Undone_WireDynMemory", "Dynamic Memory Chip undone" )

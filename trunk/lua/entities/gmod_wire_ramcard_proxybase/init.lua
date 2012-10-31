@@ -38,7 +38,7 @@ end
 function ENT:SetCardOwner( ply )
 	self.OwnerObj = ply
 	self.OwnerID = ply:SteamID()
-	if (!SinglePlayer()) then
+	if (!game.SinglePlayer()) then
 		local pos1 = string.find(self.OwnerID,":")
 		self.OwnerIDPart1 = tonumber(string.sub(self.OwnerID,7,pos1-1))
 		local pos2 = string.find(self.OwnerID,":",pos1+1)

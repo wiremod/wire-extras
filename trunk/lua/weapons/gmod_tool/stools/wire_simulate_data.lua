@@ -4,9 +4,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_simulate_data_name", "Simulate Data Tool" )
-    language.Add( "Tool_wire_simulate_data_desc", "Used to debug circuits by simulating data." )
-    language.Add( "Tool_wire_simulate_data_0", "Primary: Attach to selected input.\nSecondary: Next input." )
+    language.Add( "Tool.wire_simulate_data.name", "Simulate Data Tool" )
+    language.Add( "Tool.wire_simulate_data.desc", "Used to debug circuits by simulating data." )
+    language.Add( "Tool.wire_simulate_data.0", "Primary: Attach to selected input.\nSecondary: Next input." )
 end
 
 TOOL.ClientConVar[ "type" ] = "NORMAL"
@@ -196,7 +196,7 @@ end
 function TOOL:Think()
 	if (self:GetStage() == 0) then
 		local player = self:GetOwner()
-		local tr = utilx.GetPlayerTrace(player, player:GetCursorAimVector())
+		local tr = util.GetPlayerTrace(player, player:GetAimVector())
 		local trace = util.TraceLine(tr)
 
 		if (trace.Hit) and (trace.Entity:IsValid()) then
@@ -209,7 +209,7 @@ end
 
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_simulate_data_name", Description = "#Tool_wire_simulate_data_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_simulate_data.name", Description = "#Tool.wire_simulate_data.desc" })
 	panel:AddControl("ComboBox", {
 		Label = "Data Type",
 		MenuButton = "0",

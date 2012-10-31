@@ -4,10 +4,10 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_dscale_name", "Damage Scale Tool (Wire)" )
-    language.Add( "Tool_dscale_desc", "Spawns a Scale" )
-    language.Add( "Tool_dscale_0", "Primary: Create Scale, Secondary: Change model" )
-	language.Add( "Undone_dscale", "Undone Wired Damage Scale" )//Typo
+    language.Add( "Tool.dscale.name", "Damage Scale Tool (Wire)" )
+    language.Add( "Tool.dscale.desc", "Spawns a Scale" )
+    language.Add( "Tool.dscale.0", "Primary: Create Scale, Secondary: Change model" )
+	language.Add( "Undone_wire damage scale", "Undone Wired Damage Scale" )//Typo
 end
 
 TOOL.ClientConVar["Model"] = "models/kobilica/wiremonitorrtbig.mdl"
@@ -91,7 +91,7 @@ end
 function TOOL:UpdateGhostW( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "damage_scaler" ) then
@@ -118,5 +118,5 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_dscale_name", Description = "#Tool_dscale_desc" })
+	panel:AddControl("Header", { Text = "#Tool.dscale.name", Description = "#Tool.dscale.desc" })
 end

@@ -22,8 +22,18 @@ local KeyPos = {
 	{X+55  , Y+ 67.5, 40, 25,  0.3, 1.65, -0.3 ,  1.6}, -- ok
 }
 
-surface.CreateFont("Trebuchet", 34, 400, true, false, "Trebuchet34" )
-surface.CreateFont("Trebuchet", 24, 400, true, false, "Trebuchet24AA" )
+surface.CreateFont( "Trebuchet34", {
+	font 		= "Trebuchet",
+	size 		= 34,
+	weight 		= 400,
+	antialias 	= true,
+	additive 	= false} )
+surface.CreateFont( "Trebuchet24AA", {
+	font 		= "Trebuchet",
+	size 		= 24,
+	weight 		= 400,
+	antialias 	= true,
+	additive 	= false} )
 
 local highlight_key, highlight_until
 function ENT:Draw()
@@ -148,7 +158,7 @@ hook.Add("PlayerBindPress", "keypad_PlayerBindPress", function(ply, bind, presse
 	
 	local trace = ply:GetEyeTraceNoCursor()
 	local ent = trace.Entity
-	if not ValidEntity(ent) then return end
+	if not IsValid(ent) then return end
 	
 	if ent:GetClass() ~= "sent_keypad" and ent:GetClass() ~= "sent_keypad_wire" then return end
 	

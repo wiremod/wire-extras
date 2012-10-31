@@ -14,11 +14,11 @@ local controlmodels = {
     ["models/jaanus/wiretool/wiretool_controlchip.mdl"] = {}};
 
 if CLIENT then
-    language.Add( "Tool_wire_motor_name", "Motor Tool (Wire)" )
-    language.Add( "Tool_wire_motor_desc", "Makes a controllable motor" )
-    language.Add( "Tool_wire_motor_0", "Primary: Place motor" )
-    language.Add( "Tool_wire_motor_1", "Left click on the second point" )
-    language.Add( "Tool_wire_motor_2", "Left click to place the controller" )
+    language.Add( "Tool.wire_motor.name", "Motor Tool (Wire)" )
+    language.Add( "Tool.wire_motor.desc", "Makes a controllable motor" )
+    language.Add( "Tool.wire_motor.0", "Primary: Place motor" )
+    language.Add( "Tool.wire_motor.1", "Left click on the second point" )
+    language.Add( "Tool.wire_motor.2", "Left click to place the controller" )
     language.Add( "WireMotorTool_torque", "Torque:" )
     language.Add( "WireMotorTool_friction", "Friction:" )
 	language.Add( "WireMotorTool_nocollide", "No Collide" )
@@ -121,7 +121,7 @@ function TOOL:LeftClick( trace )
 		local Ang1, Ang2 = Norm1:Angle(), (Norm2 * -1):Angle()
 		local TargetAngle = Phys1:AlignAngles( Ang1, Ang2 )
 		
-		Phys1:SetAngle( TargetAngle )
+		Phys1:SetAngles( TargetAngle )
 		
 		// Move the object so that the hitpos on our object is at the second hitpos
 		local TargetPos = WPos2 + (Phys1:GetPos() - self:GetPos(1))

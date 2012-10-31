@@ -11,10 +11,10 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_rtcam_name", "Wired RT Camera" )
-    language.Add( "Tool_wire_rtcam_desc", "Spawns a RT Cam which can be activated using wire" )
-    language.Add( "Tool_wire_rtcam_0", "Primary: Create RT Camera" )
-	language.Add( "Tool_wire_rtcam_button", "Open RT Screen" )
+    language.Add( "Tool.wire_rtcam.name", "Wired RT Camera" )
+    language.Add( "Tool.wire_rtcam.desc", "Spawns a RT Cam which can be activated using wire" )
+    language.Add( "Tool.wire_rtcam.0", "Primary: Create RT Camera" )
+	language.Add( "Tool.wire_rtcam.button", "Open RT Screen" )
 end
 
 TOOL.Model = "models/dav0r/camera.mdl"
@@ -82,7 +82,7 @@ function TOOL:DrawToolScreen( w, h )
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_rtcam_name", Description = "#Tool_wire_rtcam_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_rtcam.name", Description = "#Tool.wire_rtcam.desc" })
 	panel:AddControl("Button", { Text = "#Tool_wire_rtcam_button", Command = "rtcamera_window" })
 	panel:AddControl("CheckBox", { Text = "#Show Monitor on Screen", Command = "rtcamera_draw" })
 end

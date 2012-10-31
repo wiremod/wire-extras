@@ -4,9 +4,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_microphone_name", "Microphone Tool (Wire)" )
-    language.Add( "Tool_wire_microphone_desc", "Spawns a microphone for use with the wire system." )
-    language.Add( "Tool_wire_microphone_0", "Primary: Create/Update Microphone" )
+    language.Add( "Tool.wire_microphone.name", "Microphone Tool (Wire)" )
+    language.Add( "Tool.wire_microphone.desc", "Spawns a microphone for use with the wire system." )
+    language.Add( "Tool.wire_microphone.0", "Primary: Create/Update Microphone" )
     language.Add( "WireMicrophoneTool_microphone", "Microphone:" )
     language.Add( "WireMicrophoneTool_range", "Max Range:" )
     language.Add( "WireMicrophoneTool_sen", "Sensitivity:" )
@@ -121,7 +121,7 @@ end
 function TOOL:UpdateGhostWireMicrophone( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "gmod_wire_microphone" ) then
@@ -148,7 +148,7 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_microphone_name", Description = "#Tool_wire_microphone_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_microphone.name", Description = "#Tool.wire_microphone.desc" })
 
 	panel:AddControl("ComboBox", {
 		Label = "#Presets",

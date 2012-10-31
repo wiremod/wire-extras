@@ -5,9 +5,9 @@ TOOL.ConfigName		= ""
 TOOL.ClientConVar[ "model" ] = "models/props_vehicles/carparts_wheel01a.mdl"
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_facer_name", "Facer (Wire)" )
-    language.Add( "Tool_wire_facer_desc", "Spawns a Facer" )
-    language.Add( "Tool_wire_facer_0", "Primary: Create Facer. Secondary: Get Model" )
+    language.Add( "Tool.wire_facer.name", "Facer (Wire)" )
+    language.Add( "Tool.wire_facer.desc", "Spawns a Facer" )
+    language.Add( "Tool.wire_facer.0", "Primary: Create Facer. Secondary: Get Model" )
     language.Add( "WireDatafacerTool_facer", "Facer:" )
 	language.Add( "sboxlimit_wire_facers", "You've hit facers limit!" )
 	language.Add( "undone_Wire facer", "Undone Wire Facer" )
@@ -94,7 +94,7 @@ end
 function TOOL:UpdateGhostWireFacer( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "gmod_wire_facer" ) then
@@ -122,6 +122,6 @@ end
 
 function TOOL.BuildCPanel(panel)
 
-	panel:AddControl("Header", { Text = "#Tool_wire_facer_name", Description = "#Tool_wire_facer_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_facer.name", Description = "#Tool.wire_facer.desc" })
 	
 end
