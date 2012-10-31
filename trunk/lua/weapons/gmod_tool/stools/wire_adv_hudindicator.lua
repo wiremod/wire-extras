@@ -9,12 +9,12 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_adv_hudindicator_name", "Adv. Hud Indicator Tool (Wire)" )
-    language.Add( "Tool_wire_adv_hudindicator_desc", "Spawns an Adv. Hud Indicator for use with the wire system." )
-    language.Add( "Tool_wire_adv_hudindicator_0", "Primary: Create/Update Hud Indicator Secondary: Hook/Unhook someone else's Hud Indicator Reload: Link Hud Indicator to vehicle" )
-	language.Add( "Tool_wire_adv_hudindicator_1", "Now use Reload on a vehicle to link this Hud Indicator to it, or on the same Hud Indicator to unlink it" )
+    language.Add( "tool.wire_adv_hudindicator.name", "Adv. Hud Indicator Tool (Wire)" )
+    language.Add( "tool.wire_adv_hudindicator.desc", "Spawns an Adv. Hud Indicator for use with the wire system." )
+    language.Add( "tool.wire_adv_hudindicator.0", "Primary: Create/Update Hud Indicator Secondary: Hook/Unhook someone else's Hud Indicator Reload: Link Hud Indicator to vehicle" )
+	language.Add( "tool.wire_adv_hudindicator.1", "Now use Reload on a vehicle to link this Hud Indicator to it, or on the same Hud Indicator to unlink it" )
 
-	language.Add( "undone_wirehudindicator", "Undone Wire Adv. Hud Indicator" )
+	language.Add( "undone_wireadvhudindicator", "Undone Wire Adv. Hud Indicator" )
 
 	// HUD Indicator stuff
 	language.Add( "ToolWireAdvHudIndicator_showinhud", "Show in my HUD:")
@@ -125,21 +125,21 @@ function TOOL:LeftClick( trace )
 	Msg( "World Coords Checkbox: " ..self:GetClientNumber( "useworldcoords" ).. "\n" )
 	Msg( "Alpha Checkbox: " ..self:GetClientNumber( "alpha" ).. "\n" )
 
-	if( self:GetClientNumber( "useworldcoords" ) == 1 ) then flags = flags | flag_worldcoords end
-	if( self:GetClientNumber( "alpha" ) == 1 ) then flags = flags | flag_alphainput end
+	if( self:GetClientNumber( "useworldcoords" ) == 1 ) then flags = bit.bor( flags, flag_worldcoords ) end
+	if( self:GetClientNumber( "alpha" ) == 1 ) then flags = bit.bor( flags, flag_alphainput) end
 
 	if( positionMethod == 0 ) then		//-- Pixels
-		flags = flags | flag_position_by_pixel
+		flags = bit.bor( flags, flag_position_by_pixel )
 	elseif( positionMethod == 1 ) then	//-- Percent
-		flags = flags | flag_position_by_percent
+		flags = bit.bor( flags, flag_position_by_percent )
 	elseif( positionMethod == 2 ) then	//-- -1 to 1
-		flags = flags | flag_position_by_decimal
+		flags = bit.bor( flags, flag_position_by_decimal )
 	end
 
-	if( self:GetClientNumber("stringinput") == 1 ) then flags = flags | flag_string_input end				//--BETA! String input!--//
+	if( self:GetClientNumber("stringinput") == 1 ) then flags = bit.bor( flags, flag_string_input ) end				//--BETA! String input!--//
 
 	//--Cope with vector inputs too!--//
-	if( self:GetClientNumber("usevectorinputs") == 1 ) then flags = flags | flag_vector_inputs end
+	if( self:GetClientNumber("usevectorinputs") == 1 ) then flags = bit.bor( flags, flag_vector_inputs ) end
 
 	// If we shot a wire_indicator change its data
 	if ( trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_adv_hudindicator" && trace.Entity.pl == ply ) then
@@ -356,7 +356,7 @@ function TOOL:UpdateGhostWireAdvHudIndicator( ent, player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 
@@ -410,7 +410,7 @@ function TOOL:Think()
 		// the HUD Indicator at which he is pointing
 		if ((self.NextCheckTime or 0) < CurTime()) then
 			local ply = self:GetOwner()
-			local tr = utilx.GetPlayerTrace(ply, ply:GetCursorAimVector())
+			local tr = util.GetPlayerTrace(ply, ply:GetAimVector())
 			local trace = util.TraceLine(tr)
 
 			if (trace.Hit && trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_adv_hudindicator" && trace.Entity:GetPlayer() != ply) then
@@ -447,7 +447,7 @@ function TOOL:Holster()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_adv_hudindicator_name", Description = "#Tool_wire_adv_hudindicator_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_adv_hudindicator.name", Description = "#Tool.wire_adv_hudindicator.desc" })
 
 	panel:AddControl("ComboBox", {
 		Label = "#Presets",
@@ -662,7 +662,7 @@ end
 
 // Concommand to unregister HUD Indicator through control panel
 local function HUDIndicator_RemoteUnRegister(ply, cmd, arg)
-	local eindex = ply:GetInfoNum("wire_hudindicator_registerdelete")
+	local eindex = ply:GetInfoNum("wire_hudindicator_registerdelete", 0)
 	if (eindex == 0) then return end
 	local ent = ents.GetByIndex(eindex)
 	if (ent && ent:IsValid()) then

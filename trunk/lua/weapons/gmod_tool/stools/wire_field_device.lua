@@ -9,9 +9,9 @@ TOOL.ClientConVar[ "ignoreself" ] 	= "1"
 TOOL.ClientConVar[ "arc" ] 	= "360"
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_field_device_name", "Field Generator Tool (Wire)" )
-    language.Add( "Tool_wire_field_device_desc", "Spawns a Field Generator." )
-    language.Add( "Tool_wire_field_device_0", "Primary: Create Field Generator" )
+    language.Add( "Tool.wire_field_device.name", "Field Generator Tool (Wire)" )
+    language.Add( "Tool.wire_field_device.desc", "Spawns a Field Generator." )
+    language.Add( "Tool.wire_field_device.0", "Primary: Create Field Generator" )
 	language.Add( "sboxlimit_wire_field_device", "You've hit Field Generator limit!" )
 	language.Add( "Undone_wire_field_device", "Undone Wire Field Generator" )
 	language.Add( "hint_field_type" , "You Must Select Field Type" )
@@ -109,7 +109,7 @@ end
 function TOOL:UpdateGhostgmod_wire_field_device( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "gmod_wire_field_device" ) then
@@ -137,7 +137,7 @@ end
 
 function TOOL.BuildCPanel(panel)
 
-	panel:AddControl("Header", { Text = "#Tool_wire_field_device_name", Description = "#Tool_wire_field_device_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_field_device.name", Description = "#Tool.wire_field_device.desc" })
 	
 	panel:AddControl("ComboBox", {
 		Label = "#Type",

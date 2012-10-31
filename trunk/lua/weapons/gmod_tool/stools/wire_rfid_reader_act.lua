@@ -4,10 +4,10 @@ TOOL.Command = nil
 TOOL.ConfigName = ""
 
 if CLIENT then
-	language.Add("Tool_wire_rfid_reader_act_name", "RFID User Reader Tool (Wire)")
-	language.Add("Tool_wire_rfid_reader_act_desc", "Spawn/link a Wire RFID User Reader.")
-	language.Add("Tool_wire_rfid_reader_act_0", "Primary: Create User reader. Secondary: Link reader.")
-	language.Add("Tool_wire_rfid_reader_act_1", "Now select the entity to link to.")
+	language.Add("Tool.wire_rfid_reader_act.name", "RFID User Reader Tool (Wire)")
+	language.Add("Tool.wire_rfid_reader_act.desc", "Spawn/link a Wire RFID User Reader.")
+	language.Add("Tool.wire_rfid_reader_act.0", "Primary: Create User reader. Secondary: Link reader.")
+	language.Add("Tool.wire_rfid_reader_act.1", "Now select the entity to link to.")
 	language.Add("WireUserReaderTool_pod", "User Reader:")
     language.Add("WireUserReaderTool_NoColorChg", "Don't change colour on state changed" )
 	language.Add("sboxlimit_wire_rfid_reader_acts", "You've hit your User Reader limit!")
@@ -116,7 +116,7 @@ end
 function TOOL:UpdateGhostWireUserReader(ent, player)
 	if  not ent or not ent:IsValid() then return end
 
-	local tr = utilx.GetPlayerTrace(player, player:GetCursorAimVector())
+	local tr = util.GetPlayerTrace(player, player:GetAimVector())
 	local trace = util.TraceLine(tr)
 
 	if not trace.Hit or trace.Entity:IsPlayer() or trace.Entity:GetClass() == "gmod_wire_rfid_reader_act" then
@@ -142,7 +142,7 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_rfid_reader_act_name", Description = "#Tool_wire_rfid_reader_act_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_rfid_reader_act.name", Description = "#Tool.wire_rfid_reader_act.desc" })
 
 	panel:AddControl("ComboBox", {
 		Label = "#Presets",

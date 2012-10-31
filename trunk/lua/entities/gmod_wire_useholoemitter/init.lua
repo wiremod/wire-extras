@@ -86,7 +86,7 @@ if ( SERVER ) then
 		end
 
 		// setup the emitter.
-		emitter:SetColor( r, g, b, a );
+		emitter:SetColor( Color(r, g, b, a) );
 		emitter:SetPlayer( pl );
 		
 		// update size and show states

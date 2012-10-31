@@ -178,7 +178,7 @@ e2function void cameraToggle( index, toggle )
 	else
 		camera.user = self.player
 		self.player:SetViewEntity( camera )
-		self.player:SetFOV( camera, camera.zoom )
+		self.player:SetFOV( camera.zoom, 0.01 )
 	end
 end
 __e2setcost( 20 )

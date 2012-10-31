@@ -5,16 +5,17 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-	language.Add( "Tool_rt_buoyancy_wire_name", "Buoyancy (Wire)" )
-	language.Add( "Tool_rt_buoyancy_wire_desc", "Make things float." )
-	language.Add( "Tool_rt_buoyancy_wire_0", "Left click to choose a prop." )
-	language.Add( "Tool_rt_buoyancy_wire_1", "Left click to place/choose the controller." )
+	language.Add( "Tool.rt_buoyancy_wire.name", "Buoyancy (Wire)" )
+	language.Add( "Tool.rt_buoyancy_wire.desc", "Make things float." )
+	language.Add( "Tool.rt_buoyancy_wire.0", "Left click to choose a prop." )
+	language.Add( "Tool.rt_buoyancy_wire.1", "Left click to place/choose the controller." )
 	language.Add( "Undone_WireBuoyancy", "Undone Wire Buoyancy" )
 end
 
 local function MakeBuoyancyController( pl, pos, ang, collide )
 	// Create the controller.
 	local control = ents.Create( "gmod_wire_buoyancy" )
+		control:SetModel( "models/jaanus/wiretool/wiretool_siren.mdl" )
 		control:SetPos( pos )
 		control:SetAngles( ang )
 		control.Collide = collide
@@ -46,7 +47,7 @@ function TOOL:LeftClick( trace )
 		local targ = self.Target
 		
 		// Remove the entity from the current controller.
-		if ( ent.BuoyancyController && ValidEntity( ent.BuoyancyController ) ) then
+		if ( ent.BuoyancyController && IsValid( ent.BuoyancyController ) ) then
 			ent.BuoyancyController:RemoveEntity( ent )
 		end
 		
@@ -87,8 +88,8 @@ end
 // Stops the buoyancy resetting when the entity is physgunned.
 if ( SERVER ) then
 	local function OnDrop( ply, ent )
-		if ( ent.BuoyancyController && ValidEntity( ent.BuoyancyController ) ) then
-			timer.Simple( 0, ent.BuoyancyController.SetPercent, ent.BuoyancyController ) // Refresh.
+		if ( ent.BuoyancyController && IsValid( ent.BuoyancyController ) ) then
+			timer.Simple( 0, function() ent.BuoyancyController.SetPercent(ent.BuoyancyController) end ) // Refresh.
 		end
 	end
 	hook.Add( "PhysgunDrop", "rt_buoyancy_wire", OnDrop )

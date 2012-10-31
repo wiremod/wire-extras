@@ -1,5 +1,3 @@
-require("glon")
-
 TOOL.Category		= "Wire - Tools"
 TOOL.Name			= "GUI Wiring"
 TOOL.Command		= nil
@@ -7,9 +5,9 @@ TOOL.ConfigName		= ""
 TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
-	language.Add( "Tool_gui_wiring_name", "GUI Wiring Tool" )
-	language.Add( "Tool_gui_wiring_desc", "Used to connect wirable props." )
-	language.Add( "Tool_gui_wiring_0", "Primary: Select entity.\nSecondary: Deselect entity.\nReload: Open GUI." )
+	language.Add( "Tool.gui_wiring.name", "GUI Wiring Tool" )
+	language.Add( "Tool.gui_wiring.desc", "Used to connect wirable props." )
+	language.Add( "Tool.gui_wiring.0", "Primary: Select entity.\nSecondary: Deselect entity.\nReload: Open GUI." )
 	
 	language.Add( "Tool_gui_wiring_showports", "Show overlay of ports in HUD" )
     language.Add( "GUI_WiringTool_width", "Width:" )
@@ -51,8 +49,9 @@ function TOOL:LeftClick(trace)
 	
 	table.insert(Components[ply_idx], ent)
 	
-	ent.OldColorR, ent.OldColorG, ent.OldColorB, ent.OldColorA = ent:GetColor()
-	ent:SetColor(255,0,0,128)
+	local TmpClr = ent:GetColor()
+	ent.OldColorR, ent.OldColorG, ent.OldColorB, ent.OldColorA = TmpClr.r, TmpClr.g, TmpClr.b, TmpClr.a
+	ent:SetColor(Color(255,0,0,128))
 	
 	return true
 end
@@ -74,7 +73,7 @@ function TOOL:RightClick(trace)
 		end
 	end
 	
-	ent:SetColor(ent.OldColorR or 255, ent.OldColorG or 255, ent.OldColorB or 255, ent.OldColorA or 255)
+	ent:SetColor(Color(ent.OldColorR or 255, ent.OldColorG or 255, ent.OldColorB or 255, ent.OldColorA or 255))
 	ent.OldColorR = nil
 	ent.OldColorG = nil
 	ent.OldColorB = nil
@@ -99,8 +98,6 @@ if CLIENT then
 
 	local GUIWiring_DisplayWires = nil
 	
-	local tmpEntTable = nil
-	
 	local function GUIWiring_RecvStart()
 		Components = {}
 		DWLMakers = {}
@@ -109,29 +106,22 @@ if CLIENT then
 		DoWireTable = {}
 		UnWireTable = {}
 		GUIWiring_DisplayWires = {}
-		tmpEntTable = {}
 	end
 	usermessage.Hook("GUIWiring_Start",GUIWiring_RecvStart)
 	
-	local function GUIWiring_RecvEntPart(um)
-		local ent = um:ReadEntity()
+	local function GUIWiring_RecvEntPart()
+		local ent = net.ReadEntity()
 		if not (ent and ent:IsValid()) then return end
 		if not (IsWire(ent)) then return end
-		local cMsg = um:ReadShort()
-		local tMsg = um:ReadShort()
-		local strMsg = um:ReadString()
-		if not tmpEntTable[ent] then tmpEntTable[ent] = "" end
-		if(cMsg < tMsg) then
-			tmpEntTable[ent] = tmpEntTable[ent] .. strMsg
-		else
-			Components[ent] = glon.decode(tmpEntTable[ent]..strMsg)
-			tmpEntTable[ent] = nil
-		end
+
+		local strMsg = net.ReadString()
+		
+		Components = {}
+		Components[ent] = von.deserialize( strMsg )
 	end
-	usermessage.Hook("GUIWiring_EntPart",GUIWiring_RecvEntPart)
+	net.Receive("GUIWiring_EntPart",GUIWiring_RecvEntPart)
 	
 	local function GUIWiring_RecvEnd()
-		tmpEntTable = nil
 		GUIWiring_ShowGUI()
 	end
 	usermessage.Hook("GUIWiring_End",GUIWiring_RecvEnd)
@@ -142,7 +132,7 @@ if CLIENT then
 		if not (IsWire(ent)) then return end
 		local btn = DWLMakers[tostring(ent)]
 		if not (btn and btn:IsValid()) then return end
-		local dat = glon.decode(um:ReadString())
+		local dat = von.deserialize(um:ReadString())
 		btn.BtnId = "link"
 		btn:SetPort(ent,dat)
 		DWLMakers[tostring(ent)] = nil
@@ -233,7 +223,6 @@ if CLIENT then
 			CSelOut = nil
 			GUIWiring_GUI = nil
 			GUIWiring_DisplayWires = nil
-			tmpEntTable = nil
 		end
 		--wiringGui:SetTitle("Wiring GUI - By Doridian")
 		wiringGui:SetPos(0,0)
@@ -430,11 +419,11 @@ if CLIENT then
 		self.Entity.Inputs[self.Port.Name] = self
 		DInpButtons[self.PVK] = self
 	end
-	function PANEL:Paint()
-		derma.SkinHook( "Paint", "Button", self )
+	function PANEL:Paint( w, h )
+		derma.SkinHook( "Paint", "Button", self, w, h )
 		surface.SetDrawColor(self.CR,self.CG,self.CB,self.CA)
 		surface.DrawRect(0,0,self:GetWide(),self:GetTall())
-		derma.SkinHook( "PaintOver", "Button", self )
+		derma.SkinHook( "PaintOver", "Button", self, w, h )
 		return false
 	end
 	function PANEL:SetDefaultColor()
@@ -508,19 +497,12 @@ function TOOL:Reload(trace)
 	umsg.Start("GUIWiring_Start",ply)
 	umsg.End()
 	for _,v in pairs(Components[ply]) do
-		local stbl = glon.encode({v.Inputs,v.Outputs,v.WireDebugName,v.extended})
-		local plen = 200
-		local pnum = math.ceil(string.len(stbl) / plen)
-		for i=1,pnum,1 do
-			local start = ((i-1)*plen)+1
-			local str = string.sub(stbl,start,(start-1)+plen)
-			umsg.Start("GUIWiring_EntPart",ply)
-				umsg.Entity(v)
-				umsg.Short(i)
-				umsg.Short(pnum)
-				umsg.String(str)
-			umsg.End()
-		end
+		local stbl = von.serialize( {v.Inputs,v.Outputs,v.WireDebugName,v.extended} )
+
+		net.Start( "GUIWiring_EntPart" )
+			net.WriteEntity( v )
+			net.WriteString( stbl )
+		net.Send( ply )
 	end
 	umsg.Start("GUIWiring_End",ply)
 	umsg.End()
@@ -540,7 +522,7 @@ if SERVER then
 		if not ent.Outputs["link"] then return end
 		umsg.Start("GUIWiring_WL",ply)
 			umsg.Entity(ent)
-			umsg.String(glon.encode(ent.Outputs["link"]))
+			umsg.String( von.serialize( ent.Outputs["link"] ) )
 		umsg.End()
 	end
 	local function GUIWring_WirelinkCmd(ply,cmd,args)
@@ -555,8 +537,8 @@ if SERVER then
 	local function GUIWiring_StartWire(ply)
 		if wOn[ply] then return end
 		material[ply] = ply:GetInfo("gui_wiring_material")
-		color[ply] = Color(ply:GetInfoNum("gui_wiring_color_r"),ply:GetInfoNum("gui_wiring_color_g"),ply:GetInfoNum("gui_wiring_color_b"))
-		width[ply] = ply:GetInfoNum("gui_wiring_width")
+		color[ply] = Color(ply:GetInfoNum("gui_wiring_color_r", 255),ply:GetInfoNum("gui_wiring_color_g", 255),ply:GetInfoNum("gui_wiring_color_b", 255))
+		width[ply] = ply:GetInfoNum("gui_wiring_width", 1)
 		wOn[ply] = true
 	end
 	concommand.Add("gui_wiring_start",GUIWiring_StartWire)
@@ -601,7 +583,7 @@ if SERVER then
 		if not Components[ply] then return end
 		for _,v in pairs(Components[ply]) do
 			if (IsValid(v)) then
-				v:SetColor(v.OldColorR or 255, v.OldColorG or 255, v.OldColorB or 255, v.OldColorA or 255)
+				v:SetColor(Color(v.OldColorR or 255, v.OldColorG or 255, v.OldColorB or 255, v.OldColorA or 255))
 				v.OldColorR = nil
 				v.OldColorG = nil
 				v.OldColorB = nil
@@ -777,7 +759,7 @@ end
 
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_gui_wiring_name", Description = "#Tool_gui_wiring_desc" })
+	panel:AddControl("Header", { Text = "#Tool.gui_wiring.name", Description = "#Tool.gui_wiring.desc" })
 	
 	panel:AddControl("CheckBox", {
 			Label = "#Tool_gui_wiring_showports",

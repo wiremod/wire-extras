@@ -4,10 +4,10 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if CLIENT then
-    language.Add( "Tool_wire_no_collide_name", "No Collide Tool (Wire)" )
-    language.Add( "Tool_wire_no_collide_desc", "Makes a controller to no collide entities (with all others)" )
-    language.Add( "Tool_wire_no_collide_0", "Primary: Select entity to be no collided" )
-    language.Add( "Tool_wire_no_collide_1", "Primary: Select any additional entities to be no collided   Secondary: Place the controller" )
+    language.Add( "Tool.wire_no_collide.name", "No Collide Tool (Wire)" )
+    language.Add( "Tool.wire_no_collide.desc", "Makes a controller to no collide entities (with all others)" )
+    language.Add( "Tool.wire_no_collide.0", "Primary: Select entity to be no collided" )
+    language.Add( "Tool.wire_no_collide.1", "Primary: Select any additional entities to be no collided   Secondary: Place the controller" )
 	language.Add( "undone_wirenocollide", "Undone No Collide" )
 end
 
@@ -36,7 +36,7 @@ function TOOL:LeftClick( trace )
 	// Save information on the selected ent
 	local CollisionGroup = trace.Entity:GetCollisionGroup()
 	local Material = trace.Entity:GetMaterial()
-	local Color = {trace.Entity:GetColor()}
+	local Color = trace.Entity:GetColor()
 	
 	if (iNum == 0) then
 		self.EntInfo = {}
@@ -128,5 +128,5 @@ if SERVER then
 end
 
 function TOOL.BuildCPanel( panel )
-	panel:AddControl( "Header", { Text = "#Tool_wire_no_collide_name", Description = "#Tool_wire_no_collide_desc" } )
+	panel:AddControl( "Header", { Text = "#Tool.wire_no_collide.name", Description = "#Tool.wire_no_collide.desc" } )
 end

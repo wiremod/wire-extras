@@ -9,9 +9,9 @@ TOOL.ClientConVar[ "rotate" ]       = 1
 
 // Add Default Language translation (saves adding it to the txt files)
 if ( CLIENT ) then
-	language.Add( "Tool_wire_simple_servo_name", "Simple Servo Tool (wire)" )
-    language.Add( "Tool_wire_simple_servo_desc", "Attaches a servo to something." )
-    language.Add( "Tool_wire_simple_servo_0", "Primary: Attach a servo. Secondary: Change the model" )
+	language.Add( "Tool.wire_simple_servo.name", "Simple Servo Tool (wire)" )
+    language.Add( "Tool.wire_simple_servo.desc", "Attaches a servo to something." )
+    language.Add( "Tool.wire_simple_servo.0", "Primary: Attach a servo. Secondary: Change the model" )
 	
 	language.Add( "undone_WireSimpleServo", "Undone Wire Servo" )
 	language.Add( "Cleanup_wire_simple_servos", "Wired Servos" )
@@ -150,7 +150,7 @@ function TOOL:UpdateGhostWireServo( ent, player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 	
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 	

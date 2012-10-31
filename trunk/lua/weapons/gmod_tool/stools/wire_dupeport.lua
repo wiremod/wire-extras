@@ -4,9 +4,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_dupeport_name", "Adv. Dupe. Teleporter Tool (Wire)" )
-    language.Add( "Tool_wire_dupeport_desc", "Spawns an Adv. Dupe. Teleporter for use with the wire system." )
-    language.Add( "Tool_wire_dupeport_0", "Primary: Create/Update Adv. Dupe. Teleporter" )
+    language.Add( "Tool.wire_dupeport.name", "Adv. Dupe. Teleporter Tool (Wire)" )
+    language.Add( "Tool.wire_dupeport.desc", "Spawns an Adv. Dupe. Teleporter for use with the wire system." )
+    language.Add( "Tool.wire_dupeport.0", "Primary: Create/Update Adv. Dupe. Teleporter" )
 	language.Add( "sboxlimit_wire_dupeports", "You've hit Adv. Dupe. Teleporters limit!" )
 	language.Add( "undone_wiredupeport", "Undone Wire Adv. Dupe. Teleporter" )
 end
@@ -71,7 +71,7 @@ if (SERVER) then
 
 			wire_dupeport:SetPlayer(ply)
 			
-			if (SinglePlayer()) then
+			if (game.SinglePlayer()) then
 				wire_dupeport.OwnerSteamID = ply
 				wire_dupeport.SpawnSteamID = ply
 			else
@@ -96,7 +96,7 @@ function TOOL:UpdateGhostWireDupePort( ent, player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 
@@ -125,5 +125,5 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_dupeport_name", Description = "#Tool_wire_dupeport_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_dupeport.name", Description = "#Tool.wire_dupeport.desc" })
 end

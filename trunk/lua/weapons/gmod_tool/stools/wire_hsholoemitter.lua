@@ -4,9 +4,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_hsholoemitter_name", "Highspeed Holoemitter Tool (Wire)" )
-    language.Add( "Tool_wire_hsholoemitter_desc", "Spawns a highspeed holoemitter for use with the wire system." )
-    language.Add( "Tool_wire_hsholoemitter_0", "Primary: Create/Update Highspeed Holoemitter" )
+    language.Add( "Tool.wire_hsholoemitter.name", "Highspeed Holoemitter Tool (Wire)" )
+    language.Add( "Tool.wire_hsholoemitter.desc", "Spawns a highspeed holoemitter for use with the wire system." )
+    language.Add( "Tool.wire_hsholoemitter.0", "Primary: Create/Update Highspeed Holoemitter" )
 	
 	language.Add( "sboxlimit_wire_hsholoemitters", "You've hit highspeed holoemitters limit!" )
 	language.Add( "undone_wirehsholoemitter", "Undone Wire Highspeed Holoemitter" )
@@ -44,7 +44,7 @@ function TOOL:LeftClick( trace )
 	
 	if ( trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_hsholoemitter" && trace.Entity.pl == ply ) then
 		trace.Entity:Setup()
-		trace.Entity:SetColor( r, g, b, a );
+		trace.Entity:SetColor( Color(r, g, b, a) );
 		return true
 	end
 
@@ -95,7 +95,7 @@ if ( SERVER ) then
 		end
 
 		// setup the emitter.
-		emitter:SetColor( r, g, b, a );
+		emitter:SetColor( Color(r, g, b, a) );
 		emitter:SetPlayer( pl );
 		
 		// store the color on the table.
@@ -121,7 +121,7 @@ function TOOL:UpdateGhostWireHSHoloemitter( ent, player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 
@@ -150,7 +150,7 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_hsholoemitter_name", Description = "#Tool_wire_hsholoemitter_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_hsholoemitter.name", Description = "#Tool.wire_hsholoemitter.desc" })
 	panel:AddControl( "Color", {
 		Label 	= "Color",
 		Red 	= "wire_hsholoemitter_r",

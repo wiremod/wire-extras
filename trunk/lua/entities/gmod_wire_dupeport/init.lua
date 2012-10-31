@@ -297,7 +297,7 @@ function ENT:TriggerInput(iname, value)
 			self:ClearInputClipBoard()
 		end
 	elseif (iname == "Spawn Player SteamID") then
-		if (SinglePlayer()) then
+		if (game.SinglePlayer()) then
 			self.SpawnSteamID = self.OwnerSteamID
 		else
 			if (value != "") then
@@ -375,7 +375,7 @@ function ENT:DupeLoadCallBack( Entities, Constraints, HeadEntityIdx, NumOfEnts, 
 end
 
 function ENT:GetUserEntity(SteamID)
-	if (SinglePlayer()) then
+	if (game.SinglePlayer()) then
 		return self.OwnerSteamID
 	else
 		for k, v in pairs(player.GetAll()) do

@@ -12,9 +12,9 @@ TOOL.ClientConVar[ "weldmode" ]		= "0"
 
 // Add Default Language translation (saves adding it to the txt files)
 if ( CLIENT ) then
-	language.Add( "Tool_wire_servo_name", "Servo Tool (wire)" )
-    language.Add( "Tool_wire_servo_desc", "Attaches a servo to something." )
-    language.Add( "Tool_wire_servo_0", "Click on a prop to attach a servo." )
+	language.Add( "Tool.wire_servo.name", "Servo Tool (wire)" )
+    language.Add( "Tool.wire_servo.desc", "Attaches a servo to something." )
+    language.Add( "Tool.wire_servo.0", "Click on a prop to attach a servo." )
 	
 	language.Add( "WireServoTool_initweld", "Create initial weld:" )
 	language.Add( "WireServoTool_weldmode", "Enable weld-stop mode:" )
@@ -182,7 +182,7 @@ function TOOL:UpdateGhostWireServo( ent, player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 	
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 	
@@ -224,7 +224,7 @@ end
 function TOOL.BuildCPanel( CPanel )
 
 	// HEADER
-	CPanel:AddControl( "Header", { Text = "#Tool_wire_servo_name", Description	= "#Tool_wire_servo_desc" }  )
+	CPanel:AddControl( "Header", { Text = "#Tool.wire_servo.name", Description	= "#Tool.wire_servo.desc" }  )
 	
 	local Options = { Default = {	wire_servo_torque		= "3000",
 									wire_servo_friction		= "0",
