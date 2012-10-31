@@ -57,7 +57,7 @@ function ENT:Think()
 
 	if (!ent) then
 		if(self.State!=0)then
-            if !self.NoColorChg then self:SetColor(255, 255, 255, 255) end
+            if !self.NoColorChg then self:SetColor(Color(255, 255, 255, 255)) end
 			Wire_TriggerOutput(self,"State",0) self.State=0
 			Wire_TriggerOutput(self,"A",0)     self.A=0
 			Wire_TriggerOutput(self,"B",0)     self.B=0
@@ -68,7 +68,7 @@ function ENT:Think()
 		return false
 	end
     
-	if !self.NoColorChg then self:SetColor(0, 255, 0, 255) end
+	if !self.NoColorChg then self:SetColor(Color(0, 255, 0, 255)) end
 	Wire_TriggerOutput(self,"State",1)        self.State=1
 	Wire_TriggerOutput(self,"A",ent.__RFID_A) self.A=ent.__RFID_A
 	Wire_TriggerOutput(self,"B",ent.__RFID_B) self.B=ent.__RFID_B
