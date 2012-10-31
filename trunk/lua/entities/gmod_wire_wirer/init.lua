@@ -79,7 +79,7 @@ function ENT:Initialize()
 	self.CreateWirelink = 0
 	self.PreviousCreateWirelink = 0
 	self.TargetPos = Vector(0,0,0)
-	self.DefaultColor = Color(255,255,255,255)
+	self.DefaultColor = {255,255,255,255}
 	self.TargetPos_Input = 0
 	
 	
@@ -383,14 +383,17 @@ function ENT:TriggerInput(iname, value)
 	trace = util.TraceLine(trace)
 	
 	//save the color
-	local StartColor = self:GetColor()
-	local UsedColors = { Color(255,181,26,StartColor.a),
-						 Color(0,255,0,StartColor.a),
-						 Color(0,0,255,StartColor.a) }
+	local StartColor = {self:GetColor()}
+	local UsedColors = { {255,181,26,StartColor[4]},
+						 {0,255,0,StartColor[4]},
+						 {0,0,255,StartColor[4]} }
 	local DefaultToStartColor = true
 	local IsAUsedColor = false
 	for i,v in ipairs(UsedColors) do
-		if(   StartColor == v ) then
+		if(   StartColor[1] == v[1] and 
+		      StartColor[2] == v[2] and 
+		      StartColor[3] == v[3] and 
+		      StartColor[4] == v[4]   ) then
 			  
 			IsAUsedColor = true
 			break
@@ -398,11 +401,11 @@ function ENT:TriggerInput(iname, value)
 	end
 	if( IsAUsedColor == true ) then
 		StartColor = self.DefaultColor 
-		local TempCol = self:GetColor()
-		StartColor = Color(StartColor.r,StartColor.g,StartColor.b,TempCol.a)
+		local TempCol = {self:GetColor()}
+		StartColor = {StartColor[1],StartColor[2],StartColor[3],TempCol[4]}
 	else
-		StartColor = self:GetColor()
-		self.DefaultColor = self:GetColor()
+		StartColor = {self:GetColor()}
+		self.DefaultColor = {self:GetColor()}
 	end
 	
 	//color the ranger based on the pos and set the sucsess num
@@ -413,7 +416,7 @@ function ENT:TriggerInput(iname, value)
 			//set the target entity
 			Wire_TriggerOutput(self, "Stage", self.Stage)
 			//color it yellow
-			self:SetColor(Color(255,181,26,StartColor.a))
+			self:SetColor(255,181,26,StartColor[4])
 			DefaultToStartColor = false
 			self.Success = 1
 			//if it is an input
@@ -421,7 +424,7 @@ function ENT:TriggerInput(iname, value)
 				//check the wire
 				if(self.InputName != "" and trace.Entity.Inputs[self.InputName]) then
 					//color it green
-					self:SetColor(Color(0,255,0,StartColor.a))
+					self:SetColor(0,255,0,StartColor[4])
 					DefaultToStartColor = false
 					self.Success = 2
 					//check for the goahead to wire
@@ -444,7 +447,7 @@ function ENT:TriggerInput(iname, value)
 				//check the wire
 				if(self.OutputName != "" and trace.Entity.Outputs[self.OutputName]) then
 					//color it green
-					self:SetColor(Color(0,255,0,StartColor.a))
+					self:SetColor(0,255,0,StartColor[4])
 					DefaultToStartColor = false
 					self.Success = 2
 					//check for the goahead to wire
@@ -478,7 +481,7 @@ function ENT:TriggerInput(iname, value)
 				util.Effect( "Sparks", effectdata )
 			end
 		elseif(	self.Stage == 1 ) then
-			self:SetColor(Color(0,0,255,StartColor.a))
+			self:SetColor(0,0,255,StartColor[4])
 			DefaultToStartColor = false
 			self.Success = 3
 		end
@@ -496,13 +499,13 @@ function ENT:TriggerInput(iname, value)
 					Wire_Link_Node(self.pl:UniqueID(), trace.Entity, trace.Entity:WorldToLocal(trace.HitPos+trace.HitNormal))
 		end
 	elseif(	self.Stage == 1 ) then
-		self:SetColor(Color(0,0,255,StartColor.a))
+		self:SetColor(0,0,255,StartColor[4])
 		DefaultToStartColor = false
 		self.Success = 3
 	end
 	
 	if(DefaultToStartColor == true) then
-		self:SetColor(StartColor)
+		self:SetColor(StartColor[1],StartColor[2],StartColor[3],StartColor[4])
 	end
 	
 	//set self.PreviousWireFire and self.PreviousCreateWirelink so that there isn't a never ending cycle

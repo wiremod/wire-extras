@@ -28,7 +28,7 @@ function ENT:Draw()
         end
             
         render.SetMaterial(Material("tripmine_laser"))
-        render.DrawBeam(vStart, endpos, 6, 0, 10, self:GetColor())
+        render.DrawBeam(vStart, endpos, 6, 0, 10, Color(self:GetColor()))
     end
     Wire_Render(self)
 end

@@ -58,7 +58,7 @@ end)
 // Inputs
 function ENT:TriggerInput(iname, value)
 	local ent = self.Door
-	if not ent or not IsValid(ent) then return end
+	if not ent or not ValidEntity(ent) then return end
 	
 	if iname == "Open" then
 		self:OpenDoor(value)
@@ -99,7 +99,7 @@ end
 
 function ENT:OpenDoor(value)
 	local ent = self.Door
-	if not ent or not IsValid(ent) then return end
+	if not ent or not ValidEntity(ent) then return end
 	
 	if value > 0 then
 		ent:Fire("open")
@@ -110,14 +110,14 @@ end
 
 function ENT:ToggleDoor()
 	local ent = self.Door
-	if not ent or not IsValid(ent) then return end
+	if not ent or not ValidEntity(ent) then return end
 	
 	ent:Fire("Toggle")
 end
 
 function ENT:LockDoor(value)
 	local ent = self.Door
-	if not ent or not IsValid(ent) then return end
+	if not ent or not ValidEntity(ent) then return end
 	
 	if value > 0 then
 		ent:Fire("lock")
@@ -128,7 +128,7 @@ end
 
 function ENT:SetSpeedDoor(value)
 	local ent = self.Door
-	if not ent or not IsValid(ent) then return end
+	if not ent or not ValidEntity(ent) then return end
 	
 	if value > 0 then
 		ent:Fire("SetSpeed", value)
@@ -139,18 +139,18 @@ end
 // Outputs
 function ENT:Think()
 	local ent = self.Door
-	if not ent or not IsValid(ent) then return end
+	if not ent or not ValidEntity(ent) then return end
 	
 	local EntTable = ent:GetSaveTable()
 	
 	
 	// Blocker
-	if IsValid(EntTable.m_hBlocker) then
+	if ValidEntity(EntTable.m_hBlocker) then
 		WireLib.TriggerOutput(self, "Blocker", EntTable.m_hBlocker)
 	end
 	
 	// Activator
-	if IsValid(EntTable.m_hActivator) then
+	if ValidEntity(EntTable.m_hActivator) then
 		WireLib.TriggerOutput(self, "Activator", EntTable.m_hActivator)
 	end
 	

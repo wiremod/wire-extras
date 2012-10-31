@@ -41,27 +41,27 @@ local function RunKeypad(self, Repeats, Length, Delay, Output, Owner, Toggle, Va
 			if i == 0 then
 				numpad.Activate(Owner, nil, {Key}, Owner:UniqueID())
 			else
-				timer.Simple(Length*(i)+Delay*i, function() numpad.Activate( Owner, nil, {Key}, Owner:UniqueID()) end )
+				timer.Simple(Length*(i)+Delay*i, numpad.Activate, Owner, nil, {Key}, Owner:UniqueID())
 			end
-			timer.Simple(Length*(i+1)+Delay*i, function() numpad.Deactivate( Owner, nil, {Key}, Owner:UniqueID()) end )
+			timer.Simple(Length*(i+1)+Delay*i, numpad.Deactivate, Owner, nil, {Key}, Owner:UniqueID())
 		end
 		if (Toggle) then
 			if (self.Outputs[Output].Value == ValueOff) then
 				if (i%2 == 1) then
-					timer.Simple(Delay*i, function() Wire_TriggerOutput( self, Output, ValueOff) end )
+					timer.Simple(Delay*i, Wire_TriggerOutput, self, Output, ValueOff)
 				else
-					timer.Simple(Delay*i, function() Wire_TriggerOutput( self, Output, ValueOn) end )
+					timer.Simple(Delay*i, Wire_TriggerOutput, self, Output, ValueOn)
 				end
 			else
 				if (i%2 == 1) then
-					timer.Simple(Delay*i, function() Wire_TriggerOutput( self, Output, ValueOn) end )
+					timer.Simple(Delay*i, Wire_TriggerOutput, self, Output, ValueOn)
 				else
-					timer.Simple(Delay*i, function() Wire_TriggerOutput( self, Output, ValueOff) end )
+					timer.Simple(Delay*i, Wire_TriggerOutput, self, Output, ValueOff)
 				end
 			end
 		else
-			timer.Simple(Length*(i)+Delay*i, function() Wire_TriggerOutput( self, Output, ValueOn) end )
-			timer.Simple(Length*(i+1)+Delay*i, function() Wire_TriggerOutput( self, Output, ValueOff) end )
+			timer.Simple(Length*(i)+Delay*i, Wire_TriggerOutput, self, Output, ValueOn)
+			timer.Simple(Length*(i+1)+Delay*i, Wire_TriggerOutput, self, Output, ValueOff)
 		end
 	end
 end
@@ -123,7 +123,7 @@ local function KeyCommand(Ply, EntId, command)
 			self:EmitSound("buttons/button8.wav")
 			
 			timer.Simple(0.25,	function()
-				if (IsValid(self)) then
+				if (ValidEntity(self)) then
 					self:SetNetworkedBool("keypad_showaccess", true)
 				end
 			end)
@@ -136,13 +136,13 @@ local function KeyCommand(Ply, EntId, command)
 		end
 		
 		if InitDelay ~= 0 then
-			timer.Simple(InitDelay, function() RunKeypad( self, Repeats, Length, Delay, Output, Owner, Toggle, ValueOn, ValueOff, Key) end )
+			timer.Simple(InitDelay, RunKeypad, self, Repeats, Length, Delay, Output, Owner, Toggle, ValueOn, ValueOff, Key)
 		else
 			RunKeypad(self, Repeats, Length, Delay, Output, Owner, Toggle, ValueOn, ValueOff, Key)
 		end
 		
 		timer.Simple(2,	function()
-			if (IsValid(self)) then
+			if (ValidEntity(self)) then
 				self:SetNetworkedInt("keypad_num", 0)
 				self:SetNetworkedBool("keypad_showaccess", false)
 			end

@@ -54,7 +54,7 @@ function ENT:Think()
 
 	if (!trace.Entity or !trace.Entity:IsValid() or trace.Entity:IsWorld() or !trace.Entity:GetPhysicsObject()) then
 		if(self.State!=0)then
-            if !self.NoColorChg then self:SetColor(Color(255, 255, 255, 255)) end
+            if !self.NoColorChg then self:SetColor(255, 255, 255, 255) end
 			Wire_TriggerOutput(self,"State",0) self.State=0
 			Wire_TriggerOutput(self,"A",0)     self.A=0
 			Wire_TriggerOutput(self,"B",0)     self.B=0
@@ -66,7 +66,7 @@ function ENT:Think()
 	end
     
 	if(trace.Entity.__RFID_HASRFID) then
-		if !self.NoColorChg then self:SetColor(Color(0, 255, 0, 255)) end
+		if !self.NoColorChg then self:SetColor(0, 255, 0, 255) end
 		Wire_TriggerOutput(self,"State",1)                 self.State=1
 		Wire_TriggerOutput(self,"A",trace.Entity.__RFID_A) self.A=trace.Entity.__RFID_A
 		Wire_TriggerOutput(self,"B",trace.Entity.__RFID_B) self.B=trace.Entity.__RFID_B
@@ -74,7 +74,7 @@ function ENT:Think()
 		Wire_TriggerOutput(self,"D",trace.Entity.__RFID_D) self.D=trace.Entity.__RFID_D
 		self:ShowOutput()
 	else
-		if !self.NoColorChg then self:SetColor(Color(255, 0, 0, 255)) end
+		if !self.NoColorChg then self:SetColor(255, 0, 0, 255) end
 		Wire_TriggerOutput(self,"State",-1) self.State=-1
 		Wire_TriggerOutput(self,"A",0)      self.A=0
 		Wire_TriggerOutput(self,"B",0)      self.B=0
