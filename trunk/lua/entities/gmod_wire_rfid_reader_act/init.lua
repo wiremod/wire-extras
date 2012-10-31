@@ -93,14 +93,14 @@ function ENT:Switch(on)
 
 	if (on) then
 		if (self.PrevUser and self.PrevUser.__RFID_HASRFID) then
-			if !self.NoColorChg then self:SetColor(Color(0, 255, 0, 255)) end
+			if !self.NoColorChg then self:SetColor(0, 255, 0, 255) end
 			Wire_TriggerOutput(self,"State",1)                  self.State=1
 			Wire_TriggerOutput(self,"A",self.PrevUser.__RFID_A) self.A=self.PrevUser.__RFID_A
 			Wire_TriggerOutput(self,"B",self.PrevUser.__RFID_B) self.B=self.PrevUser.__RFID_B
 			Wire_TriggerOutput(self,"C",self.PrevUser.__RFID_C) self.C=self.PrevUser.__RFID_C
 			Wire_TriggerOutput(self,"D",self.PrevUser.__RFID_D) self.D=self.PrevUser.__RFID_D
 		else
-			if !self.NoColorChg then self:SetColor(Color(255, 0, 0, 255)) end
+			if !self.NoColorChg then self:SetColor(255, 0, 0, 255) end
 			Wire_TriggerOutput(self,"State",-1) self.State=-1
 			Wire_TriggerOutput(self,"A",0)      self.A=0
 			Wire_TriggerOutput(self,"B",0)      self.B=0
@@ -108,7 +108,7 @@ function ENT:Switch(on)
 			Wire_TriggerOutput(self,"D",0)      self.D=0
 		end
 	else
-		if !self.NoColorChg then self:SetColor(Color(255, 255, 255, 255)) end
+		if !self.NoColorChg then self:SetColor(255, 255, 255, 255) end
 		Wire_TriggerOutput(self,"State",0)  self.State=0
 		Wire_TriggerOutput(self,"A",0)      self.A=0
 		Wire_TriggerOutput(self,"B",0)      self.B=0

@@ -46,7 +46,7 @@ function TOOL:LeftClick( trace )
 		local targ = self.Target
 		
 		// Remove the entity from the current controller.
-		if ( ent.BuoyancyController && IsValid( ent.BuoyancyController ) ) then
+		if ( ent.BuoyancyController && ValidEntity( ent.BuoyancyController ) ) then
 			ent.BuoyancyController:RemoveEntity( ent )
 		end
 		
@@ -87,8 +87,8 @@ end
 // Stops the buoyancy resetting when the entity is physgunned.
 if ( SERVER ) then
 	local function OnDrop( ply, ent )
-		if ( ent.BuoyancyController && IsValid( ent.BuoyancyController ) ) then
-			timer.Simple( 0, function() ent.BuoyancyController.SetPercent( ent.BuoyancyController ) end ) // Refresh.
+		if ( ent.BuoyancyController && ValidEntity( ent.BuoyancyController ) ) then
+			timer.Simple( 0, ent.BuoyancyController.SetPercent, ent.BuoyancyController ) // Refresh.
 		end
 	end
 	hook.Add( "PhysgunDrop", "rt_buoyancy_wire", OnDrop )

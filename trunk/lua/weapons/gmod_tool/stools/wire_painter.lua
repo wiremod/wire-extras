@@ -115,7 +115,7 @@ end
 function TOOL:UpdateGhostWirePainter( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
+	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "gmod_wire_painter" ) then
