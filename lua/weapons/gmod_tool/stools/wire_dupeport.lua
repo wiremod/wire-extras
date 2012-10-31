@@ -71,7 +71,7 @@ if (SERVER) then
 
 			wire_dupeport:SetPlayer(ply)
 			
-			if (SinglePlayer()) then
+			if (game.SinglePlayer()) then
 				wire_dupeport.OwnerSteamID = ply
 				wire_dupeport.SpawnSteamID = ply
 			else
@@ -96,7 +96,7 @@ function TOOL:UpdateGhostWireDupePort( ent, player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 

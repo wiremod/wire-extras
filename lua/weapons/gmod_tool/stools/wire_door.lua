@@ -152,7 +152,7 @@ function TOOL:UpdateGhostThruster( ent, Player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( Player, Player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( Player, Player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 		local ang = Player:GetAimVector():Angle() 

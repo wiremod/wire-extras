@@ -356,7 +356,7 @@ function TOOL:UpdateGhostWireAdvHudIndicator( ent, player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 
@@ -410,7 +410,7 @@ function TOOL:Think()
 		// the HUD Indicator at which he is pointing
 		if ((self.NextCheckTime or 0) < CurTime()) then
 			local ply = self:GetOwner()
-			local tr = utilx.GetPlayerTrace(ply, ply:GetCursorAimVector())
+			local tr = util.GetPlayerTrace(ply, ply:GetAimVector())
 			local trace = util.TraceLine(tr)
 
 			if (trace.Hit && trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_adv_hudindicator" && trace.Entity:GetPlayer() != ply) then
