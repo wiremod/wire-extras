@@ -10,11 +10,12 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_multi_wire_name", "Multi-Wiring Tool" )
-    language.Add( "Tool_multi_wire_desc", "Used to connect wirable props." )
-    language.Add( "Tool_multi_wire_0", "Primary: Attach to selected input.\nSecondary: Next input.\nReload: Switch to Output" )
-    language.Add( "Tool_multi_wire_1", "Primary: Attach to output.\nSecondary: Attach but continue.\nReload: Cancel." )
-    language.Add( "Tool_multi_wire_2", "Primary: Confirm attach to output.\nSecondary: Next output.\nReload: Cancel." )
+    language.Add( "Tool.multi_wire.name", "Multi-Wiring Tool" )
+    language.Add( "Tool.multi_wire.desc", "Used to connect wirable props." )
+	language.Add( "Tool_wire_desc", "Used to connect wirable props." )
+    language.Add( "Tool.multi_wire.0", "Primary: Attach to selected input.\nSecondary: Next input.\nReload: Switch to Output" )
+    language.Add( "Tool.multi_wire.1", "Primary: Attach to output.\nSecondary: Attach but continue.\nReload: Cancel." )
+    language.Add( "Tool.multi_wire.2", "Primary: Confirm attach to output.\nSecondary: Next output.\nReload: Cancel." )
     language.Add( "Multi_WireTool_addlength", "Add Length:" )
     language.Add( "Multi_WireTool_width", "Width:" )
     language.Add( "Multi_WireTool_rigid", "Rigid:" )
@@ -67,8 +68,8 @@ function TOOL:LeftClick( trace )
 			local winput = self.CurrentInput
 			table.insert(self.enttbl, wents)
 			table.insert(self.inputtbl, winput)
-			wents.OldColorR, wents.OldColorG, wents.OldColorB, wents.OldColorA = wents:GetColor()
-			wents:SetColor(0,255,0,150)
+			wents.OldColor = wents:GetColor()
+			wents:SetColor(Color(0,255,0,150))
 			return true
 		end
 		
@@ -141,11 +142,8 @@ function TOOL:LeftClick( trace )
 			if (IsValid(v)) then
 				Wire_Link_Start(self:GetOwner():UniqueID(), v, v:WorldToLocal(v:GetPos()), self.inputtbl[k], material, color, width)
 				Wire_Link_End(self:GetOwner():UniqueID(), trace.Entity, trace.Entity:WorldToLocal(trace.HitPos), oname, self:GetOwner())
-				v:SetColor(v.OldColorR or 255, v.OldColorG or 255, v.OldColorB or 255, v.OldColorA or 255)
-				v.OldColorR = nil
-				v.OldColorG = nil
-				v.OldColorB = nil
-				v.OldColorA = nil
+				v:SetColor(v.OldColor or Color(255,255,255,255))
+				v.OldColor = nil
 			end
 		end
 
@@ -168,11 +166,8 @@ function TOOL:LeftClick( trace )
 			if (IsValid(v)) then
 				Wire_Link_Start(self:GetOwner():UniqueID(), v, v:WorldToLocal(v:GetPos()), self.inputtbl[k], material, color, width)
 				Wire_Link_End(self:GetOwner():UniqueID(), self.OutputEnt, self.OutputPos, self.CurrentOutput, self:GetOwner())
-				v:SetColor(v.OldColorR or 255, v.OldColorG or 255, v.OldColorB or 255, v.OldColorA or 255)
-				v.OldColorR = nil
-				v.OldColorG = nil
-				v.OldColorB = nil
-				v.OldColorA = nil
+				v:SetColor(v.OldColor or Color(255,255,255,255))
+				v.OldColor = nil
 			end
 		end
 		self:GetWeapon():SetNetworkedString("WireCurrentInput", "")
@@ -281,7 +276,27 @@ end
 
 function TOOL:Reload(trace)
 
-	self:SetStage(1)
+	if (self:GetStage() == 0) then
+		self:SetStage(1)
+	else
+		self:SetStage(0)
+		for k,v in pairs(self.enttbl) do
+			if (IsValid(v)) then
+				v:SetColor(v.OldColor or Color(255,255,255,255))
+				v.OldColor = nil
+			end
+		end
+		
+		self:GetWeapon():SetNetworkedString("WireCurrentInput", "")
+		self.CurrentOutput = nil
+		self.OutputEnt = nil
+		self.OutputPos = nil
+		--Making sure ents and inputs are cleared.
+		self.inputtbl = {}
+		self.enttbl = {}
+		self:SelectComponent(nil)
+		self:SetStage(0)
+	end
 	
 	return true
 end
@@ -289,11 +304,8 @@ end
 function TOOL:Holster()
 	for k,v in pairs(self.enttbl) do
 		if (IsValid(v)) then
-			v:SetColor(v.OldColorR or 255, v.OldColorG or 255, v.OldColorB or 255, v.OldColorA or 255)
-			v.OldColorR = nil
-			v.OldColorG = nil
-			v.OldColorB = nil
-			v.OldColorA = nil
+			v:SetColor(v.OldColor or Color(255,255,255,255))
+			v.OldColor = nil
 		end
 	end
 	self:GetWeapon():SetNetworkedString("WireCurrentInput", "")
@@ -327,7 +339,7 @@ end
 function TOOL:Think()
 	if (self:GetStage() == 0) then
 		local player = self:GetOwner()
-		local tr = utilx.GetPlayerTrace(player, player:GetCursorAimVector())
+		local tr = util.GetPlayerTrace(player, player:GetAimVector())
 		local trace = util.TraceLine(tr)
 
 		if (trace.Hit) and (trace.Entity:IsValid()) then

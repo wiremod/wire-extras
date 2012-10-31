@@ -5,9 +5,9 @@ TOOL.ConfigName		= ""
 
 /* If we're running on the client, setup the description strings */
 if ( CLIENT ) then
-    language.Add( "Tool_wire_wirer_name", "Wired Wirer Tool" )
-    language.Add( "Tool_wire_wirer_desc", "Spawns a Wired Wirer." )
-    language.Add( "Tool_wire_wirer_0", "Primary: Create/Update Wirer" )
+    language.Add( "Tool.wire_wirer.name", "Wired Wirer Tool" )
+    language.Add( "Tool.wire_wirer.desc", "Spawns a Wired Wirer." )
+    language.Add( "Tool.wire_wirer.0", "Primary: Create/Update Wirer" )
 	language.Add( "WireWirer_Range", "Max Range:" )
 	language.Add( "WireWirer_Model", "Choose a Model:")
 	language.Add( "WireWirer_Width", "Wire Width:" )
@@ -157,7 +157,7 @@ function TOOL:UpdateGhostWireWiredWirer( ent, player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 
@@ -187,8 +187,8 @@ end
 
 function TOOL.BuildCPanel( panel )
 	panel:AddControl("Header", { 
-		Text = "#Tool_wire_wirer_name", 
-		Description = "#Tool_wire_wirer_desc" 
+		Text = "#Tool.wire_wirer.name", 
+		Description = "#Tool.wire_wirer.desc" 
 	})
 									 
 	panel:AddControl("ComboBox", {

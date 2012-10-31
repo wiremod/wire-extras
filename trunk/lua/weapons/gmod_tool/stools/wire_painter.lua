@@ -4,9 +4,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_painter_name", "Painter Tool (Wire)" )
-    language.Add( "Tool_wire_painter_desc", "Spawns a decal painter for use with the wire system." )
-    language.Add( "Tool_wire_painter_0", "Primary: Create/Update Painter" )
+    language.Add( "Tool.wire_painter.name", "Painter Tool (Wire)" )
+    language.Add( "Tool.wire_painter.desc", "Spawns a decal painter for use with the wire system." )
+    language.Add( "Tool.wire_painter.0", "Primary: Create/Update Painter" )
     language.Add( "WirePainterTool_painter", "Painter:" )
     language.Add( "WirePainterTool_playsnd", "Play Sound:" )
     language.Add( "WirePainterTool_paintrate", "Paint Rate:" )
@@ -115,7 +115,7 @@ end
 function TOOL:UpdateGhostWirePainter( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "gmod_wire_painter" ) then
@@ -142,7 +142,7 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_painter_name", Description = "#Tool_wire_painter_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_painter.name", Description = "#Tool.wire_painter.desc" })
 
 	panel:AddControl( "PropSelect", { Label = "#WirePainterTool_Model",
 									 ConVar = "wire_painter_Model",

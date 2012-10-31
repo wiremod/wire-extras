@@ -8,9 +8,10 @@ TOOL.ConfigName		= ""
 TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_exit_point_name", "Multi Exit Point Controller Tool (Wire)" )
-    language.Add( "Tool_wire_exit_point_desc", "Primary: Spawns and welds an Exit Point, Secondary: Spawns an Exit Point and doesn't weld it." )
-    language.Add( "Tool_wire_exit_point_0", "Primary: Spawn Exit Point" )
+    language.Add( "Tool.wire_exit_point.name", "Multi Exit Point Controller Tool (Wire)" )
+    language.Add( "Tool.wire_exit_point.desc", "Primary: Spawns and welds an Exit Point, Secondary: Spawns an Exit Point and doesn't weld it." )
+    language.Add( "Tool.wire_exit_point.0", "Primary: Spawn Exit Point" )
+	language.Add( "undone_wire_exit_point", "Multi Exit Point Controller undone" )
 elseif ( SERVER ) then
     CreateConVar('sbox_maxwire_exit_points',5)
 end
@@ -83,7 +84,7 @@ end
 
 if (CLIENT) then
 	function TOOL.BuildCPanel(panel)
-		panel:AddControl("Header", { Text = "#Tool_wire_exit_point_name", Description = "#Tool_wire_exit_point_desc" })
+		panel:AddControl("Header", { Text = "#Tool.wire_exit_point.name", Description = "#Tool.wire_exit_point.desc" })
 		WireDermaExts.ModelSelect(panel, "wire_exit_point_model", list.Get( "ThrusterModels" ), 8)
 	end
 end

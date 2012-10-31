@@ -4,12 +4,12 @@ function WireLib.GetUWSVNVersion()
 	local exported = true
 	
 	-- Try getting the version using the .svn files:
-	if (file.Exists("lua/wire/uwsvn/.svn/entries", true)) then
-		version = string.Explode("\n", file.Read("lua/wire/uwsvn/.svn/entries", true) or "")[4]
+	if (file.Exists("lua/wire/uwsvn/.svn/entries", "GAME")) then
+		version = string.Explode("\n", file.Read("lua/wire/uwsvn/.svn/entries", "GAME") or "")[4]
 		exported = false
 		plainversion = version
-	elseif (file.Exists("wire_version.txt")) then -- Try getting the version by reading the text file:
-		plainversion = file.Read("unsvn_version.txt")
+	elseif (file.Exists("data/unsvn_version.txt", "GAME")) then -- Try getting the version by reading the text file:
+		plainversion = file.Read("data/unsvn_version.txt", "GAME")
 		version = plainversion .. " (EXPORTED)"
 	end
 	
@@ -18,10 +18,10 @@ end
 
 -- Get online version
 function WireLib.GetOnlineUWSVNVersion( callback )
-	http.Get("http://svn.dagamers.net/wiremodextras/trunk/","",function(contents,size)
+	http.Fetch("http://svn.dagamers.net/wiremodextras/trunk/",function(contents,size)
 		local rev = tonumber(string.match( contents, "Revision ([0-9]+)" ))
 		callback(rev,contents,size)
-	end)
+	end, function() return end)
 end
 if (SERVER) then
 	------------------------------------------------------------------
@@ -33,7 +33,7 @@ if (SERVER) then
 	-- Send the version to the client
 	------------------------------------------------------------------
 	local function recheck( ply, tries )
-		timer.Simple(5,function(ply)
+		timer.Simple(5,function() function _my1(ply)
 			if (ply and ply:IsValid()) then -- Success!
 				umsg.Start("wire_uwsvn_rev",ply)
 					umsg.String( WireLib.UWSVNVersion )
@@ -42,7 +42,7 @@ if (SERVER) then
 				if (tries and tries > 3) then return end -- several failures.. stop trying
 				recheck(ply, (tries or 0) + 1) -- Try again
 			end
-		end)
+		end end)
 	end
 	hook.Add("PlayerInitialSpawn","WirePlayerInitSpawn",recheck)
 		

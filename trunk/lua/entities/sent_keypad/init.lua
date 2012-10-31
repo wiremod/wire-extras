@@ -1,6 +1,6 @@
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "shared.lua" )
-include('shared.lua')
+include( "shared.lua" )
 
 util.PrecacheSound("buttons/button14.wav")
 util.PrecacheSound("buttons/button9.wav")
@@ -39,29 +39,29 @@ local function RunKeypad(self, Repeats, Length, Delay, Output, Owner, Toggle, Va
 	for i = 0, Repeats do
 		if Key and Key ~= -1 then
 			if i == 0 then
-				numpad.Activate(Owner, nil, {Key}, Owner:UniqueID())
+				numpad.Activate(Owner, Key, Owner:UniqueID())
 			else
-				timer.Simple(Length*(i)+Delay*i, numpad.Activate, Owner, nil, {Key}, Owner:UniqueID())
+				timer.Simple(Length*(i)+Delay*i, function() numpad.Activate(Owner, Key, Owner:UniqueID()) end )
 			end
-			timer.Simple(Length*(i+1)+Delay*i, numpad.Deactivate, Owner, nil, {Key}, Owner:UniqueID())
+			timer.Simple(Length*(i+1)+Delay*i, function() numpad.Deactivate(Owner, Key, Owner:UniqueID()) end )
 		end
 		if (Toggle) then
 			if (self.Outputs[Output].Value == ValueOff) then
 				if (i%2 == 1) then
-					timer.Simple(Delay*i, Wire_TriggerOutput, self, Output, ValueOff)
+					timer.Simple(Delay*i, function() Wire_TriggerOutput(self, Output, ValueOff) end )
 				else
-					timer.Simple(Delay*i, Wire_TriggerOutput, self, Output, ValueOn)
+					timer.Simple(Delay*i, function() Wire_TriggerOutput(self, Output, ValueOn) end )
 				end
 			else
 				if (i%2 == 1) then
-					timer.Simple(Delay*i, Wire_TriggerOutput, self, Output, ValueOn)
+					timer.Simple(Delay*i, function() Wire_TriggerOutput(self, Output, ValueOn) end )
 				else
-					timer.Simple(Delay*i, Wire_TriggerOutput, self, Output, ValueOff)
+					timer.Simple(Delay*i, function() Wire_TriggerOutput(self, Output, ValueOff) end )
 				end
 			end
 		else
-			timer.Simple(Length*(i)+Delay*i, Wire_TriggerOutput, self, Output, ValueOn)
-			timer.Simple(Length*(i+1)+Delay*i, Wire_TriggerOutput, self, Output, ValueOff)
+			timer.Simple(Length*(i)+Delay*i, function() Wire_TriggerOutput(self, Output, ValueOn) end )
+			timer.Simple(Length*(i+1)+Delay*i, function() Wire_TriggerOutput(self, Output, ValueOff) end )
 		end
 	end
 end
@@ -123,7 +123,7 @@ local function KeyCommand(Ply, EntId, command)
 			self:EmitSound("buttons/button8.wav")
 			
 			timer.Simple(0.25,	function()
-				if (ValidEntity(self)) then
+				if (IsValid(self)) then
 					self:SetNetworkedBool("keypad_showaccess", true)
 				end
 			end)
@@ -136,13 +136,13 @@ local function KeyCommand(Ply, EntId, command)
 		end
 		
 		if InitDelay ~= 0 then
-			timer.Simple(InitDelay, RunKeypad, self, Repeats, Length, Delay, Output, Owner, Toggle, ValueOn, ValueOff, Key)
+			timer.Simple(InitDelay, function() RunKeypad(self, Repeats, Length, Delay, Output, Owner, Toggle, ValueOn, ValueOff, Key) end )
 		else
 			RunKeypad(self, Repeats, Length, Delay, Output, Owner, Toggle, ValueOn, ValueOff, Key)
 		end
 		
 		timer.Simple(2,	function()
-			if (ValidEntity(self)) then
+			if (IsValid(self)) then
 				self:SetNetworkedInt("keypad_num", 0)
 				self:SetNetworkedBool("keypad_showaccess", false)
 			end

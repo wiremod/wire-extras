@@ -1,4 +1,4 @@
-if not WireVersion then return end
+//if not WireVersion then return end
 
 TOOL.Category   = "Wire - I/O"
 TOOL.Name       = "#Keypad"
@@ -29,9 +29,10 @@ TOOL.ClientConVar = {
 }
 
 if ( CLIENT ) then
-	language.Add( "Tool_keypad_wire_name", "Keypad (Wire)" )
-	language.Add( "Tool_keypad_wire_desc", "Made by: Killer HAHA (Robbis_1)" )
-	language.Add( "Tool_keypad_wire_0", "Left Click: Create/Update a Keypad" )
+	language.Add( "Tool.keypad_wire.name", "Keypad (Wire)" )
+	language.Add( "Tool.keypad_wire.desc", "Made by: Killer HAHA (Robbis_1)" )
+	language.Add( "Tool.keypad_wire.0", "Left Click: Create/Update a Keypad" )
+	language.Add( "Undone_Wire keypad", "Undone Keypad" )
 end
 
 function TOOL:SetupKeypad(ent, Password)
@@ -160,8 +161,8 @@ end
 
 function TOOL.BuildCPanel( CPanel )
 	CPanel:AddControl( "Header", {
-		Text        = "#Tool_keypad_wire_name",
-		Description = "#Tool_keypad_wire_desc",
+		Text        = "#Tool.keypad_wire.name",
+		Description = "#Tool.keypad_wire.desc",
 	})
 	
 	CPanel:AddControl( "TextBox", {

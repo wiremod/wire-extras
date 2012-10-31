@@ -4,9 +4,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_keycard_name", "Keycard Tool (Wire)" )
-    language.Add( "Tool_wire_keycard_desc", "Create portable media for use with the wire system." )
-    language.Add( "Tool_wire_keycard_0", "Primary: Create/Update Spawner     Secondary: Create/Update Reader" )
+    language.Add( "Tool.wire_keycard.name", "Keycard Tool (Wire)" )
+    language.Add( "Tool.wire_keycard.desc", "Create portable media for use with the wire system." )
+    language.Add( "Tool.wire_keycard.0", "Primary: Create/Update Spawner     Secondary: Create/Update Reader" )
     language.Add( "sboxlimit_wire_keycardspawners", "You've hit keycard spawner limit!" )
     language.Add( "sboxlimit_wire_keycardreaders", "You've hit keycard reader limit!" )
     language.Add( "undone_wirekeycardspawner", "Undone Wire Keycard Spawner" )
@@ -126,10 +126,10 @@ function TOOL:RightClick( trace )
 
 	local min = wire_keycardreader:OBBMins()
 	wire_keycardreader:SetPos( trace.HitPos - trace.HitNormal * min.z )
-	wire_keycardreader:SetRange(math.Max(0, ply:GetInfoNum("wire_keycardtool_beamlength")))
-	wire_keycardreader:SetReadMode(ply:GetInfoNum("wire_keycardtool_readmode"))
+	wire_keycardreader:SetRange(math.Max(0, ply:GetInfoNum("wire_keycardtool_beamlength", 100)))
+	wire_keycardreader:SetReadMode(ply:GetInfoNum("wire_keycardtool_readmode", 0))
 
-	wire_keycardreader:SetLCMatchMode(ply:GetInfoNum("wire_keycardtool_lcmode"))
+	wire_keycardreader:SetLCMatchMode(ply:GetInfoNum("wire_keycardtool_lcmode", 0))
 
 
 	local const = WireLib.Weld(wire_keycardreader, trace.Entity, trace.PhysicsBone, true)
@@ -159,7 +159,7 @@ if (SERVER) then
 		wire_keycardspawner:SetAngles( Ang )
 		wire_keycardspawner:SetPos( Pos )
 		wire_keycardspawner:SetModel( Model("models/keycardspawner/keycardspawner.mdl") )
-		wire_keycardspawner:SetLockCode((pl:UserID() + 1) * 100 + math.Clamp(math.Round(pl:GetInfoNum("wire_keycardtool_lockcode")), 0, 99))
+		wire_keycardspawner:SetLockCode((pl:UserID() + 1) * 100 + math.Clamp(math.Round(pl:GetInfoNum("wire_keycardtool_lockcode", 0)), 0, 99))
 		wire_keycardspawner:Spawn()
 
 		pl:AddCount( "wire_keycardspawners", wire_keycardspawner )
@@ -178,10 +178,10 @@ if (SERVER) then
 		wire_keycardreader:SetAngles( Ang )
 		wire_keycardreader:SetPos( Pos )
 		wire_keycardreader:SetModel( Model("models/jaanus/wiretool/wiretool_range.mdl") )
-		wire_keycardreader:SetLockCode((pl:UserID() + 1) * 100 + math.Clamp(math.Round(pl:GetInfoNum("wire_keycardtool_lockcode")), 0, 99))
-		wire_keycardreader:SetRange(math.Max(0, pl:GetInfoNum("wire_keycardtool_beamlength")))
-		wire_keycardreader:SetReadMode(pl:GetInfoNum("wire_keycardtool_readmode"))
-		wire_keycardreader:SetLCMatchMode(pl:GetInfoNum("wire_keycardtool_lcmode"))
+		wire_keycardreader:SetLockCode((pl:UserID() + 1) * 100 + math.Clamp(math.Round(pl:GetInfoNum("wire_keycardtool_lockcode", 0)), 0, 99))
+		wire_keycardreader:SetRange(math.Max(0, pl:GetInfoNum("wire_keycardtool_beamlength", 100)))
+		wire_keycardreader:SetReadMode(pl:GetInfoNum("wire_keycardtool_readmode", 0))
+		wire_keycardreader:SetLCMatchMode(pl:GetInfoNum("wire_keycardtool_lcmode", 0))
 		wire_keycardreader:Spawn()
 
 		pl:AddCount( "wire_keycardreaders", wire_keycardreader )
@@ -201,7 +201,7 @@ function TOOL:UpdateGhostWireKeycardSpawner( ent, player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 
@@ -235,7 +235,7 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_keycard_name", Description = "#Tool_wire_keycard_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_keycard.name", Description = "#Tool.wire_keycard.desc" })
 	panel:AddControl("Header", { Text = "#WireKeycardTool_GeneralOpt" } )
 	panel:AddControl("Slider", { Label = "#WireKeycardTool_LockCode", Description = "", Type = "Integer", Min = "0", Max = "99", Command = "wire_keycardtool_lockcode"})
 	panel:AddControl("Header", { Text = "#WireKeycardTool_ReaderOpt" } )

@@ -6,10 +6,10 @@ TOOL.ConfigName		= ""
 
 if CLIENT then
 	
-    language.Add( "Tool_wire_freezer_name", "Freezer Tool (Wire)" )
-    language.Add( "Tool_wire_freezer_desc", "Makes a controllable freezer" )
-    language.Add( "Tool_wire_freezer_0", "Primary: Click on the entity to be frozen" )
-    language.Add( "Tool_wire_freezer_1", "Left click to place the controller" )
+    language.Add( "Tool.wire_freezer.name", "Freezer Tool (Wire)" )
+    language.Add( "Tool.wire_freezer.desc", "Makes a controllable freezer" )
+    language.Add( "Tool.wire_freezer.0", "Primary: Click on the entity to be frozen" )
+    language.Add( "Tool.wire_freezer.1", "Left click to place the controller" )
 	language.Add( "undone_wirefreezer", "Undone Wire Freezer" )
 	
 end
@@ -93,5 +93,5 @@ if SERVER then
 end
 
 function TOOL.BuildCPanel( panel )
-	panel:AddControl( "Header", { Text = "#Tool_wire_freezer_name", Description = "#Tool_wire_freezer_desc" } )
+	panel:AddControl( "Header", { Text = "#Tool.wire_freezer.name", Description = "#Tool.wire_freezer.desc" } )
 end
