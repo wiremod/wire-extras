@@ -78,7 +78,8 @@ function ENT:Draw( )
 	local beamsize	= size * 0.25;
 	
 	// read color
-	local color = self:GetColor();
+	local r, g, b, a = self:GetColor();
+	local color = Color( r, g, b, a );
 	
 	self:SetRenderBounds( Vector()*-8192, Vector()*8192 )	
 	

@@ -23,7 +23,7 @@ cleanup.Register("wire_door_controllers")
 
 
 local function IsDoor(ent)
-	if not ent or not IsValid(ent) then return false end
+	if not ent or not ValidEntity(ent) then return false end
 	local class = ent:GetClass()
 	
 	if class == "func_door" or class == "func_door_rotating" or class == "prop_door_rotating" then
@@ -100,7 +100,7 @@ function TOOL:Reload(trace)
 	self:SetStage(0)
 	
 	local ent = trace.Entity
-	if not ent or not IsValid(ent) then return false end
+	if not ent or not ValidEntity(ent) then return false end
 	if not ent:GetClass() == "gmod_wire_door_controller" then return false end
 	
 	ent:Unlink()

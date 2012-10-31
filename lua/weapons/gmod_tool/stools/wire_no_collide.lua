@@ -36,13 +36,13 @@ function TOOL:LeftClick( trace )
 	// Save information on the selected ent
 	local CollisionGroup = trace.Entity:GetCollisionGroup()
 	local Material = trace.Entity:GetMaterial()
-	local color = trace.Entity:GetColor()
+	local Color = {trace.Entity:GetColor()}
 	
 	if (iNum == 0) then
 		self.EntInfo = {}
 	end
 	
-	table.insert(self.EntInfo,{CollisionGroup, Material, color})
+	table.insert(self.EntInfo,{CollisionGroup, Material, Color})
 	
 	self:SetStage(1)
 	

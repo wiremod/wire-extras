@@ -116,7 +116,7 @@ end
 function TOOL:UpdateGhostWireUserReader(ent, player)
 	if  not ent or not ent:IsValid() then return end
 
-	local tr = util.GetPlayerTrace(player, player:GetAimVector())
+	local tr = utilx.GetPlayerTrace(player, player:GetCursorAimVector())
 	local trace = util.TraceLine(tr)
 
 	if not trace.Hit or trace.Entity:IsPlayer() or trace.Entity:GetClass() == "gmod_wire_rfid_reader_act" then
