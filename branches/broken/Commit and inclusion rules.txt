@@ -1,0 +1,13 @@
+Committers, follow these rules! If there is a conflict in this file, with the thread on Wiremod.com, FOLLOW THIS ONE.
+
+1. Cannot conflict with any existing official wire addon, nor any other addon from the extras repository. Should a conflict develop, it must be fixed immediately or placed in a broken branch should someone decide to try and remake it.
+2. All work cannot have an exclusive copyright. Wire is a group project at it's core, which means people should be allowed to use your code at any time, so long as credit is given. This is what drives it. You may choose a License of your choice, and it will be noted, but it should be compatible with the "Free Software" philosophy. Otherwise, your work will be protected by the latest version of the GPL (currently v3).
+3. Any major modifications to someone else's work either needs to be submitted to them, or take form in a NEW tool. This includes abandonware!
+4. (Ties the last two together) Ownership of a tool or project cannot be transferred. If someone were to be hospitalized for a month, then come back to their project which was rewritten from the ground up, it will cause a lot of friction. Also, people may not like the course that the new developer could be taking the addon. Again, make and submit a NEW project, and it will be re-evaluated for inclusion.
+5. Contributors take responsibility for what they commit. For example, if you commit something that you weren't allowed to, then you have the responsibility to remove it, including any implications resulting from the violation.
+6. Cannot commit anything which supplies or relies on a DLL or another mod. Not all hosts wan't dll's running on their systems, and SVN doesn't always give a choice. We don't need broken addons either, should the host decide not to install a prerequisite.
+7. EXCEPTION to above rule: if an addon does NOT explicitly rely on a copyright model, or addon not included in this SVN, then it may be committed. An exception would be permission to distribute use said model, but this will be evaluated on case by case basis.
+8. Not a rule, but highly recommended: The functions and use of the items going into the repository need to be well documented (does not apply to the lua code, just the in-game item). It is not right to force other people to try and figure out what you were trying to achieve. Valid choices of documentation are: In game help menu, and/or readme.
+
+
+Also, be sure to ask for permission before you commit an addon. You should also update the readme.txt accordingly, so that proper credit is given, as well as attention to the home thread.

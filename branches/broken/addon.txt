@@ -1,0 +1,12 @@
+"AddonInfo"
+{
+	"name"				"Wire Unofficial Extras"
+	"version"			"SVN"
+	"up_date"			"3rd June 2008"
+	"author_name"			"Anticept and respective developers"
+	"author_email"			"clahasll@yahoo.com"
+	"author_url"			"http://www.dagamers.net"
+	"info"				"This is a collection of community created wire addons. Please review license and readme."
+}
+
+
