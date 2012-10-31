@@ -4,9 +4,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_hsranger_name", "Highspeed Ranger Tool (Wire)" )
-    language.Add( "Tool_wire_hsranger_desc", "Spawns a highspeed ranger for use with the wire system." )
-    language.Add( "Tool_wire_hsranger_0", "Primary: Create/Update Highspeed Ranger" )
+    language.Add( "Tool.wire_hsranger.name", "Highspeed Ranger Tool (Wire)" )
+    language.Add( "Tool.wire_hsranger.desc", "Spawns a highspeed ranger for use with the wire system." )
+    language.Add( "Tool.wire_hsranger.0", "Primary: Create/Update Highspeed Ranger" )
 	
 	language.Add( "sboxlimit_wire_hsrangers", "You've hit highspeed rangers limit!" )
 	language.Add( "undone_wirehsranger", "Undone Wire Highspeed Ranger" )
@@ -94,7 +94,7 @@ function TOOL:UpdateGhostWireRanger( ent, player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 
@@ -123,5 +123,5 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_hsranger_name", Description = "#Tool_wire_hsranger_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_hsranger.name", Description = "#Tool.wire_hsranger.desc" })
 end

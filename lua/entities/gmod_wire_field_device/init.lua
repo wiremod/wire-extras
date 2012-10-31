@@ -478,17 +478,22 @@ function ENT:VelModProp( prop , mul )
 	if prop:GetClass() != "player" && !gamemode.Call("PhysgunPickup",self.pl,prop) then return false; end
 	
 	if prop:GetMoveType() != MOVETYPE_VPHYSICS then
+		local vel1 = prop:GetVelocity()
+		vel1:Normalize()
+		
 		if prop.AddVelocity then
-			prop:AddVelocity( prop:GetVelocity():Normalize() * mul );
+			prop:AddVelocity( vel1 * mul );
 		else
-			prop:SetVelocity( prop:GetVelocity():Normalize() * mul);
+			prop:SetVelocity( vel1 * mul);
 		end
 	end
 
 	if prop:GetPhysicsObjectCount() > 1 then
 		for x=0,prop:GetPhysicsObjectCount()-1 do
 			local part=prop:GetPhysicsObjectNum(x)
-			part:AddVelocity( part:GetVelocity():Normalize() * mul );
+			local vel2=part:GetVelocity()
+			vel2:Normalize()
+			part:AddVelocity( vel2 * mul );
 		end
 		return false;
 	end
@@ -497,7 +502,9 @@ function ENT:VelModProp( prop , mul )
 	
 	if ( !phys:IsValid() ) then return end 
 	
-	phys:AddVelocity( phys:GetVelocity():Normalize() * mul );
+	local vel3 = phys:GetVelocity()
+	vel3:Normalize()
+	phys:AddVelocity( vel3 * mul );
 	
 end
 
@@ -582,7 +589,8 @@ end
 
 function ENT:Wind_Logic()
 
-	local Up = self.direction:Normalize();
+	local Up = self.direction;
+	Up:Normalize()
 	
 	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos(), self.prox || 10 ) ) do
 		
@@ -610,7 +618,8 @@ function ENT:GetEverythingInSphere( center , range )
 		
 		for _,obj in pairs( Objs ) do
 			if obj:GetMoveType() != MOVETYPE_NOCLIP then
-				local dir = ( obj:GetPos() - pos ):Normalize();
+				local dir = ( obj:GetPos() - pos );
+				dir:Normalize()
 				if dir:Dot( upvec ) > rgc then
 					table.insert( Tmp , obj );
 				end
@@ -641,14 +650,16 @@ end
 
 function ENT:Vortex_Logic()
 
-	local Up = self.direction:Normalize();
+	local Up = self.direction;
+	Up:Normalize()
 	local Center=self:GetPos(); 
 	local HalfProx=self.prox / 2;
 
 	for _,contact in pairs( self:GetEverythingInSphere( Center , self.prox || 10 ) ) do
 		
 		local Path = ( contact:GetPos()+contact:GetVelocity() )-Center;
-		self:PullPushProp( contact , Path:Normalize():Cross( Up ) * self.multiplier );		
+		Path:Normalize()
+		self:PullPushProp( contact , Path:Cross( Up ) * self.multiplier );		
 		
 	end
 

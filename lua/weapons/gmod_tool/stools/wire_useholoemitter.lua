@@ -4,10 +4,10 @@ TOOL.Command = nil
 TOOL.ConfigName = ""
 
 if CLIENT then
-	language.Add( "Tool_wire_useholoemitter_name", "Interactable Holographic Emitter Tool (Wire)" )
-	language.Add( "Tool_wire_useholoemitter_desc", "The emitter required for interactable holographic projections" )
-	language.Add( "Tool_wire_useholoemitter_0", "Primary: Create emitter      Secondary: Link emitter" )
-	language.Add( "Tool_wire_useholoemitter_1", "Select the emitter point to link to." )
+	language.Add( "Tool.wire_useholoemitter.name", "Interactable Holographic Emitter Tool (Wire)" )
+	language.Add( "Tool.wire_useholoemitter.desc", "The emitter required for interactable holographic projections" )
+	language.Add( "Tool.wire_useholoemitter.0", "Primary: Create emitter      Secondary: Link emitter" )
+	language.Add( "Tool.wire_useholoemitter.1", "Select the emitter point to link to." )
 	language.Add( "Tool_wire_useholoemitter_showbeams", "Show beams" )
 	language.Add( "Tool_wire_useholoemitter_groundbeams", "Show Emitter->Point beams" )
 	language.Add( "Tool_wire_useholoemitter_size", "Point size" )
@@ -21,9 +21,9 @@ if SERVER then CreateConVar( "sbox_maxwire_useholoemitters", 5 ) end
 TOOL.Model = "models/jaanus/wiretool/wiretool_range.mdl"
 TOOL.Emitter = nil
 TOOL.NoGhostOn = { "gmod_wire_hologrid" }
-timer.Simple(0,function(TOOL)
+timer.Simple(0,function() function _my2(TOOL)
 	setmetatable(TOOL, WireToolObj)
-end, TOOL)
+end end)
 TOOL.WireClass = "gmod_wire_useholoemitter"
 
 TOOL.ClientConVar = {
@@ -63,7 +63,7 @@ function TOOL.BuildCPanel( panel )
 		Multiplier	= "255",
 	})
 
-	if(not SinglePlayer( )) then
+	if(not game.SinglePlayer()) then
 		panel:NumSlider("#Tool_wire_useholoemitter_minimum_fade_rate", "cl_wire_useholoemitter_minfaderate", 0.1, 100, 1)
 	end
 end
@@ -81,7 +81,7 @@ if SERVER then
 		// did we hit another holoemitter?
 		if( tr.HitNonWorld && tr.Entity:GetClass() == "gmod_wire_useholoemitter" ) then
 			// update it.
-			tr.Entity:SetColor( r, g, b, a );
+			tr.Entity:SetColor( Color(r, g, b, a) );
 			
 			// update size and show states
 			tr.Entity:SetNetworkedBool( "ShowBeam", showbeams );

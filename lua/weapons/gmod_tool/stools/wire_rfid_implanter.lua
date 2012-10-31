@@ -5,9 +5,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_rfid_implanter_name", "RFID Implanter Tool (Wire)" )
-    language.Add( "Tool_wire_rfid_implanter_desc", "Spawns a RFID implanter prop for use with the wire system." )
-    language.Add( "Tool_wire_rfid_implanter_0", "Primary: Create/Update Implanter" )
+    language.Add( "Tool.wire_rfid_implanter.name", "RFID Implanter Tool (Wire)" )
+    language.Add( "Tool.wire_rfid_implanter.desc", "Spawns a RFID implanter prop for use with the wire system." )
+    language.Add( "Tool.wire_rfid_implanter.0", "Primary: Create/Update Implanter" )
     language.Add( "WireImplanterTool_implanter", "RFID Implanter:" )
     language.Add( "WireImplanterTool_Range", "Max Range:" )
     language.Add( "WireImplanterTool_NoColorChg", "Don't change colour on state changed" )
@@ -106,7 +106,7 @@ end
 function TOOL:UpdateGhostWireImplanter( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "gmod_wire_rfid_implanter" ) then
@@ -133,7 +133,7 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_rfid_implanter_name", Description = "#Tool_wire_rfid_implanter_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_rfid_implanter.name", Description = "#Tool.wire_rfid_implanter.desc" })
 
 	panel:AddControl("ComboBox", {
 		Label = "#Presets",

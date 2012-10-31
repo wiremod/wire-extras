@@ -5,10 +5,10 @@ TOOL.ConfigName		= ""
 TOOL.Tab			= "Wire"
 
 if CLIENT then
-	language.Add("Tool_wire_door_controller_name", "Door Controller (Wire)")
-	language.Add("Tool_wire_door_controller_desc", "Spawns a door controller for use with the wire system.")
-	language.Add("Tool_wire_door_controller_0", "Primary: Create Door Controller, Secondary: Link Door Controller, Reload: Unlink Door Controller")
-	language.Add("Tool_wire_door_controller_1", "Now select the door to link to.")
+	language.Add("Tool.wire_door_controller.name", "Door Controller (Wire)")
+	language.Add("Tool.wire_door_controller.desc", "Spawns a door controller for use with the wire system.")
+	language.Add("Tool.wire_door_controller.0", "Primary: Create Door Controller, Secondary: Link Door Controller, Reload: Unlink Door Controller")
+	language.Add("Tool.wire_door_controller.1", "Now select the door to link to.")
 	language.Add("sboxlimit_wire_door_controllers", "You've hit wire door controllers limit!")
 	language.Add("undone_Wire Door Controller", "Undone Wire Door Controller")
 end
@@ -23,7 +23,7 @@ cleanup.Register("wire_door_controllers")
 
 
 local function IsDoor(ent)
-	if not ent or not ValidEntity(ent) then return false end
+	if not ent or not IsValid(ent) then return false end
 	local class = ent:GetClass()
 	
 	if class == "func_door" or class == "func_door_rotating" or class == "prop_door_rotating" then
@@ -100,7 +100,7 @@ function TOOL:Reload(trace)
 	self:SetStage(0)
 	
 	local ent = trace.Entity
-	if not ent or not ValidEntity(ent) then return false end
+	if not ent or not IsValid(ent) then return false end
 	if not ent:GetClass() == "gmod_wire_door_controller" then return false end
 	
 	ent:Unlink()

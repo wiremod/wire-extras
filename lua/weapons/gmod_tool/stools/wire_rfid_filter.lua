@@ -4,10 +4,10 @@ TOOL.Command = nil
 TOOL.ConfigName = ""
 
 if CLIENT then
-	language.Add("Tool_wire_rfid_filter_name", "RFID Target Filter Tool (Wire)")
-	language.Add("Tool_wire_rfid_filter_desc", "Spawn/link a Wire RFID filter for target finders.")
-	language.Add("Tool_wire_rfid_filter_0", "Primary: Create filter. Secondary: Link to target finder.")
-	language.Add("Tool_wire_rfid_filter_1", "Now select the target finder to link to.")
+	language.Add("Tool.wire_rfid_filter.name", "RFID Target Filter Tool (Wire)")
+	language.Add("Tool.wire_rfid_filter.desc", "Spawn/link a Wire RFID filter for target finders.")
+	language.Add("Tool.wire_rfid_filter.0", "Primary: Create filter. Secondary: Link to target finder.")
+	language.Add("Tool.wire_rfid_filter.1", "Now select the target finder to link to.")
 	language.Add("WireTargetFilterTool_pod", "Target Filter:")
 	
 	language.Add("ToolWireTargetFilter_FilterType", "Filter:")
@@ -152,7 +152,7 @@ end
 function TOOL:UpdateGhostWireTargetFilter(ent, player)
 	if  not ent or not ent:IsValid() then return end
 
-	local tr = utilx.GetPlayerTrace(player, player:GetCursorAimVector())
+	local tr = util.GetPlayerTrace(player, player:GetAimVector())
 	local trace = util.TraceLine(tr)
 
 	if not trace.Hit or trace.Entity:IsPlayer() or trace.Entity:GetClass() == "gmod_wire_rfid_filter" then
@@ -178,7 +178,7 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_rfid_filter_name", Description = "#Tool_wire_rfid_filter_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_rfid_filter.name", Description = "#Tool.wire_rfid_filter.desc" })
 
 	panel:AddControl("ComboBox", {
 		Label = "#Presets",

@@ -21,9 +21,9 @@ end
 cleanup.Register("keypads")
 
 if (CLIENT) then
-	language.Add( "Tool_keypad_name", "Keypad" )
-	language.Add( "Tool_keypad_desc", "Made by: Killer HAHA (Robbis_1)" )
-	language.Add( "Tool_keypad_0", "Left Click: Create/Update a Keypad" )
+	language.Add( "Tool.keypad.name", "Keypad" )
+	language.Add( "Tool.keypad.desc", "Made by: Killer HAHA (Robbis_1)" )
+	language.Add( "Tool.keypad.0", "Left Click: Create/Update a Keypad" )
 	
 	language.Add( "Undone_Keypad", "Undone Keypad" )
 	language.Add( "Cleanup_keypads", "Keypads" )
@@ -134,8 +134,8 @@ end
 
 function TOOL.BuildCPanel( CPanel )
 	CPanel:AddControl( "Header", {
-		Text        = "#Tool_keypad_name",
-		Description = "#Tool_keypad_desc",
+		Text        = "#Tool.keypad.name",
+		Description = "#Tool.keypad.desc",
 	})
 	
 	CPanel:AddControl( "TextBox", {

@@ -22,9 +22,9 @@ TOOL.ClientConVar = {
 }
 
 if (CLIENT) then
-	language.Add( "Tool_keypad_adv_name", "Keypad - Advanced" )
-	language.Add( "Tool_keypad_adv_desc", "Made by: Killer HAHA (Robbis_1)" )
-	language.Add( "Tool_keypad_adv_0", "Left Click: Create/Update a Keypad" )
+	language.Add( "Tool.keypad_adv.name", "Keypad - Advanced" )
+	language.Add( "Tool.keypad_adv.desc", "Made by: Killer HAHA (Robbis_1)" )
+	language.Add( "Tool.keypad_adv.0", "Left Click: Create/Update a Keypad" )
 end
 
 function TOOL:SetupKeypad(Ent, Password)
@@ -141,8 +141,8 @@ end
 
 function TOOL.BuildCPanel( CPanel )
 	CPanel:AddControl( "Header", {
-		Text        = "#Tool_keypad_adv_name",
-		Description = "#Tool_keypad_adv_desc",
+		Text        = "#Tool.keypad_adv.name",
+		Description = "#Tool.keypad_adv.desc",
 	})
 	
 	CPanel:AddControl( "TextBox", {

@@ -5,9 +5,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_rfid_reader_beam_name", "RFID Beam Reader Tool (Wire)" )
-    language.Add( "Tool_wire_rfid_reader_beam_desc", "Spawns a RFID reader for use with the wire system." )
-    language.Add( "Tool_wire_rfid_reader_beam_0", "Primary: Create/Update Beam Reader" )
+    language.Add( "Tool.wire_rfid_reader_beam.name", "RFID Beam Reader Tool (Wire)" )
+    language.Add( "Tool.wire_rfid_reader_beam.desc", "Spawns a RFID reader for use with the wire system." )
+    language.Add( "Tool.wire_rfid_reader_beam.0", "Primary: Create/Update Beam Reader" )
     language.Add( "WireBeamReaderTool_reader_beam", "RFID Beam Reader:" )
     language.Add( "WireBeamReaderTool_Range", "Max Range:" )
     language.Add( "WireBeamReaderTool_NoColorChg", "Don't change colour on state changed" )
@@ -105,7 +105,7 @@ end
 function TOOL:UpdateGhostWireBeamReader( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "gmod_wire_rfid_reader_beam" ) then
@@ -132,7 +132,7 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_rfid_reader_beam_name", Description = "#Tool_wire_rfid_reader_beam_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_rfid_reader_beam.name", Description = "#Tool.wire_rfid_reader_beam.desc" })
 
 	panel:AddControl("ComboBox", {
 		Label = "#Presets",

@@ -9,7 +9,7 @@ function ENT:Initialize()
 	self:SetHullSizeNormal() //And Here	
 	self:SetSolid( SOLID_BBOX ) 
 	self:SetMoveType( MOVETYPE_STEP )	
-	self:CapabilitiesAdd( CAP_MOVE_GROUND | CAP_OPEN_DOORS | CAP_ANIMATEDFACE | CAP_TURN_HEAD | CAP_USE_SHOT_REGULATOR | CAP_AIM_GUN )	
+	self:CapabilitiesAdd( bit.bor( CAP_MOVE_GROUND, CAP_OPEN_DOORS, CAP_ANIMATEDFACE, CAP_TURN_HEAD, CAP_USE_SHOT_REGULATOR, CAP_AIM_GUN ) )	
 	self:SetMaxYawSpeed( 5000 )	
 		//don't touch stuff above here
 

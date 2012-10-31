@@ -43,7 +43,7 @@ function ENT:SetPercent( val )
 	self:SetOverlayText( "Buoyancy: " .. self.Percent .. "%" )
 	
 	for ent, _ in pairs( self.Entities ) do
-		if ( ValidEntity( ent ) ) then
+		if ( IsValid( ent ) ) then
 			SetBuoyancy( ent, self.Percent )
 		else
 			self.Entities[ ent ] = nil
@@ -53,7 +53,7 @@ end
 
 function ENT:OnRemove()
 	for ent, _ in pairs( self.Entities ) do
-		if ( ValidEntity( ent ) ) then
+		if ( IsValid( ent ) ) then
 			self:RemoveEntity( ent )
 		end
 	end
@@ -71,7 +71,7 @@ function ENT:ApplyDupeInfo( ply, ent, info, GetEntByID )
 	if ( info.Entities ) then
 		for _, index in pairs( info.Entities ) do
 			local ent = GetEntByID( index ) or ents.GetByIndex( index )
-			if ( ValidEntity( ent ) ) then
+			if ( IsValid( ent ) ) then
 				self:AddEntity( ent )
 			end
 		end
