@@ -4,9 +4,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_data_Wireless_srv_name", "Wireless Hub Tool (Wire)" )
-    language.Add( "Tool_wire_data_Wireless_srv_desc", "Spawns a Wireless Hub." )
-    language.Add( "Tool_wire_data_Wireless_srv_0", "Primary: Create Wireless Hub" )
+    language.Add( "Tool.wire_data_Wireless_srv.name", "Wireless Hub Tool (Wire)" )
+    language.Add( "Tool.wire_data_Wireless_srv.desc", "Spawns a Wireless Hub." )
+    language.Add( "Tool.wire_data_Wireless_srv.0", "Primary: Create Wireless Hub" )
     language.Add( "WireDataTransfererTool_data_btsrv", "Wireless Hub:" )
 	language.Add( "sboxlimit_wire_data_Wireless_srv", "You've hit Wireless Hub limit!" )
 	language.Add( "Undone_Wire_BTSRV", "Undone Wire Wireless Hub" )
@@ -94,7 +94,7 @@ end
 function TOOL:UpdateGhostWirebtsrv( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "gmod_wire_data_Wireless_srv" ) then
@@ -121,5 +121,5 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_data_Wireless_srv_name", Description = "#Tool_wire_data_Wireless_srv_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_data_Wireless_srv.name", Description = "#Tool.wire_data_Wireless_srv.desc" })
 end

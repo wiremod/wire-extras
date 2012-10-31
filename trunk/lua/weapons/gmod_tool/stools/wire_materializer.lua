@@ -5,9 +5,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if CLIENT then
-    language.Add( "Tool_wire_materializer_name", "Materializer Tool (Wire)" )
-    language.Add( "Tool_wire_materializer_desc", "Spawns a constant materializer prop for use with the wire system." )
-    language.Add( "Tool_wire_materializer_0", "Primary: Create/Update Materializer" )
+    language.Add( "Tool.wire_materializer.name", "Materializer Tool (Wire)" )
+    language.Add( "Tool.wire_materializer.desc", "Spawns a constant materializer prop for use with the wire system." )
+    language.Add( "Tool.wire_materializer.0", "Primary: Create/Update Materializer" )
     language.Add( "WireMaterializerTool_materializer", "Materializer:" )
     language.Add( "WireMaterializerTool_outMat", "Output Material:" )
     language.Add( "WireMaterializerTool_Range", "Max Range:" )
@@ -112,7 +112,7 @@ end
 function TOOL:UpdateGhostWireMaterializer( ent, player )
 	if !IsValid(ent) then return end
 	
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	
 	if !trace.Hit or trace.Entity:IsPlayer() or trace.Entity:GetClass() == "gmod_wire_materializer" then
@@ -139,7 +139,7 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_materializer_name", Description = "#Tool_wire_materializer_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_materializer.name", Description = "#Tool.wire_materializer.desc" })
 
 	panel:AddControl("ComboBox", {
 		Label = "#Presets",

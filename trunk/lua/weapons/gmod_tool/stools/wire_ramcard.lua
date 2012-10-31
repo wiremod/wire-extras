@@ -4,9 +4,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_ramcard_name", "ramcard Tool (Wire)" )
-    language.Add( "Tool_wire_ramcard_desc", "Create portable media for use with the wire system." )
-    language.Add( "Tool_wire_ramcard_0", "Primary: Create/Update Spawner     Secondary: Create/Update Reader" )
+    language.Add( "Tool.wire_ramcard.name", "ramcard Tool (Wire)" )
+    language.Add( "Tool.wire_ramcard.desc", "Create portable media for use with the wire system." )
+    language.Add( "Tool.wire_ramcard.0", "Primary: Create/Update Spawner     Secondary: Create/Update Reader" )
     language.Add( "sboxlimit_wire_ramcardspawners", "You've hit ramcard spawner limit!" )
     language.Add( "sboxlimit_wire_ramcardreaders", "You've hit ramcard reader limit!" )
     language.Add( "undone_wireramcardspawner", "Undone Wire ramcard Spawner" )
@@ -95,7 +95,7 @@ end
 function TOOL:UpdateGhostWireRamCardSpawner( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr = utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr = util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace = util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "gmod_wire_ramcardreader" ) then

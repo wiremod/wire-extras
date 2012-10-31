@@ -4,9 +4,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= nil
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_magnet_name", "Wired Magnet Tool" )
-    language.Add( "Tool_wire_magnet_desc", "Spawns a realistic magnet for use with the wire system." )
-    language.Add( "Tool_wire_magnet_0", "Primary: Create/Update Magnet Secondary: Grab model to use" )
+    language.Add( "Tool.wire_magnet.name", "Wired Magnet Tool" )
+    language.Add( "Tool.wire_magnet.desc", "Spawns a realistic magnet for use with the wire system." )
+    language.Add( "Tool.wire_magnet.0", "Primary: Create/Update Magnet Secondary: Grab model to use" )
     language.Add( "WiremagnetTool_len", "Effect Length:" )
     language.Add( "WiremagnetTool_stren", "Effect Strength:" )
     language.Add( "WiremagnetTool_propfil", "Prop Filter:" )
@@ -133,7 +133,7 @@ if (SERVER) then
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_magnet_name", Description = "#Tool_wire_magnet_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_magnet.name", Description = "#Tool.wire_magnet.desc" })
 	
 	panel:AddControl("ComboBox", {
 		Label = "#Presets",
@@ -192,7 +192,7 @@ function TOOL:UpdateGhostWireMagnet( ent, player )
 
 	if ( !ent || !ent:IsValid() ) then return end
 	
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	
 	if (!trace.Hit || trace.Entity:IsPlayer() ) then 

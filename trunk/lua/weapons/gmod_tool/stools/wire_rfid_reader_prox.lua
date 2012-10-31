@@ -5,9 +5,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_rfid_reader_prox_name", "RFID Reader Tool (Wire)" )
-    language.Add( "Tool_wire_rfid_reader_prox_desc", "Spawns a RFID reader for use with the wire system." )
-    language.Add( "Tool_wire_rfid_reader_prox_0", "Primary: Create/Update Proximity Reader" )
+    language.Add( "Tool.wire_rfid_reader_prox.name", "RFID Reader Tool (Wire)" )
+    language.Add( "Tool.wire_rfid_reader_prox.desc", "Spawns a RFID reader for use with the wire system." )
+    language.Add( "Tool.wire_rfid_reader_prox.0", "Primary: Create/Update Proximity Reader" )
     language.Add( "WireReaderTool_reader_prox", "RFID Reader:" )
     language.Add( "WireReaderTool_Range", "Max Range:" )
     language.Add( "WireReaderTool_NoColorChg", "Don't change colour on state changed" )
@@ -107,7 +107,7 @@ end
 function TOOL:UpdateGhostWireReader( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "gmod_wire_rfid_reader_prox" ) then
@@ -134,7 +134,7 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_rfid_reader_prox_name", Description = "#Tool_wire_rfid_reader_prox_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_rfid_reader_prox.name", Description = "#Tool.wire_rfid_reader_prox.desc" })
 
 	panel:AddControl("ComboBox", {
 		Label = "#Presets",
