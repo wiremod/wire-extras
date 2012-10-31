@@ -15,10 +15,10 @@ TOOL.ConfigName		= ""
 TOOL.ClientConVar[ "nocollide" ]		= "0"
 
 if CLIENT then
-	language.Add ("Tool_wireweld_name", "WireLib Weld")
-	language.Add ("Tool_wireweld_desc", "Uses the WireLib Weld instead of regular weld.")
-	language.Add ("Tool_wireweld_0", "Left-click on the child object (will be deleted when the parent is removed).")
-	language.Add ("Tool_wireweld_1", "Left-click on the parent object (the child will be deleted when this is removed).")
+	language.Add ("Tool.wireweld.name", "WireLib Weld")
+	language.Add ("Tool.wireweld.desc", "Uses the WireLib Weld instead of regular weld.")
+	language.Add ("Tool.wireweld.0", "Left-click on the child object (will be deleted when the parent is removed).")
+	language.Add ("Tool.wireweld.1", "Left-click on the parent object (the child will be deleted when this is removed).")
 end 
 
 function TOOL:LeftClick( trace )

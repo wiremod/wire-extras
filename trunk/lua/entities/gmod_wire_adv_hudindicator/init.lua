@@ -186,10 +186,10 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 	end
 
 	if( flags != nil ) then
-		if( flags & flag_worldcoords == flag_worldcoords ) then
+		if( bit.band( flags, flag_worldcoords ) == flag_worldcoords ) then
 
 			//--Determine if we're using vector iniputs...--//
-			if( flags & flag_vector_inputs == flag_vector_inputs ) then
+			if( bit.band( flags, flag_vector_inputs ) == flag_vector_inputs ) then
 				table.insert(newInputs, "WorldPos")
 				table.insert(newInputTypes, "VECTOR")
 				//--table.insert(newInputDesc, "World position, as a vector")
@@ -208,7 +208,7 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 			end
 		else
 			//--Determine if we're using vector iniputs...--//
-			if( flags & flag_vector_inputs == flag_vector_inputs ) then
+			if( bit.band( flags, flag_vector_inputs ) == flag_vector_inputs ) then
 				table.insert(newInputs, "ScreenPos")
 				table.insert(newInputTypes, "VECTOR2")
 				//--table.insert(newInputDesc, "Screen-space position vector")
@@ -224,17 +224,17 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 		end
 
 		//--Manage position methods--//
-		if( flags & flag_position_by_pixel == flag_position_by_pixel ) then
+		if( bit.band( flags, flag_position_by_pixel ) == flag_position_by_pixel ) then
 			self.positionMethod = 0
-		elseif( flags & flag_position_by_percent == flag_position_by_percent ) then
+		elseif( bit.band( flags, flag_position_by_percent ) == flag_position_by_percent ) then
 			self.positionMethod = 1
-		elseif( flags & flag_position_by_decimal == flag_position_by_decimal ) then
+		elseif( bit.band( flags, flag_position_by_decimal ) == flag_position_by_decimal ) then
 			self.positionMethod = 2
 		end
 
 
 		//--Create a STRING input for the text on the indicator--//
-		if( flags & flag_string_input == flag_string_input ) then
+		if( bit.band( flags, flag_string_input ) == flag_string_input ) then
 			table.insert(newInputs, "DisplayText")
 			table.insert(newInputTypes, "STRING")
 			//--table.insert(newInputDesc, "The text to display on the indicator")
@@ -249,10 +249,10 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 	if( self.HUDStyle > 199 && self.HUDStyle < 999 ) then
 
 		//-- If we're drawing in 3D mode... --//
-		if( flags & 1 == 1 ) then
+		if( bit.band( flags, 1 ) == 1 ) then
 
 			//--Determine if we're using vector iniputs...--//
-			if( flags & flag_vector_inputs == flag_vector_inputs ) then
+			if( bit.band( flags, flag_vector_inputs ) == flag_vector_inputs ) then
 				table.insert(newInputs, "WorldEndPos")
 				table.insert(newInputTypes, "VECTOR")
 				//--table.insert(newInputDesc, "The end position in world space, as a vector")
@@ -273,7 +273,7 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 		else
 
 			//--Determine if we're using vector iniputs...--//
-			if( flags & flag_vector_inputs == flag_vector_inputs ) then
+			if( bit.band( flags, flag_vector_inputs ) == flag_vector_inputs ) then
 				table.insert(newInputs, "EndPos")
 				table.insert(newInputTypes, "VECTOR2")
 				//--table.insert(newInputDesc, "The end X position in screen space")
@@ -411,7 +411,7 @@ function ENT:RegisterPlayer(ply, hookhidehud, podonly)
 		//--Position style, tacked on the end of the end - Moggie100--//
 		umsg.Short( self.positionMethod )
 
-		if( self.flags & flag_worldcoords == flag_worldcoords ) then
+		if( bit.band( self.flags, flag_worldcoords ) == flag_worldcoords ) then
 
 			//--Set the 3D position number--//
 			umsg.Short( 1 );
@@ -488,7 +488,7 @@ function ENT:TriggerInput(iname, value)
 		//--local b = math.Clamp((self.BB-self.AB)*factor+self.AB, 0, 255)
 		//--local a = math.Clamp((self.BA-self.AA)*factor+self.AA, 0, 255)
 		//--self:SetColor(r, g, b, a)
-		self:SetColor(255, 255, 255, 255)
+		self:SetColor(Color(255, 255, 255, 255))
 	elseif (iname == "HideHUD") then
 		if (self.PrevHideHUD == (value > 0)) then return end
 

@@ -15,9 +15,9 @@ TOOL.Model = "models/jaanus/wiretool/wiretool_siren.mdl"
 
 /* If we're running on the client, setup the description strings */
 if ( CLIENT ) then
-    language.Add( "Tool_wire_pid_name", "PID Tool (Wire)" )
-    language.Add( "Tool_wire_pid_desc", "Spawns a PID Loop." )
-    language.Add( "Tool_wire_pid_0", "Primary: Create/Update Controller   Secondary: Copy Settings" )
+    language.Add( "Tool.wire_pid.name", "PID Tool (Wire)" )
+    language.Add( "Tool.wire_pid.desc", "Spawns a PID Loop." )
+    language.Add( "Tool.wire_pid.0", "Primary: Create/Update Controller   Secondary: Copy Settings" )
     language.Add( "undone_Wire PID", "Undone Wire PID" )
 end
 
@@ -111,7 +111,7 @@ function TOOL:UpdateGhostWirePID( ent, player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 
@@ -141,8 +141,8 @@ end
 
 function TOOL.BuildCPanel( panel )
 	panel:AddControl("Header", { 
-		Text = "#Tool_wire_pid_name", 
-		Description = "#Tool_wire_pid_desc" 
+		Text = "#Tool.wire_pid.name", 
+		Description = "#Tool.wire_pid.desc" 
 	})
 
 	panel:AddControl("Slider", {

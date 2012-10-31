@@ -71,12 +71,12 @@ end
 
 if ( CLIENT ) then
 
-	language.Add( "Tool_wire_door_name", "Door" )
-	language.Add( "Tool_wire_door_desc", "Spawn a Door" )
-	language.Add( "Tool_wire_door_0", "Click somewhere to spawn a door." )
+	language.Add( "Tool.wire_door.name", "Door" )
+	language.Add( "Tool.wire_door.desc", "Spawn a Door" )
+	language.Add( "Tool.wire_door.0", "Click somewhere to spawn a door." )
 
-	language.Add( "Undone_door", "Undone door" )
-	language.Add( "Cleanup_door", "door" )
+	language.Add( "Undone_door", "Undone Wired Door" )
+	language.Add( "Cleanup_door", "Wired Door" )
 	language.Add( "SBoxLimit_doors", "Max Doors Reached!" )
 	language.Add( "Cleaned_door", "Cleaned up all doors" )
 
@@ -105,7 +105,7 @@ end
 function TOOL.BuildCPanel( CPanel )
 
 	// HEADER
-	CPanel:AddControl( "Header", { Text = "#Tool_wire_door_name", Description	= "#Tool_wire_door_desc" }  )
+	CPanel:AddControl( "Header", { Text = "#Tool.wire_door.name", Description	= "#Tool.wire_door.desc" }  )
 	
 	// PRESETS
 	local params = { Label = "#Presets", MenuButton = 1, Folder = "door", Options = {}, CVars = {} }
@@ -152,7 +152,7 @@ function TOOL:UpdateGhostThruster( ent, Player )
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( Player, Player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( Player, Player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 		local ang = Player:GetAimVector():Angle() 

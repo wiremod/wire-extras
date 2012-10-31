@@ -2,7 +2,7 @@ ENT.Type			= "anim"
 ENT.Base			= "base_wire_entity"
 
 if not WireVersion then
-	timer.Simple(0, function(ENT) if not WireVersion then ENT.Base = "base_gmodentity" end end, ENT)
+	timer.Simple(0, function() function _my(ENT) if not WireVersion then ENT.Base = "base_gmodentity" end end end)
 end
 
 ENT.PrintName		= "Keypad"

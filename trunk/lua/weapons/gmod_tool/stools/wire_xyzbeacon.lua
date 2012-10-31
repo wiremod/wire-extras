@@ -4,9 +4,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_xyzbeacon_name", "XYZ Beacon Tool (Wire)" )
-    language.Add( "Tool_wire_xyzbeacon_desc", "Spawns a constant XYZ Beacon prop for use with the wire system." )
-    language.Add( "Tool_wire_xyzbeacon_0", "Primary: Create/Update XYZ Beacon" )
+    language.Add( "Tool.wire_xyzbeacon.name", "XYZ Beacon Tool (Wire)" )
+    language.Add( "Tool.wire_xyzbeacon.desc", "Spawns a constant XYZ Beacon prop for use with the wire system." )
+    language.Add( "Tool.wire_xyzbeacon.0", "Primary: Create/Update XYZ Beacon" )
     language.Add( "WireIXYZBeaconTool_ixyzbeacon", "XYZ Beacon:" )
 	language.Add( "sboxlimit_wire_xyzbeacons", "You've hit XYZ Beacons limit!" )
 	language.Add( "undone_wireigniter", "Undone Wire XYZ Beacon" )
@@ -82,7 +82,7 @@ end
 function TOOL:UpdateGhostWireXYZBeacon( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "gmod_wire_xyzbeacon" ) then
@@ -109,7 +109,7 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_xyzbeacon_name", Description = "#Tool_wire_xyzbeacon_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_xyzbeacon.name", Description = "#Tool.wire_xyzbeacon.desc" })
 
 	panel:AddControl("ComboBox", {
 		Label = "#Presets",

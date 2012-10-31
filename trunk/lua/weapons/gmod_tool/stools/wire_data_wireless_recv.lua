@@ -4,9 +4,9 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_data_Wireless_recv_name", "Wireless Receiver Tool (Wire)" )
-    language.Add( "Tool_wire_data_Wireless_recv_desc", "Spawns a Wireless Receiver." )
-    language.Add( "Tool_wire_data_Wireless_recv_0", "Primary: Create Wireless Receiver" )
+    language.Add( "Tool.wire_data_Wireless_recv.name", "Wireless Receiver Tool (Wire)" )
+    language.Add( "Tool.wire_data_Wireless_recv.desc", "Spawns a Wireless Receiver." )
+    language.Add( "Tool.wire_data_Wireless_recv.0", "Primary: Create Wireless Receiver" )
     language.Add( "WireDataTransfererTool_data_btrecv", "Wireless Receiver:" )
 	language.Add( "sboxlimit_wire_data_Wireless_recv", "You've hit Wireless Receiver limit!" )
 	language.Add( "Undone_Wire_BTRECV", "Undone Wire Wireless Receiver" )
@@ -94,7 +94,7 @@ end
 function TOOL:UpdateGhostWirebtrecv( ent, player )
 	if ( !ent || !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit || trace.Entity:IsPlayer() || trace.Entity:GetClass() == "gmod_wire_data_Wireless_recv" ) then
@@ -121,5 +121,5 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(panel)
-	panel:AddControl("Header", { Text = "#Tool_wire_data_Wireless_recv_name", Description = "#Tool_wire_data_Wireless_recv_desc" })
+	panel:AddControl("Header", { Text = "#Tool.wire_data_Wireless_recv.name", Description = "#Tool.wire_data_Wireless_recv.desc" })
 end
