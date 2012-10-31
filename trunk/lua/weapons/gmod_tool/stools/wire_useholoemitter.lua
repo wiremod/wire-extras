@@ -63,7 +63,7 @@ function TOOL.BuildCPanel( panel )
 		Multiplier	= "255",
 	})
 
-	if(not SinglePlayer( )) then
+	if(not game.SinglePlayer( )) then
 		panel:NumSlider("#Tool_wire_useholoemitter_minimum_fade_rate", "cl_wire_useholoemitter_minfaderate", 0.1, 100, 1)
 	end
 end
@@ -81,7 +81,7 @@ if SERVER then
 		// did we hit another holoemitter?
 		if( tr.HitNonWorld && tr.Entity:GetClass() == "gmod_wire_useholoemitter" ) then
 			// update it.
-			tr.Entity:SetColor( r, g, b, a );
+			tr.Entity:SetColor( Color(r, g, b, a ));
 			
 			// update size and show states
 			tr.Entity:SetNetworkedBool( "ShowBeam", showbeams );
