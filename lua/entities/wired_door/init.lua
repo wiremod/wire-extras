@@ -152,12 +152,17 @@ end
 function ENT:AcceptInput(name, activator, caller)
 	self.xswitch:case(name)
 end
-
+ENT.ValidClasses={["prop_door"]=true,["prop_dynamic"]=true,["prop_door_rotating"]=true,}
 function ENT:makedoor(ply,trace,ang,model,open,close,autoclose,closetime,class,hardware)
 	if ( !ply:CheckLimit( "doors" ) ) then return nil end
 	self.autoclose = autoclose
 	self.closetime = closetime
-	local entit = ents.Create(class)
+	local entit = self.ValidClasses[class] and ents.Create(class)
+	if not entit then
+		Msg(tostring(class) .. " is not a valid class for wired door.\n")
+		self:Remove()
+		return NULL
+	end
 	entit:SetModel(model)
 	local minn = entit:OBBMins()
 	local newpos = Vector(trace.HitPos.X,trace.HitPos.Y,trace.HitPos.Z - (trace.HitNormal.z * minn.z) )
