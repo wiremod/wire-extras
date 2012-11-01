@@ -1,0 +1,12 @@
+"AddonInfo"
+{
+	"name"				"Wire Adv. HUD Version 2"
+	"version"			"SVN"
+	"up_date"			""
+	"author_name"			"Moggie100"
+	"author_email"			"moggie100@gmail.com"
+	"author_url"			"http://www.themoggie.co.uk/"
+	"info"				"Wire control over clientside HUD elements"
+}
+
+
