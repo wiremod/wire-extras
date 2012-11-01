@@ -1,29 +1,35 @@
--- holoAnim E2 Extension
--- Originally by dlb (ben1066)
+hook.Add("Initialize","Wire_HoloAnim_Init",function()
+	local holo_meta = scripted_ents.Get( "gmod_wire_hologram" )
 
--- To Enable, run 'wire_expression2_extension_enable holoanim'
+	holo_meta.AutomaticFrameAdvance = true
+	holo_meta.OldThink = holo_meta.Think
+
+	function holo_meta:Think()
+		if self.OldThink then
+			self:OldThink()
+		end
+
+		self:NextThink( CurTime() )
+		return true
+	end
+
+	scripted_ents.Register(
+		holo_meta,
+		"gmod_wire_hologram",
+		true
+	)
+end)
 
 E2Lib.RegisterExtension("holoanim", false)
 
 local CheckIndex 
+
 registerCallback("postinit",function()
 	CheckIndex = wire_holograms.CheckIndex
 end)
 
 local function SetHoloAnim( Holo, Animation, Frame, Rate )
 	if (Holo and Animation and Frame and Rate) then
-		if not Holo.ent.Animated then
-			-- This must be run once on entities that will be animated
-			Holo.ent.Animated = true
-			Holo.ent.AutomaticFrameAdvance = true
-			
-			local OldThink = Holo.ent.Think
-			function Holo.ent:Think()
-				OldThink(self)
-				self:NextThink( CurTime() )
-				return true
-			end
-		end
 		Holo.ent:ResetSequence(Animation)
 		Holo.ent:SetCycle(Frame)
 		Holo.ent:SetPlaybackRate(Rate)
@@ -34,21 +40,27 @@ e2function void holoAnim(index, string animation)
 	local Holo = CheckIndex(self, index)
 	if not Holo then return end
 	
-	SetHoloAnim(Holo, Holo.ent:LookupSequence(animation), 0, 1)
+	local Sequence = Holo.ent:LookupSequence(animation)
+	
+	SetHoloAnim(Holo, Sequence, 0, 1)
 end
 
 e2function void holoAnim(index, string animation, frame)
 	local Holo = CheckIndex(self, index)
 	if not Holo then return end
+	
+	local Sequence = Holo.ent:LookupSequence(animation)
 
-	SetHoloAnim(Holo, Holo.ent:LookupSequence(animation), frame, 1)
+	SetHoloAnim(Holo, Sequence, frame, 1)
 end
 
 e2function void holoAnim(index, string animation, frame, rate)
 	local Holo = CheckIndex(self, index)
 	if not Holo then return end
+	
+	local Sequence = Holo.ent:LookupSequence(animation)
 
-	SetHoloAnim(Holo, Holo.ent:LookupSequence(animation), frame, rate)
+	SetHoloAnim(Holo, Sequence, frame, rate)
 end
 
 e2function void holoAnim(index, animation)
@@ -80,7 +92,10 @@ e2function number holoAnimNum(index, string animation)
 	local Holo = CheckIndex(self, index)
 	if not Holo then return 0 end
 	
-	return Holo.ent:LookupSequence(animation) or 0
+	local Sequence = Holo.ent:LookupSequence(animation)
+	if not Sequence then return 0 end
+	
+	return Sequence
 end
 
 e2function void holoSetPose(index, string pose, value)
