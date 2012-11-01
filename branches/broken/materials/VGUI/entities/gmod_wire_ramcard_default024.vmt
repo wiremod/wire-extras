@@ -1,7 +1,0 @@
-"UnlitGeneric"
-{
-	"$basetexture" "VGUI/entities/gmod_wire_ramcard_default024"
-	"$vertexcolor" 		1 
-	"$vertexalpha" 		1 
-	"$nolod" 		1 
-}
