@@ -1,0 +1,5 @@
+"VertexLitGeneric"
+{
+    "$baseTexture" "radio/ra_orbital_dish"
+    "$model" 1
+}

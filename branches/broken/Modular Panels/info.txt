@@ -1,0 +1,11 @@
+"AddonInfo"
+{
+	"name"				"gui Panel"
+	"version"			"0.1"
+	"up_date"			"18th April 2007"
+	"author_name"			"greenarrow"
+	"author_email"			""
+	"author_url"			"http://gmodreviews.googlepages.com"
+	"info"				"A fully customisable interface"
+	"override"			"0"
+}
