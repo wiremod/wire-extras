@@ -1,0 +1,15 @@
+# This is not a real practical keyboard. A keyboard ent should have one output of the ascii code. This needs to be done in lua.
+# Could make a keyboard widget! :)
+"button1"	button			10	10	58	42	WIREO	"1"			label	"1"			fontSize	3
+"button2"	button			72	10	58	42	WIREO	"2"			label	"2"			fontSize	3
+"button3"	button			134	10	58	42	WIREO	"3"			label	"3"			fontSize	3
+"button4"	button			10	56	58	42	WIREO	"4"			label	"4"			fontSize	3
+"button5"	button			72	56	58	42	WIREO	"5"			label	"5"			fontSize	3
+"button6"	button			134	56	58	42	WIREO	"6"			label	"6"			fontSize	3
+"button7"	button			10	102	58	42	WIREO	"7"			label	"7"			fontSize	3
+"button8"	button			72	102	58	42	WIREO	"8"			label	"8"			fontSize	3
+"button9"	button			134	102	58	42	WIREO	"9"			label	"9"			fontSize	3
+"button0"	button			10	148	58	42	WIREO	"0"			label	"0"			fontSize	3
+#"button"	button			72	148	58	42	WIREO	"1"			label	"1"			fontSize	3
+"buttonE"	button			137	148	58	42	WIREO	"Enter"		label	"E"			fontSize	3
+
