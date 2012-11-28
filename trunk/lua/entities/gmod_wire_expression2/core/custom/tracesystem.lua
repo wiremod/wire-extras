@@ -1861,7 +1861,7 @@ end)
 
 //When an e2 is removed
 registerCallback("destruct",function(self)
-	if (sharing[self.player][self.entity]) then
+	if sharing[self.player] and sharing[self.player][self.entity] then
 		ShapeClear( self )
 		
 		shapes[self.player][self.entity] = nil
