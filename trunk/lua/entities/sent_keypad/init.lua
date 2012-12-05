@@ -24,15 +24,11 @@ function ENT:Initialize()
 end
 
 function ENT:AddPassword(Pass)
-	Pass = util.CRC(Pass)
-	
-	self.Pass = Pass
+	self.Pass = util.CRC(Pass)
 end
 
 local function CorrectPassword(Ent, Pass)
-	Pass = util.CRC(tonumber(Pass) or 0)
-	
-	return Ent.Pass == Pass
+	return Ent.Pass == util.CRC(tonumber(Pass) or 0)
 end
 
 local function RunKeypad(self, Repeats, Length, Delay, Output, Owner, Toggle, ValueOn, ValueOff, Key)
@@ -182,6 +178,7 @@ function MakeKeypad( pl, Model, Ang, Pos, nocollide, frozen, ... )
 
 	local keypad = ents.Create( "sent_keypad" )
 	if not keypad:IsValid() then return false end
+	local arg = {...}
 	for index,varname in ipairs(dupevars) do
 		keypad[varname] = arg[index]
 	end
@@ -204,5 +201,4 @@ function MakeKeypad( pl, Model, Ang, Pos, nocollide, frozen, ... )
 
 	return keypad
 end
-
 duplicator.RegisterEntityClass("sent_keypad", MakeKeypad, "Model", "Ang", "Pos", "nocollide", "frozen", unpack(dupevars))
