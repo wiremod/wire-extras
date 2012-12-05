@@ -5,12 +5,7 @@ AddCSLuaFile( "shared.lua" )
 include('shared.lua')
 
 ENT.WireDebugName = "Servo"
-ENT.OverlayDelay = 0
 
-/*---------------------------------------------------------
-   Name: Initialize
-   Desc: First function called. Use to set up your entity
----------------------------------------------------------*/
 function ENT:Initialize()
 
 	self:PhysicsInit( SOLID_VPHYSICS )
@@ -37,9 +32,6 @@ function ENT:Initialize()
 	
 end
 
-/*---------------------------------------------------------
-   Sets the base torque
----------------------------------------------------------*/
 function ENT:SetBaseTorque( base )
 
 	self.BaseTorque = base
@@ -48,48 +40,24 @@ function ENT:SetBaseTorque( base )
 
 end
 
-/*---------------------------------------------------------
-   Sets the base torque
----------------------------------------------------------*/
-function ENT:UpdateOverlayText()
-
-	txt = "Torque: " .. math.floor( self.TorqueScale * self.BaseTorque ) .. "\nSpeed: 0\nSpeedMod: " .. math.floor( self.SpeedMod * 100 ) .. "%"
-	self:SetOverlayText( txt )
-
+function ENT:UpdateOverlayText(speed)
+	self:SetOverlayText( "Torque: " .. math.floor( self.TorqueScale * self.BaseTorque ) .. "\nSpeed: ".. (speed or 0) .."\nSpeedMod: " .. math.floor( self.SpeedMod * 100 ) .. "%" )
 end
 
-/*---------------------------------------------------------
-   Sets the axis (world space)
----------------------------------------------------------*/
 function ENT:SetAxis( vec )
-	
 	self.Axis = self:GetPos() + vec * 512
 	self.Axis = self:NearestPoint( self.Axis )
 	self.Axis = self:WorldToLocal( self.Axis )
-
 end
-
-
-/*---------------------------------------------------------
-   Name: PhysicsCollide
-   Desc: Called when physics collides. The table contains 
-			data on the collision
----------------------------------------------------------*/
-function ENT:PhysicsCollide( data, physobj )
-end
-
 
 /*---------------------------------------------------------
    Name: AcceptVars
-   Desc: Called by STool to transmit the servo's
-		base
+   Desc: Called by STool to transmit the servo's base
 ---------------------------------------------------------*/
 function ENT:AcceptVars( ent, entBone, weldmode )
-
 	self.ServoBase = ent
 	self.ServoBone = entBone
 	self.WeldMode = weldmode
-
 end
 
 
@@ -98,11 +66,8 @@ end
    Desc: Welds the servo to its base
 ---------------------------------------------------------*/
 function ENT:InitWeld()
-
 	self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
-
 end
-
 
 /*---------------------------------------------------------
    Name: DoVectorChoice
@@ -119,42 +84,20 @@ function ENT:DoVectorChoice()
 
 end
 
-
-/*---------------------------------------------------------
-   Name: PhysicsUpdate
-   Desc: Called to update the physics .. or something.
----------------------------------------------------------*/
-function ENT:PhysicsUpdate( physobj )
-end
-
-
-/*---------------------------------------------------------
-   Name: KeyValue
-   Desc: Called when a keyvalue is added to us (usually from the map)
----------------------------------------------------------*/
-function ENT:KeyValue( key, value )
-end
-
-
-/*---------------------------------------------------------
-   Name: Think
-   Desc: Entity's think function. 
----------------------------------------------------------*/
 function ENT:Think()
-
 	// This looks like a lot to "think" about,
 	// there must be a way to cut down on cycles here
+	if not self.ServoBase then return end
 
 	if !self.OutputThink then self.OutputThink = CurTime() end // Called on first think, has us update outputs right away
 	// if !self.VectorChoice then Msg( "If I show up, don't take me out!\n" ) return end // If think has occured before DoVectorChoice is called, no use in doing any of this, but we shouldn't need this
 	
 	local chosenBaseVector
-	
-		if ( self.VectorChoice == 1 ) then
-			chosenBaseVector = self.ServoBase:GetUp() // GetRight won't work--use this instead
-		else
-			chosenBaseVector = self.ServoBase:GetRight() // If we have no angle problems, GetRight works fine
-		end
+	if ( self.VectorChoice == 1 ) then
+		chosenBaseVector = self.ServoBase:GetUp() // GetRight won't work--use this instead
+	else
+		chosenBaseVector = self.ServoBase:GetRight() // If we have no angle problems, GetRight works fine
+	end
 	
 	local servoVector = self:GetRight()
 	local axisVector = self:LocalToWorld( self.Axis ) - self:GetPos()
@@ -166,83 +109,76 @@ function ENT:Think()
 	local angle1 = math.deg( math.acos( servoVector:DotProduct( baseVector1 ) ) )
 	local angle2 = math.deg( math.acos( servoVector:DotProduct( baseVector2 ) ) )
 	
-		if ( angle2 >= 90 ) then // This code allows us to go between 0 and 360, instead of just 0 to 180
-			self.curAngle = angle1
-		else
-			self.curAngle = 360 - angle1
-		end
+	if ( angle2 >= 90 ) then // This code allows us to go between 0 and 360, instead of just 0 to 180
+		self.curAngle = angle1
+	else
+		self.curAngle = 360 - angle1
+	end
 		
 	// Acquisition code
 	if self.doAcq == 1 then
-
-			if ( self.acqCase == 1 && ( ( self.curAngle + .01 ) < self.initAngle  || ( self.curAngle - .01 ) > self.chosenAngle ) ) then
-				self:Forward(0)
-				if self.WeldMode == 1 then
-					self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
-				else
-					local servV = self:GetPhysicsObject():GetAngleVelocity()
-					local baseV = self.ServoBase:GetPhysicsObject():GetAngleVelocity()
-					local diff = servV - baseV
-					self:GetPhysicsObject():AddAngleVelocity( -1 * diff )
-				end
-				self.doAcq = 0
-				self.acqCase = 0			
-			elseif ( self.acqCase == 2 && ( self.curAngle + .01 ) < self.initAngle  && ( self.curAngle - .01 ) > self.chosenAngle ) then
-				self:Forward(0)
-				if self.WeldMode == 1 then
-					self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
-				else
-					local servV = self:GetPhysicsObject():GetAngleVelocity()
-					local baseV = self.ServoBase:GetPhysicsObject():GetAngleVelocity()
-					local diff = servV - baseV
-					self:GetPhysicsObject():AddAngleVelocity( -1 * diff )
-				end			
-				self.doAcq = 0
-				self.acqCase = 0
-			elseif ( self.acqCase == 3 && ( self.curAngle - .01 ) > self.initAngle  && ( self.curAngle + .01 ) < self.chosenAngle ) then
-				self:Forward(0)
-				if self.WeldMode == 1 then
-					self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
-				else
-					local servV = self:GetPhysicsObject():GetAngleVelocity()
-					local baseV = self.ServoBase:GetPhysicsObject():GetAngleVelocity()
-					local diff = servV - baseV
-					self:GetPhysicsObject():AddAngleVelocity( -1 * diff )
-				end			
-				self.doAcq = 0
-				self.acqCase = 0	
-			elseif ( self.acqCase == 4 && ( ( self.curAngle - .01 ) > self.initAngle || ( self.curAngle + .01 ) < self.chosenAngle ) ) then
-				self:Forward(0)
-				if self.WeldMode == 1 then
-					self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
-				else
-					local servV = self:GetPhysicsObject():GetAngleVelocity()
-					local baseV = self.ServoBase:GetPhysicsObject():GetAngleVelocity()
-					local diff = servV - baseV
-					self:GetPhysicsObject():AddAngleVelocity( -1 * diff )
-				end		
-				self.doAcq = 0
-				self.acqCase = 0
-			end
 	
+		if ( self.acqCase == 1 && ( ( self.curAngle + .01 ) < self.initAngle  || ( self.curAngle - .01 ) > self.chosenAngle ) ) then
+			self:Forward(0)
+			if self.WeldMode == 1 then
+				self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
+			else
+				local servV = self:GetPhysicsObject():GetAngleVelocity()
+				local baseV = self.ServoBase:GetPhysicsObject():GetAngleVelocity()
+				local diff = servV - baseV
+				self:GetPhysicsObject():AddAngleVelocity( -1 * diff )
+			end
+			self.doAcq = 0
+			self.acqCase = 0			
+		elseif ( self.acqCase == 2 && ( self.curAngle + .01 ) < self.initAngle  && ( self.curAngle - .01 ) > self.chosenAngle ) then
+			self:Forward(0)
+			if self.WeldMode == 1 then
+				self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
+			else
+				local servV = self:GetPhysicsObject():GetAngleVelocity()
+				local baseV = self.ServoBase:GetPhysicsObject():GetAngleVelocity()
+				local diff = servV - baseV
+				self:GetPhysicsObject():AddAngleVelocity( -1 * diff )
+			end			
+			self.doAcq = 0
+			self.acqCase = 0
+		elseif ( self.acqCase == 3 && ( self.curAngle - .01 ) > self.initAngle  && ( self.curAngle + .01 ) < self.chosenAngle ) then
+			self:Forward(0)
+			if self.WeldMode == 1 then
+				self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
+			else
+				local servV = self:GetPhysicsObject():GetAngleVelocity()
+				local baseV = self.ServoBase:GetPhysicsObject():GetAngleVelocity()
+				local diff = servV - baseV
+				self:GetPhysicsObject():AddAngleVelocity( -1 * diff )
+			end			
+			self.doAcq = 0
+			self.acqCase = 0	
+		elseif ( self.acqCase == 4 && ( ( self.curAngle - .01 ) > self.initAngle || ( self.curAngle + .01 ) < self.chosenAngle ) ) then
+			self:Forward(0)
+			if self.WeldMode == 1 then
+				self.Constraint = constraint.Weld( self, self.ServoBase, 0, self.ServoBone, 0 )
+			else
+				local servV = self:GetPhysicsObject():GetAngleVelocity()
+				local baseV = self.ServoBase:GetPhysicsObject():GetAngleVelocity()
+				local diff = servV - baseV
+				self:GetPhysicsObject():AddAngleVelocity( -1 * diff )
+			end		
+			self.doAcq = 0
+			self.acqCase = 0
+		end
 	end
 
-		if ( CurTime() >= self.OutputThink ) then
-			Wire_TriggerOutput( self, "Angle", self.curAngle )
-			self.OutputThink = CurTime() + .3 // We don't want to update our wired outputs as often as we want to check our angles
-		end
+	if ( CurTime() >= self.OutputThink ) then
+		Wire_TriggerOutput( self, "Angle", self.curAngle )
+		self.OutputThink = CurTime() + .3 // We don't want to update our wired outputs as often as we want to check our angles
+	end
 	
 	self:NextThink( CurTime() + .001 )
 	
 	return true
-		
 end
 
-
-/*---------------------------------------------------------
-   Name: OnTakeDamage
-   Desc: Entity takes damage
----------------------------------------------------------*/
 function ENT:OnTakeDamage( dmginfo )
 
 	self:TakePhysicsDamage( dmginfo )
@@ -266,11 +202,6 @@ function ENT:GetMotor()
 	return self.Motor
 end
 
-//function ENT:SetDirection( dir )
-//	self:SetNetworkedInt( 1, dir )
-//	self.Direction = dir
-//end
-
 function ENT:SetToggle( bool )
 	self.Toggle = bool
 end
@@ -279,10 +210,6 @@ function ENT:GetToggle()
 	return self.Toggle
 end
 
-
-/*---------------------------------------------------------
-   Forward
----------------------------------------------------------*/
 function ENT:Forward( mul )
 
 	// Is this key invalid now? If so return false to remove it
@@ -298,9 +225,7 @@ function ENT:Forward( mul )
 	local mdir = Motor.direction	
 	local Speed = mdir * mul * self.TorqueScale * (1 + self.SpeedMod)
 	
-	txt = "Torque: " .. math.floor( self.TorqueScale * self.BaseTorque ) .. "\nSpeed: " .. ( mdir * mul * (1 + self.SpeedMod)) .. "\nSpeedMod: " .. math.floor( self.SpeedMod * 100 ) .. "%"
-	//self.BaseClass.BaseClass.SetOverlayText(self, txt)
-	self:SetOverlayText(txt)
+	self:UpdateOverlayText(mdir * mul * (1 + self.SpeedMod))
 	
 	Motor:Fire( "Scale", Speed, 0 )
 	Motor:GetTable().forcescale = Speed
@@ -310,11 +235,6 @@ function ENT:Forward( mul )
 	
 end
 
-
-/*---------------------------------------------------------
-   Name: TriggerInput
-   Desc: the inputs
----------------------------------------------------------*/
 function ENT:TriggerInput(iname, value)
 	if (iname == "A: Angle") then
 		self.chosenAngle = tonumber( value )
@@ -426,28 +346,6 @@ function ENT:TriggerInput(iname, value)
 end
 
 
-
-/*---------------------------------------------------------
-   Name: PhysicsUpdate
-   Desc: happy fun time breaking function
----------------------------------------------------------*/
-function ENT:PhysicsUpdate( physobj )
-//	local vel = physobj:GetVelocity()
-	
-//	if (self.Breaking > 0) then // to prevent badness
-//		if (self.Breaking >= 100) then //100% breaking!!!
-//			vel.x = 0 //full stop!
-//			vel.y = 0
-//		else		
-//			vel.x = vel.x * ((100.0 - self.Breaking)/100.0)
-//			vel.y = vel.y * ((100.0 - self.Breaking)/100.0)
-//		end
-//	end
-	
-//	physobj:SetVelocity(vel)
-end
-
-
 /*---------------------------------------------------------
    Todo? Scale Motor:GetTable().direction?
 ---------------------------------------------------------*/
@@ -461,19 +359,5 @@ function ENT:SetTorque( torque )
 	if (!Motor || !Motor:IsValid()) then return end
 	Motor:Fire( "Scale", Motor:GetTable().direction * Motor:GetTable().forcescale * self.TorqueScale , 0 )
 	
-	txt = "Torque: " .. math.floor( self.TorqueScale * self.BaseTorque )
-	//self.BaseClass.BaseClass.SetOverlayText(self, txt)
-	self:SetOverlayText(txt)
+	self:UpdateOverlayText()
 end
-
-
-/*---------------------------------------------------------
-   Removed use = reverse functionality
----------------------------------------------------------*/
-function ENT:Use( activator, caller, type, value )
-		
-		
-	
-end
-
-
