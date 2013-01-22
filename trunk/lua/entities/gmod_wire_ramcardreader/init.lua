@@ -78,10 +78,8 @@ end
 
 function ENT:PlugCard( card )
 	self.PluggedCard = card
-	local newpos = self:GetPos() + self:GetUp() * 5
-	local socketAng = self:GetAngles() + Vector(90,0,0)
-	card:SetPos( newpos )
-	card:SetAngles( socketAng )
+	card:SetPos( self:GetPos() + self:GetUp() * 5 )
+	card:SetAngles( self:GetAngles() + Angle(90,0,0) )
 	
 	self.CardNoCollide = constraint.NoCollide(self, card, 0, 0)
 	if (!self.CardNoCollide) then
