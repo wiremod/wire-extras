@@ -72,21 +72,6 @@ if (SERVER) then
 		end
 	end)
 	
-	------------------------------------------------------------------
-	-- Tags
-	-- Adds "uwsvnexport####" or "uwsvnsvn####" to tags
-	------------------------------------------------------------------
-	
-	local cvar = GetConVar("sv_tags")
-	timer.Create("Wire_Tags",1,0,function()
-		local tags = cvar:GetString()
-		if (!tags:find( "uwsvn" )) then
-			local version, plainversion, exported = WireLib.GetUWSVNVersion()
-			local tag = "uwsvn" .. ( exported and "exported" or "svn" ) .. plainversion
-			RunConsoleCommand( "sv_tags", tags .. "," .. tag )
-		end	
-	end)
-	
 else -- CLIENT
 
 	------------------------------------------------------------------
