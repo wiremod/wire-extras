@@ -1,8 +1,9 @@
 -- REMEMBER: 
 -- This file must be updated if the main SVN's hologram.lua is updated.
 
-
+-- 0: Only wire holo models. 1: Any model the server has. 2: Any model at all
 local wire_holograms_modelany = CreateConVar("wire_holograms_modelany",0,{FCVAR_ARCHIVE})
+
 registerCallback("postinit",function()
 	local wire_holograms_size_max = wire_holograms.wire_holograms_size_max
 	local add_scale_queue = wire_holograms.add_scale_queue
@@ -86,7 +87,7 @@ registerCallback("postinit",function()
 		
 		if (wire_holograms_modelany:GetInt() == 0) then return end
 		
-		if (!util.IsValidModel( model )) then return end
+		if (wire_holograms_modelany:GetInt() > 1) or (!util.IsValidModel( model )) then return end
 		Holo.modelany = true
 		Holo.ent:SetModel( Model( model ) )
 	end)
@@ -109,7 +110,7 @@ registerCallback("postinit",function()
 		
 		if (wire_holograms_modelany:GetInt() == 0) then return end
 		
-		if (!util.IsValidModel( model )) then return end
+		if (wire_holograms_modelany:GetInt() > 1) or (!util.IsValidModel( model )) then return end
 		Holo.modelany = true
 		Holo.ent:SetModel( Model( model ) )
 	end)
