@@ -87,7 +87,7 @@ registerCallback("postinit",function()
 		
 		if (wire_holograms_modelany:GetInt() == 0) then return end
 		
-		if (wire_holograms_modelany:GetInt() > 1) or (!util.IsValidModel( model )) then return end
+		if (wire_holograms_modelany:GetInt() == 1) and (!util.IsValidModel( model )) then return end
 		Holo.modelany = true
 		Holo.ent:SetModel( Model( model ) )
 	end)
@@ -110,7 +110,7 @@ registerCallback("postinit",function()
 		
 		if (wire_holograms_modelany:GetInt() == 0) then return end
 		
-		if (wire_holograms_modelany:GetInt() > 1) or (!util.IsValidModel( model )) then return end
+		if (wire_holograms_modelany:GetInt() == 1) and (!util.IsValidModel( model )) then return end
 		Holo.modelany = true
 		Holo.ent:SetModel( Model( model ) )
 	end)
