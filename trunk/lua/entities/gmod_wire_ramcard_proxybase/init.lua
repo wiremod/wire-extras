@@ -61,13 +61,12 @@ function ENT:Think() --//think function of the card. any actions can be done in 
 	if (sock && !sock:IsValid()) then
 		self:ResetSocket()
 	end
-	if (!self.OwnerObj) then Msg("No OwnerObj\n") end
 	if (!self.OwnerObj) then Msg("No OwnerObj in Entity\n") end
 	
 	if (self.OwnerObj && self.OwnerObj:IsValid()) then
 		self.CurrentDist = self:GetPos():Distance(self.OwnerObj:GetPos())
 		self:SetOverlayText("Wire RAM-Card\nProximity ("..self.SizePrint..")\nMax Owner Distance: "..self.MaxDist.."\nDistance Now: "..self.CurrentDist)
-	elseif (self.OwnerID && !self.OwnerObj:IsValid()) then
+	elseif (self.OwnerID) then
 		for _,ply in pairs( player.GetAll() ) do
 			if (ply:SteamID() == self.OwnerID) then
 				self.OwnerObj = ply
