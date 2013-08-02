@@ -8,7 +8,6 @@ include('shared.lua')
 
 local MODEL = Model("models/jaanus/wiretool/wiretool_siren.mdl")
 
-
 function ENT:Initialize()
 	self:SetModel( MODEL )
 	self:PhysicsInit( SOLID_VPHYSICS )
@@ -18,40 +17,27 @@ function ENT:Initialize()
 	self.Inputs = Wire_CreateInputs( self, { "Activate" } )	
 	
 	self:SetOverlayText( "Wire Freezer - Activated" )
-	
 end
 
 function ENT:SendVars( Ent1 )
-
 	self.Ent1 = Ent1
-
 end
 
 function ENT:TriggerInput(iname, value)
-
 	if (iname == "Activate") then
-	
-		if ( value == 0  ) then
-		
-		self.Ent1:GetPhysicsObject():EnableMotion( true )
-		//self.Ent1:GetPhysicsObject():SetUnFreezable( false )
-		self.Ent1:GetPhysicsObject():Wake()
-			
-		self:SetOverlayText( "Weld Freezer - Deactivated" )
-			
+		if IsValid(self.Ent1) and IsValid(self.Ent1:GetPhysicsObject()) then
+			if value == 0 then
+				self.Ent1:GetPhysicsObject():EnableMotion( true )
+				self.Ent1:GetPhysicsObject():Wake()
+				
+				self:SetOverlayText( "Weld Freezer - Deactivated" )
+			else
+				self.Ent1:GetPhysicsObject():EnableMotion( false )
+				
+				self:SetOverlayText( "Weld Freezer - Activated" )
+			end
 		end
-		
-		if ( value == 1 ) then
-		
-
-		self.Ent1:GetPhysicsObject():EnableMotion( false )
-		//self.Ent1:GetPhysicsObject():SetUnFreezable( true )
-		self:SetOverlayText( "Weld Freezer - Activated" )
-			
-		end
-		
 	end
-	
 end
 
 function ENT:BuildDupeInfo()
