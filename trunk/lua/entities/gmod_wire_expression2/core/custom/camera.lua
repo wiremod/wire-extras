@@ -51,7 +51,7 @@ end)
 -- Gets the camera entity at the specified index
 -----------------------------------------------------------------------
 local function GetCamera( self, index )
-	return self.cameras[index]
+	return IsValid(self.cameras[index]) and self.cameras[index] or nil -- Don't return invalid ents
 end
 
 -----------------------------------------------------------------------
