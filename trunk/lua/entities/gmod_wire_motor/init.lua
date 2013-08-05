@@ -14,10 +14,6 @@ function ENT:Initialize()
 	self.Inputs = Wire_CreateInputs( self, { "Mul" } )
 end
 
-function ENT:Think()
-	self.BaseClass.Think(self)
-end
-
 function ENT:SetConstraint( c )
 	self.constraint = c
 	self.Mul = 0
@@ -28,13 +24,12 @@ function ENT:SetAxis( a )
 	self.axis = a
 end
 
-
 function ENT:TriggerInput(iname, value)
 	if (iname == "Mul") then
 		self.Mul = value
 		self:ShowOutput()
 		local Motor = self.constraint
-		if ( !Motor:IsValid() ) then
+		if not IsValid(Motor) then
 			Msg("Controller doesn't have motor!\n"); 
 			return false
 		end
@@ -42,7 +37,6 @@ function ENT:TriggerInput(iname, value)
 		Motor:Fire( "Activate", "" , 0 )
 	end
 end
-
 
 function ENT:ShowOutput()
 	if self.constraint and self.constraint:IsValid() then
@@ -69,4 +63,3 @@ function ENT:ApplyDupeInfo(ply, ent, info, GetEntByID, GetConstByID)
 		end
 	end
 end
-
