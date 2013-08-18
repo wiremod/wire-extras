@@ -239,12 +239,12 @@ function TOOL.BuildCPanel( CPanel )
 									 Options = Options,
 									 CVars = CVars } )								
 									 
-	CPanel:AddControl( "PropSelect", { Label = "#WheelTool_model",
+	CPanel:AddControl( "PropSelect", { Label = "#tool.wheel.model",
 									 ConVar = "wheel_model",
 									 Category = "Servos",
 									 Models = list.Get( "WheelModels" ) } )
 									 
-	CPanel:AddControl( "Slider", { Label = "#WheelTool_torque",
+	CPanel:AddControl( "Slider", { Label = "#tool.wheel.torque",
 									 Description = "#ServoTool_torque_desc",
 									 Type = "Float",
 									 Min = 10,
@@ -252,21 +252,21 @@ function TOOL.BuildCPanel( CPanel )
 									 Command = "wire_servo_torque" } )
 									 
 									 
-	CPanel:AddControl( "Slider", { Label = "#WheelTool_forcelimit",
+	CPanel:AddControl( "Slider", { Label = "#tool.wheel.forcelimit",
 									 Description = "#ServoTool_forcelimit_desc",
 									 Type = "Float",
 									 Min = 0,
 									 Max = 50000,
 									 Command = "wire_servo_forcelimit" } )
 									 
-	CPanel:AddControl( "Slider", { Label = "#WheelTool_friction",
+	CPanel:AddControl( "Slider", { Label = "#tool.wheel.friction",
 									 Description = "#ServoTool_friction_desc",
 									 Type = "Float",
 									 Min = 0,
 									 Max = 100,
 									 Command = "wire_servo_friction" } )
 									 
-	CPanel:AddControl( "CheckBox", { Label = "#WheelTool_nocollide",
+	CPanel:AddControl( "CheckBox", { Label = "#tool.wheel.nocollide",
 									 Description = "#ServoTool_nocollide_desc",
 									 Command = "wire_servo_nocollide" } )
 									 

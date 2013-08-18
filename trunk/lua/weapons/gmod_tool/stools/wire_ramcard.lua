@@ -4,7 +4,7 @@ TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool.wire_ramcard.name", "ramcard Tool (Wire)" )
+    language.Add( "Tool.wire_ramcard.name", "RAM-card Tool (Wire)" )
     language.Add( "Tool.wire_ramcard.desc", "Create portable media for use with the wire system." )
     language.Add( "Tool.wire_ramcard.0", "Primary: Create/Update Spawner     Secondary: Create/Update Reader" )
     language.Add( "sboxlimit_wire_ramcardspawners", "You've hit ramcard spawner limit!" )
