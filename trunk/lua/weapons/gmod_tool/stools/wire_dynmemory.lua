@@ -144,7 +144,7 @@ function TOOL.BuildCPanel(panel)
 	ModelPlug_AddToCPanel(panel, "gate", "wire_dynmemory", "model:", nil, "Model:")
 	
 	panel:AddControl("Checkbox", {
-		Label = "#Tool_wire_dynmemory_pers",
+		Label = "#Tool.wire_dynmemory.pers",
 		Description = "Saves memory content in duplicator saves!",
 		Command = "wire_dynmemory_persistant"
 	})
