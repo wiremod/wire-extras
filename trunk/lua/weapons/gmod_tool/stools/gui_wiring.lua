@@ -509,6 +509,8 @@ function TOOL:Reload(trace)
 end
 
 if SERVER then
+	util.AddNetworkString( "GUIWiring_EntPart" )
+	
 	local material = {}
 	local color = {}
 	local width = {}
