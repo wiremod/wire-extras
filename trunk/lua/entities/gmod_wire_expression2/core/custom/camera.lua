@@ -267,7 +267,7 @@ e2function void cameraRemove( index )
 	local camera = GetCamera( self, index )
 	if not camera then return end
 	
-	self.cameras[camera] = nil
+	self.cameras[index] = nil
 	count[self.uid] = count[self.uid] - 1
 	
 	if camera.user then
