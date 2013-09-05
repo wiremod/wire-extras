@@ -99,7 +99,8 @@ local function CreateCamera( self, index, position, angle, zoom )
 		if not angle then angle = self.entity:GetAngles() else angle = Angle(angle[1],angle[2],angle[3]) end
 		zoom = zoom or 0
 	
-		local camera = ents.Create( "gmod_wire_cam" )
+		local camera = ents.Create("base_point")
+		camera.UpdateTransmitState = function() return TRANSMIT_PVS end -- By default, base_point isn't sent to the client.
 		camera:SetNoDraw(true)
 		camera:SetPos( position )
 		camera:SetAngles( angle )
