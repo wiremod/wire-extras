@@ -280,7 +280,7 @@ end
 
 __e2setcost( 1 )
 e2function void cameraRemoveAll()
-	for ent,_ in pairs( self.cameras ) do
+	for _,ent in pairs( self.cameras ) do
 		self.prf = self.prf + 1/3
 		if ent and ent:IsValid() then
 			if ent.user then
