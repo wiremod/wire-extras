@@ -138,7 +138,7 @@ function TOOL.BuildCPanel(panel)
 	panel:AddControl("ComboBox", {
 		Label = "#Presets",
 		MenuButton = "1",
-		Folder = "wire_hoverball",
+		Folder = "wire_magnet",
 
 		Options = {
 			Default = {
