@@ -1,4 +1,3 @@
-
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "shared.lua" )
 
@@ -29,17 +28,6 @@ function ENT:Setup(outMat,Range)
 	self:ShowOutput()
 end
 
-local function CheckPP(ply, ent)
-	if !IsValid(ply) or !IsValid(ent) then return false end
-	if ent:IsPlayer() then return false end
-	if CPPI then
-		-- Temporary, done this way due to certain PP implementations not always returning a value for CPPICanTool
-		if ent == ply then return true end
-		if ent:CPPICanTool( ply, "material" ) == false then return false end
-	end
-	return true
-end
-
 function ENT:TriggerInput(iname, value)
 	if iname == "Fire" then
 		if value ~= 0 then
@@ -52,8 +40,10 @@ function ENT:TriggerInput(iname, value)
 				trace.filter = { self }
 			local trace = util.TraceLine( trace ) 
 			
-            if !CheckPP( self.pl, trace.Entity ) then return end
-            trace.Entity:SetMaterial(self.StrMaterial)
+			if not IsValid( trace.Entity ) then return end
+            		if not hook.Run( "CanTool", self:GetPlayer(), trace, "material" ) then return end
+            		
+            		trace.Entity:SetMaterial(self.StrMaterial)
 			trace.Entity:SetSkin(self.ValueSkin)
 		end
 	elseif iname == "Material" then
