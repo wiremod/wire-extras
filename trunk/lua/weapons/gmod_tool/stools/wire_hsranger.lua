@@ -1,7 +1,8 @@
-TOOL.Category		= "Wire - Detection"
+TOOL.Category		= "Wire Extras/Detection"
 TOOL.Name			= "HighSpeed Ranger"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
     language.Add( "Tool.wire_hsranger.name", "Highspeed Ranger Tool (Wire)" )
