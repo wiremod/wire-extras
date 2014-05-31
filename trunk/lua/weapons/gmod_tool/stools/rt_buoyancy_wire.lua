@@ -1,8 +1,9 @@
 
-TOOL.Category		= "Wire - Physics"
+TOOL.Category		= "Wire Extras/Physics"
 TOOL.Name			= "Buoyancy"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
 	language.Add( "Tool.rt_buoyancy_wire.name", "Buoyancy (Wire)" )

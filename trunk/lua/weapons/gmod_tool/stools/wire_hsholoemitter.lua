@@ -1,7 +1,8 @@
-TOOL.Category		= "Wire - Render"
+TOOL.Category		= "Wire Extras/Visuals/Holographic"
 TOOL.Name			= "HighSpeed Holoemitter"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
     language.Add( "Tool.wire_hsholoemitter.name", "Highspeed Holoemitter Tool (Wire)" )

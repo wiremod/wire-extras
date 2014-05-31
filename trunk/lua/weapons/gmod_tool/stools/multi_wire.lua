@@ -4,10 +4,11 @@ Most of this code was originally from the normal wire tool, I just modified it s
 -Incompatible
 ]]
 
-TOOL.Category		= "Wire - Tools"
+TOOL.Category		= "Wire Extras/Obsolete"
 TOOL.Name			= "Multi Wire"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
     language.Add( "Tool.multi_wire.name", "Multi-Wiring Tool" )

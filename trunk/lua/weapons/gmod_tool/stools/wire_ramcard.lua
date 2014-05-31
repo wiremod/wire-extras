@@ -1,7 +1,8 @@
-TOOL.Category		= "Wire - Data"
+TOOL.Category		= "Wire Extras/Other"
 TOOL.Name			= "RAM-card"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
     language.Add( "Tool.wire_ramcard.name", "RAM-card Tool (Wire)" )
