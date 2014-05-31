@@ -1,8 +1,9 @@
 
-TOOL.Category		= "Wire - Render"
+TOOL.Category		= "Wire Extras/Visuals"
 TOOL.Name			= "Materializer"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if CLIENT then
     language.Add( "Tool.wire_materializer.name", "Materializer Tool (Wire)" )

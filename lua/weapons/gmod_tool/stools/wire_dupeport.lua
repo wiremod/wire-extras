@@ -1,7 +1,8 @@
-TOOL.Category		= "Wire - Physics"
+TOOL.Category		= "Wire Extras/Physics"
 TOOL.Name			= "Adv. Dupe. Teleporter"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
     language.Add( "Tool.wire_dupeport.name", "Adv. Dupe. Teleporter Tool (Wire)" )

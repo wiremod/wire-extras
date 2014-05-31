@@ -1,7 +1,8 @@
-TOOL.Category		= "Wire - Data"
+TOOL.Category		= "Wire Extras/Other"
 TOOL.Name			= "Keycard"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
     language.Add( "Tool.wire_keycard.name", "Keycard Tool (Wire)" )

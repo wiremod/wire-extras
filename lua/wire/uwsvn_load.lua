@@ -25,3 +25,5 @@ if CLIENT then
 	include("wire/uwsvn/client/stringtochars.lua")
 	include("wire/uwsvn/client/welcome_menu_uwsvn_version_check.lua")
 end
+
+WireLib.WireExtrasInstalled = true
