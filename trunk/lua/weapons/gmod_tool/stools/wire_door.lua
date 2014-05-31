@@ -13,10 +13,11 @@ TOOL.ClientConVar[ "closetime" ] = "5"
 TOOL.ClientConVar[ "hardware" ] = "1"
 cleanup.Register( "door" )
 
-TOOL.Category		= "Wire - Physics"		// Name of the category
+TOOL.Category		= "Wire Extras/Other"		// Name of the category
 TOOL.Name			= "#Door"		// Name to display
 TOOL.Command		= nil				// Command on click (nil for default)
 TOOL.ConfigName		= ""				// Config file name (nil for default)
+TOOL.Tab			= "Wire"
 
 local GhostEntity
 --prop_door_rotating

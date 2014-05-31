@@ -1,4 +1,4 @@
-TOOL.Category		= "Wire - I/O"
+TOOL.Category		= "Wire Extras/Other"
 TOOL.Name			= "Door Controller"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""

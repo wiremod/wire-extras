@@ -1,7 +1,8 @@
-TOOL.Category		= "Wire - Control"
+TOOL.Category		= "Wire Extras/Other"
 TOOL.Name			= "PID"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 /* Con vars for this stool */
 TOOL.ClientConVar[ "pgain" ] = "0"

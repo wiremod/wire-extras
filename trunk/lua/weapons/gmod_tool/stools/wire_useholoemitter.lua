@@ -1,7 +1,8 @@
-TOOL.Category = "Wire - Render"
+TOOL.Category = "Wire Extras/Visuals/Holographic"
 TOOL.Name = "Interactable Holography Emitter"
 TOOL.Command = nil
 TOOL.ConfigName = ""
+TOOL.Tab			= "Wire"
 
 if CLIENT then
 	language.Add( "Tool.wire_useholoemitter.name", "Interactable Holographic Emitter Tool (Wire)" )

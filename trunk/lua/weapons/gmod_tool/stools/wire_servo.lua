@@ -1,7 +1,8 @@
-TOOL.Category		= "Wire - Physics"
+TOOL.Category		= "Wire Extras/Physics/Force"
 TOOL.Name			= "Servo"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 TOOL.ClientConVar[ "torque" ] 		= "3000"
 TOOL.ClientConVar[ "friction" ] 	= "1"

@@ -1,7 +1,8 @@
-TOOL.Category		= "Wire - Render"
+TOOL.Category		= "Wire Extras/Visuals"
 TOOL.Name			= "Painter"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
     language.Add( "Tool.wire_painter.name", "Painter Tool (Wire)" )

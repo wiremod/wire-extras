@@ -1,5 +1,6 @@
-TOOL.Category		= "Wire - Physics"
+TOOL.Category		= "Wire Extras/Obsolete"
 TOOL.Name			= "Damage Scale"
+TOOL.Tab			= "Wire"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
