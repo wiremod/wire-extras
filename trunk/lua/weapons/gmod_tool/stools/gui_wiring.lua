@@ -1,4 +1,4 @@
-TOOL.Category		= "Wire - Tools"
+TOOL.Category		= "Wire Extras/Tools"
 TOOL.Name			= "GUI Wiring"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""

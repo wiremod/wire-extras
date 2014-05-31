@@ -1,8 +1,9 @@
 
-TOOL.Category		= "Wire - RFID"
+TOOL.Category		= "Wire Extras/RFID"
 TOOL.Name			= "Reader"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
     language.Add( "Tool.wire_rfid_reader_prox.name", "RFID Reader Tool (Wire)" )

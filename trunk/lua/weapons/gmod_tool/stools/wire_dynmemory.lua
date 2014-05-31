@@ -5,10 +5,11 @@
 	(C) Sebastian J.
 ********************************/
 
-TOOL.Category		= "Wire - Advanced"
+TOOL.Category		= "Wire Extras/Memory"
 TOOL.Name			= "Dynamic Memory"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
 	language.Add( "Tool.wire_dynmemory.name", "Dynamic Memory Chip Tool (Wire)" )

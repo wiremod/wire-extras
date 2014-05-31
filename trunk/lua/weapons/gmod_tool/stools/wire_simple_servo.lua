@@ -1,8 +1,9 @@
 
-TOOL.Category		= "Wire - Physics"
+TOOL.Category		= "Wire Extras/Physics/Force"
 TOOL.Name			= "Simple Servo"
 TOOL.Command		= nil
 TOOL.ConfigName		= nil
+TOOL.Tab			= "Wire"
 
 TOOL.ClientConVar[ "model" ] 		= "models/props_vehicles/carparts_wheel01a.mdl"
 TOOL.ClientConVar[ "rotate" ]       = 1

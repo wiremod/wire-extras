@@ -1,7 +1,8 @@
-TOOL.Category = "Wire - Physics"
+TOOL.Category = "Wire Extras/Detection"
 TOOL.Name = "Touchplate"
 TOOL.Command = nil
 TOOL.ConfigName = ""
+TOOL.Tab			= "Wire"
 
 TOOL.ClientConVar["model"] = "models/props_phx/construct/metal_plate1.mdl"
 TOOL.ClientConVar["only_players"] = "1"
