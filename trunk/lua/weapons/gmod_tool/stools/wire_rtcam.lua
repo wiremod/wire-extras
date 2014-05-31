@@ -5,10 +5,11 @@
 	(C) Sebastian J.
 ********************************/
 
-TOOL.Category		= "Wire - I/O"
+TOOL.Category		= "Wire Extras/Visuals"
 TOOL.Name			= "RT Camera"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
     language.Add( "Tool.wire_rtcam.name", "Wired RT Camera" )

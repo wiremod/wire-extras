@@ -1,7 +1,8 @@
-TOOL.Category		= "Wire - Beacon"
+TOOL.Category		= "Wire Extras/Detection/Beacon"
 TOOL.Name			= "XYZ Beacon"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
     language.Add( "Tool.wire_xyzbeacon.name", "XYZ Beacon Tool (Wire)" )

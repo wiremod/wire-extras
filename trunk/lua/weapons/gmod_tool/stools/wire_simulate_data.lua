@@ -1,5 +1,6 @@
-TOOL.Category		= "Wire - Tools"
+TOOL.Category		= "Wire Extras/Tools"
 TOOL.Name			= "Simulate Data"
+TOOL.Tab			= "Wire"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
 

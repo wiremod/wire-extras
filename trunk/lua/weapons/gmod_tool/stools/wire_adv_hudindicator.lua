@@ -3,10 +3,11 @@
 
 //Modified by Moggie100 to add additional functionality!
 
-TOOL.Category		= "Wire - Display"
+TOOL.Category		= "Wire Extras/Visuals/Indicators"
 TOOL.Name			= "Adv. Hud Indicator"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
     language.Add( "tool.wire_adv_hudindicator.name", "Adv. Hud Indicator Tool (Wire)" )

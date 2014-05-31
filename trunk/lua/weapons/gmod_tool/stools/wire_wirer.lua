@@ -1,7 +1,8 @@
-TOOL.Category		= "Wire - Data"
+TOOL.Category		= "Wire Extras/Other"
 TOOL.Name			= "Wired Wirer"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 /* If we're running on the client, setup the description strings */
 if ( CLIENT ) then
