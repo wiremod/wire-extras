@@ -1,12 +1,9 @@
-NOTE:
+NOTICE: The github repository (https://github.com/wiremod/wire-extras/) is the only supported source for obtaining the unofficial wire-extras by the wiremod team. Any other sources, including the steam workshop, are not our responisbility. Due to licensing issues, there are currently no plans to put the unofficial wire extras repository on the steam workshop. This may change in the future, and if it does, this notice will be updated or removed.
+
 All programs released in this Wire Extras SVN are released under the GPL v3, or their respective licenses. Please review License.txt for terms and conditions.
 
 -----------------
-INSTALLATION:
 
-Simply checkout this SVN repository to a folder of your choice, in your garrysmod addons. Do a full restart of your server/game for the addon to take effect.
-
------------------
 Addons listed in this format:
 
 Addon Contributed - developer - license (if not GPL v3)
@@ -118,5 +115,3 @@ http://www.wiremod.com/forum/wiremod-lua-coding/18875-release-adv-entity-marker-
 
 Multi Exit Point Controller
 http://www.wiremod.com/forum/wiremod-lua-coding/18914-release-multi-exit-point-controller.html
-
-Copyright CoreyLee Hassell (Anticept), and respective developers, 2007-2012.
