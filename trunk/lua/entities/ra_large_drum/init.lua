@@ -4,7 +4,6 @@ AddCSLuaFile("shared.lua")
 include("shared.lua")
 
 function ENT:Initialize()
-	self.BaseClass:Initialize()
 	self.gain = 22.0 -- dB
 	self.pol = 0 -- Cross Polarization
 	self.beamWidth = 5.0 -- Degrees
@@ -12,9 +11,10 @@ function ENT:Initialize()
 	self.txchannels = {} -- tx data
 	self.txwatts = 0 -- tx power
 	self:SetModel("models/radio/ra_large_drum.mdl")
-	self:PhysicsInit(SOLID_VPHYSICS)
 	self:SetMoveType(MOVETYPE_VPHYSICS)
 	self:SetSolid(SOLID_VPHYSICS)
+	self:PhysicsInit(SOLID_VPHYSICS)
+
 	local phys = self:GetPhysicsObject()
-	if(phys:IsValid()) then phys:Wake() end
+	if phys:IsValid() then phys:Wake() end
 end
