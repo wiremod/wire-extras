@@ -95,6 +95,9 @@ http://www.wiremod.com/forum/wiremod-addons/8135-simulate-data-stool.html
 Wired Damage Scale - Hitman271
 http://www.wiremod.com/forum/wiremod-addons/6346-wired-damage-scale.html
 
+Wire Directional Radio Kit - philxyz
+http://www.wiremod.com/forum/wiremod-addons-coding/525-wire-directional-radios.html
+
 Wired Npcs - Hitman271
 http://www.wiremod.com/forum/wiremod-addons/5930-wired-npc.html
 

@@ -1,6 +1,3 @@
 ENT.Type = "anim"
-ENT.Base = "base_rs_entity"
-ENT.PrintName = "Satellite-Mounted Dish"
-
-ENT.Spawnable			= false
-ENT.AdminSpawnable		= false
+ENT.Base = "base_wdr_entity"
+ENT.PrintName = "Parabolic Satellite Transmitter Dish"
