@@ -45,7 +45,7 @@ end
 
 -- Can we transmit? (Got enough resources?)
 function ENT:CanTX()
-	if not self.is_tx or not self.active or not (self.txwatts > 0) then return false end
+	if not self.is_tx or not (self.active == true) or not (self.txwatts > 0) then return false end
 	if not RES_DISTRIB then return true end
 
 	return (RD.GetResourceAmount(self, "energy") >= (self.txwatts * 4 * ThinkInterval))
@@ -66,7 +66,7 @@ end
 function ENT:TriggerInput(iname, value)
 	if self.is_tx then
 		if iname == "On" then
-			self.active = value
+			self.active = (value ~= 0)
 		elseif iname == "TxWatts" then
 			local m = GetConVarNumber("sv_wdrk_max_tx_power")
 			if value > m then
