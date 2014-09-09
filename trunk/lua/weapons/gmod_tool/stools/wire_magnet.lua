@@ -69,17 +69,17 @@ function TOOL:LeftClick( trace )
 	end
 	
 	if ( !self:GetSWEP():CheckLimit( "wire_magnets" ) ) then return false end
-	
-	
-	local min = self.GhostEntity:OBBMins()
-	
-	local wire_ball = MakeWireMagnet( ply, trace.HitPos - trace.HitNormal * min.z, leng, strength, targetmetal, self.ClientConVar[ "model" ],propfilter)
+		
+	local wire_ball = MakeWireMagnet( ply, trace.HitPos, leng, strength, targetmetal, self.ClientConVar[ "model" ],propfilter)
 	wire_ball:SetOn(util.tobool(starton))
 	local const = WireLib.Weld(wire_ball, trace.Entity, trace.PhysicsBone, true)
 	local Ang = trace.HitNormal:Angle()
 	Ang.pitch = Ang.pitch + 90
 	wire_ball:SetAngles(Ang)
 	wire_ball:GetTable().pl=self:GetOwner()
+	
+	local min = wire_ball:OBBMins()
+	wire_ball:SetPos( trace.HitPos - trace.HitNormal * min.z )
 	
 	undo.Create("WireMagnet")
 		undo.AddEntity( wire_ball )
