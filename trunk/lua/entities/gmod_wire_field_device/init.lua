@@ -29,7 +29,7 @@ function ENT:Initialize()
 	self.npcs=1;
 	self.player=0;
 	
-	if ( self.Type == "Wind" ) then
+	if ( self.FieldType == "Wind" ) then
 		self.direction=Vector(1,0,0);
 	end
 	
@@ -39,7 +39,7 @@ function ENT:Initialize()
 end
 
 function ENT:SetType( v )
-	self.Type=v;
+	self.FieldType=v;
 end
 
 function ENT:Setworkonplayers( v )
@@ -123,7 +123,7 @@ end
 
 function ENT:GetDisplayText()
 	
-	local Text = self:GetTypeName( self.Type ) .. " Field Generator ( ";
+	local Text = self:GetTypeName( self.FieldType ) .. " Field Generator ( ";
 	
 	if self.active == 0 then
 		Text = Text .. "Off )"
@@ -137,9 +137,9 @@ end
 
 function ENT:ConfigInOuts()
 
-	if ( self.Type == "Gravity" ) then
+	if ( self.FieldType == "Gravity" ) then
 		self.Inputs = Wire_CreateInputs(self, { "Active" , "Distance" } )
-	elseif ( self.Type == "Wind" || self.Type == "Vortex" ) then
+	elseif ( self.FieldType == "Wind" || self.FieldType == "Vortex" ) then
 		self.Inputs = Wire_CreateInputs(self, { "Active" , "Distance","Multiplier", "Direction.X" , "Direction.Y", "Direction.Z", "Direction" } )
 		WireLib.AdjustSpecialInputs(self, { "Active", "Distance","Multiplier", "Direction.X" , "Direction.Y", "Direction.Z", "Direction"}, { "NORMAL","NORMAL", "NORMAL", "NORMAL", "NORMAL","NORMAL", "VECTOR"})
 	else
@@ -1023,33 +1023,33 @@ function ENT:Think()
 	
 	if self.active != 0 then
 	
-		if self.Type == "Gravity" then
+		if self.FieldType == "Gravity" then
 			self:Gravity_Logic();
-		elseif self.Type == "Hold" then
+		elseif self.FieldType == "Hold" then
 			self:Static_Logic();
-		elseif self.Type == "Pull" then
+		elseif self.FieldType == "Pull" then
 			self:Pull_Logic();
-		elseif self.Type == "Push" then
+		elseif self.FieldType == "Push" then
 			self:Push_Logic();
-		elseif self.Type == "Wind" then
+		elseif self.FieldType == "Wind" then
 			self:Wind_Logic();
-		elseif self.Type == "Vortex" then
+		elseif self.FieldType == "Vortex" then
 			self:Vortex_Logic();
-		elseif self.Type == "Flame" then
+		elseif self.FieldType == "Flame" then
 			self:Flame_Logic();
-		elseif self.Type == "Crush" then
+		elseif self.FieldType == "Crush" then
 			self:Crush_Logic();
-		elseif self.Type == "Death" then
+		elseif self.FieldType == "Death" then
 			self:Death_Logic();
-		elseif self.Type == "Heal" then
+		elseif self.FieldType == "Heal" then
 			self:Heal_Logic();
-		elseif self.Type == "NoCollide" then
+		elseif self.FieldType == "NoCollide" then
 			self:NoCollide_Logic();
-		elseif self.Type == "Battery" then
+		elseif self.FieldType == "Battery" then
 			self:Battery_Logic();
-		elseif self.Type == "Speed" then
+		elseif self.FieldType == "Speed" then
 			self:Speed_Logic();
-		elseif self.Type == "EMP" then
+		elseif self.FieldType == "EMP" then
 			self:EMP_Logic();
 		end
 	
@@ -1060,29 +1060,29 @@ end
 
 function ENT:Disable()
 
-	if self.Type == "Gravity" then
+	if self.FieldType == "Gravity" then
 		self:Gravity_Disable();
-	elseif self.Type == "NoCollide" then
+	elseif self.FieldType == "NoCollide" then
 		self:NoCollide_Disable();
-	elseif self.Type == "Hold" then
+	elseif self.FieldType == "Hold" then
 		self:Static_Disable();
-	elseif self.Type == "Pull" then
+	elseif self.FieldType == "Pull" then
 		self:Pull_Disable();
-	elseif self.Type == "Push" then
+	elseif self.FieldType == "Push" then
 		self:Push_Disable();
-	elseif self.Type == "Wind" then
+	elseif self.FieldType == "Wind" then
 		self:Wind_Disable();
-	elseif self.Type == "Vortex" then
+	elseif self.FieldType == "Vortex" then
 		self:Vortex_Disable();
-	elseif self.Type == "Flame" then
+	elseif self.FieldType == "Flame" then
 		self:Flame_Disable();
-	elseif self.Type == "Crush" then
+	elseif self.FieldType == "Crush" then
 		self:Crush_Disable();
-	elseif self.Type == "Death" then
+	elseif self.FieldType == "Death" then
 		self:Death_Disable();
-	elseif self.Type == "Heal" then
+	elseif self.FieldType == "Heal" then
 		self:Heal_Disable();
-	elseif self.Type == "EMP" then
+	elseif self.FieldType == "EMP" then
 		self:EMP_Disable();
 	end
 	
