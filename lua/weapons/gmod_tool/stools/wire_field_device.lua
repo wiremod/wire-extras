@@ -103,7 +103,7 @@ if (SERVER) then
 		return wire_field_device_obj
 	end
 	
-	duplicator.RegisterEntityClass("gmod_wire_field_device", Makewire_field_device, "Pos", "Ang", "Model", "Type" , "ignoreself" , "workonplayers" , "arc" , "Vel", "aVel", "frozen")
+	duplicator.RegisterEntityClass("gmod_wire_field_device", Makewire_field_device, "Pos", "Ang", "Model", "FieldType" , "ignoreself" , "workonplayers" , "arc" , "Vel", "aVel", "frozen")
 
 end
 
