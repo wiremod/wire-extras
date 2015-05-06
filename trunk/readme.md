@@ -1,4 +1,4 @@
-NOTICE: The github repository (https://github.com/wiremod/wire-extras/) is the only supported source for obtaining the unofficial wire-extras by the wiremod team. Any other sources, including the steam workshop, are not our responisbility. Due to licensing issues, there are currently no plans to put the unofficial wire extras repository on the steam workshop. This may change in the future, and if it does, this notice will be updated or removed.
+NOTICE: The github repository (https://github.com/wiremod/wire-extras/) is the only supported source for obtaining the unofficial wire-extras by the wiremod team. Due to licensing issues, there are currently no plans to put the unofficial wire extras repository on the steam workshop. For this reason, please do not upload this addon to the workshop. This may change in the future, and if it does, this notice will be updated or removed.
 
 All programs released in this Wire Extras SVN are released under the GPL v3, or their respective licenses. Please review License.txt for terms and conditions.
 
@@ -112,9 +112,3 @@ http://www.wiremod.com/forum/wiremod-addons/6497-wire-field-generator-s.html
 
 XYZ Beacon - Doticatto
 http://www.wiremod.com/forum/wiremod-addons/4708-wired-xyz-beacon-eject-input-socket.html
-
-Wire Advanced Entity Marker - Divran
-http://www.wiremod.com/forum/wiremod-lua-coding/18875-release-adv-entity-marker-holographic-text-screen.html
-
-Multi Exit Point Controller
-http://www.wiremod.com/forum/wiremod-lua-coding/18914-release-multi-exit-point-controller.html
