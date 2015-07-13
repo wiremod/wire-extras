@@ -1,7 +1,7 @@
 E2Lib.RegisterExtension( "light", false )
 
 -- By Divran
--- Fixed by LiddulBOFH
+-- Fixed by LiddulBOFH 7/13/2015
 
 local max_convar = CreateConVar( "wire_expression2_lights_max", 20, { FCVAR_ARCHIVE, FCVAR_NOTIFY } )
 
