@@ -116,7 +116,6 @@ GateActions["entity_ident"] = {
 		return nil
 	end,
 	label = function (Out, A)
-		local strEnt = "(none)"
 		return string.format ("%s = %s", A, tostring(Out))
 	end
 }
