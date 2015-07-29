@@ -116,9 +116,7 @@ GateActions["entity_ident"] = {
 		return nil
 	end,
 	label = function (Out, A)
-		local strEnt = "(none)"
-		if (IsEntity (Out)) then strEnt = Out:GetName () end
-		return string.format ("%s = %s", A, strEnt)
+		return string.format ("%s = %s", A, tostring(Out))
 	end
 }
 // Parent
