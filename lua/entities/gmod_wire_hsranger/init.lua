@@ -108,7 +108,7 @@ function ENT:ShowOutput()
 end
 
 function ENT:ReadCell( Address )
-	if ( Address >= 0 and Address <= 7 ) then
+	if ( Address >= 0 and Address <= 9 ) then
 		return self.Memory[Address]
 	end
 end
