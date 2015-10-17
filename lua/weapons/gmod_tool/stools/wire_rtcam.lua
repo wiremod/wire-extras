@@ -51,7 +51,27 @@ function TOOL:LeftClick( trace )
 	
 	return false, camera
 end
+-- Global Function to update the render target --This was removed by garry, adding it here fixes the tool.
 
+function UpdateRenderTarget( ent )
+	if ( !ent || !ent:IsValid() ) then return end
+
+	if ( !RenderTargetCamera || !RenderTargetCamera:IsValid() ) then
+	
+		RenderTargetCamera = ents.Create( "point_camera" )
+		RenderTargetCamera:SetKeyValue( "GlobalOverride", 1 )
+		RenderTargetCamera:Spawn()
+		RenderTargetCamera:Activate()
+		RenderTargetCamera:Fire( "SetOn", "", 0.0 )
+
+	end
+	Pos = ent:LocalToWorld( Vector( 12,0,0 ) )
+	RenderTargetCamera:SetPos(Pos)
+	RenderTargetCamera:SetAngles(ent:GetAngles())
+	RenderTargetCamera:SetParent(ent)
+
+	RenderTargetCameraProp = ent
+end
 function TOOL:RightClick( trace )
 	return false
 end
