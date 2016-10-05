@@ -1,0 +1,5 @@
+#Name		Widget Type		X	Y	W	H	I/O		I/O name			Widget specific paramerers (optional)
+#
+"list1"				list	5	5	80	100	WIREO	"Select"			fontSize	4	list	Option 1|Option 2|Option 3
+"label1"			label	5	150	70	20	WIREI	"Label"
+

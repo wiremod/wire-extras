@@ -1,0 +1,13 @@
+#Name		Widget Type		X	Y	W	H	I/O		I/O name			Widget specific paramerers (optional)
+#
+"ind1"		indicator		4	4	30	30	WIREI	"Indicator 1"
+"ind1"		indicator		166	4	30	30	WIREI	"Indicator 2"
+"slider1"	sliderH			40	4	120	30	WIREO	"H Slider"
+"prog1"		progressV		4	40	30	120	WIREI	"Progress 1"
+"prog2"		progressV		166	40	30	120	WIREI	"Progress 2"
+"slider2"	sliderV			40	40	30	120	WIREO	"V Slider 1"
+"slider3"	sliderV			130	40	30	120	WIREO	"V Slider 2"
+"button1"	button			4	168	40	30	WIREO	"Button 1"
+"button2"	buttonToggle	66	168	70	30	WIREO	"Button 2"
+"button3"	button			156	168	40	30	WIREO	"Button 3"
+"buttonm"	buttonToggle	80	44	34	112	WIREO	"Button 3"

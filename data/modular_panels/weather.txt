@@ -1,0 +1,5 @@
+"buttonN"	button			50	10	40	40	WIREO	"A"			label	"N"			fontSize	1
+"buttonS"	button			50	150	40	40	WIREO	"A"			label	"S"			fontSize	1
+"buttonW"	button			10	80	40	40	WIREO	"A"			label	"W"			fontSize	1
+"buttonE"	button			100	80	40	40	WIREO	"A"			label	"E"			fontSize	1
+"sliderW"	sliderH			170	10	20	180	WIREO	"V"
