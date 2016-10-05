@@ -77,9 +77,6 @@ http://www.wiremod.com/forum/wiremod-addons/4777-no-collide-addon.html
 PID Controller (super delta) - Moyer
 http://www.wiremod.com/forum/wiremod-addons/5061-pid-controller.html
 
-Prop Core - Mr.Faul
-http://wiki.garrysmod.com/?title=Expression_2_-_Prop_Core
-
 Servo 2 - Exitlights
 http://www.wiremod.com/forum/wiremod-addons/6878-wired-servo-2-a.html
 
