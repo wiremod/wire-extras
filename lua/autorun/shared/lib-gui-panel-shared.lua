@@ -3,7 +3,7 @@ guipErrorMsg = "guiPanel ERROR: "
 --Load all colour schemes found in schemes folder
 guiP_colourScheme = {}
 local schemePath = "autorun/schemes/"
-local schemeList = file.FindInLua(schemePath.."*.lua")
+local schemeList = file.Find(schemePath.."*.lua", "LUA")
 for k, file in ipairs(schemeList) do
 	if (SERVER) then
 		AddCSLuaFile(schemePath..file)
@@ -19,7 +19,7 @@ panelWidget = {}
 
 --Load all widgets found in the widgets folder
 local widgetPath = "autorun/widgets/"
-local widgetList = file.FindInLua(widgetPath.."*.lua")
+local widgetList = file.Find(widgetPath.."*.lua", "LUA")
 for k, file in ipairs(widgetList) do
 	if (SERVER) then
 		AddCSLuaFile(widgetPath..file)
