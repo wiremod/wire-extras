@@ -83,11 +83,14 @@ function ENT:Draw()
 end
 
 function endDrawTimer(ent)
+	if !IsValid( ent ) then return end
+
 	--Msg("endt\n")
 	--ent.lastDrawn = true
 	ent.stillDraw = false
 	timer.Destroy("drawFadeT"..tostring(ent:EntIndex()))  
 end
+
 
 function MakeFonts()
 	--local fontSize = 380
