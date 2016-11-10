@@ -86,9 +86,9 @@ function HUD2_uploadCode( entID, file )
 		GAMEMODE:AddNotify("<HML> Uploaded!", NOTIFY_CLEANUP, 3)
 	else
 		GAMEMODE:AddNotify("[WW] No loaded HML!", NOTIFY_CLEANUP, 3)
-		HUD_System.uploading = false
 	end
 
+	HUD_System.uploading = false
 	return true
 end
 concommand.Add("HUD2_uploadCode", HUD2_uploadCode, nil);
