@@ -151,21 +151,9 @@ if (!guiPfontsMade) then
 	guiPfontsMade = true
 	--local fontSize = 280
 	local fontSize = 560
-	surface.CreateFont( "coolvetica", fontSize, 400, false, false, "guipfont1" )
-	surface.CreateFont( "coolvetica", fontSize / 2, 400, false, false, "guipfont2" )
-	surface.CreateFont( "coolvetica", fontSize / 3, 400, false, false, "guipfont3" )
-	surface.CreateFont( "coolvetica", fontSize / 4, 400, false, false, "guipfont4" )
-	surface.CreateFont( "coolvetica", fontSize / 5, 400, false, false, "guipfont5" )
-	surface.CreateFont( "coolvetica", fontSize / 6, 400, false, false, "guipfont6" )
-	surface.CreateFont( "coolvetica", fontSize / 7, 400, false, false, "guipfont7" )
-	surface.CreateFont( "coolvetica", fontSize / 8, 400, false, false, "guipfont8" )
-	surface.CreateFont( "coolvetica", fontSize / 9, 400, false, false, "guipfont9" )
-	surface.CreateFont( "coolvetica", fontSize / 10, 400, false, false, "guipfont10" )
-	surface.CreateFont( "coolvetica", fontSize / 11, 400, false, false, "guipfont11" )
-	surface.CreateFont( "coolvetica", fontSize / 12, 400, false, false, "guipfont12" )
-	surface.CreateFont( "coolvetica", fontSize / 13, 400, false, false, "guipfont13" )
-	surface.CreateFont( "coolvetica", fontSize / 14, 400, false, false, "guipfont14" )
-	surface.CreateFont( "coolvetica", fontSize / 15, 400, false, false, "guipfont15" )
+	for i = 1, 15 do
+		surface.CreateFont( "guipfont" .. i, {font = "coolvetica", size = fontSize / i, weight = 400, antialias = false, additive = false} )
+	end
 end
 
 ------------------------------User Functions-------------------------------------------------
