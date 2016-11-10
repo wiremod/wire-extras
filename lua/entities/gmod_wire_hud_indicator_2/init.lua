@@ -18,7 +18,7 @@ AddCSLuaFile( "renderer/tags/primitives.lua" )
 AddCSLuaFile( "renderer/tags/vgui.lua" )
 AddCSLuaFile( "util/errors.lua" )
 AddCSLuaFile( "util/tables.lua" )
-AddCSLuaFile( "H2Editor.lua ")
+AddCSLuaFile( "H2Editor.lua" )
 AddCSLuaFile( "expression_parser.lua" )
 
 
@@ -28,7 +28,7 @@ util.AddNetworkString( "RenderTableUpdate" )
 include('shared.lua')
 include('util/errors.lua')
 include('parser/HMLParser.lua')
-include("entities/gmod_wire_hud_indicator_2/util/tables.lua")
+include("util/tables.lua")
 
 ENT.WireDebugName = "Wire HUD Indicator 2"
 
