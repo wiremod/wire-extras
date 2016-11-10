@@ -83,7 +83,7 @@ function ENT:Draw()
 end
 
 function endDrawTimer(ent)
-	if !IsValid( ent ) then return end
+	if not IsValid( ent ) then return end
 
 	--Msg("endt\n")
 	--ent.lastDrawn = true
