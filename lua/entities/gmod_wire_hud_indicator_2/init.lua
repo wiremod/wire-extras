@@ -51,6 +51,8 @@ net.Receive( "HMLUpload", function( len, ply )
 	local sent = ents.GetByIndex( tbl.eindex )
 
 	sent:ReloadCode( tbl.code )
+
+	print( "OK!" )
 end )
 
 
