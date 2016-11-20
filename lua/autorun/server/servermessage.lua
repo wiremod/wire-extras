@@ -1,8 +1,8 @@
 --servermessage module by greenarrow
-AddCSLuaFile ("autorun/shared/servermessagetypes.lua")
+--AddCSLuaFile ("autorun/shared/servermessagetypes.lua")
 AddCSLuaFile ("autorun/client/smsg.lua")
 
-include ("autorun/shared/servermessagetypes.lua")
+--include ("autorun/shared/servermessagetypes.lua")
 
 
 

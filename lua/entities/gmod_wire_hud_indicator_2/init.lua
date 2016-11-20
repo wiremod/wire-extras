@@ -2,12 +2,33 @@
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "shared.lua" )
 
-require("datastream")
+AddCSLuaFile( "expressions/expr_stack.lua" )
+AddCSLuaFile( "expressions/expr_tokenizer.lua" )
+AddCSLuaFile( "expressions/libs/corelib.lua" )
+AddCSLuaFile( "expressions/libs/logiclib.lua" )
+AddCSLuaFile( "expressions/libs/mathlib.lua" )
+AddCSLuaFile( "expressions/libs/stringlib.lua" )
+AddCSLuaFile( "parser/Constants.lua" )
+AddCSLuaFile( "parser/HMLParser.lua" )
+AddCSLuaFile( "renderer/HMLRenderer.lua" )
+AddCSLuaFile( "renderer/valid_fonts.lua" )
+AddCSLuaFile( "renderer/tags/core.lua" )
+AddCSLuaFile( "renderer/tags/presets.lua" )
+AddCSLuaFile( "renderer/tags/primitives.lua" )
+AddCSLuaFile( "renderer/tags/vgui.lua" )
+AddCSLuaFile( "util/errors.lua" )
+AddCSLuaFile( "util/tables.lua" )
+AddCSLuaFile( "H2Editor.lua" )
+AddCSLuaFile( "expression_parser.lua" )
+
+
+util.AddNetworkString( "HMLUpload" )
+util.AddNetworkString( "RenderTableUpdate" )
 
 include('shared.lua')
 include('util/errors.lua')
 include('parser/HMLParser.lua')
-include("entities/gmod_wire_hud_indicator_2/util/tables.lua")
+include("util/tables.lua")
 
 ENT.WireDebugName = "Wire HUD Indicator 2"
 
@@ -21,21 +42,15 @@ ENT.podPlayer = nil
 //-- Functions below here are not part of the SENT, just serverside calls --//
 //--------------------------------------------------------------------------//
 
-hook.Add( "AcceptStream", "HMLAcceptStream", function( ply, handler, id )
-
-     if handler == "HMLUpload" then return true end
-     
-     return false
-
-end )
-
-datastream.Hook( "HMLUpload", function( ply, handler, id, encoded, decoded )
+net.Receive( "HMLUpload", function( len, ply )
 	print( "Received data on server: " );
 
-	if( decoded == nil or decoded.eindex == nil ) then return false end
-	local sent = ents.GetByIndex( decoded.eindex )
+	local tbl = net.ReadTable()
+	if( len <= 0 or tbl == nil or tbl.eindex == nil ) then return false end
 
-	sent:ReloadCode( decoded.code )
+	local sent = ents.GetByIndex( tbl.eindex )
+
+	sent:ReloadCode( tbl.code )
 
 	print( "OK!" )
 end )
@@ -196,7 +211,9 @@ function ENT:RegisterPlayer( player, dataTable )
 						eindex = self:EntIndex() }
 
 		--Send to the newly hooked player
-		datastream.StreamToClients( { player }, "RenderTableUpdate", codeBuffer );
+		net.Start( "RenderTableUpdate" )
+			net.WriteTable( codeBuffer )
+		net.Send( player )
 
 		print( "[II] Sent render table..." )
 	else

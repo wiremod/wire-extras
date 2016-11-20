@@ -1,5 +1,3 @@
-require("datastream")
-
 include('util/errors.lua')
 include('shared.lua')
 include('H2Editor.lua')
@@ -79,29 +77,18 @@ function HUD2_uploadCode( entID, file )
 	print( "Uploading code..." )
 	HUD_System.uploading = true
 
-	local function Done( )
-		print( "Done sending." );
-		HUD_System.uploading = false
-	end
-
-	local function Accepted( accepted, tempid, id )
-		if (!accepted) then
-			GAMEMODE:AddNotify('<HML /> Could not sent code!', NOTIFY_GENERIC, 3);
-			HUD_System.uploading = false
-		end
-	end
-
 	if( HUD_System.editor ) then
 		local tableBuffer = { eindex = entID, code = HUD_System.editor:GetCode() }
-		local tempid = datastream.StreamToServer( "HMLUpload", tableBuffer, Done, Accepted );
+		net.Start( "HMLUpload" )
+			net.WriteTable( tableBuffer )
+		net.SendToServer()
 
-		print( "Sent an operation. Our assigned tempid is " .. tempid );
 		GAMEMODE:AddNotify("<HML> Uploaded!", NOTIFY_CLEANUP, 3)
 	else
 		GAMEMODE:AddNotify("[WW] No loaded HML!", NOTIFY_CLEANUP, 3)
-		HUD_System.uploading = false
 	end
 
+	HUD_System.uploading = false
 	return true
 end
 concommand.Add("HUD2_uploadCode", HUD2_uploadCode, nil);
@@ -178,9 +165,11 @@ local function HUD2_Register( um )
 end
 usermessage.Hook("HUD2_UNREG", HUD2_Register)
 
-function HML_RenderTableUpdate( pl, handler, id, encoded, decoded )
-	local eindex = encoded.eindex
-	local renderTable = encoded.table
+function HML_RenderTableUpdate( len )
+	local tbl = net.ReadTable()
+
+	local eindex = tbl.eindex
+	local renderTable = tbl.table
 
 	--Ensure that we have a renderer to work with...
 	if( HUD_System.hookedEnts[eindex] == nil or HUD_System.hookedEnts[eindex].renderer == nil ) then
@@ -189,10 +178,10 @@ function HML_RenderTableUpdate( pl, handler, id, encoded, decoded )
 
 	HUD_System.hookedEnts[eindex].renderer:SetRenderTable( renderTable )
 
-	PrintTable( encoded )
+	PrintTable( tbl )
 	GAMEMODE:AddNotify("[HUD] New HUD data acquired...", NOTIFY_CLEANUP, 3)
 end
-datastream.Hook( "RenderTableUpdate", HML_RenderTableUpdate )
+net.Receive( "RenderTableUpdate", HML_RenderTableUpdate )
 
 
 
