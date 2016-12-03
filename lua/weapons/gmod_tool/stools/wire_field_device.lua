@@ -35,7 +35,7 @@ function TOOL:LeftClick( trace )
 	if ( CLIENT ) then return true end
 
 	local ply = self:GetOwner()
-	
+
 	if ( trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_field_device" && trace.Entity:GetTable().pl == ply ) then
 		return true
 	end
@@ -44,13 +44,13 @@ function TOOL:LeftClick( trace )
 
 	local Ang = trace.HitNormal:Angle()
 	Ang.pitch = Ang.pitch + 90
-	
+
 	local lType=self:GetClientInfo( "type" );
-	
+
 	if string.len( lType ) < 2 then ply:SendHint( "field_type" , 0 ) return false end
-	
+
 	local wire_field_device_obj = Makewire_field_device( ply, trace.HitPos, Ang , self:GetClientInfo("Model") , lType , self:GetClientNumber("ignoreself") , self:GetClientNumber("workonplayers"), self:GetClientNumber("arc") )
-	
+
 	local min = wire_field_device_obj:OBBMins()
 	wire_field_device_obj:SetPos( trace.HitPos - trace.HitNormal * min.z )
 
@@ -81,28 +81,29 @@ if (SERVER) then
 
 	function Makewire_field_device( pl, Pos, Ang, Model , Type , ignoreself , workonplayers , arc )
 		if ( !pl:CheckLimit( "wire_field_device" ) ) then return false end
-	
+
 		local wire_field_device_obj = ents.Create( "gmod_wire_field_device" )
 		if (!wire_field_device_obj:IsValid()) then return false end
-		
+
 		wire_field_device_obj:Setworkonplayers(workonplayers);
 		wire_field_device_obj:Setignoreself(ignoreself);
 		wire_field_device_obj:SetType(Type);
 		wire_field_device_obj:Setarc(arc);
-		
+
 		wire_field_device_obj:SetAngles( Ang )
 		wire_field_device_obj:SetPos( Pos )
 		wire_field_device_obj:SetModel( Model )
 		wire_field_device_obj:Spawn()
-		
+
 		wire_field_device_obj:SetPlayer( pl )
 		wire_field_device_obj.pl = pl
+		wire_field_device_obj:SetCreator(pl)
 
 		pl:AddCount( "wire_field_device", wire_field_device_obj )
 
 		return wire_field_device_obj
 	end
-	
+
 	duplicator.RegisterEntityClass("gmod_wire_field_device", Makewire_field_device, "Pos", "Ang", "Model", "FieldType" , "ignoreself" , "workonplayers" , "arc" , "Vel", "aVel", "frozen")
 
 end
@@ -139,10 +140,10 @@ end
 function TOOL.BuildCPanel(panel)
 
 	panel:AddControl("Header", { Text = "#Tool.wire_field_device.name", Description = "#Tool.wire_field_device.desc" })
-	
+
 	panel:AddControl("ComboBox", {
 		Label = "#Type",
-		
+
 		Options = {
 			Gravity = {
 				wire_field_device_type="Gravity"
@@ -187,19 +188,19 @@ function TOOL.BuildCPanel(panel)
 				wire_field_device_type="NoCollide"
 			}
 		}
-		
+
 	} )
-	
+
 	panel:AddControl( "Checkbox", { Label = "Ignore Self & Connected Props:", Description = "Makes the Generator, and its contraption, Immune it its own effects.", Command = "wire_field_device_ignoreself" } )
 	panel:AddControl( "Checkbox", { Label = "Affect players:", Description = "Removes Player Immunity to fields.", Command = "wire_field_device_workonplayers" } )
-	
-	panel:AddControl( "Slider" , { 
+
+	panel:AddControl( "Slider" , {
 		Type = "Float",
 		Min = "0.1",
 		Max = "360.0",
-		Label = "Arc Size:" , 
-		Description = "The Arc( in Degrees ) taht the field is emitted, ( 0 or 360 for circle )" , 
-		Command ="wire_field_device_arc" 
+		Label = "Arc Size:" ,
+		Description = "The Arc( in Degrees ) taht the field is emitted, ( 0 or 360 for circle )" ,
+		Command ="wire_field_device_arc"
 	} );
-		
+
 end
