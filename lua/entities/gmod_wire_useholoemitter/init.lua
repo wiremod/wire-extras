@@ -141,6 +141,10 @@ function ENT:ApplyDupeInfo(ply, ent, info, GetEntByID)
 	end
 end
 
+function ENT:UpdateTransmitState()
+    return TRANSMIT_ALWAYS
+end
+
 function HoloInteract(ply,cmd,args)
 	local entid = tonumber(args[1])
 	local x = tonumber(args[2])
