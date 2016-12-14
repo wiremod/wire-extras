@@ -156,6 +156,10 @@ function ENT:Think()
 	self.lastThinkChange = false
 end
 
+function ENT:UpdateTransmitState()
+    return TRANSMIT_ALWAYS
+end
+
 function HSHoloInteract(ply,cmd,args)
 	local entid = tonumber(args[1])
 	local num = tonumber(args[2])
