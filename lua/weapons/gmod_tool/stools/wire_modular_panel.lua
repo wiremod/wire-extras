@@ -150,7 +150,7 @@ function TOOL:UpdateGhostWireTextScreen( ent, player )
 
 	if ( !ent:IsValid() ) then return end
 
-	local tr 	= utilx.GetPlayerTrace( player, player:GetCursorAimVector() )
+	local tr 	= util.GetPlayerTrace( player, player:GetCursorAimVector() )
 	local trace 	= util.TraceLine( tr )
 
 	if (!trace.Hit) then return end
