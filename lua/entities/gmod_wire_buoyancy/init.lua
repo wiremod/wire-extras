@@ -1,5 +1,5 @@
 include( "shared.lua" )
-
+AddCSLuaFile("cl_init.lua")
 local MODEL = Model( "models/jaanus/wiretool/wiretool_siren.mdl" )
 function ENT:Initialize()
 	self:SetModel( MODEL )
