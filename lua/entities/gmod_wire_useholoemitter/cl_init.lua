@@ -14,7 +14,7 @@ function ENT:Initialize( )
 	self.ActivePoint = Vector( 0, 0, 0 );
 	
 	// boundry.
-	self.Boundry = 64;
+	self.RBound = Vector(1024,1024,1024)
 end
 
 // calculate point
@@ -37,6 +37,10 @@ function ENT:Think( )
 		self.PointList = {}
 		self.LastClear = lastclear
 	end
+	
+	-- To make it visible across the entire map
+	local p = LocalPlayer():GetPos()
+	self:SetRenderBoundsWS( p - self.RBound, p + self.RBound )
 	
 	// did the point differ from active point?
 	if( point != self.ActivePoint && self:GetNetworkedBool( "Active" ) ) then
@@ -91,7 +95,6 @@ function ENT:Draw( )
 	// read color
 	local color = self:GetColor();
 	
-	self:SetRenderBounds( Vector()*-16384, Vector()*16384 )	
 	// calculate pixel point.
 	local pixelpos
 	if (usegps == true) then

@@ -38,12 +38,14 @@ function ENT:Setup()
 	self.packetLen = 0
 	self.lastThinkChange = false
 	
-	//Memory:
-	//0 - Active
-	//2 - point size
-	//3 - show beam
-	//4 - number of points
-	//5... - points list
+	-- Memory:
+	-- 0 - Active
+	-- 1 - readonly: point that is interacted with
+	-- 2 - point size
+	-- 3 - bitmask: 1: show beam 2: global positions 4: individual colors for points
+	-- 4 - number of points
+	-- 5... - points list, format: X,Y,Z, X,Y,Z
+	--	or X,Y,Z,R,G,B,A, X,Y,Z,R,G,B,A with individual color bit set
 	
 	for i = 0, 2047 do
 		self.Memory[i] = 0
@@ -152,6 +154,10 @@ function ENT:Think()
 		self:SendData()
 	end
 	self.lastThinkChange = false
+end
+
+function ENT:UpdateTransmitState()
+    return TRANSMIT_ALWAYS
 end
 
 function HSHoloInteract(ply,cmd,args)
