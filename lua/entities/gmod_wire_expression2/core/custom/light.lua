@@ -1,6 +1,7 @@
 E2Lib.RegisterExtension( "light", false )
 
 -- By Divran
+-- Fixed by LiddulBOFH 7/13/2015
 
 local max_convar = CreateConVar( "wire_expression2_lights_max", 20, { FCVAR_ARCHIVE, FCVAR_NOTIFY } )
 
@@ -66,12 +67,12 @@ local function CreateLight( self, index, position, color, distance, brightness )
 		end
 		
 		if distance then
-			light:SetKeyValue("distance",math.Clamp(distance,50,255))
-			light.distance = distance
+			light:SetKeyValue("distance",math.Clamp(distance,0,255))
+			light.Size = distance
 		end
 		
 		if brightness then
-			light:SetKeyValue("brightness",math.Clamp(brightness,1,10))
+			light:SetKeyValue("brightness",math.Clamp(brightness,0,10))
 			light.brightness = brightness
 		end
 	else
@@ -79,7 +80,7 @@ local function CreateLight( self, index, position, color, distance, brightness )
 	
 		if not position then position = self.entity:GetPos() else position = Vector(position[1],position[2],position[3]) end
 		if not color then color = {255,255,255} end
-		distance = distance or 255
+		distance = distance or 50
 		brightness = brightness or 5
 		
 		local light = ents.Create( "light_dynamic" )
@@ -93,8 +94,8 @@ local function CreateLight( self, index, position, color, distance, brightness )
 		light:SetKeyValue("_light", ("%d %d %d 255"):format( color[1], color[2], color[3] ))
 		light.color = color
 		
-		light:SetKeyValue("distance",math.Clamp(distance,50,255))
-		light.distance = distance
+		light:SetKeyValue("distance",math.Clamp(distance,0,255))
+		light.Size = distance
 		
 		light:SetKeyValue("brightness",math.Clamp(brightness,1,10))
 		light.brightness = brightness
@@ -189,16 +190,16 @@ __e2setcost( 8 )
 e2function void lightDistance( index, distance )
 	local light = GetLight( self, index )
 	if not light then return end
-	distance = math.Clamp( distance, 50, 255 )
+	distance = math.Clamp( distance, 0, 255 )
 	light:SetKeyValue( "distance", distance )
-	light.distance = distance
+	light.Size = distance
 end
 
 __e2setcost( 2 )
-e2function number lightDistance( index, distance )
+e2function number lightDistance( index )
 	local light = GetLight( self, index )
 	if not light then return 0 end
-	return light.distance
+	return light.Size
 end
 
 -----------------
@@ -212,10 +213,10 @@ e2function void lightBrightness( index, brightness )
 end
 
 __e2setcost( 2 )
-e2function number lightBrightness( index, distance )
+e2function number lightBrightness( index )
 	local light = GetLight( self, index )
 	if not light then return 0 end
-	return light.distance
+	return light.brightness
 end
 
 -----------------------------------------------------------------------
