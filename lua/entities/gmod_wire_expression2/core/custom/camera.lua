@@ -159,7 +159,7 @@ e2function void cameraAng( index, angle ang )
 end
 
 __e2setcost( 2 )
-e2function vector cameraAng( index )
+e2function angle cameraAng( index )
 	local camera = GetCamera( self, index )
 	if not camera then return {0,0,0} end
 	return camera:GetAngles()
