@@ -523,11 +523,11 @@ if SERVER then
 		if not table.HasValue(Components[ply],ent) then return end
 		if ent.extended then return end
 		ent.extended = true
-		RefreshSpecialOutputs(ent)
-		if not ent.Outputs["link"] then return end
+		Wirelib.CreateWirelinkOutput( ply, ent, {true} )
+		if not ent.Outputs["wirelink"] then return end
 		net.Start("GUIWiring_WL")
 			net.WriteEntity(ent)
-			net.WriteString( von.serialize( ent.Outputs["link"] ) )
+			net.WriteString( von.serialize( ent.Outputs["wirelink"] ) )
 		net.Send( ply )
 	end
 	local function GUIWring_WirelinkCmd(ply,cmd,args)
