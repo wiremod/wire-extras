@@ -115,8 +115,7 @@ if CLIENT then
 		if not (IsWire(ent)) then return end
 
 		local strMsg = net.ReadString()
-		
-		Components = {}
+
 		Components[ent] = von.deserialize( strMsg )
 	end
 	net.Receive("GUIWiring_EntPart",GUIWiring_RecvEntPart)
