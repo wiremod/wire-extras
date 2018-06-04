@@ -43,7 +43,7 @@ function ENT:Think()
 		for k,ent in pairs(entsTA) do
 			if ent:IsValid() and ent!=self and ent:GetModel()!=nil and ent:GetModel()!="" then
 				//model
-				if self:GetPropFilter()==nil or self:GetPropFilter()=="" or (self:GetPropFilter()!="" and string.find( ent:GetModel(),self:GetPropFilter())!=nil) then//(self:IsTargetOnlyMetal()==false) or (self:IsTargetOnlyMetal()==true and tr.MatType != MAT_METAL Stuff not done yet
+				if self:GetPropFilter()==nil or self:GetPropFilter()=="" or (self:GetPropFilter()!="" and string.find( string.lower( ent:GetModel() ),self:GetPropFilter())!=nil) then//(self:IsTargetOnlyMetal()==false) or (self:IsTargetOnlyMetal()==true and tr.MatType != MAT_METAL Stuff not done yet
 					local phys = ent:GetPhysicsObject(); 
 					if phys:IsValid() then
 						
