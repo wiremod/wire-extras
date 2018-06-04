@@ -46,7 +46,7 @@ function TOOL:LeftClick( trace )
 	
 	local leng 		= tonumber(self:GetClientNumber( "leng" ))
 	local strength	 	= tonumber(self:GetClientNumber("streng" ))
-	local propfilter	 	= string.lower( self:GetClientInfo( "propfilter" ) ) --Fixed. local propfilter = tostring(self.ClientConVar[ "propfilter" ]) Does not work.
+	local propfilter	 	= string.lower( self:GetClientInfo( "propfilter" ) )
 	local targetmetal	 	= tonumber(self:GetClientNumber( "targetOnlyMetal" ))==1
 	local starton	 	= tonumber(self:GetClientNumber( "startOn" ))==1
 	
