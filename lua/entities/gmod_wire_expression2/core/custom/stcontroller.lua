@@ -25,10 +25,10 @@ local function getSign(nV) return ((nV > 0 and 1) or (nV < 0 and -1) or 0) end
 local function getValue(kV,eV,pV) return (kV*getSign(eV)*math.abs(eV)^pV) end
 
 local function makeStController(nTo)
-	if(nTo and nTo < 0) then return nil end
-	local oStCon = {}; oStCon.mType = {"",""} -- Place to store the object
+	local oStCon = {}; oStCon.mnTo = tonumber(nTo) -- Place to store the object
+	if(oStCon.mnTo and oStCon.mnTo <= 0) then return nil end  
 	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
-	oStCon.mErrO, oStCon.mErrN, oStCon.mnTo = 0, 0, tonumber(nTo) -- Error state values
+	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {"",""} -- Error state values
 	oStCon.mvCon, oStCon.mTimB, oStCon.meInt = 0, 0, true -- Control value and integral enabled
 	oStCon.mBias, oStCon.mSatD, oStCon.mSatU = 0, nil, nil -- Saturation limits and settings
 	oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Term values
