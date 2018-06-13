@@ -20,11 +20,14 @@ registerType("fsensor", "xfs", nil,
 E2Lib.RegisterExtension("fsensor", true, "Lets E2 chips trace ray attachments and check for hits.")
 
 local function makeFSensor(vEnt, vPos, vDir, nLen)
-	if(not (vEnt and vEnt:IsValid())) then return nil end
-	local oFSen = {}; oFSen.Cls = {} -- Table for storing the hit classes
-	oFSen.Ent = vEnt -- Store attachment entity to manage local sampling
+	local oFSen = {}
+	if(vEnt and vEnt:IsValid()) then
+		oFSen.Ent = vEnt -- Store attachment entity to manage local sampling
+		oFSen.Ign = {[vEnt]=true} -- Store the base entity for ignore
+	else
+		oFSen.Ign, oFSen.Ent = {}, nil -- Make sure the entity is cleared
+	end; oFSen.Cls = {} -- Table for storing the hit classes
 	oFSen.Len = math.Clamp(nLen,-50000,50000) -- How long the length is
-	oFSen.Ign = {[vEnt]=true} -- Store the base entity for ignore
 	-- Local tracer position the trace starts from
 	oFSen.Pos = Vector(vPos[1],vPos[2],vPos[3])
 	-- Local tracer direction to read the data of
