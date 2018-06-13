@@ -24,9 +24,31 @@ local getTime = SysTime
 local function getSign(nV) return ((nV > 0 and 1) or (nV < 0 and -1) or 0) end
 local function getValue(kV,eV,pV) return (kV*getSign(eV)*math.abs(eV)^pV) end
 
+local function setGains(oStCon, nP, nI, nD)
+	if(not oStCon) then return nil end
+	if(nP <= 0) then return nil end
+	local sT = "P"; oStCon.mkP = nP
+	if(nI > 0) then oStCon.mkI, sT = (nI / 2), (sT.."I")
+		if(oStCon.mbCmb) then oStCon.mkI = oStCon.mkI * oStCon.mkP end
+	end
+	if(nD > 0) then oStCon.mkD, sT = nD, (sT.."D")
+		if(oStCon.mbCmb) then oStCon.mkD = oStCon.mkD * oStCon.mkP end
+	end; oStCon.mType[2] = sT; return oStCon
+end
+
+local function setPower(oStCon, nP, nI, nD)
+	if(not oStCon) then return nil end
+	oStCon.mpP, oStCon.mpI, oStCon.mpD = nP, nI, nD
+	local bP, bI, bD = (nP ~= 1), (nI ~= 1), (nD ~= 1)
+	if(bP or bI or bD) then
+		oStCon.mType[1] = ("LQ(%s%s%s)-"):format(
+			bP and "P" or "", bI and "I" or "", bD and "D" or "")
+	end; return oStCon
+end
+
 local function makeStController(nTo)
 	local oStCon = {}; oStCon.mnTo = tonumber(nTo) -- Place to store the object
-	if(oStCon.mnTo and oStCon.mnTo <= 0) then return nil end  
+	if(oStCon.mnTo and oStCon.mnTo <= 0) then return nil end
 	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
 	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {"",""} -- Error state values
 	oStCon.mvCon, oStCon.mTimB, oStCon.meInt = 0, 0, true -- Control value and integral enabled
@@ -63,21 +85,29 @@ e2function stcontroller newStController(number nTo)
 	return makeStController(nTo)
 end
 
-__e2setcost(7) -- Kp, Ti, Td
+__e2setcost(7)
 e2function stcontroller stcontroller:setGains(nP, nI, nD)
-	if(not this) then return nil end
-	if(nP <= 0) then return nil end
-	local sT = "P"; this.mkP = nP
-	if(nI > 0) then this.mkI, sT = (nI / 2), (sT.."I")
-		if(this.mbCmb) then this.mkI = this.mkI * this.mkP end
-	end
-	if(nD > 0) then this.mkD, sT = nD, (sT.."D")
-		if(this.mbCmb) then this.mkD = this.mkD * this.mkP end
-	end; this.mType[2] = sT; return this
+	return setGains(this, nP, nI, nD)
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:setGains(array aA)
+	return setGains(this, aA[1], aA[2], aA[3])
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:setGains(vector vV)
+	return setGains(this, vV[1], vV[2], vV[3])
 end
 
 __e2setcost(3)
 e2function array stcontroller:getGains()
+	if(not this) then return {0,0,0} end
+	return {this.mkP, this.mkI, this.mkD}
+end
+
+__e2setcost(3)
+e2function vector stcontroller:getGains()
 	if(not this) then return {0,0,0} end
 	return {this.mkP, this.mkI, this.mkD}
 end
@@ -103,7 +133,7 @@ end
 __e2setcost(3)
 e2function stcontroller stcontroller:setWindup(nD, nU)
 	if(not this) then return nil end
-	if(nD < nU) then this.mSatD, this.mSatU = nD, nU end 
+	if(nD < nU) then this.mSatD, this.mSatU = nD, nU end
 	return this
 end
 
@@ -151,13 +181,17 @@ end
 
 __e2setcost(8)
 e2function stcontroller stcontroller:setPower(nP, nI, nD)
-	if(not this) then return nil end
-	this.mpP, this.mpI, this.mpD = nP, nI, nD
-	local bP, bI, bD = (nP ~= 1), (nI ~= 1), (nD ~= 1)
-	if(bP or bI or bD) then 
-		this.mType[1] = ("LQ(%s%s%s)-"):format(
-			bP and "P" or "", bI and "I" or "", bD and "D" or "")
-	end; return this
+	return setPower(this, nP, nI, nD)
+end
+
+__e2setcost(8)
+e2function stcontroller stcontroller:setPower(array aA)
+	return setPower(this, aA[1], aA[2], aA[3])
+end
+
+__e2setcost(8)
+e2function stcontroller stcontroller:setPower(vector vV)
+	return setPower(this, vV, vV, vV)
 end
 
 __e2setcost(3)
@@ -167,9 +201,21 @@ e2function array stcontroller:getPower()
 end
 
 __e2setcost(3)
-e2function number stcontroller:getError()
+e2function vector stcontroller:getPower()
+	if(not this) then return {0,0,0} end
+	return {this.mpP, this.mpI, this.mpD}
+end
+
+__e2setcost(3)
+e2function number stcontroller:getErrorNow()
 	if(not this) then return 0 end
 	return this.mErrN
+end
+
+__e2setcost(3)
+e2function number stcontroller:getErrorOld()
+	if(not this) then return 0 end
+	return this.mErrO
 end
 
 __e2setcost(3)
@@ -179,9 +225,15 @@ e2function number stcontroller:getErrorDelta()
 end
 
 __e2setcost(3)
-e2function number stcontroller:getTime()
+e2function number stcontroller:getTimeNow()
 	if(not this) then return 0 end
 	return this.mTimN
+end
+
+__e2setcost(3)
+e2function number stcontroller:getTimeOld()
+	if(not this) then return 0 end
+	return this.mTimO
 end
 
 __e2setcost(3)
@@ -269,12 +321,8 @@ end
 __e2setcost(20)
 e2function stcontroller stcontroller:setState(number nR, number nY)
 	if(not this) then return nil end
-	if(not this.mbOn) then
-		this.mErrO, this.mErrN = 0, 0 -- Reset the error
-		this.mvCon, this.meInt = 0, true -- Control value and integral enabled
-		this.mvP, this.mvI, this.mvD = 0, 0, 0 -- Term values
-		this.mTimN = getTime(); this.mTimO = this.mTimN; -- Reset clock
-	else this.mTimO = this.mTimN; this.mTimN = getTime()
+	if(this.mbOn) then
+		this.mTimO = this.mTimN; this.mTimN = getTime()
 		this.mErrO = this.mErrN; this.mErrN = (this.mbInv and (nY-nR) or (nR-nY))
 		local timDt = (oStCon.mnTo and oStCon.mnTo or (this.mTimN - this.mTimO))
 		if(this.mkP > 0) then -- P-Term
@@ -293,12 +341,17 @@ e2function stcontroller stcontroller:setState(number nR, number nY)
 		else this.meInt = true end -- Saturation disables the integrator
 		this.mvCon = (this.mvCon + this.mBias) -- Apply the saturated signal bias
 		this.mTimB = (getTime() - this.mTimN) -- Benchmark the process
+	else
+		this.mErrO, this.mErrN = 0, 0 -- Reset the error
+		this.mvCon, this.meInt = 0, true -- Control value and integral enabled
+		this.mvP, this.mvI, this.mvD = 0, 0, 0 -- Term values
+		this.mTimN = getTime(); this.mTimO = this.mTimN; -- Reset clock
 	end; return this
 end
 
 __e2setcost(15)
 e2function stcontroller stcontroller:dumpConsole(string sI)
-	print("["..sI.."]["..table.concat(this.mType).."]["..tostring(this.mTimN).."] Properties:")
+	print("["..tostring(oStCon.mnTo or "X").."]["..sI.."]["..table.concat(this.mType).."]["..tostring(this.mTimN).."] Data:")
 	print(" Gains: {P="..tostring(this.mkP)..", I="..tostring(this.mkI)..", D="..tostring(this.mkD).."}")
 	print(" Power: {P="..tostring(this.mpP)..", I="..tostring(this.mpI)..", D="..tostring(this.mpD).."}")
 	print(" Limit: {D="..tostring(this.mSatD)..", U="..tostring(this.mSatU).."}")
