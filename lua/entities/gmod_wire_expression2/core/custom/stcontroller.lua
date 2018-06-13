@@ -24,10 +24,11 @@ local getTime = SysTime
 local function getSign(nV) return ((nV > 0 and 1) or (nV < 0 and -1) or 0) end
 local function getValue(kV,eV,pV) return (kV*getSign(eV)*math.abs(eV)^pV) end
 
-local function makeStController()
+local function makeStController(nTo)
+	if(nTo and nTo < 0) then return nil end
 	local oStCon = {}; oStCon.mType = {"",""} -- Place to store the object
 	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
-	oStCon.mErrO, oStCon.mErrN = 0, 0 -- Error state values
+	oStCon.mErrO, oStCon.mErrN, oStCon.mnTo = 0, 0, tonumber(nTo) -- Error state values
 	oStCon.mvCon, oStCon.mTimB, oStCon.meInt = 0, 0, true -- Control value and integral enabled
 	oStCon.mBias, oStCon.mSatD, oStCon.mSatU = 0, nil, nil -- Saturation limits and settings
 	oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Term values
@@ -55,6 +56,11 @@ end
 __e2setcost(20)
 e2function stcontroller newStController()
 	return makeStController()
+end
+
+__e2setcost(20)
+e2function stcontroller newStController(number nTo)
+	return makeStController(nTo)
 end
 
 __e2setcost(7) -- Kp, Ti, Td
@@ -270,7 +276,7 @@ e2function stcontroller stcontroller:setState(number nR, number nY)
 		this.mTimN = getTime(); this.mTimO = this.mTimN; -- Reset clock
 	else this.mTimO = this.mTimN; this.mTimN = getTime()
 		this.mErrO = this.mErrN; this.mErrN = (this.mbInv and (nY-nR) or (nR-nY))
-		local timDt = (this.mTimN - this.mTimO)
+		local timDt = (oStCon.mnTo and oStCon.mnTo or (this.mTimN - this.mTimO))
 		if(this.mkP > 0) then -- P-Term
 			this.mvP = getValue(this.mkP, this.mErrN, this.mpP) end
 		if((this.mkI > 0) and (this.mErrN ~= 0) and this.meInt) then -- I-Term
