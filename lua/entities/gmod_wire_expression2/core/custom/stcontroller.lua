@@ -24,8 +24,11 @@ local getTime = SysTime
 local function getSign(nV) return ((nV > 0 and 1) or (nV < 0 and -1) or 0) end
 local function getValue(kV,eV,pV) return (kV*getSign(eV)*math.abs(eV)^pV) end
 
-local function setStControllerGains(oStCon, nP, nI, nD)
+local function setStControllerGains(oStCon, vP, vI, vD)
 	if(not oStCon) then return nil end
+	local nP = (tonumber(vP) or 0)
+	local nI = (tonumber(vI) or 0)
+	local nD = (tonumber(vD) or 0)
 	if(nP <= 0) then return nil end
 	local sT = "P"; oStCon.mkP = nP
 	if(nI > 0) then oStCon.mkI, sT = (nI / 2), (sT.."I")
@@ -36,20 +39,33 @@ local function setStControllerGains(oStCon, nP, nI, nD)
 	end; oStCon.mType[2] = sT; return oStCon
 end
 
-local function getNamePower(nN)
-	if(nN == 1) then return "N" end -- [Neutral conventoional][y=k*x]
-	if(nN == 0) then return "S" end -- [Sign function ralay term][y=k*sign(x)]
-	if(nN > 1 ) then return "E" end -- [Exponential relation][y=x^n]
-	if(nN < 0 ) then return "R" end -- [Reciprocal relation][y=1/x^n]
-	if(nN > 0 and nN < 1) then return "Q" end -- [sQuare root][y=sqrt(x^n, m)]
+local function getPowerCode(nN)
+	local nW, nF = math.modf(nN, 1)
+	if(nN == 1) then return "N" end -- [Natuaral conventoional][y=k*x]
+	if(nN ==-1) then return "R" end -- [Reciprocal relation][y=1/k*x]
+	if(nN == 0) then return "S" end -- [Sign function relay term][y=k*sign(x)]
+	if(nF ~= 0) then
+		if(nW ~= 0) then
+			if(nF > 0) then return "F" end -- [Power positive fractional][y=x^( n); n> 1]
+			if(nF < 0) then return "G" end -- [Power negative fractional][y=x^(-n); n<-1]
+		else
+			if(nF > 0) then return "A" end -- [Power positive fractional][y=x^( n); 0<n< 1]
+			if(nF < 0) then return "L" end -- [Power negative fractional][y=x^(-n); 0>n>-1]
+		end
+	else
+		if(nN > 0) then return "E" end -- [Exponential relation][y=x^n]
+		if(nN < 0) then return "C" end -- [Reciprocal-exp relation][y=1/x^n]
+	end
 	return "X" -- [Invalid settings][N/A]
 end
 
-local function setStControllerPower(oStCon, nP, nI, nD)
+local function setStControllerPower(oStCon, vP, vI, vD)
 	if(not oStCon) then return nil end
-	oStCon.mpP, oStCon.mpI, oStCon.mpD = nP, nI, nD
-	oStCon.mType[1] = ("(%s%s%s)-"):format(
-		getNamePower(nP), getNamePower(nI), getNamePower(nD))
+	oStCon.mpP = (tonumber(vP) or 1)
+	oStCon.mpI = (tonumber(vI) or 1)
+	oStCon.mpD = (tonumber(vD) or 1)
+	oStCon.mType[1] = ("(%s%s%s)"):format(getPowerCode(oStCon.mpP),
+		getPowerCode(oStCon.mpI), getPowerCode(oStCon.mpD))
 	return oStCon
 end
 
@@ -107,8 +123,23 @@ e2function stcontroller stcontroller:setGain(number nP)
 end
 
 __e2setcost(7)
-e2function stcontroller stcontroller:setGain(number nP, number nI)
+e2function stcontroller stcontroller:setGainPI(number nP, number nI)
 	return setStControllerGains(this, nP, nI, nil)
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:setGainPI(vector2 vV)
+	return setStControllerGains(this, vV[1], vV[2], nil)
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:setGainPD(number nP, number nD)
+	return setStControllerGains(this, nP, nil, nD)
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:setGainPD(vector2 vV)
+	return setStControllerGains(this, vV[1], nil, vV[2])
 end
 
 __e2setcost(7)
@@ -121,10 +152,6 @@ e2function stcontroller stcontroller:setGain(array aA)
 	return setStControllerGains(this, aA[1], aA[2], aA[3])
 end
 
-__e2setcost(7)
-e2function stcontroller stcontroller:setGain(vector2 vV)
-	return setStControllerGains(this, vV[1], vV[2], nil)
-end
 
 __e2setcost(7)
 e2function stcontroller stcontroller:setGain(vector vV)
@@ -158,7 +185,7 @@ end
 __e2setcost(3)
 e2function string stcontroller:getType()
 	if(not this) then return "" end
-	return table.concat(this.mType)
+	return table.concat(this.mType, "-")
 end
 
 __e2setcost(3)
@@ -216,8 +243,23 @@ e2function stcontroller stcontroller:setPower(number nP)
 end
 
 __e2setcost(8)
-e2function stcontroller stcontroller:setPower(number nP, number nI)
+e2function stcontroller stcontroller:setPowerPI(number nP, number nI)
 	return setStControllerPower(this, nP, nI, nil)
+end
+
+__e2setcost(8)
+e2function stcontroller stcontroller:setPowerPI(vector2 vV)
+	return setStControllerPower(this, vV[1], vV[2], nil)
+end
+
+__e2setcost(8)
+e2function stcontroller stcontroller:setPowerPD(number nP, number nD)
+	return setStControllerPower(this, nP, nil, nD)
+end
+
+__e2setcost(8)
+e2function stcontroller stcontroller:setPowerPD(vector2 vV)
+	return setStControllerPower(this, vV[1], nil, vV[2])
 end
 
 __e2setcost(8)
@@ -228,11 +270,6 @@ end
 __e2setcost(8)
 e2function stcontroller stcontroller:setPower(array aA)
 	return setStControllerPower(this, aA[1], aA[2], aA[3])
-end
-
-__e2setcost(8)
-e2function stcontroller stcontroller:setPower(vector2 vV)
-	return setStControllerPower(this, vV[1], vV[2], nil)
 end
 
 __e2setcost(8)
@@ -365,7 +402,7 @@ e2function stcontroller stcontroller:setState(number nR, number nY)
 	if(this.mbOn) then
 		this.mTimO = this.mTimN; this.mTimN = getTime()
 		this.mErrO = this.mErrN; this.mErrN = (this.mbInv and (nY-nR) or (nR-nY))
-		local timDt = (oStCon.mnTo and oStCon.mnTo or (this.mTimN - this.mTimO))
+		local timDt = (this.mnTo and this.mnTo or (this.mTimN - this.mTimO))
 		if(this.mkP > 0) then -- P-Term
 			this.mvP = getValue(this.mkP, this.mErrN, this.mpP) end
 		if((this.mkI > 0) and (this.mErrN ~= 0) and this.meInt) then -- I-Term
@@ -387,7 +424,7 @@ end
 
 __e2setcost(15)
 e2function stcontroller stcontroller:dumpConsole(string sI)
-	print("["..tostring(oStCon.mnTo or "X").."]["..sI.."]["..table.concat(this.mType).."]["..tostring(this.mTimN).."] Data:")
+	print("["..tostring(this.mnTo or "X").."]["..sI.."]["..table.concat(this.mType,"-").."]["..tostring(this.mTimN).."] Data:")
 	print(" Gains: {P="..tostring(this.mkP)..", I="..tostring(this.mkI)..", D="..tostring(this.mkD).."}")
 	print(" Power: {P="..tostring(this.mpP)..", I="..tostring(this.mpI)..", D="..tostring(this.mpD).."}")
 	print(" Limit: {D="..tostring(this.mSatD)..", U="..tostring(this.mSatU).."}")
