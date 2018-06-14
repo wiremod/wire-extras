@@ -26,14 +26,13 @@ local function getValue(kV,eV,pV) return (kV*getSign(eV)*math.abs(eV)^pV) end
 
 local function setStControllerGains(oStCon, vP, vI, vD)
 	if(not oStCon) then return nil end
-	local nP = (tonumber(vP) or 0)
-	local nI = (tonumber(vI) or 0)
-	local nD = (tonumber(vD) or 0)
-	if(nP <= 0) then return nil end
-	local sT = "P"; oStCon.mkP = nP
+	local nP, nI = (tonumber(vP) or 0), (tonumber(vI) or 0)
+	local nD, sT = (tonumber(vD) or 0), "" -- There is no /ID/ controller
+	if((nP == 0) and (nI > 0) and (nD > 0)) then return nil end
+	if(nP > 0) then oStCon.mkP, sT = nP, (sT.."P") end
 	if(nI > 0) then oStCon.mkI, sT = (nI / 2), (sT.."I")
 		if(oStCon.mbCmb) then oStCon.mkI = oStCon.mkI * oStCon.mkP end
-	end
+	end -- Available settings: P, I, PI, PD, PID
 	if(nD > 0) then oStCon.mkD, sT = nD, (sT.."D")
 		if(oStCon.mbCmb) then oStCon.mkD = oStCon.mkD * oStCon.mkP end
 	end; oStCon.mType[2] = sT; return oStCon
@@ -78,6 +77,22 @@ local function resStControllerState(oStCon)
 	return oStCon
 end
 
+local function remStControllerTerm(oStCon, vC)
+	if(not oStCon) then return nil end
+	local sT = tostring(oStCon.mType[2] or "")
+	local sC = tostring(vC or "")
+	for ID = 1, sC:len() do
+		local sS = sC:sub(ID,ID); sT = sT:gsub(sS,"")
+		if(oStCon["mk"..sS]) then oStCon["mk"..sS] = 0 end
+	end; if(sT:len() == 0) then sT = "N/A" end
+	oStCon.mType[2] = sT; return oStCon
+end
+
+local function getStControllerType(oStCon)
+	if(not oStCon) then return "X-X" end
+	return table.concat(oStCon.mType, "-")
+end
+
 local function makeStController(nTo)
 	local oStCon = {}; oStCon.mnTo = tonumber(nTo) -- Place to store the object
 	if(oStCon.mnTo and oStCon.mnTo <= 0) then return nil end
@@ -118,8 +133,13 @@ e2function stcontroller newStController(number nTo)
 end
 
 __e2setcost(7)
-e2function stcontroller stcontroller:setGain(number nP)
+e2function stcontroller stcontroller:setGainP(number nP)
 	return setStControllerGains(this, nP, nil, nil)
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:setGainI(number nI)
+	return setStControllerGains(this, nil, nI, nil)
 end
 
 __e2setcost(7)
@@ -155,6 +175,41 @@ end
 __e2setcost(7)
 e2function stcontroller stcontroller:setGain(vector vV)
 	return setStControllerGains(this, vV[1], vV[2], vV[3])
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:remGainP()
+	return remStControllerTerm(this, "P")
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:remGainI()
+	return remStControllerTerm(this, "I")
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:remGainD()
+	return remStControllerTerm(this, "D")
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:remGainPI()
+	return remStControllerTerm(this, "PI")
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:remGainPD()
+	return remStControllerTerm(this, "PD")
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:remGainID()
+	return remStControllerTerm(this, "ID")
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:remGain()
+	return remStControllerTerm(this, "PID")
 end
 
 __e2setcost(3)
@@ -201,8 +256,7 @@ end
 
 __e2setcost(3)
 e2function string stcontroller:getType()
-	if(not this) then return "" end
-	return table.concat(this.mType, "-")
+	return getStControllerType(this)
 end
 
 __e2setcost(3)
@@ -517,7 +571,7 @@ end
 
 __e2setcost(15)
 e2function stcontroller stcontroller:dumpConsole(string sI)
-	print("["..sI.."]["..tostring(this.mnTo or "X").."]["..table.concat(this.mType,"-").."]["..tostring(this.mTimN).."] Data:")
+	print("["..sI.."]["..tostring(this.mnTo or "X").."]["..getStControllerType(this).."]["..tostring(this.mTimN).."] Data:")
 	print(" Human: ["..tostring(this.mbMan).."] {V="..tostring(this.mvMan)..", B="..tostring(this.mBias).."}" )
 	print(" Gains: {P="..tostring(this.mkP)..", I="..tostring(this.mkI)..", D="..tostring(this.mkD).."}")
 	print(" Power: {P="..tostring(this.mpP)..", I="..tostring(this.mpI)..", D="..tostring(this.mpD).."}")
