@@ -41,22 +41,22 @@ end
 
 local function getPowerCode(nN)
 	local nW, nF = math.modf(nN, 1)
-	if(nN == 1) then return "N" end -- [Natuaral conventoional][y=k*x]
-	if(nN ==-1) then return "R" end -- [Reciprocal relation][y=1/k*x]
-	if(nN == 0) then return "S" end -- [Sign function relay term][y=k*sign(x)]
+	if(nN == 1) then return "Nr" end -- [Natural conventional][y=k*x]
+	if(nN ==-1) then return "Rr" end -- [Reciprocal relation][y=1/k*x]
+	if(nN == 0) then return "Sr" end -- [Sign function relay term][y=k*sign(x)]
 	if(nF ~= 0) then
 		if(nW ~= 0) then
-			if(nF > 0) then return "F" end -- [Power positive fractional][y=x^( n); n> 1]
-			if(nF < 0) then return "G" end -- [Power negative fractional][y=x^(-n); n<-1]
+			if(nF > 0) then return "Gp" end -- [Power positive fractional][y=x^( n); n> 1]
+			if(nF < 0) then return "Gn" end -- [Power negative fractional][y=x^(-n); n<-1]
 		else
-			if(nF > 0) then return "A" end -- [Power positive fractional][y=x^( n); 0<n< 1]
-			if(nF < 0) then return "L" end -- [Power negative fractional][y=x^(-n); 0>n>-1]
+			if(nF > 0) then return "Fp" end -- [Power positive fractional][y=x^( n); 0<n< 1]
+			if(nF < 0) then return "Fn" end -- [Power negative fractional][y=x^(-n); 0>n>-1]
 		end
 	else
-		if(nN > 0) then return "E" end -- [Exponential relation][y=x^n]
-		if(nN < 0) then return "C" end -- [Reciprocal-exp relation][y=1/x^n]
+		if(nN > 0) then return "En" end -- [Exponential relation][y=x^n]
+		if(nN < 0) then return "Ed" end -- [Reciprocal-exp relation][y=1/x^n]
 	end
-	return "X" -- [Invalid settings][N/A]
+	return "Xx" -- [Invalid settings][N/A]
 end
 
 local function setStControllerPower(oStCon, vP, vI, vD)
@@ -82,14 +82,14 @@ local function makeStController(nTo)
 	local oStCon = {}; oStCon.mnTo = tonumber(nTo) -- Place to store the object
 	if(oStCon.mnTo and oStCon.mnTo <= 0) then return nil end
 	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
-	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {"",""} -- Error state values
+	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {"(NrNrNr)","N/A"} -- Error state values
 	oStCon.mvCon, oStCon.mTimB, oStCon.meInt = 0, 0, true -- Control value and integral enabled
 	oStCon.mBias, oStCon.mSatD, oStCon.mSatU = 0, nil, nil -- Saturation limits and settings
 	oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Term values
 	oStCon.mkP, oStCon.mkI, oStCon.mkD = 0, 0, 0 -- P, I and D term gains
 	oStCon.mpP, oStCon.mpI, oStCon.mpD = 1, 1, 1 -- Raise the error to power of that much
-	oStCon.mbCmb, oStCon.mbInv, oStCon.mbOn = false, false, false
-	return oStCon
+	oStCon.mbCmb, oStCon.mbInv, oStCon.mbOn, oStCon.mbMan = false, false, false, false
+	oStCon.mvMan = 0; return oStCon
 end
 
 --[[ **************************** CONTROLLER **************************** ]]
@@ -151,7 +151,6 @@ __e2setcost(7)
 e2function stcontroller stcontroller:setGain(array aA)
 	return setStControllerGains(this, aA[1], aA[2], aA[3])
 end
-
 
 __e2setcost(7)
 e2function stcontroller stcontroller:setGain(vector vV)
@@ -334,53 +333,79 @@ end
 __e2setcost(3)
 e2function number stcontroller:getTimeRatio()
 	if(not this) then return nil end
-	return ((this.mTimB or 0) / (this.mTimN - this.mTimO))
+	local timDt = (this.mTimN - this.mTimO)
+	if(timDt == 0) then return timDt and
+	return ((this.mTimB or 0) / timDt)
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:setFlagIntegral(number nN)
+e2function stcontroller stcontroller:isIntegrating(number nN)
 	if(not this) then return nil end
 	this.meInt = (nN ~= 0); return this
 end
 
 __e2setcost(3)
-e2function number stcontroller:getFlagIntegral()
+e2function number stcontroller:isIntegrating()
 	if(not this) then return nil end
 	return (this.meInt and 1 or 0)
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:setCombined(number nN)
+e2function stcontroller stcontroller:isCombined(number nN)
 	if(not this) then return nil end
 	this.mbCmb = (nN ~= 0); return this
 end
 
 __e2setcost(3)
-e2function number stcontroller:getCombined()
+e2function number stcontroller:isCombined()
 	if(not this) then return nil end
 	return (this.mbCmb and 1 or 0)
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:setInverted(number nN)
+e2function stcontroller stcontroller:isManual(number nN)
+	if(not this) then return nil end
+	this.mbMan = (nN ~= 0); return this
+end
+
+__e2setcost(3)
+e2function number stcontroller:isManual()
+	if(not this) then return nil end
+	return (this.mbMan and 1 or 0)
+end
+
+__e2setcost(3)
+e2function stcontroller stcontroller:setManual(number nN)
+	if(not this) then return nil end
+	this.mvMan = nN; return this
+end
+
+__e2setcost(3)
+e2function number stcontroller:getManual()
+	if(not this) then return nil end
+	return (this.mvMan or 0)
+end
+
+__e2setcost(3)
+e2function stcontroller stcontroller:isInverted(number nN)
 	if(not this) then return nil end
 	this.mbInv = (nN ~= 0); return this
 end
 
 __e2setcost(3)
-e2function number stcontroller:getInverted()
+e2function number stcontroller:isInverted()
 	if(not this) then return nil end
 	return (this.mbInv and 1 or 0)
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:setToggle(number nN)
+e2function stcontroller stcontroller:isActive(number nN)
 	if(not this) then return nil end
 	this.mbOn = (nN ~= 0); return this
 end
 
 __e2setcost(3)
-e2function number stcontroller:getToggle()
+e2function number stcontroller:isActive()
 	if(not this) then return nil end
 	return (this.mbOn and 1 or 0)
 end
@@ -400,6 +425,8 @@ __e2setcost(20)
 e2function stcontroller stcontroller:setState(number nR, number nY)
 	if(not this) then return nil end
 	if(this.mbOn) then
+		if(this.mbMan) then
+			this.mvCon = (this.mvMan + this.mBias); return this end
 		this.mTimO = this.mTimN; this.mTimN = getTime()
 		this.mErrO = this.mErrN; this.mErrN = (this.mbInv and (nY-nR) or (nR-nY))
 		local timDt = (this.mnTo and this.mnTo or (this.mTimN - this.mTimO))
@@ -424,7 +451,8 @@ end
 
 __e2setcost(15)
 e2function stcontroller stcontroller:dumpConsole(string sI)
-	print("["..tostring(this.mnTo or "X").."]["..sI.."]["..table.concat(this.mType,"-").."]["..tostring(this.mTimN).."] Data:")
+	print("["..sI.."]["..tostring(this.mnTo or "X").."]["..table.concat(this.mType,"-").."]["..tostring(this.mTimN).."] Data:")
+	print(" Human: ["..tostring(this.mbMan).."] {V="..tostring(this.mvMan)..", B="..tostring(this.mBias).."}" )
 	print(" Gains: {P="..tostring(this.mkP)..", I="..tostring(this.mkI)..", D="..tostring(this.mkD).."}")
 	print(" Power: {P="..tostring(this.mpP)..", I="..tostring(this.mpI)..", D="..tostring(this.mpD).."}")
 	print(" Limit: {D="..tostring(this.mSatD)..", U="..tostring(this.mSatU).."}")
