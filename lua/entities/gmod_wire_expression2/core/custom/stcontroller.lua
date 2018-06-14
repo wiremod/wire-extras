@@ -19,23 +19,38 @@ registerType("stcontroller", "xsc", nil,
 
 E2Lib.RegisterExtension("stcontroller", true, "Lets E2 chips have dedicated state controller objects")
 
-local getTime = SysTime
+local gtTermCodes = {"P", "I", "D"}
+local gtTermSets = {"D", "ID"}
 
+local getTime = SysTime
 local function getSign(nV) return ((nV > 0 and 1) or (nV < 0 and -1) or 0) end
 local function getValue(kV,eV,pV) return (kV*getSign(eV)*math.abs(eV)^pV) end
 
-local function setStControllerGains(oStCon, vP, vI, vD)
-	if(not oStCon) then return nil end
+local function logError(sM, ...)
+	error("E2:stcontroller: "..tostring(sM)); return ...
+end
+
+local function logStatus(sM, ...)
+	print(tostring(sM)); return ...
+end
+
+local function setStControllerGains(oStCon, vP, vI, vD, bZ)
+	if(not oStCon) then return logError("setStControllerGains: Object missing", nil) end
 	local nP, nI = (tonumber(vP) or 0), (tonumber(vI) or 0)
-	local nD, sT = (tonumber(vD) or 0), "" -- There is no /ID/ controller
-	if((nP == 0) and (nI > 0) and (nD > 0)) then return nil end
-	if(nP > 0) then oStCon.mkP, sT = nP, (sT.."P") end
-	if(nI > 0) then oStCon.mkI, sT = (nI / 2), (sT.."I")
+	local nD, sT = (tonumber(vD) or 0), "" -- Store controller type
+	if(vP and ((nP > 0) or (bZ and nP >= 0))) then oStCon.mkP = nP end
+	if(vI and ((nI > 0) or (bZ and nI >= 0))) then oStCon.mkI = (nI / 2)
 		if(oStCon.mbCmb) then oStCon.mkI = oStCon.mkI * oStCon.mkP end
 	end -- Available settings: P, I, PI, PD, PID
-	if(nD > 0) then oStCon.mkD, sT = nD, (sT.."D")
+	if(vD and ((nD > 0) or (bZ and nD >= 0))) then oStCon.mkD = nD
 		if(oStCon.mbCmb) then oStCon.mkD = oStCon.mkD * oStCon.mkP end
-	end; oStCon.mType[2] = sT; return oStCon
+	end -- Build controller type
+	for key, val in pairs(gtTermCodes) do
+		if(oStCon["mk"..val] > 0) then sT = sT..val end end
+	for key, val in pairs(gtTermSets) do if(sT == val) then
+		return logError("setStControllerGains: Controller terms <"..sT.."> invalid", nil) end end
+	if(sT:len() == 0) then sT = "N/A" end -- Check for invalid controller
+	oStCon.mType[2] = sT; return oStCon
 end
 
 local function getPowerCode(nN)
@@ -59,7 +74,7 @@ local function getPowerCode(nN)
 end
 
 local function setStControllerPower(oStCon, vP, vI, vD)
-	if(not oStCon) then return nil end
+	if(not oStCon) then return logError("setStControllerPower: Object missing", nil) end
 	oStCon.mpP = (tonumber(vP) or 1)
 	oStCon.mpI = (tonumber(vI) or 1)
 	oStCon.mpD = (tonumber(vD) or 1)
@@ -69,23 +84,12 @@ local function setStControllerPower(oStCon, vP, vI, vD)
 end
 
 local function resStControllerState(oStCon)
-	if(not oStCon) then return nil end
+	if(not oStCon) then return logError("resStControllerState: Object missing", nil) end
 	oStCon.mErrO, oStCon.mErrN = 0, 0 -- Reset the error
 	oStCon.mvCon, oStCon.meInt = 0, true -- Control value and integral enabled
 	oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Term values
 	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Update clock
 	return oStCon
-end
-
-local function remStControllerTerm(oStCon, vC)
-	if(not oStCon) then return nil end
-	local sT = tostring(oStCon.mType[2] or "")
-	local sC = tostring(vC or "")
-	for ID = 1, sC:len() do
-		local sS = sC:sub(ID,ID); sT = sT:gsub(sS,"")
-		if(oStCon["mk"..sS]) then oStCon["mk"..sS] = 0 end
-	end; if(sT:len() == 0) then sT = "N/A" end
-	oStCon.mType[2] = sT; return oStCon
 end
 
 local function getStControllerType(oStCon)
@@ -95,7 +99,8 @@ end
 
 local function makeStController(nTo)
 	local oStCon = {}; oStCon.mnTo = tonumber(nTo) -- Place to store the object
-	if(oStCon.mnTo and oStCon.mnTo <= 0) then return nil end
+	if(oStCon.mnTo and oStCon.mnTo <= 0) then
+		return logError("makeStController: Object delta mismatch #"..tostring(oStCon.mnTo), nil) end
 	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
 	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {"(NrNrNr)","N/A"} -- Error state values
 	oStCon.mvCon, oStCon.mTimB, oStCon.meInt = 0, 0, true -- Control value and integral enabled
@@ -179,37 +184,37 @@ end
 
 __e2setcost(7)
 e2function stcontroller stcontroller:remGainP()
-	return remStControllerTerm(this, "P")
+	return setStControllerGains(this, 0, nil, nil, true)
 end
 
 __e2setcost(7)
 e2function stcontroller stcontroller:remGainI()
-	return remStControllerTerm(this, "I")
+	return setStControllerGains(this, nil, 0, nil, true)
 end
 
 __e2setcost(7)
 e2function stcontroller stcontroller:remGainD()
-	return remStControllerTerm(this, "D")
+	return setStControllerGains(this, nil, nil, 0, true)
 end
 
 __e2setcost(7)
 e2function stcontroller stcontroller:remGainPI()
-	return remStControllerTerm(this, "PI")
+	return setStControllerGains(this, 0, 0, nil, true)
 end
 
 __e2setcost(7)
 e2function stcontroller stcontroller:remGainPD()
-	return remStControllerTerm(this, "PD")
+	return setStControllerGains(this, 0, nil, 0, true)
 end
 
 __e2setcost(7)
 e2function stcontroller stcontroller:remGainID()
-	return remStControllerTerm(this, "ID")
+	return setStControllerGains(this, nil, 0, 0, true)
 end
 
 __e2setcost(7)
 e2function stcontroller stcontroller:remGain()
-	return remStControllerTerm(this, "PID")
+	return setStControllerGains(this, 0, 0, 0, true)
 end
 
 __e2setcost(3)
@@ -226,19 +231,19 @@ end
 
 __e2setcost(3)
 e2function number stcontroller:getGainP()
-	if(not this) then return nil end
+	if(not this) then return 0 end
 	return this.mkP
 end
 
 __e2setcost(3)
 e2function number stcontroller:getGainI()
-	if(not this) then return nil end
+	if(not this) then return 0 end
 	return this.mkI
 end
 
 __e2setcost(3)
 e2function number stcontroller:getGainD()
-	if(not this) then return nil end
+	if(not this) then return 0 end
 	return this.mkD
 end
 
@@ -251,7 +256,7 @@ end
 __e2setcost(3)
 e2function number stcontroller:getBias(number nN)
 	if(not this) then return 0 end
-	return this.mBias
+	return (this.mBias or 0)
 end
 
 __e2setcost(3)
@@ -267,27 +272,9 @@ e2function stcontroller stcontroller:setWindup(number nD, number nU)
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:remWindup()
-	if(not this) then return nil end
-	this.mSatD, this.mSatU = nil, nil; return this
-end
-
-__e2setcost(3)
 e2function stcontroller stcontroller:setWindupD(number nD)
 	if(not this) then return nil end
 	this.mSatD = nD; return this
-end
-
-__e2setcost(3)
-e2function stcontroller stcontroller:getWindupD(number nD)
-	if(not this) then return nil end
-	return (this.mSatD or 0)
-end
-
-__e2setcost(3)
-e2function stcontroller stcontroller:remWindupD(number nD)
-	if(not this) then return nil end
-	this.mSatD = nil; return this
 end
 
 __e2setcost(3)
@@ -297,15 +284,45 @@ e2function stcontroller stcontroller:setWindupU(number nU)
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:getWindupU(number nU)
+e2function stcontroller stcontroller:remWindup()
 	if(not this) then return nil end
-	return (this.mSatU or 0)
+	this.mSatD, this.mSatU = nil, nil; return this
+end
+
+__e2setcost(3)
+e2function stcontroller stcontroller:remWindupD(number nD)
+	if(not this) then return nil end
+	this.mSatD = nil; return this
 end
 
 __e2setcost(3)
 e2function stcontroller stcontroller:remWindupU(number nU)
 	if(not this) then return nil end
 	this.mSatU = nil; return this
+end
+
+__e2setcost(3)
+e2function array stcontroller:getWindup()
+	if(not this) then return {0,0} end
+	return {this.mSatD, this.mSatU}
+end
+
+__e2setcost(3)
+e2function vector2 stcontroller:getWindup()
+	if(not this) then return {0,0} end
+	return {this.mSatD, this.mSatU}
+end
+
+__e2setcost(3)
+e2function number stcontroller:getWindupD(number nD)
+	if(not this) then return 0 end
+	return (this.mSatD or 0)
+end
+
+__e2setcost(3)
+e2function number stcontroller:getWindupU(number nU)
+	if(not this) then return 0 end
+	return (this.mSatU or 0)
 end
 
 __e2setcost(8)
@@ -362,32 +379,32 @@ end
 
 __e2setcost(3)
 e2function number stcontroller:getPowerP()
-	if(not this) then return nil end
-	return this.mpP
+	if(not this) then return 0 end
+	return (this.mpP or 0)
 end
 
 __e2setcost(3)
 e2function number stcontroller:getPowerI()
-	if(not this) then return nil end
-	return this.mpI
+	if(not this) then return 0 end
+	return (this.mpI or 0)
 end
 
 __e2setcost(3)
 e2function number stcontroller:getPowerD()
-	if(not this) then return nil end
-	return this.mpD
+	if(not this) then return 0 end
+	return (this.mpD or 0)
 end
 
 __e2setcost(3)
 e2function number stcontroller:getErrorNow()
 	if(not this) then return 0 end
-	return this.mErrN
+	return (this.mErrN or 0)
 end
 
 __e2setcost(3)
 e2function number stcontroller:getErrorOld()
 	if(not this) then return 0 end
-	return this.mErrO
+	return (this.mErrO or 0)
 end
 
 __e2setcost(3)
@@ -399,13 +416,13 @@ end
 __e2setcost(3)
 e2function number stcontroller:getTimeNow()
 	if(not this) then return 0 end
-	return this.mTimN
+	return (this.mTimN or 0)
 end
 
 __e2setcost(3)
 e2function number stcontroller:getTimeOld()
 	if(not this) then return 0 end
-	return this.mTimO
+	return (this.mTimO or 0)
 end
 
 __e2setcost(3)
@@ -416,15 +433,15 @@ end
 
 __e2setcost(3)
 e2function number stcontroller:getTimeBench()
-	if(not this) then return nil end
+	if(not this) then return 0 end
 	return (this.mTimB or 0)
 end
 
 __e2setcost(3)
 e2function number stcontroller:getTimeRatio()
-	if(not this) then return nil end
+	if(not this) then return 0 end
 	local timDt = (this.mTimN - this.mTimO)
-	if(timDt == 0) then return timDt and
+	if(timDt == 0) then return timDt end
 	return ((this.mTimB or 0) / timDt)
 end
 
@@ -436,7 +453,7 @@ end
 
 __e2setcost(3)
 e2function number stcontroller:isIntegrating()
-	if(not this) then return nil end
+	if(not this) then return 0 end
 	return (this.meInt and 1 or 0)
 end
 
@@ -448,7 +465,7 @@ end
 
 __e2setcost(3)
 e2function number stcontroller:isCombined()
-	if(not this) then return nil end
+	if(not this) then return 0 end
 	return (this.mbCmb and 1 or 0)
 end
 
@@ -460,7 +477,7 @@ end
 
 __e2setcost(3)
 e2function number stcontroller:isManual()
-	if(not this) then return nil end
+	if(not this) then return 0 end
 	return (this.mbMan and 1 or 0)
 end
 
@@ -472,7 +489,7 @@ end
 
 __e2setcost(3)
 e2function number stcontroller:getManual()
-	if(not this) then return nil end
+	if(not this) then return 0 end
 	return (this.mvMan or 0)
 end
 
@@ -484,7 +501,7 @@ end
 
 __e2setcost(3)
 e2function number stcontroller:isInverted()
-	if(not this) then return nil end
+	if(not this) then return 0 end
 	return (this.mbInv and 1 or 0)
 end
 
@@ -496,44 +513,44 @@ end
 
 __e2setcost(3)
 e2function number stcontroller:isActive()
-	if(not this) then return nil end
+	if(not this) then return 0 end
 	return (this.mbOn and 1 or 0)
 end
 
 __e2setcost(3)
 e2function number stcontroller:getControl()
-	if(not this) then return nil end
+	if(not this) then return 0 end
 	return (this.mvCon or 0)
 end
 
 __e2setcost(3)
 e2function array stcontroller:getControlTerm()
-	if(not this) then return nil end
+	if(not this) then return {0,0,0} end
 	return {this.mvP, this.mvI, this.mvD}
 end
 
 __e2setcost(3)
 e2function vector stcontroller:getControlTerm()
-	if(not this) then return nil end
+	if(not this) then return {0,0,0} end
 	return {this.mvP, this.mvI, this.mvD}
 end
 
 __e2setcost(3)
 e2function number stcontroller:getControlTermP()
-	if(not this) then return nil end
-	return this.mvP
+	if(not this) then return 0 end
+	return (this.mvP or 0)
 end
 
 __e2setcost(3)
 e2function number stcontroller:getControlTermI()
-	if(not this) then return nil end
-	return this.mvI
+	if(not this) then return 0 end
+	return (this.mvI or 0)
 end
 
 __e2setcost(3)
 e2function number stcontroller:getControlTermD()
-	if(not this) then return nil end
-	return this.mvD
+	if(not this) then return 0 end
+	return (this.mvD or 0)
 end
 
 __e2setcost(3)
@@ -571,13 +588,13 @@ end
 
 __e2setcost(15)
 e2function stcontroller stcontroller:dumpConsole(string sI)
-	print("["..sI.."]["..tostring(this.mnTo or "X").."]["..getStControllerType(this).."]["..tostring(this.mTimN).."] Data:")
-	print(" Human: ["..tostring(this.mbMan).."] {V="..tostring(this.mvMan)..", B="..tostring(this.mBias).."}" )
-	print(" Gains: {P="..tostring(this.mkP)..", I="..tostring(this.mkI)..", D="..tostring(this.mkD).."}")
-	print(" Power: {P="..tostring(this.mpP)..", I="..tostring(this.mpI)..", D="..tostring(this.mpD).."}")
-	print(" Limit: {D="..tostring(this.mSatD)..", U="..tostring(this.mSatU).."}")
-	print(" Error: {O="..tostring(this.mErrO)..", N="..tostring(this.mErrN).."}")
-	print(" Value: ["..tostring(this.mvCon).."] {P="..tostring(this.mvP)..", I="..tostring(this.mvI)..", D=" ..tostring(this.mvD).."}")
-	print(" Flags: ["..tostring(this.mbOn).."] {C="..tostring(this.mbCmb)..", R=" ..tostring(this.mbInv)..", I="..tostring(this.meInt).."}")
+	logStatus("["..sI.."]["..tostring(this.mnTo or "X").."]["..getStControllerType(this).."]["..tostring(this.mTimN).."] Data:")
+	logStatus(" Human: ["..tostring(this.mbMan).."] {V="..tostring(this.mvMan)..", B="..tostring(this.mBias).."}" )
+	logStatus(" Gains: {P="..tostring(this.mkP)..", I="..tostring(this.mkI)..", D="..tostring(this.mkD).."}")
+	logStatus(" Power: {P="..tostring(this.mpP)..", I="..tostring(this.mpI)..", D="..tostring(this.mpD).."}")
+	logStatus(" Limit: {D="..tostring(this.mSatD)..", U="..tostring(this.mSatU).."}")
+	logStatus(" Error: {O="..tostring(this.mErrO)..", N="..tostring(this.mErrN).."}")
+	logStatus(" Value: ["..tostring(this.mvCon).."] {P="..tostring(this.mvP)..", I="..tostring(this.mvI)..", D=" ..tostring(this.mvD).."}")
+	logStatus(" Flags: ["..tostring(this.mbOn).."] {C="..tostring(this.mbCmb)..", R=" ..tostring(this.mbInv)..", I="..tostring(this.meInt).."}")
 	return this -- The dump method
 end
