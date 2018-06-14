@@ -46,15 +46,15 @@ local function getPowerCode(nN)
 	if(nN == 0) then return "Sr" end -- [Sign function relay term][y=k*sign(x)]
 	if(nF ~= 0) then
 		if(nW ~= 0) then
-			if(nF > 0) then return "Gp" end -- [Power positive fractional][y=x^( n); n> 1]
+			if(nF > 0) then return "Gs" end -- [Power positive fractional][y=x^( n); n> 1]
 			if(nF < 0) then return "Gn" end -- [Power negative fractional][y=x^(-n); n<-1]
 		else
-			if(nF > 0) then return "Fp" end -- [Power positive fractional][y=x^( n); 0<n< 1]
+			if(nF > 0) then return "Fs" end -- [Power positive fractional][y=x^( n); 0<n< 1]
 			if(nF < 0) then return "Fn" end -- [Power negative fractional][y=x^(-n); 0>n>-1]
 		end
 	else
-		if(nN > 0) then return "En" end -- [Exponential relation][y=x^n]
-		if(nN < 0) then return "Ed" end -- [Reciprocal-exp relation][y=1/x^n]
+		if(nN > 0) then return "Ex" end -- [Exponential relation][y=x^n]
+		if(nN < 0) then return "Er" end -- [Reciprocal-exp relation][y=1/x^n]
 	end
 	return "Xx" -- [Invalid settings][N/A]
 end
@@ -158,15 +158,33 @@ e2function stcontroller stcontroller:setGain(vector vV)
 end
 
 __e2setcost(3)
-e2function array stcontroller:getGains()
+e2function array stcontroller:getGain()
 	if(not this) then return {0,0,0} end
 	return {this.mkP, this.mkI, this.mkD}
 end
 
 __e2setcost(3)
-e2function vector stcontroller:getGains()
+e2function vector stcontroller:getGain()
 	if(not this) then return {0,0,0} end
 	return {this.mkP, this.mkI, this.mkD}
+end
+
+__e2setcost(3)
+e2function number stcontroller:getGainP()
+	if(not this) then return nil end
+	return this.mkP
+end
+
+__e2setcost(3)
+e2function number stcontroller:getGainI()
+	if(not this) then return nil end
+	return this.mkI
+end
+
+__e2setcost(3)
+e2function number stcontroller:getGainD()
+	if(not this) then return nil end
+	return this.mkD
 end
 
 __e2setcost(3)
@@ -286,6 +304,24 @@ __e2setcost(3)
 e2function vector stcontroller:getPower()
 	if(not this) then return {0,0,0} end
 	return {this.mpP, this.mpI, this.mpD}
+end
+
+__e2setcost(3)
+e2function number stcontroller:getPowerP()
+	if(not this) then return nil end
+	return this.mpP
+end
+
+__e2setcost(3)
+e2function number stcontroller:getPowerI()
+	if(not this) then return nil end
+	return this.mpI
+end
+
+__e2setcost(3)
+e2function number stcontroller:getPowerD()
+	if(not this) then return nil end
+	return this.mpD
 end
 
 __e2setcost(3)
@@ -414,6 +450,36 @@ __e2setcost(3)
 e2function number stcontroller:getControl()
 	if(not this) then return nil end
 	return (this.mvCon or 0)
+end
+
+__e2setcost(3)
+e2function array stcontroller:getControlTerm()
+	if(not this) then return nil end
+	return {this.mvP, this.mvI, this.mvD}
+end
+
+__e2setcost(3)
+e2function vector stcontroller:getControlTerm()
+	if(not this) then return nil end
+	return {this.mvP, this.mvI, this.mvD}
+end
+
+__e2setcost(3)
+e2function number stcontroller:getControlTermP()
+	if(not this) then return nil end
+	return this.mvP
+end
+
+__e2setcost(3)
+e2function number stcontroller:getControlTermI()
+	if(not this) then return nil end
+	return this.mvI
+end
+
+__e2setcost(3)
+e2function number stcontroller:getControlTermD()
+	if(not this) then return nil end
+	return this.mvD
 end
 
 __e2setcost(3)
