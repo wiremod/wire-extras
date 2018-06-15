@@ -19,10 +19,11 @@ registerType("stcontroller", "xsc", nil,
 
 E2Lib.RegisterExtension("stcontroller", true, "Lets E2 chips have dedicated state controller objects")
 
-local gtTermCodes = {"P", "I", "D"}
-local gtTermSets = {"D", "ID"}
+local gtTermMiss = {"Xx", "X"} -- Contains the default return values for the controller invalid type
+local gtTermCodes = {"P", "I", "D"} -- The names of each term. This is used for indexing and checking
+local gsPowerForm = "(%s%s%s)" -- The general type format for the controller power setup
 
-local getTime = SysTime
+local getTime = SysTime -- Using this as time benchmarking for high precision
 local function getSign(nV) return ((nV > 0 and 1) or (nV < 0 and -1) or 0) end
 local function getValue(kV,eV,pV) return (kV*getSign(eV)*math.abs(eV)^pV) end
 
@@ -41,15 +42,13 @@ local function setStControllerGains(oStCon, vP, vI, vD, bZ)
 	if(vP and ((nP > 0) or (bZ and nP >= 0))) then oStCon.mkP = nP end
 	if(vI and ((nI > 0) or (bZ and nI >= 0))) then oStCon.mkI = (nI / 2)
 		if(oStCon.mbCmb) then oStCon.mkI = oStCon.mkI * oStCon.mkP end
-	end -- Available settings: P, I, PI, PD, PID
+	end -- Available settings with non-zero coefficients
 	if(vD and ((nD > 0) or (bZ and nD >= 0))) then oStCon.mkD = nD
 		if(oStCon.mbCmb) then oStCon.mkD = oStCon.mkD * oStCon.mkP end
 	end -- Build controller type
 	for key, val in pairs(gtTermCodes) do
 		if(oStCon["mk"..val] > 0) then sT = sT..val end end
-	for key, val in pairs(gtTermSets) do if(sT == val) then
-		return logError("setStControllerGains: Controller terms <"..sT.."> invalid", nil) end end
-	if(sT:len() == 0) then sT = "N/A" end -- Check for invalid controller
+	if(sT:len() == 0) then sT = gtTermMiss[2]:rep(3) end -- Check for invalid controller
 	oStCon.mType[2] = sT; return oStCon
 end
 
@@ -70,7 +69,7 @@ local function getPowerCode(nN)
 		if(nN > 0) then return "Ex" end -- [Exponential relation][y=x^n]
 		if(nN < 0) then return "Er" end -- [Reciprocal-exp relation][y=1/x^n]
 	end
-	return "Xx" -- [Invalid settings][N/A]
+	return gtTermMiss[1] -- [Invalid settings][N/A]
 end
 
 local function setStControllerPower(oStCon, vP, vI, vD)
@@ -78,7 +77,7 @@ local function setStControllerPower(oStCon, vP, vI, vD)
 	oStCon.mpP = (tonumber(vP) or 1)
 	oStCon.mpI = (tonumber(vI) or 1)
 	oStCon.mpD = (tonumber(vD) or 1)
-	oStCon.mType[1] = ("(%s%s%s)"):format(getPowerCode(oStCon.mpP),
+	oStCon.mType[1] = gsPowerForm:format(getPowerCode(oStCon.mpP),
 		getPowerCode(oStCon.mpI), getPowerCode(oStCon.mpD))
 	return oStCon
 end
@@ -93,16 +92,20 @@ local function resStControllerState(oStCon)
 end
 
 local function getStControllerType(oStCon)
-	if(not oStCon) then return "X-X" end
-	return table.concat(oStCon.mType, "-")
+	if(not oStCon) then
+		local tT, sR = {}, gtTermMiss[1]
+		tT[1] = gsPowerForm:format(sR,sR,sR)
+		tT[2] = gtTermMiss[2]:rep(3)
+		return table.concat(tT, "-")
+	end; return table.concat(oStCon.mType, "-")
 end
 
 local function makeStController(nTo)
 	local oStCon = {}; oStCon.mnTo = tonumber(nTo) -- Place to store the object
-	if(oStCon.mnTo and oStCon.mnTo <= 0) then
+	if(oStCon.mnTo and oStCon.mnTo <= 0) then 
 		return logError("makeStController: Object delta mismatch #"..tostring(oStCon.mnTo), nil) end
 	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
-	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {"(NrNrNr)","N/A"} -- Error state values
+	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {"(NrNrNr)",gtTermMiss[2]:rep(3)} -- Error state values
 	oStCon.mvCon, oStCon.mTimB, oStCon.meInt = 0, 0, true -- Control value and integral enabled
 	oStCon.mBias, oStCon.mSatD, oStCon.mSatU = 0, nil, nil -- Saturation limits and settings
 	oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Term values
@@ -232,19 +235,19 @@ end
 __e2setcost(3)
 e2function number stcontroller:getGainP()
 	if(not this) then return 0 end
-	return this.mkP
+	return (this.mkP or 0)
 end
 
 __e2setcost(3)
 e2function number stcontroller:getGainI()
 	if(not this) then return 0 end
-	return this.mkI
+	return (this.mkI or 0)
 end
 
 __e2setcost(3)
 e2function number stcontroller:getGainD()
 	if(not this) then return 0 end
-	return this.mkD
+	return (this.mkD or 0)
 end
 
 __e2setcost(3)
@@ -588,7 +591,7 @@ end
 
 __e2setcost(15)
 e2function stcontroller stcontroller:dumpConsole(string sI)
-	logStatus("["..sI.."]["..tostring(this.mnTo or "X").."]["..getStControllerType(this).."]["..tostring(this.mTimN).."] Data:")
+	logStatus("["..sI.."]["..tostring(this.mnTo or gtTermMiss[2]).."]["..getStControllerType(this).."]["..tostring(this.mTimN).."] Data:")
 	logStatus(" Human: ["..tostring(this.mbMan).."] {V="..tostring(this.mvMan)..", B="..tostring(this.mBias).."}" )
 	logStatus(" Gains: {P="..tostring(this.mkP)..", I="..tostring(this.mkI)..", D="..tostring(this.mkD).."}")
 	logStatus(" Power: {P="..tostring(this.mpP)..", I="..tostring(this.mpI)..", D="..tostring(this.mpD).."}")
