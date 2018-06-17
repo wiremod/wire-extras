@@ -23,7 +23,7 @@ local gtTermMiss = {"Xx", "X"} -- Contains the default return values for the con
 local gtTermCodes = {"P", "I", "D"} -- The names of each term. This is used for indexing and checking
 local gsPowerForm = "(%s%s%s)" -- The general type format for the controller power setup
 
-local getTime = SysTime -- Using this as time benchmarking for high precision
+local getTime = CurTime -- Using this as time benchmarking for high precision
 local function getSign(nV) return ((nV > 0 and 1) or (nV < 0 and -1) or 0) end
 local function getValue(kV,eV,pV) return (kV*getSign(eV)*math.abs(eV)^pV) end
 
