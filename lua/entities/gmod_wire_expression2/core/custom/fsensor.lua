@@ -106,9 +106,46 @@ e2function fsensor fsensor:remClassHit(string sC)
 end
 
 __e2setcost(3)
+e2function entity fsensor:getAttachEntity()
+	if(not this) then return nil end; local vE = this.Ent
+	if(not (vE and vE:IsValid())) then return nil end; return vE
+end
+
+__e2setcost(3)
+e2function fsensor fsensor:setAttachEntity(entity eE)
+	if(not this) then return nil end
+	if(not (eE and eE:IsValid())) then return this end
+	local vE = this.Ent; this.Ign[vE] = false
+	this.Ent = eE; this.Ign[eE] = true
+	return this
+end
+
+__e2setcost(3)
+e2function number fsensor:getIgnoreWorld()
+	if(not this) then return 0 end
+	return (this.TrI.ignoreworld or 0)
+end
+
+__e2setcost(3)
 e2function fsensor fsensor:setIgnoreWorld(number nN)
 	if(not this) then return nil end
 	this.TrI.ignoreworld = (nN ~= 0); return this
+end
+
+__e2setcost(3)
+e2function vector fsensor:getOrigin()
+	if(not this) then return {0,0,0} end
+	return {this.Pos[1], this.Pos[2], this.Pos[3]}
+end
+
+__e2setcost(3)
+e2function vector fsensor:getOriginWorld()
+	if(not this) then return {0,0,0} end
+	local vO, vE = this.Pos, this.Ent
+	if(not (vE and vE:IsValid())) then return {0,0,0} end
+	local vP = Vector(vO[1], vO[2], vO[3])
+	vP:Rotate(vE:GetAngles()); vP:Add(vE:GetPos())
+	return {vP[1], vP[2], vP[3]}
 end
 
 __e2setcost(3)
@@ -119,11 +156,33 @@ e2function fsensor fsensor:setOrigin(vector vO)
 end
 
 __e2setcost(3)
+e2function vector fsensor:getDirection()
+	if(not this) then return nil end
+	return {this.Dir[1], this.Dir[2], this.Dir[3]}
+end
+
+__e2setcost(3)
+e2function vector fsensor:getDirectionWorld()
+	if(not this) then return {0,0,0} end
+	local vD, vE = this.Dir, this.Ent
+	if(not (vE and vE:IsValid())) then return {0,0,0} end
+	local vP = Vector(vD[1], vD[2], vD[3])
+	vP:Rotate(vE:GetAngles())
+	return {vP[1], vP[2], vP[3]}
+end
+
+__e2setcost(3)
 e2function fsensor fsensor:setDirection(vector vD)
 	if(not this) then return nil end
 	this.Dir[1], this.Dir[2], this.Dir[3] = vD[1], vD[2], vD[3]
-	this.Dir:Normalize(); this.Dir:Mul(this.Len)
+	this.Dir:Normalize(); this.Dir:Mul(this.Len or 0)
 	return this
+end
+
+__e2setcost(3)
+e2function number fsensor:getLength()
+	if(not this) then return nil end
+	return (this.Len or 0)
 end
 
 __e2setcost(3)
@@ -135,9 +194,21 @@ e2function fsensor fsensor:setLength(number nL)
 end
 
 __e2setcost(3)
+e2function number fsensor:getMask()
+	if(not this) then return 0 end
+	return (this.TrI.mask or 0)
+end
+
+__e2setcost(3)
 e2function fsensor fsensor:setMask(number nN)
 	if(not this) then return nil end
 	this.TrI.mask = nN; return this
+end
+
+__e2setcost(3)
+e2function number fsensor:getCollisionGroup()
+	if(not this) then return nil end
+	return (this.TrI.collisiongroup or 0)
 end
 
 __e2setcost(3)

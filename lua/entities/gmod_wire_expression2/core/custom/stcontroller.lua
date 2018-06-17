@@ -449,7 +449,7 @@ e2function number stcontroller:getTimeRatio()
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:isIntegrating(number nN)
+e2function stcontroller stcontroller:setIsIntegrating(number nN)
 	if(not this) then return nil end
 	this.meInt = (nN ~= 0); return this
 end
@@ -461,7 +461,7 @@ e2function number stcontroller:isIntegrating()
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:isCombined(number nN)
+e2function stcontroller stcontroller:setIsCombined(number nN)
 	if(not this) then return nil end
 	this.mbCmb = (nN ~= 0); return this
 end
@@ -473,7 +473,7 @@ e2function number stcontroller:isCombined()
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:isManual(number nN)
+e2function stcontroller stcontroller:setIsManual(number nN)
 	if(not this) then return nil end
 	this.mbMan = (nN ~= 0); return this
 end
@@ -497,7 +497,7 @@ e2function number stcontroller:getManual()
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:isInverted(number nN)
+e2function stcontroller stcontroller:setIsInverted(number nN)
 	if(not this) then return nil end
 	this.mbInv = (nN ~= 0); return this
 end
@@ -509,7 +509,7 @@ e2function number stcontroller:isInverted()
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:isActive(number nN)
+e2function stcontroller stcontroller:setIsActive(number nN)
 	if(not this) then return nil end
 	this.mbOn = (nN ~= 0); return this
 end
