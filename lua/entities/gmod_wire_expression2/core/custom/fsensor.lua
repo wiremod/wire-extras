@@ -30,7 +30,7 @@ end
 
 local function convFSensorDirWorld(oFSen, vE)
 	if(not oFSen) then return {0,0,0} end
-	local oD, oE = oFSen.Dir, (vE or this.Ent)
+	local oD, oE = oFSen.Dir, (vE or oFSen.Ent)
 	if(not (oE and oE:IsValid())) then return {oD[1], oD[2], oD[3]} end
 	local vV = Vector(oD[1], oD[2], oD[3])
 	vV:Rotate(oE:GetAngles()); return {vV[1], vV[2], vV[3]}
@@ -38,7 +38,7 @@ end
 
 local function convFSensorOrg(oFSen, vE, sF)
 	if(not oFSen) then return {0,0,0} end
-	local oO, oE = this.Pos, (vE or oFSen.Ent)
+	local oO, oE = oFSen.Pos, (vE or oFSen.Ent)
 	if(not (oE and oE:IsValid())) then return {oO[1], oO[2], oO[3]} end
 	local vV = Vector(oO[1], oO[2], oO[3])
 	vV:Set(oE[sF](oE, vV)); return {vV[1], vV[2], vV[3]}
@@ -102,6 +102,41 @@ end
 __e2setcost(20)
 e2function fsensor newFSensor(vector vP, vector vD, number nL)
 	return makeFSensor(nil, vP, vD, nL)
+end
+
+__e2setcost(20)
+e2function fsensor entity:setFSensor(vector vP, vector vD)
+	return makeFSensor(this, vP, vD, 0)
+end
+
+__e2setcost(20)
+e2function fsensor newFSensor(vector vP, vector vD)
+	return makeFSensor(nil, vP, vD, 0)
+end
+
+__e2setcost(20)
+e2function fsensor entity:setFSensor(vector vP)
+	return makeFSensor(this, vP, {0,0,0}, 0)
+end
+
+__e2setcost(20)
+e2function fsensor newFSensor(vector vP)
+	return makeFSensor(nil, vP, {0,0,0}, 0)
+end
+
+__e2setcost(20)
+e2function fsensor entity:setFSensor()
+	return makeFSensor(this, {0,0,0}, {0,0,0}, 0)
+end
+
+__e2setcost(20)
+e2function fsensor newFSensor()
+	return makeFSensor(nil, {0,0,0}, {0,0,0}, 0)
+end
+
+__e2setcost(20)
+e2function fsensor fsensor:copyFSensor()
+	return makeFSensor(this.Ent, this.Pos, this.Dir, this.Len)
 end
 
 __e2setcost(3)
