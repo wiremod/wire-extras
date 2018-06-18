@@ -27,7 +27,7 @@ local function makeFSensor(vEnt, vPos, vDir, nLen)
 	else
 		oFSen.Ign, oFSen.Ent = {}, nil -- Make sure the entity is cleared
 	end; oFSen.Cls = {} -- Table for storing the hit classes
-	oFSen.Len = math.Clamp(nLen,-50000,50000) -- How long the length is
+	oFSen.Len = math.Clamp(tonumber(nLen or 0),-50000,50000) -- How long the length is
 	-- Local tracer position the trace starts from
 	oFSen.Pos = Vector(vPos[1],vPos[2],vPos[3])
 	-- Local tracer direction to read the data of
@@ -90,7 +90,7 @@ __e2setcost(3)
 e2function fsensor fsensor:remIgnoreEntityHit(entity vE)
 	if(not this) then return nil end
 	if(not (vE and vE:IsValid())) then return nil end
-	this.Ign[vE] = nil; return this
+	this.Ign[vE] = false; return this
 end
 
 __e2setcost(3)
@@ -102,7 +102,7 @@ end
 __e2setcost(3)
 e2function fsensor fsensor:remClassHit(string sC)
 	if(not this) then return nil end
-	this.Cls[sC] = nil; return this
+	this.Cls[sC] = false; return this
 end
 
 __e2setcost(3)
@@ -139,13 +139,35 @@ e2function vector fsensor:getOrigin()
 end
 
 __e2setcost(3)
+e2function vector fsensor:getOriginLocal()
+	if(not this) then return {0,0,0} end; local vO, oE = this.Pos, this.Ent
+	if(not (oE and oE:IsValid())) then return {vO[1], vO[2], vO[3]} end
+	local vV = Vector(vO[1], vO[2], vO[3])
+	vV:Set(oE:WorldToLocal(vV)); return {vV[1], vV[2], vV[3]}
+end
+
+__e2setcost(3)
+e2function vector fsensor:getOriginLocal(entity vE)
+	if(not this) then return {0,0,0} end; local vO, oE = this.Pos, vE
+	if(not (oE and oE:IsValid())) then return {vO[1], vO[2], vO[3]} end
+	local vV = Vector(vO[1], vO[2], vO[3])
+	vV:Set(oE:WorldToLocal(vV)); return {vV[1], vV[2], vV[3]}
+end
+
+__e2setcost(3)
 e2function vector fsensor:getOriginWorld()
-	if(not this) then return {0,0,0} end
-	local vO, vE = this.Pos, this.Ent
-	if(not (vE and vE:IsValid())) then return {0,0,0} end
-	local vP = Vector(vO[1], vO[2], vO[3])
-	vP:Rotate(vE:GetAngles()); vP:Add(vE:GetPos())
-	return {vP[1], vP[2], vP[3]}
+	if(not this) then return {0,0,0} end; local vO, oE = this.Pos, this.Ent
+	if(not (oE and oE:IsValid())) then return {vO[1], vO[2], vO[3]} end
+	local vV = Vector(vO[1], vO[2], vO[3])
+	vV:Set(oE:LocalToWorld(vV)); return {vV[1], vV[2], vV[3]}
+end
+
+__e2setcost(3)
+e2function vector fsensor:getOriginWorld(entity vE)
+	if(not this) then return {0,0,0} end; local vO, oE = this.Pos, vE
+	if(not (oE and oE:IsValid())) then return {vO[1], vO[2], vO[3]} end
+	local vV = Vector(vO[1], vO[2], vO[3])
+	vV:Set(oE:LocalToWorld(vV)); return {vV[1], vV[2], vV[3]}
 end
 
 __e2setcost(3)
@@ -162,13 +184,37 @@ e2function vector fsensor:getDirection()
 end
 
 __e2setcost(3)
+e2function vector fsensor:getDirectionLocal()
+	if(not this) then return {0,0,0} end; local vD, oE = this.Dir, this.Ent
+	if(not (oE and oE:IsValid())) then return {vD[1], vD[2], vD[3]} end
+	local vV, aE = Vector(vD[1], vD[2], vD[3]), oE:GetAngles()
+	local nX, nY, nZ = vV:Dot(aE:Forward()), vV:Dot(aE:Right()), vV:Dot(aE:Up())
+	nY = -nY; return {nX, nY, nZ} -- Gmod +Y uses left entity coordinate
+end
+
+__e2setcost(3)
+e2function vector fsensor:getDirectionLocal(entity vE)
+	if(not this) then return {0,0,0} end; local vD, oE = this.Dir, vE
+	if(not (oE and oE:IsValid())) then return {vD[1], vD[2], vD[3]} end
+	local vV, aE = Vector(vD[1], vD[2], vD[3]), oE:GetAngles()
+	local nX, nY, nZ = vV:Dot(aE:Forward()), vV:Dot(aE:Right()), vV:Dot(aE:Up())
+	nY = -nY; return {nX, nY, nZ} -- Gmod +Y uses left entity coordinate
+end
+
+__e2setcost(3)
 e2function vector fsensor:getDirectionWorld()
-	if(not this) then return {0,0,0} end
-	local vD, vE = this.Dir, this.Ent
-	if(not (vE and vE:IsValid())) then return {0,0,0} end
-	local vP = Vector(vD[1], vD[2], vD[3])
-	vP:Rotate(vE:GetAngles())
-	return {vP[1], vP[2], vP[3]}
+	if(not this) then return {0,0,0} end; local vD, oE = this.Dir, this.Ent
+	if(not (oE and oE:IsValid())) then return {vD[1], vD[2], vD[3]} end
+	local vV = Vector(vD[1], vD[2], vD[3])
+	vV:Rotate(oE:GetAngles()); return {vV[1], vV[2], vV[3]}
+end
+
+__e2setcost(3)
+e2function vector fsensor:getDirectionWorld(entity vE)
+	if(not this) then return {0,0,0} end; local vD, oE = this.Dir, vE
+	if(not (oE and oE:IsValid())) then return {vD[1], vD[2], vD[3]} end
+	local vV = Vector(vD[1], vD[2], vD[3])
+	vV:Rotate(oE:GetAngles()); return {vV[1], vV[2], vV[3]}
 end
 
 __e2setcost(3)
