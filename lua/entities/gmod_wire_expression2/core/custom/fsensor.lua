@@ -19,6 +19,31 @@ registerType("fsensor", "xfs", nil,
 
 E2Lib.RegisterExtension("fsensor", true, "Lets E2 chips trace ray attachments and check for hits.")
 
+local function convFSensorDirLocal(oFSen, vE)
+	if(not oFSen) then return {0,0,0} end
+	local oD, oE = oFSen.Dir, (vE or oFSen.Ent)
+	if(not (oE and oE:IsValid())) then return {oD[1], oD[2], oD[3]} end
+	local vV, aE = Vector(oD[1], oD[2], oD[3]), oE:GetAngles()
+	local nX, nY, nZ = vV:Dot(aE:Forward()), vV:Dot(aE:Right()), vV:Dot(aE:Up())
+	nY = -nY; return {nX, nY, nZ} -- Gmod +Y uses left entity coordinate
+end
+
+local function convFSensorDirWorld(oFSen, vE)
+	if(not oFSen) then return {0,0,0} end
+	local oD, oE = oFSen.Dir, (vE or this.Ent)
+	if(not (oE and oE:IsValid())) then return {oD[1], oD[2], oD[3]} end
+	local vV = Vector(oD[1], oD[2], oD[3])
+	vV:Rotate(oE:GetAngles()); return {vV[1], vV[2], vV[3]}
+end
+
+local function convFSensorOrg(oFSen, vE, sF)
+	if(not oFSen) then return {0,0,0} end
+	local oO, oE = this.Pos, (vE or oFSen.Ent)
+	if(not (oE and oE:IsValid())) then return {oO[1], oO[2], oO[3]} end
+	local vV = Vector(oO[1], oO[2], oO[3])
+	vV:Set(oE[sF](oE, vV)); return {vV[1], vV[2], vV[3]}
+end
+
 local function makeFSensor(vEnt, vPos, vDir, nLen)
 	local oFSen = {}
 	if(vEnt and vEnt:IsValid()) then
@@ -140,34 +165,22 @@ end
 
 __e2setcost(3)
 e2function vector fsensor:getOriginLocal()
-	if(not this) then return {0,0,0} end; local vO, oE = this.Pos, this.Ent
-	if(not (oE and oE:IsValid())) then return {vO[1], vO[2], vO[3]} end
-	local vV = Vector(vO[1], vO[2], vO[3])
-	vV:Set(oE:WorldToLocal(vV)); return {vV[1], vV[2], vV[3]}
+	return convFSensorOrg(this, nil, "WorldToLocal")
 end
 
 __e2setcost(3)
 e2function vector fsensor:getOriginLocal(entity vE)
-	if(not this) then return {0,0,0} end; local vO, oE = this.Pos, vE
-	if(not (oE and oE:IsValid())) then return {vO[1], vO[2], vO[3]} end
-	local vV = Vector(vO[1], vO[2], vO[3])
-	vV:Set(oE:WorldToLocal(vV)); return {vV[1], vV[2], vV[3]}
+	return convFSensorOrg(this, vE, "WorldToLocal")
 end
 
 __e2setcost(3)
 e2function vector fsensor:getOriginWorld()
-	if(not this) then return {0,0,0} end; local vO, oE = this.Pos, this.Ent
-	if(not (oE and oE:IsValid())) then return {vO[1], vO[2], vO[3]} end
-	local vV = Vector(vO[1], vO[2], vO[3])
-	vV:Set(oE:LocalToWorld(vV)); return {vV[1], vV[2], vV[3]}
+	return convFSensorOrg(this, nil, "LocalToWorld")
 end
 
 __e2setcost(3)
 e2function vector fsensor:getOriginWorld(entity vE)
-	if(not this) then return {0,0,0} end; local vO, oE = this.Pos, vE
-	if(not (oE and oE:IsValid())) then return {vO[1], vO[2], vO[3]} end
-	local vV = Vector(vO[1], vO[2], vO[3])
-	vV:Set(oE:LocalToWorld(vV)); return {vV[1], vV[2], vV[3]}
+	return convFSensorOrg(this, vE, "LocalToWorld")
 end
 
 __e2setcost(3)
@@ -185,36 +198,22 @@ end
 
 __e2setcost(3)
 e2function vector fsensor:getDirectionLocal()
-	if(not this) then return {0,0,0} end; local vD, oE = this.Dir, this.Ent
-	if(not (oE and oE:IsValid())) then return {vD[1], vD[2], vD[3]} end
-	local vV, aE = Vector(vD[1], vD[2], vD[3]), oE:GetAngles()
-	local nX, nY, nZ = vV:Dot(aE:Forward()), vV:Dot(aE:Right()), vV:Dot(aE:Up())
-	nY = -nY; return {nX, nY, nZ} -- Gmod +Y uses left entity coordinate
+	return convFSensorDirLocal(this, nil)
 end
 
 __e2setcost(3)
 e2function vector fsensor:getDirectionLocal(entity vE)
-	if(not this) then return {0,0,0} end; local vD, oE = this.Dir, vE
-	if(not (oE and oE:IsValid())) then return {vD[1], vD[2], vD[3]} end
-	local vV, aE = Vector(vD[1], vD[2], vD[3]), oE:GetAngles()
-	local nX, nY, nZ = vV:Dot(aE:Forward()), vV:Dot(aE:Right()), vV:Dot(aE:Up())
-	nY = -nY; return {nX, nY, nZ} -- Gmod +Y uses left entity coordinate
+	return convFSensorDirLocal(this, vE)
 end
 
 __e2setcost(3)
 e2function vector fsensor:getDirectionWorld()
-	if(not this) then return {0,0,0} end; local vD, oE = this.Dir, this.Ent
-	if(not (oE and oE:IsValid())) then return {vD[1], vD[2], vD[3]} end
-	local vV = Vector(vD[1], vD[2], vD[3])
-	vV:Rotate(oE:GetAngles()); return {vV[1], vV[2], vV[3]}
+	return convFSensorDirWorld(this, nil, nil)
 end
 
 __e2setcost(3)
 e2function vector fsensor:getDirectionWorld(entity vE)
-	if(not this) then return {0,0,0} end; local vD, oE = this.Dir, vE
-	if(not (oE and oE:IsValid())) then return {vD[1], vD[2], vD[3]} end
-	local vV = Vector(vD[1], vD[2], vD[3])
-	vV:Rotate(oE:GetAngles()); return {vV[1], vV[2], vV[3]}
+	return convFSensorDirWorld(this, nil, vE)
 end
 
 __e2setcost(3)
