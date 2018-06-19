@@ -2,7 +2,7 @@
 	My custom flash sensor tracer type ( Based on wire rangers )
 \******************************************************************************/
 
-local xfs, par = "flash sensor", {"attachment entity", "origin position", "directoion vector", "length distance"}
+local xfs, par = "flash sensor", {"attachment entity", "origin position", "direction vector", "length distance"}
 E2Helper.Descriptions["noFSensor()"] = "Returns invalid "..xfs.." object"
 E2Helper.Descriptions["setFSensor(e:vvn)"] = "Returns "..xfs.." local to the entity by "..par[2]..", "..par[3]..", "..par[4]
 E2Helper.Descriptions["newFSensor(vvn)"] = "Returns "..xfs.." relative to the world by "..par[2]..", "..par[3]..", "..par[4]
@@ -22,16 +22,16 @@ E2Helper.Descriptions["setAttachEntity(xfs:e)"] = "Updates the attachment entity
 E2Helper.Descriptions["getIgnoreWorld(xfs:)"] = "Returns the ignore world flag of the "..xfs
 E2Helper.Descriptions["setAttachEntity(xfs:n)"] = "Updates the ignore world flag of the "..xfs
 E2Helper.Descriptions["getOrigin(xfs:)"] = "Returns "..xfs.." "..par[2]
-E2Helper.Descriptions["getOriginLocal(xfs:)"] = "Returns "..xfs.." world "..par[2].." convereted to "..par[1].." local axis"
-E2Helper.Descriptions["getOriginLocal(xfs:e)"] = "Returns "..xfs.." world "..par[2].." convereted to entity local axis"
-E2Helper.Descriptions["getOriginWorld(xfs:)"] = "Returns "..xfs.." local "..par[2].." convereted to "..par[1].." world axis"
-E2Helper.Descriptions["getOriginWorld(xfs:e)"] = "Returns "..xfs.." local "..par[2].." convereted to entity world axis"
+E2Helper.Descriptions["getOriginLocal(xfs:)"] = "Returns "..xfs.." world "..par[2].." converted to "..par[1].." local axis"
+E2Helper.Descriptions["getOriginLocal(xfs:e)"] = "Returns "..xfs.." world "..par[2].." converted to entity local axis"
+E2Helper.Descriptions["getOriginWorld(xfs:)"] = "Returns "..xfs.." local "..par[2].." converted to "..par[1].." world axis"
+E2Helper.Descriptions["getOriginWorld(xfs:e)"] = "Returns "..xfs.." local "..par[2].." converted to entity world axis"
 E2Helper.Descriptions["setOrigin(xfs:v)"] = "Updates the "..xfs.." "..par[2]
 E2Helper.Descriptions["getDirection(xfs:)"] = "Returns "..xfs.." "..par[3]
-E2Helper.Descriptions["getDirectionLocal(xfs:)"] = "Returns "..xfs.." world "..par[3].." convereted to "..par[1].." local axis"
-E2Helper.Descriptions["getDirectionLocal(xfs:e)"] = "Returns "..xfs.." world "..par[3].." convereted to entity local axis"
-E2Helper.Descriptions["getDirectionWorld(xfs:)"] = "Returns "..xfs.." local "..par[3].." convereted to "..par[1].." world axis"
-E2Helper.Descriptions["getDirectionWorld(xfs:e)"] = "Returns "..xfs.." local "..par[3].." convereted to entity world axis"
+E2Helper.Descriptions["getDirectionLocal(xfs:)"] = "Returns "..xfs.." world "..par[3].." converted to "..par[1].." local axis"
+E2Helper.Descriptions["getDirectionLocal(xfs:e)"] = "Returns "..xfs.." world "..par[3].." converted to entity local axis"
+E2Helper.Descriptions["getDirectionWorld(xfs:)"] = "Returns "..xfs.." local "..par[3].." converted to "..par[1].." world axis"
+E2Helper.Descriptions["getDirectionWorld(xfs:e)"] = "Returns "..xfs.." local "..par[3].." converted to entity world axis"
 E2Helper.Descriptions["setDirection(xfs:v)"] = "Updates the "..xfs.." "..par[3]
 E2Helper.Descriptions["getLength(xfs:)"] = "Returns "..xfs.." "..par[4]
 E2Helper.Descriptions["setLength(xfs:n)"] = "Updates "..xfs.." "..par[4]
@@ -39,8 +39,8 @@ E2Helper.Descriptions["getMask(xfs:)"] = "Returns "..xfs.." trace hit mask enum 
 E2Helper.Descriptions["setMask(xfs:n)"] = "Updates "..xfs.." trace hit mask enum MASK_%"
 E2Helper.Descriptions["getCollisionGroup(xfs:)"] = "Returns "..xfs.." trace collision group enum COLLISION_GROUP_%"
 E2Helper.Descriptions["setCollisionGroup(xfs:n)"] = "Updates "..xfs.." trace collision group enum COLLISION_GROUP_%"
-E2Helper.Descriptions["smpLocal(xfs:)"] = "Samples the "..xfs.." and updates the trace result acording to "..par[1].." local axis"
-E2Helper.Descriptions["smpWorld(xfs:)"] = "Samples the "..xfs.." and updates the trace result acording to the world axis"
+E2Helper.Descriptions["smpLocal(xfs:)"] = "Samples the "..xfs.." and updates the trace result according to "..par[1].." local axis"
+E2Helper.Descriptions["smpWorld(xfs:)"] = "Samples the "..xfs.." and updates the trace result according to the world axis"
 E2Helper.Descriptions["isHitNoDraw(xfs:)"] = "Returns the "..xfs.." sampled trace /HitNoDraw/ flag"
 E2Helper.Descriptions["isHitNonWorld(xfs:)"] = "Returns the "..xfs.." sampled trace /HitNonWorld/ flag"
 E2Helper.Descriptions["isHit(xfs:)"] = "Returns the "..xfs.." sampled trace /Hit/ flag"

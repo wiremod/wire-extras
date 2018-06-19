@@ -341,6 +341,20 @@ e2function stcontroller stcontroller:setWindup(number nD, number nU)
 end
 
 __e2setcost(3)
+e2function stcontroller stcontroller:setWindup(array aA)
+	if(not this) then return nil end
+	if(aA[1] < aA[2]) then this.mSatD, this.mSatU = aA[1], aA[2] end
+	return this
+end
+
+__e2setcost(3)
+e2function stcontroller stcontroller:setWindup(vector2 vV)
+	if(not this) then return nil end
+	if(vV[1] < vV[2]) then this.mSatD, this.mSatU = vV[1], vV[2] end
+	return this
+end
+
+__e2setcost(3)
 e2function stcontroller stcontroller:setWindupD(number nD)
 	if(not this) then return nil end
 	this.mSatD = nD; return this
