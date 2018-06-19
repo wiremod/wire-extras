@@ -102,7 +102,7 @@ end
 
 local function makeStController(nTo)
 	local oStCon = {}; oStCon.mnTo = tonumber(nTo) -- Place to store the object
-	if(oStCon.mnTo and oStCon.mnTo <= 0) then 
+	if(oStCon.mnTo and oStCon.mnTo <= 0) then
 		return logError("makeStController: Object delta mismatch #"..tostring(oStCon.mnTo), nil) end
 	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
 	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {"(NrNrNr)",gtTermMiss[2]:rep(3)} -- Error state values
@@ -151,6 +151,11 @@ e2function stcontroller stcontroller:setGainI(number nI)
 end
 
 __e2setcost(7)
+e2function stcontroller stcontroller:setGainD(number nD)
+	return setStControllerGains(this, nil, nil, nD)
+end
+
+__e2setcost(7)
 e2function stcontroller stcontroller:setGainPI(number nP, number nI)
 	return setStControllerGains(this, nP, nI, nil)
 end
@@ -161,6 +166,11 @@ e2function stcontroller stcontroller:setGainPI(vector2 vV)
 end
 
 __e2setcost(7)
+e2function stcontroller stcontroller:setGainPI(array aA)
+	return setStControllerGains(this, aA[1], aA[2], nil)
+end
+
+__e2setcost(7)
 e2function stcontroller stcontroller:setGainPD(number nP, number nD)
 	return setStControllerGains(this, nP, nil, nD)
 end
@@ -168,6 +178,26 @@ end
 __e2setcost(7)
 e2function stcontroller stcontroller:setGainPD(vector2 vV)
 	return setStControllerGains(this, vV[1], nil, vV[2])
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:setGainPD(array aA)
+	return setStControllerGains(this, aA[1], nil, aA[2])
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:setGainID(number nI, number nD)
+	return setStControllerGains(this, nil, nI, nD)
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:setGainID(vector2 vV)
+	return setStControllerGains(this, nil, vV[1], vV[2])
+end
+
+__e2setcost(7)
+e2function stcontroller stcontroller:setGainID(array aA)
+	return setStControllerGains(this, nil, aA[1], aA[2])
 end
 
 __e2setcost(7)
@@ -233,6 +263,42 @@ e2function vector stcontroller:getGain()
 end
 
 __e2setcost(3)
+e2function array stcontroller:getGainPI()
+	if(not this) then return {0,0} end
+	return {this.mkP, this.mkI}
+end
+
+__e2setcost(3)
+e2function vector2 stcontroller:getGainPI()
+	if(not this) then return {0,0} end
+	return {this.mkP, this.mkI}
+end
+
+__e2setcost(3)
+e2function array stcontroller:getGainPD()
+	if(not this) then return {0,0} end
+	return {this.mkP, this.mkD}
+end
+
+__e2setcost(3)
+e2function vector2 stcontroller:getGainPD()
+	if(not this) then return {0,0,0} end
+	return {this.mkP, this.mkD}
+end
+
+__e2setcost(3)
+e2function array stcontroller:getGainID()
+	if(not this) then return {0,0} end
+	return {this.mkI, this.mkD}
+end
+
+__e2setcost(3)
+e2function vector stcontroller:getGainID()
+	if(not this) then return {0,0} end
+	return {this.mkI, this.mkD}
+end
+
+__e2setcost(3)
 e2function number stcontroller:getGainP()
 	if(not this) then return 0 end
 	return (this.mkP or 0)
@@ -257,7 +323,7 @@ e2function stcontroller stcontroller:setBias(number nN)
 end
 
 __e2setcost(3)
-e2function number stcontroller:getBias(number nN)
+e2function number stcontroller:getBias()
 	if(not this) then return 0 end
 	return (this.mBias or 0)
 end
@@ -293,13 +359,13 @@ e2function stcontroller stcontroller:remWindup()
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:remWindupD(number nD)
+e2function stcontroller stcontroller:remWindupD()
 	if(not this) then return nil end
 	this.mSatD = nil; return this
 end
 
 __e2setcost(3)
-e2function stcontroller stcontroller:remWindupU(number nU)
+e2function stcontroller stcontroller:remWindupU()
 	if(not this) then return nil end
 	this.mSatU = nil; return this
 end
@@ -317,13 +383,13 @@ e2function vector2 stcontroller:getWindup()
 end
 
 __e2setcost(3)
-e2function number stcontroller:getWindupD(number nD)
+e2function number stcontroller:getWindupD()
 	if(not this) then return 0 end
 	return (this.mSatD or 0)
 end
 
 __e2setcost(3)
-e2function number stcontroller:getWindupU(number nU)
+e2function number stcontroller:getWindupU()
 	if(not this) then return 0 end
 	return (this.mSatU or 0)
 end
@@ -331,6 +397,16 @@ end
 __e2setcost(8)
 e2function stcontroller stcontroller:setPower(number nP)
 	return setStControllerPower(this, nP, nil, nil)
+end
+
+__e2setcost(8)
+e2function stcontroller stcontroller:setPower(number nI)
+	return setStControllerPower(this, nil, nI, nil)
+end
+
+__e2setcost(8)
+e2function stcontroller stcontroller:setPower(number nD)
+	return setStControllerPower(this, nil, nil, nD)
 end
 
 __e2setcost(8)
@@ -344,6 +420,11 @@ e2function stcontroller stcontroller:setPowerPI(vector2 vV)
 end
 
 __e2setcost(8)
+e2function stcontroller stcontroller:setPowerPI(vector2 aA)
+	return setStControllerPower(this, aA[1], aA[2], nil)
+end
+
+__e2setcost(8)
 e2function stcontroller stcontroller:setPowerPD(number nP, number nD)
 	return setStControllerPower(this, nP, nil, nD)
 end
@@ -351,6 +432,26 @@ end
 __e2setcost(8)
 e2function stcontroller stcontroller:setPowerPD(vector2 vV)
 	return setStControllerPower(this, vV[1], nil, vV[2])
+end
+
+__e2setcost(8)
+e2function stcontroller stcontroller:setPowerPD(vector2 aA)
+	return setStControllerPower(this, aA[1], nil, aA[2])
+end
+
+__e2setcost(8)
+e2function stcontroller stcontroller:setPowerID(number nI, number nD)
+	return setStControllerPower(this, nil, nI, nD)
+end
+
+__e2setcost(8)
+e2function stcontroller stcontroller:setPowerID(vector2 vV)
+	return setStControllerPower(this, nil, vV[1], vV[2])
+end
+
+__e2setcost(8)
+e2function stcontroller stcontroller:setPowerID(vector2 aA)
+	return setStControllerPower(this, nil, aA[1], aA[2])
 end
 
 __e2setcost(8)
@@ -397,6 +498,43 @@ e2function number stcontroller:getPowerD()
 	if(not this) then return 0 end
 	return (this.mpD or 0)
 end
+
+__e2setcost(3)
+e2function array stcontroller:getPowerPI()
+	if(not this) then return {0,0} end
+	return {this.mpP, this.mpI}
+end
+
+__e2setcost(3)
+e2function vector2 stcontroller:getPowerPI()
+	if(not this) then return {0,0} end
+	return {this.mpP, this.mpI}
+end
+
+__e2setcost(3)
+e2function array stcontroller:getPowerPD()
+	if(not this) then return {0,0} end
+	return {this.mpP, this.mpD}
+end
+
+__e2setcost(3)
+e2function vector2 stcontroller:getPowerPD()
+	if(not this) then return {0,0} end
+	return {this.mpP, this.mpD}
+end
+
+__e2setcost(3)
+e2function array stcontroller:getPowerID()
+	if(not this) then return {0,0} end
+	return {this.mpI, this.mpD}
+end
+
+__e2setcost(3)
+e2function vector2 stcontroller:getPowerID()
+	if(not this) then return {0,0} end
+	return {this.mpI, this.mpD}
+end
+
 
 __e2setcost(3)
 e2function number stcontroller:getErrorNow()
