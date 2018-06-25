@@ -173,11 +173,10 @@ end
 
 __e2setcost(3)
 e2function fsensor fsensor:setAttachEntity(entity eE)
-	if(not this) then return nil end
+	if(not this) then return nil end; local vE = this.Ent
 	if(not (eE and eE:IsValid())) then return this end
-	local vE = this.Ent; this.Ign[vE] = false
-	this.Ent = eE; this.Ign[eE] = true
-	return this
+	if(vE and vE:IsValid()) then this.Ign[vE] = false end
+	this.Ent = eE; this.Ign[eE] = true; return this
 end
 
 __e2setcost(3)
