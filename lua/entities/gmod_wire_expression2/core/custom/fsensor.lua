@@ -2,64 +2,96 @@
 	My custom flash sensor tracer type ( Based on wire rangers )
 \******************************************************************************/
 
+local next = next
+local Angle = Angle
+local Vector = Vector
+local tostring = tostring
+local tonumber = tonumber
+local LocalToWorld = LocalToWorld
+local WorldToLocal = WorldToLocal
+local mathAbs = math.abs
+local mathClamp = math.Clamp
+local utilTraceLine = util.TraceLine
+local utilGetSurfacePropName = util.GetSurfacePropName
+local outError = error -- The function which generates error and prints it out
+
 -- Register the type up here before the extension registration so that the fsensor still works
 registerType("fsensor", "xfs", nil,
 	nil,
 	nil,
 	function(retval)
 		if(retval == nil) then return end
-		if(not istable(retval)) then error("Return value is neither nil nor a table, but a "..type(retval).."!",0) end
+		if(not istable(retval)) then outError("Return value is neither nil nor a table, but a "..type(retval).."!",0) end
 	end,
 	function(v)
 		return (not istable(v)) or (not v.StartPos)
 	end
 )
 
-/******************************************************************************/
+/************************************************************************************************************************************************************/
 
 E2Lib.RegisterExtension("fsensor", true, "Lets E2 chips trace ray attachments and check for hits.")
 
-local function convFSensorDirLocal(oFSen, vE)
-	if(not oFSen) then return {0,0,0} end
-	local oD, oE = oFSen.Dir, (vE or oFSen.Ent)
-	if(not (oE and oE:IsValid())) then return {oD[1], oD[2], oD[3]} end
-	local vV, aE = Vector(oD[1], oD[2], oD[3]), oE:GetAngles()
-	local nX, nY, nZ = vV:Dot(aE:Forward()), vV:Dot(aE:Right()), vV:Dot(aE:Up())
-	nY = -nY; return {nX, nY, nZ} -- Gmod +Y uses left entity coordinate
+local gaZero = Angle(0,0,0) -- Dummy zero angle for transformations
+local gvZero = Vector(0,0,0) -- Dummy zero vector for transformations
+local gnMaxLen = 50000 -- The tracer maximum length just about one cube map
+
+local function isEntity(vE)
+	return (vE and vE:IsValid())
 end
 
-local function convFSensorDirWorld(oFSen, vE)
+local function convFSensorDirLocal(oFSen, vE, vA)
 	if(not oFSen) then return {0,0,0} end
 	local oD, oE = oFSen.Dir, (vE or oFSen.Ent)
-	if(not (oE and oE:IsValid())) then return {oD[1], oD[2], oD[3]} end
-	local vV = Vector(oD[1], oD[2], oD[3])
-	vV:Rotate(oE:GetAngles()); return {vV[1], vV[2], vV[3]}
+	if(not (isEntity(oE) or vA)) then return {oD[1], oD[2], oD[3]} end
+	local oV, oA = Vector(oD[1], oD[2], oD[3]), (vA and vA or oE:GetAngles())
+	return {oV:Dot(oA:Forward()), -oV:Dot(oA:Right()), oV:Dot(oA:Up())}
 end
 
-local function convFSensorOrg(oFSen, vE, sF)
+local function convFSensorDirWorld(oFSen, vE, vA)
+	if(not oFSen) then return {0,0,0} end
+	local oD, oE = oFSen.Dir, (vE or oFSen.Ent)
+	if(not (isEntity(oE) or vA)) then return {oD[1], oD[2], oD[3]} end
+	local oV, oA = Vector(oD[1], oD[2], oD[3]), (vA and vA or oE:GetAngles())
+	oV:Rotate(oA); return {oV[1], oV[2], oV[3]}
+end
+
+local function convFSensorOrgEnt(oFSen, sF, vE)
 	if(not oFSen) then return {0,0,0} end
 	local oO, oE = oFSen.Pos, (vE or oFSen.Ent)
-	if(not (oE and oE:IsValid())) then return {oO[1], oO[2], oO[3]} end
-	local vV = Vector(oO[1], oO[2], oO[3])
-	vV:Set(oE[sF](oE, vV)); return {vV[1], vV[2], vV[3]}
+	if(not isEntity(oE)) then return {oO[1], oO[2], oO[3]} end
+	local oV = Vector(oO[1], oO[2], oO[3])
+	oV:Set(oE[sF](oE, oV)); return {oV[1], oV[2], oV[3]}
+end
+
+local function convFSensorOrgUCS(oFSen, sF, vP, vA)
+	if(not oFSen) then return {0,0,0} end
+	local oO, oE = oFSen.Pos, (vE or oFSen.Ent)
+	if(not isEntity(oE)) then return {oO[1], oO[2], oO[3]} end
+	local oV, vN, aN = Vector(oO[1], oO[2], oO[3])
+	if(sF == "LocalToWorld") then
+		vN, aN = LocalToWorld(oV, gaZero, vP, vA); oV:Set(vN)
+	elseif(sF == "WorldToLocal") then
+		vN, aN = WorldToLocal(oV, gaZero, vP, vA); oV:Set(vN)
+	end; return {oV[1], oV[2], oV[3]}
 end
 
 local function makeFSensor(vEnt, vPos, vDir, nLen)
 	local oFSen = {}
-	if(vEnt and vEnt:IsValid()) then
+	if(isEntity(vEnt)) then
 		oFSen.Ent = vEnt -- Store attachment entity to manage local sampling
 		oFSen.Ign = {[vEnt]=true} -- Store the base entity for ignore
 	else
 		oFSen.Ign, oFSen.Ent = {}, nil -- Make sure the entity is cleared
 	end; oFSen.Cls = {} -- Table for storing the hit classes
-	oFSen.Len = math.Clamp(tonumber(nLen or 0),-50000,50000) -- How long the length is
+	oFSen.Len = mathClamp(tonumber(nLen or 0),-gnMaxLen,gnMaxLen) -- How long the length is
 	-- Local tracer position the trace starts from
 	oFSen.Pos = Vector(vPos[1],vPos[2],vPos[3])
 	-- Local tracer direction to read the data of
 	oFSen.Dir = Vector(vDir[1],vDir[2],vDir[3])
 	oFSen.Dir:Normalize() -- Normalize the direction
 	oFSen.Dir:Mul(oFSen.Len) -- Multiply to add in real-time
-	oFSen.Len = math.abs(oFSen.Len) -- Length absolute
+	oFSen.Len = mathAbs(oFSen.Len) -- Length absolute
 	-- http://wiki.garrysmod.com/page/Structures/TraceResult
 	oFSen.TrO = {} -- Trace output parameters
 	-- http://wiki.garrysmod.com/page/Structures/Trace
@@ -69,7 +101,7 @@ local function makeFSensor(vEnt, vPos, vDir, nLen)
 		output = oFSen.TrO,
 		endpos = Vector(), -- The end position of the trace
 		filter = function(oEnt)
-			if(not (oEnt and oEnt:IsValid())) then return end
+			if(not isEntity(oEnt))) then return end
 			if(oFSen.Ign[oEnt]) then return end
 			local tCls, eCls = oFSen.Cls, oEnt:GetClass()
 			if(next(tCls) and (not tCls[eCls])) then return end
@@ -142,14 +174,14 @@ end
 __e2setcost(3)
 e2function fsensor fsensor:addIgnoreEntityHit(entity vE)
 	if(not this) then return nil end
-	if(not (vE and vE:IsValid())) then return nil end
+	if(not isEntity(vE))) then return nil end
 	this.Ign[vE] = true; return this
 end
 
 __e2setcost(3)
 e2function fsensor fsensor:remIgnoreEntityHit(entity vE)
 	if(not this) then return nil end
-	if(not (vE and vE:IsValid())) then return nil end
+	if(not isEntity(vE))) then return nil end
 	this.Ign[vE] = false; return this
 end
 
@@ -168,14 +200,14 @@ end
 __e2setcost(3)
 e2function entity fsensor:getAttachEntity()
 	if(not this) then return nil end; local vE = this.Ent
-	if(not (vE and vE:IsValid())) then return nil end; return vE
+	if(not isEntity(vE))) then return nil end; return vE
 end
 
 __e2setcost(3)
 e2function fsensor fsensor:setAttachEntity(entity eE)
 	if(not this) then return nil end; local vE = this.Ent
-	if(not (eE and eE:IsValid())) then return this end
-	if(vE and vE:IsValid()) then this.Ign[vE] = false end
+	if(not isEntity(eE))) then return this end
+	if(isEntity(vE)) then this.Ign[vE] = false end
 	this.Ent = eE; this.Ign[eE] = true; return this
 end
 
@@ -199,22 +231,32 @@ end
 
 __e2setcost(3)
 e2function vector fsensor:getOriginLocal()
-	return convFSensorOrg(this, nil, "WorldToLocal")
-end
-
-__e2setcost(3)
-e2function vector fsensor:getOriginLocal(entity vE)
-	return convFSensorOrg(this, vE, "WorldToLocal")
+	return convFSensorOrgEnt(this, "WorldToLocal", nil)
 end
 
 __e2setcost(3)
 e2function vector fsensor:getOriginWorld()
-	return convFSensorOrg(this, nil, "LocalToWorld")
+	return convFSensorOrgEnt(this, "LocalToWorld", nil)
+end
+
+__e2setcost(3)
+e2function vector fsensor:getOriginLocal(entity vE)
+	return convFSensorOrgEnt(this, "WorldToLocal", vE)
 end
 
 __e2setcost(3)
 e2function vector fsensor:getOriginWorld(entity vE)
-	return convFSensorOrg(this, vE, "LocalToWorld")
+	return convFSensorOrgEnt(this, "LocalToWorld", vE)
+end
+
+__e2setcost(7)
+e2function vector fsensor:getOriginLocal(vector vP, angle vA)
+	return convFSensorOrgUCS(this, "WorldToLocal", vP, vA)
+end
+
+__e2setcost(7)
+e2function vector fsensor:getOriginWorld(vector vP, angle vA)
+	return convFSensorOrgUCS(this, "LocalToWorld", vP, vA)
 end
 
 __e2setcost(3)
@@ -232,12 +274,7 @@ end
 
 __e2setcost(3)
 e2function vector fsensor:getDirectionLocal()
-	return convFSensorDirLocal(this, nil)
-end
-
-__e2setcost(3)
-e2function vector fsensor:getDirectionLocal(entity vE)
-	return convFSensorDirLocal(this, vE)
+	return convFSensorDirLocal(this, nil, nil)
 end
 
 __e2setcost(3)
@@ -246,8 +283,23 @@ e2function vector fsensor:getDirectionWorld()
 end
 
 __e2setcost(3)
+e2function vector fsensor:getDirectionLocal(entity vE)
+	return convFSensorDirLocal(this, vE, nil)
+end
+
+__e2setcost(3)
 e2function vector fsensor:getDirectionWorld(entity vE)
-	return convFSensorDirWorld(this, nil, vE)
+	return convFSensorDirWorld(this, vE, nil)
+end
+
+__e2setcost(3)
+e2function vector fsensor:getDirectionLocal(angle vA)
+	return convFSensorDirLocal(this, nil, vA)
+end
+
+__e2setcost(3)
+e2function vector fsensor:getDirectionWorld(angle vA)
+	return convFSensorDirWorld(this, nil, vA)
 end
 
 __e2setcost(3)
@@ -267,9 +319,9 @@ end
 __e2setcost(3)
 e2function fsensor fsensor:setLength(number nL)
 	if(not this) then return nil end
-	this.Len = math.Clamp(nL,-50000,50000)
+	this.Len = mathClamp(nL,-gnMaxLen,gnMaxLen)
 	this.Dir:Normalize(); this.Dir:Mul(this.Len)
-	this.Len = math.abs(this.Len); return this
+	this.Len = mathAbs(this.Len); return this
 end
 
 __e2setcost(3)
@@ -299,7 +351,7 @@ end
 __e2setcost(12)
 e2function fsensor fsensor:smpLocal()
 	if(not this) then return nil end; local entLoc = this.Ent
-	if(not (entLoc and entLoc:IsValid())) then return this end
+	if(not isEntity(entLoc))) then return this end
 	local entAng, trData = entLoc:GetAngles(), this.TrI
 	trData.start:Set(this.Pos)
 	trData.start:Rotate(entAng)
@@ -308,7 +360,7 @@ e2function fsensor fsensor:smpLocal()
 	trData.endpos:Rotate(entAng)
 	trData.endpos:Add(trData.start)
 	-- http://wiki.garrysmod.com/page/util/TraceLine
-	util.TraceLine(trData); return this
+	utilTraceLine(trData); return this
 end
 
 __e2setcost(8)
@@ -319,7 +371,7 @@ e2function fsensor fsensor:smpWorld()
 	trData.endpos:Set(this.Dir)
 	trData.endpos:Add(trData.start)
 	-- http://wiki.garrysmod.com/page/util/TraceLine
-	util.TraceLine(trData); return this
+	utilTraceLine(trData); return this
 end
 
 __e2setcost(3)
@@ -424,7 +476,7 @@ __e2setcost(3)
 e2function string fsensor:getSurfacePropsName()
 	if(not this) then return "" end
 	local trV = this.TrO.SurfaceProps
-	return (trV and util.GetSurfacePropName(trV) or "")
+	return (trV and utilGetSurfacePropName(trV) or "")
 end
 
 __e2setcost(3)

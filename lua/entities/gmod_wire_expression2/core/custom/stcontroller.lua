@@ -2,13 +2,23 @@
 	My custom state LQ-PID controller type handling process variables
 \******************************************************************************/
 
+local pairs = pairs
+local tostring = tostring
+local tonumber = tonumber
+local mathAbs = math.abs
+local mathModf = math.modf
+local tableConcat = table.concat
+local getTime = CurTime -- Using this as time benchmarking for high precision
+local outError = error -- The function which generates error and prints it out
+local outPrint = print -- The function that outputs a string into the console
+
 -- Register the type up here before the extension registration so that the state controller still works
 registerType("stcontroller", "xsc", nil,
 	nil,
 	nil,
 	function(retval)
 		if(retval == nil) then return end
-		if(not istable(retval)) then error("Return value is neither nil nor a table, but a "..type(retval).."!",0) end
+		if(not istable(retval)) then outError("Return value is neither nil nor a table, but a "..type(retval).."!",0) end
 	end,
 	function(v)
 		return (not istable(v))
@@ -23,16 +33,15 @@ local gtTermMiss = {"Xx", "X"} -- Contains the default return values for the con
 local gtTermCodes = {"P", "I", "D"} -- The names of each term. This is used for indexing and checking
 local gsPowerForm = "(%s%s%s)" -- The general type format for the controller power setup
 
-local getTime = CurTime -- Using this as time benchmarking for high precision
 local function getSign(nV) return ((nV > 0 and 1) or (nV < 0 and -1) or 0) end
-local function getValue(kV,eV,pV) return (kV*getSign(eV)*math.abs(eV)^pV) end
+local function getValue(kV,eV,pV) return (kV*getSign(eV)*mathAbs(eV)^pV) end
 
 local function logError(sM, ...)
-	error("E2:stcontroller: "..tostring(sM)); return ...
+	outError("E2:stcontroller:"..tostring(sM)); return ...
 end
 
 local function logStatus(sM, ...)
-	print(tostring(sM)); return ...
+	outPrint(tostring(sM)); return ...
 end
 
 local function setStControllerGains(oStCon, vP, vI, vD, bZ)
@@ -53,7 +62,7 @@ local function setStControllerGains(oStCon, vP, vI, vD, bZ)
 end
 
 local function getPowerCode(nN)
-	local nW, nF = math.modf(nN, 1)
+	local nW, nF = mathModf(nN, 1)
 	if(nN == 1) then return "Nr" end -- [Natural conventional][y=k*x]
 	if(nN ==-1) then return "Rr" end -- [Reciprocal relation][y=1/k*x]
 	if(nN == 0) then return "Sr" end -- [Sign function relay term][y=k*sign(x)]
@@ -92,18 +101,15 @@ local function resStControllerState(oStCon)
 end
 
 local function getStControllerType(oStCon)
-	if(not oStCon) then
-		local tT, sR = {}, gtTermMiss[1]
-		tT[1] = gsPowerForm:format(sR,sR,sR)
-		tT[2] = gtTermMiss[2]:rep(3)
-		return table.concat(tT, "-")
-	end; return table.concat(oStCon.mType, "-")
+	if(not oStCon) then local mP, mT = gtTermMiss[1], gtTermMiss[2]
+		return (gsPowerForm:format(mP,mP,mP).."-"..mT:rep(3))
+	end; return tableConcat(oStCon.mType, "-")
 end
 
 local function makeStController(nTo)
 	local oStCon = {}; oStCon.mnTo = tonumber(nTo) -- Place to store the object
-	if(oStCon.mnTo and oStCon.mnTo <= 0) then
-		return logError("makeStController: Object delta mismatch #"..tostring(oStCon.mnTo), nil) end
+	if(oStCon.mnTo and oStCon.mnTo <= 0) then -- Fixed sampling time delta check
+		return logError("makeStController: Object delta mismatch ("..tostring(oStCon.mnTo)..")", nil) end
 	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
 	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {"(NrNrNr)",gtTermMiss[2]:rep(3)} -- Error state values
 	oStCon.mvCon, oStCon.mTimB, oStCon.meInt = 0, 0, true -- Control value and integral enabled
@@ -282,7 +288,7 @@ end
 
 __e2setcost(3)
 e2function vector2 stcontroller:getGainPD()
-	if(not this) then return {0,0,0} end
+	if(not this) then return {0,0} end
 	return {this.mkP, this.mkD}
 end
 
@@ -596,7 +602,7 @@ __e2setcost(3)
 e2function number stcontroller:getTimeRatio()
 	if(not this) then return 0 end
 	local timDt = (this.mTimN - this.mTimO)
-	if(timDt == 0) then return timDt end
+	if(timDt == 0) then return 0 end
 	return ((this.mTimB or 0) / timDt)
 end
 
@@ -722,14 +728,14 @@ e2function stcontroller stcontroller:setState(number nR, number nY)
 		this.mTimO = this.mTimN; this.mTimN = getTime()
 		this.mErrO = this.mErrN; this.mErrN = (this.mbInv and (nY-nR) or (nR-nY))
 		local timDt = (this.mnTo and this.mnTo or (this.mTimN - this.mTimO))
-		if(this.mkP > 0) then -- P-Term
+		if(this.mkP > 0) then -- This does not get affected by the time and just multiplies
 			this.mvP = getValue(this.mkP, this.mErrN, this.mpP) end
-		if((this.mkI > 0) and (this.mErrN ~= 0) and this.meInt) then -- I-Term
-			local arInt = (this.mErrN + this.mErrO) * timDt -- The current integral value
+		if((this.mkI > 0) and (this.mErrN ~= 0) and this.meInt and (timDt > 0)) then -- I-Term
+			local arInt = (this.mErrN + this.mErrO) * timDt -- Integral error function area
 			this.mvI = getValue(this.mkI * timDt, arInt, this.mpI) + this.mvI end
-		if((this.mkD > 0) and (this.mErrN ~= this.mErrO) and (timDt ~= 0)) then -- D-Term
+		if((this.mkD > 0) and (this.mErrN ~= this.mErrO) and (timDt > 0)) then -- D-Term
 			local arDif = (this.mErrN - this.mErrO) / timDt -- Derivative dY/dT
-			this.mvD = getValue(this.mkD * timDt, arDif, this.mpD) end
+			this.mvD = getValue(this.mkD * timDt, arDif, this.mpD) else this.mvD = 0 end
 		this.mvCon = this.mvP + this.mvI + this.mvD -- Calculate the control signal
 		if(this.mSatD and this.mvCon < this.mSatD) then -- Saturate lower limit
 			this.mvCon, this.meInt = this.mSatD, false -- Integral is disabled
