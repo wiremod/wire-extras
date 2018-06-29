@@ -1,6 +1,6 @@
-/******************************************************************************\
-	My custom state LQ-PID controller type handling process variables
-\******************************************************************************/
+--[[ ******************************************************************************
+ My custom state LQ-PID controller type handling process variables
+****************************************************************************** ]]--
 
 local pairs = pairs
 local tostring = tostring
@@ -25,7 +25,7 @@ registerType("stcontroller", "xsc", nil,
 	end
 )
 
-/******************************************************************************/
+--[[ ****************************************************************************** ]]  
 
 E2Lib.RegisterExtension("stcontroller", true, "Lets E2 chips have dedicated state controller objects")
 

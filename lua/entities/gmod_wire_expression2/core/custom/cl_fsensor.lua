@@ -1,6 +1,6 @@
-/******************************************************************************\
-	My custom flash sensor tracer type ( Based on wire rangers )
-\******************************************************************************/
+--[[ ******************************************************************************
+ My custom flash sensor tracer type ( Based on wire rangers )
+****************************************************************************** ]]--
 
 local xfs, par = "flash sensor", {"attachment entity", "origin position", "direction vector", "length distance"}
 E2Helper.Descriptions["noFSensor()"] = "Returns invalid "..xfs.." object"

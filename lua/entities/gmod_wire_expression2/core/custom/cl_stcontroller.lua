@@ -1,6 +1,6 @@
-/******************************************************************************\
-	My custom state LQ-PID controller type handling process variables
-\******************************************************************************/
+--[[ ******************************************************************************
+ My custom state LQ-PID controller type handling process variables
+****************************************************************************** ]]--
 
 local xsc, par, trm = "state controller", {}, {"proportional", "integral", "derivative"}
 par[1] = {"sampling time", "control bias", "controller type"}
