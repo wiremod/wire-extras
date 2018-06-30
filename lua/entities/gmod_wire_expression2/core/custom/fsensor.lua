@@ -28,7 +28,7 @@ registerType("fsensor", "xfs", nil,
 	end
 )
 
---[[ ****************************************************************************** ]] 
+--[[ ****************************************************************************** ]]
 
 E2Lib.RegisterExtension("fsensor", true, "Lets E2 chips trace ray attachments and check for hits.")
 
@@ -101,7 +101,7 @@ local function makeFSensor(vEnt, vPos, vDir, nLen)
 		output = oFSen.TrO,
 		endpos = Vector(), -- The end position of the trace
 		filter = function(oEnt)
-			if(not isEntity(oEnt))) then return end
+			if(not isEntity(oEnt)) then return end
 			if(oFSen.Ign[oEnt]) then return end
 			local tCls, eCls = oFSen.Cls, oEnt:GetClass()
 			if(next(tCls) and (not tCls[eCls])) then return end
@@ -174,14 +174,14 @@ end
 __e2setcost(3)
 e2function fsensor fsensor:addIgnoreEntityHit(entity vE)
 	if(not this) then return nil end
-	if(not isEntity(vE))) then return nil end
+	if(not isEntity(vE)) then return nil end
 	this.Ign[vE] = true; return this
 end
 
 __e2setcost(3)
 e2function fsensor fsensor:remIgnoreEntityHit(entity vE)
 	if(not this) then return nil end
-	if(not isEntity(vE))) then return nil end
+	if(not isEntity(vE)) then return nil end
 	this.Ign[vE] = false; return this
 end
 
@@ -200,13 +200,13 @@ end
 __e2setcost(3)
 e2function entity fsensor:getAttachEntity()
 	if(not this) then return nil end; local vE = this.Ent
-	if(not isEntity(vE))) then return nil end; return vE
+	if(not isEntity(vE)) then return nil end; return vE
 end
 
 __e2setcost(3)
 e2function fsensor fsensor:setAttachEntity(entity eE)
 	if(not this) then return nil end; local vE = this.Ent
-	if(not isEntity(eE))) then return this end
+	if(not isEntity(eE)) then return this end
 	if(isEntity(vE)) then this.Ign[vE] = false end
 	this.Ent = eE; this.Ign[eE] = true; return this
 end
@@ -350,28 +350,23 @@ end
 
 __e2setcost(12)
 e2function fsensor fsensor:smpLocal()
-	if(not this) then return nil end; local entLoc = this.Ent
-	if(not isEntity(entLoc))) then return this end
-	local entAng, trData = entLoc:GetAngles(), this.TrI
-	trData.start:Set(this.Pos)
-	trData.start:Rotate(entAng)
-	trData.start:Add(entLoc:GetPos())
-	trData.endpos:Set(this.Dir)
-	trData.endpos:Rotate(entAng)
-	trData.endpos:Add(trData.start)
+	if(not this) then return nil end; local eE = this.Ent
+	if(not isEntity(eE)) then return this end
+	local eP, eA = eE:GetPos(), eE:GetAngles()
+	local trS, trE = this.TrI.start, this.TrI.endpos
+	trS:Set(this.Pos); trS:Rotate(eA); trS:Add(eP)
+	trE:Set(this.Dir); trE:Rotate(eA); trE:Add(trS)
 	-- http://wiki.garrysmod.com/page/util/TraceLine
-	utilTraceLine(trData); return this
+	utilTraceLine(this.TrI); return this
 end
 
 __e2setcost(8)
 e2function fsensor fsensor:smpWorld()
 	if(not this) then return nil end
-	local trData = this.TrI
-	trData.start:Set(this.Pos)
-	trData.endpos:Set(this.Dir)
-	trData.endpos:Add(trData.start)
+	local trS, trE = this.TrI.start, this.TrI.endpos
+	trS:Set(this.Pos); trE:Set(this.Dir); trE:Add(trS)
 	-- http://wiki.garrysmod.com/page/util/TraceLine
-	utilTraceLine(trData); return this
+	utilTraceLine(this.TrI); return this
 end
 
 __e2setcost(3)
