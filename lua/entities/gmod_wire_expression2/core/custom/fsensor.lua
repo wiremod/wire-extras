@@ -60,7 +60,7 @@ local function convArrayKeys(tA)
 		tA[tA[ID]] = true ;tA[ID] = nil; end; return tA
 end
 
-local gtMethList, gsVar = {}, "wire_expression2_fsensor_"
+local gtMethList, gsVar = {}, "wire_expression2_fsensor"
 local gnServContr = bitBor(FCVAR_ARCHIVE, FCVAR_ARCHIVE_XBOX, FCVAR_NOTIFY, FCVAR_REPLICATED, FCVAR_PRINTABLEONLY)
 local varMethSkip = CreateConVar(gsVar.."_skip", "", gnServContr)
 cvars.RemoveChangeCallback(varMethSkip:GetName(), varMethSkip:GetName().."_call")
