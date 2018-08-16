@@ -26,6 +26,8 @@ TOOL.ClientConVar[ "color_b" ] = "255"
 
 cleanup.Register( "wireconstraints" )
 
+local von = WireLib.von
+
 local Components = {}
 
 local function IsWire(entity) --try to find out if the entity is wire
