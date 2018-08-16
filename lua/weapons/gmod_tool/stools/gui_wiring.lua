@@ -126,13 +126,13 @@ if CLIENT then
 	end
 	net.Receive("GUIWiring_End",GUIWiring_RecvEnd)
 	
-	local function GUIWiring_RecvWL(um)
-		local ent = um:ReadEntity()
+	local function GUIWiring_RecvWL()
+		local ent = net.ReadEntity()
 		if not (ent and ent:IsValid()) then return end
 		if not (IsWire(ent)) then return end
 		local btn = DWLMakers[tostring(ent)]
 		if not (btn and btn:IsValid()) then return end
-		local dat = von.deserialize(um:ReadString())
+		local dat = von.deserialize(net.ReadString())
 		btn.BtnId = "link"
 		btn:SetPort(ent,dat)
 		DWLMakers[tostring(ent)] = nil
@@ -259,7 +259,7 @@ if CLIENT then
 		
 		for _,btnI in pairs(DInpButtons) do
 			if btnI.Port and btnI.Port.Src and btnI.Port.Src.Outputs then
-				local portO = btnI.Port.Src.WOut[btnI.Port.SrcId]
+				local portO = btnI.Port.Src.Outputs[btnI.Port.SrcId]
 				if portO then
 					btnO = DOutButtons[GUIWiring_GetEntPortKey(portO.Entity,portO.Name)]
 					if btnO then
@@ -512,14 +512,13 @@ if SERVER then
 	util.AddNetworkString( "GUIWiring_Start")
 	util.AddNetworkString( "GUIWiring_End")
 	util.AddNetworkString( "GUIWiring_WL")
-	
+
 	local material = {}
 	local color = {}
 	local width = {}
 	local wOn = {}
-	
 	local function GUIWiring_Wirelink(ply,ent)
-		if not table.HasValue(Components[ply],ent) then return end
+		if not Components[ ply ] or not table.HasValue(Components[ply],ent) then return end
 		if ent.extended then return end
 		ent.extended = true
 		WireLib.CreateWirelinkOutput( ply, ent, {true} )
