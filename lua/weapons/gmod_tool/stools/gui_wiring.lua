@@ -46,7 +46,6 @@ function TOOL:LeftClick(trace)
 	
 	ply_idx = self:GetOwner()
 	Components[ply_idx] = Components[ply_idx] or {}
-
 	if table.HasValue(Components[ply_idx],ent) then return end
 	
 	table.insert(Components[ply_idx], ent)
@@ -256,11 +255,10 @@ if CLIENT then
 			v[5] = k
 			local eGui = vgui.Create("DGUIWiringFrame",wiringGui)
 			eGui:SetComponent(v)
-			k.WOut = v[2]
 		end
 		
 		for _,btnI in pairs(DInpButtons) do
-			if btnI.Port and btnI.Port.Src and btnI.Port.Src.WOut then
+			if btnI.Port and btnI.Port.Src and btnI.Port.Src.Outputs then
 				local portO = btnI.Port.Src.WOut[btnI.Port.SrcId]
 				if portO then
 					btnO = DOutButtons[GUIWiring_GetEntPortKey(portO.Entity,portO.Name)]
@@ -498,8 +496,8 @@ function TOOL:Reload(trace)
 	net.Start("GUIWiring_Start")
 	net.Send( ply )
 	for _,v in pairs(Components[ply]) do
-		local stbl = von.serialize( {v.Inputs,v.Outputs,v.WireDebugName,v.extended} )
 
+		local stbl = von.serialize( {v.Inputs or false,v.Outputs or false,v.WireDebugName,v.extended} )
 		net.Start( "GUIWiring_EntPart" )
 			net.WriteEntity( v )
 			net.WriteString( stbl )
@@ -524,7 +522,7 @@ if SERVER then
 		if not table.HasValue(Components[ply],ent) then return end
 		if ent.extended then return end
 		ent.extended = true
-		Wirelib.CreateWirelinkOutput( ply, ent, {true} )
+		WireLib.CreateWirelinkOutput( ply, ent, {true} )
 		if not ent.Outputs["wirelink"] then return end
 		net.Start("GUIWiring_WL")
 			net.WriteEntity(ent)
