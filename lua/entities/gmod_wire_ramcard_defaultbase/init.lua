@@ -14,8 +14,7 @@ function ENT:SetupBase()
 	
 	self.CardOwner = nil
 	self.CardOwnerName = nil
-	
-	self.IsRamCard = true
+
 	self.IsRamCard = true
 	
 	self.Socket = nil
