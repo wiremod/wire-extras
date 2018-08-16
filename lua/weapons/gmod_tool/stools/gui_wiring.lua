@@ -26,6 +26,8 @@ TOOL.ClientConVar[ "color_b" ] = "255"
 
 cleanup.Register( "wireconstraints" )
 
+local von = WireLib.von
+
 local Components = {}
 
 local function IsWire(entity) --try to find out if the entity is wire
@@ -44,7 +46,6 @@ function TOOL:LeftClick(trace)
 	
 	ply_idx = self:GetOwner()
 	Components[ply_idx] = Components[ply_idx] or {}
-
 	if table.HasValue(Components[ply_idx],ent) then return end
 	
 	table.insert(Components[ply_idx], ent)
@@ -107,7 +108,7 @@ if CLIENT then
 		UnWireTable = {}
 		GUIWiring_DisplayWires = {}
 	end
-	usermessage.Hook("GUIWiring_Start",GUIWiring_RecvStart)
+	net.Receive("GUIWiring_Start",GUIWiring_RecvStart)
 	
 	local function GUIWiring_RecvEntPart()
 		local ent = net.ReadEntity()
@@ -115,8 +116,7 @@ if CLIENT then
 		if not (IsWire(ent)) then return end
 
 		local strMsg = net.ReadString()
-		
-		Components = {}
+
 		Components[ent] = von.deserialize( strMsg )
 	end
 	net.Receive("GUIWiring_EntPart",GUIWiring_RecvEntPart)
@@ -124,20 +124,20 @@ if CLIENT then
 	local function GUIWiring_RecvEnd()
 		GUIWiring_ShowGUI()
 	end
-	usermessage.Hook("GUIWiring_End",GUIWiring_RecvEnd)
+	net.Receive("GUIWiring_End",GUIWiring_RecvEnd)
 	
-	local function GUIWiring_RecvWL(um)
-		local ent = um:ReadEntity()
+	local function GUIWiring_RecvWL()
+		local ent = net.ReadEntity()
 		if not (ent and ent:IsValid()) then return end
 		if not (IsWire(ent)) then return end
 		local btn = DWLMakers[tostring(ent)]
 		if not (btn and btn:IsValid()) then return end
-		local dat = von.deserialize(um:ReadString())
+		local dat = von.deserialize(net.ReadString())
 		btn.BtnId = "link"
 		btn:SetPort(ent,dat)
 		DWLMakers[tostring(ent)] = nil
 	end
-	usermessage.Hook("GUIWiring_WL",GUIWiring_RecvWL)
+	net.Receive("GUIWiring_WL",GUIWiring_RecvWL)
 	
 	local function GUIWiring_Perform()
 		RunConsoleCommand("gui_wiring_start")
@@ -255,12 +255,11 @@ if CLIENT then
 			v[5] = k
 			local eGui = vgui.Create("DGUIWiringFrame",wiringGui)
 			eGui:SetComponent(v)
-			k.WOut = v[2]
 		end
 		
 		for _,btnI in pairs(DInpButtons) do
-			if btnI.Port and btnI.Port.Src and btnI.Port.Src.WOut then
-				local portO = btnI.Port.Src.WOut[btnI.Port.SrcId]
+			if btnI.Port and btnI.Port.Src and btnI.Port.Src.Outputs then
+				local portO = btnI.Port.Src.Outputs[btnI.Port.SrcId]
 				if portO then
 					btnO = DOutButtons[GUIWiring_GetEntPortKey(portO.Entity,portO.Name)]
 					if btnO then
@@ -494,38 +493,40 @@ function TOOL:Reload(trace)
 	if CLIENT then return end
 	local ply = self:GetOwner()
 	if not Components[ply] then return end
-	umsg.Start("GUIWiring_Start",ply)
-	umsg.End()
+	net.Start("GUIWiring_Start")
+	net.Send( ply )
 	for _,v in pairs(Components[ply]) do
-		local stbl = von.serialize( {v.Inputs,v.Outputs,v.WireDebugName,v.extended} )
 
+		local stbl = von.serialize( {v.Inputs or false,v.Outputs or false,v.WireDebugName,v.extended} )
 		net.Start( "GUIWiring_EntPart" )
 			net.WriteEntity( v )
 			net.WriteString( stbl )
 		net.Send( ply )
 	end
-	umsg.Start("GUIWiring_End",ply)
-	umsg.End()
+	net.Start("GUIWiring_End")
+	net.Send( ply )
 end
 
 if SERVER then
 	util.AddNetworkString( "GUIWiring_EntPart" )
-	
+	util.AddNetworkString( "GUIWiring_Start")
+	util.AddNetworkString( "GUIWiring_End")
+	util.AddNetworkString( "GUIWiring_WL")
+
 	local material = {}
 	local color = {}
 	local width = {}
 	local wOn = {}
-	
 	local function GUIWiring_Wirelink(ply,ent)
-		if not table.HasValue(Components[ply],ent) then return end
+		if not Components[ ply ] or not table.HasValue(Components[ply],ent) then return end
 		if ent.extended then return end
 		ent.extended = true
-		RefreshSpecialOutputs(ent)
-		if not ent.Outputs["link"] then return end
-		umsg.Start("GUIWiring_WL",ply)
-			umsg.Entity(ent)
-			umsg.String( von.serialize( ent.Outputs["link"] ) )
-		umsg.End()
+		WireLib.CreateWirelinkOutput( ply, ent, {true} )
+		if not ent.Outputs["wirelink"] then return end
+		net.Start("GUIWiring_WL")
+			net.WriteEntity(ent)
+			net.WriteString( von.serialize( ent.Outputs["wirelink"] ) )
+		net.Send( ply )
 	end
 	local function GUIWring_WirelinkCmd(ply,cmd,args)
 		if not (#args == 1 and ply:IsValid() and ply:IsPlayer()) then return end
