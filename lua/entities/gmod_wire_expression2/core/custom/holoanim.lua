@@ -10,6 +10,17 @@ registerCallback("postinit",function()
 	CheckIndex = wire_holograms.CheckIndex
 end)
 
+registerCallback("construct", function(self)
+	self.data.poseParamCount = 0
+	self.data.posesToSend = {}
+end)
+
+local flush_pose_param
+registerCallback("postexecute", function(self)
+	self.data.poseParamCount = 0
+	flush_pose_param(self)
+end)
+
 local function SetHoloAnim( Holo, Animation, Frame, Rate )
 	if (Holo and Animation and Frame and Rate) then
 		if not Holo.ent.Animated then
@@ -84,16 +95,63 @@ e2function number holoAnimNum(index, string animation)
 	return Holo.ent:LookupSequence(animation) or 0
 end
 
+util.AddNetworkString("wire_expression2_updateposeparameters")
+
+function flush_pose_param(self)
+	if next(self.data.posesToSend) then
+		net.Start("wire_expression2_updateposeparameters")
+		for holo, _ in pairs(self.data.posesToSend) do
+			if next(holo.poseCache.poses) then
+				net.WriteEntity(holo.ent)
+				for index, value in pairs(holo.poseCache.poses) do
+					holo.poseCache.poses[index] = nil
+					holo.poseCache.curPose[index] = value
+					net.WriteUInt(index, 8)
+					net.WriteFloat(value)
+				end
+				net.WriteUInt(255, 8)
+			end
+		end
+		net.WriteEntity(NULL)
+		net.Broadcast()
+
+		self.data.poseParamCount = 0
+		self.data.posesToSend = {}
+	end
+end
+
 e2function void holoSetPose(index, string pose, value)
 	local Holo = CheckIndex(self, index)
 	if not Holo then return end
 	
-	Holo.ent:SetPoseParameter( pose, value )
+	if not Holo.poseCache then
+		Holo.poseCache = {curPose = {}, poses = {}, stringToInt = {}}
+		for i = 0, Holo.ent:GetNumPoseParameters()-1 do
+			local name = Holo.ent:GetPoseParameterName(i)
+			Holo.poseCache.stringToInt[ Holo.ent:GetPoseParameterName(i) ] = i
+		end
+	end
+
+	local i = Holo.poseCache.stringToInt[ pose ]
+	if i then
+		if Holo.poseCache.curPose[ i ] == value then
+			Holo.poseCache.poses[ i ] = nil
+		elseif self.data.poseParamCount < 16 then
+			self.data.poseParamCount = self.data.poseParamCount + 1
+			Holo.poseCache.poses[ i ] = value
+			self.data.posesToSend[ Holo ] = true
+		end
+	end
 end
 
 e2function number holoGetPose(index, string pose)
 	local Holo = CheckIndex(self, index)
 	if not Holo then return end
 	
-	return Holo.ent:GetPoseParameter( pose )
+	if Holo.poseCache then
+		local i = Holo.poseCache.stringToInt[ pose ]
+		return i and (Holo.poseCache.poses[ i ] or Holo.poseCache.curPose[ i ]) or Holo.ent:GetPoseParameter( pose )
+	else
+		return Holo.ent:GetPoseParameter( pose )
+	end
 end
