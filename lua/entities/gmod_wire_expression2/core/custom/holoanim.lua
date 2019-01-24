@@ -17,7 +17,6 @@ end)
 
 local flush_pose_param
 registerCallback("postexecute", function(self)
-	self.data.poseParamCount = 0
 	flush_pose_param(self)
 end)
 
