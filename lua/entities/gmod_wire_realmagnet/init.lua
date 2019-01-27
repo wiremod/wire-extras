@@ -35,52 +35,42 @@ function ENT:Setup(mdl,trgmetal,str,leng,mdlfilter)
     self:SetLength(leng)
 	
 end
+
+function ENT:CheckFilter(ent, phys)
+	local filter = self:GetPropFilter()
+	if filter and filter ~= "" and not string.find(string.lower(ent:GetModel() or ""), filter) then
+		return false
+	end
+	if self:IsTargetOnlyMetal() and not string.find(string.lower(phys:GetMaterial()), "metal") then
+		return false
+	end
+	return true
+end
+
 function ENT:Think()
-	if self:IsOn()==true then 
-		--print(tostring(self:GetLength()))
-		local entsTA=ents.FindInSphere(self:GetPos(),self:GetLength())
+	if self:IsOn() then 
 		local myPos=self:GetPos()
-		for k,ent in pairs(entsTA) do
-			if ent:IsValid() and ent!=self and ent:GetModel()!=nil and ent:GetModel()!="" then
-				//model
-				if self:GetPropFilter()==nil or self:GetPropFilter()=="" or (self:GetPropFilter()!="" and string.find( string.lower( ent:GetModel() ),self:GetPropFilter())!=nil) then//(self:IsTargetOnlyMetal()==false) or (self:IsTargetOnlyMetal()==true and tr.MatType != MAT_METAL Stuff not done yet
-					local phys = ent:GetPhysicsObject(); 
-					if phys:IsValid() then
-						
-						
-						--[[local tdata={}
-						tdata.start=myPos
-						tdata.endpos=ent:GetPos()
-						local tr=util.TraceLine(tdata)]]
-						local direction = ent:GetPos()-myPos
-						local dist=math.sqrt(((ent:GetPos().x-myPos.x)^2)+((ent:GetPos().y-myPos.y)^2)+((ent:GetPos().z-myPos.z)^2))
-						
-						dist=dist/self:GetLength()
-						dist=math.abs(dist-1)
-						if self:IsBackwards()==true then dist=-dist end
-						
-						direction:Normalize()
-						direction = direction*(1*-(self.Strength*dist))
-						phys:ApplyForceCenter(direction)
-						
-						
-						
-						phys:Wake()
-					end
+		local entsTA=ents.FindInSphere(myPos,self:GetLength())
+		for k, ent in pairs(entsTA) do
+			local phys = ent:GetPhysicsObject()
+			if phys:IsValid() then
+				if ent:IsValid() and ent!=self and self:CheckFilter(ent, phys) then
+					
+					local direction = ent:GetPos() - myPos
+					local dist = math.max(direction:Length(), 1e-6)
+					
+					local strength = self.Strength*math.abs(dist/self:GetLength() - 1)
+					if not self:IsBackwards() then strength = -strength end
+					
+					phys:ApplyForceCenter(direction*(strength/dist))
+
 				end
 			end
-			
 		end
 	end
 	
-	//WHY DOESNT THE OVERLAY WORK?!?
-	/*if self.LastOverlayUpdate+self.OverlayUpdateRate<CurTime() then
-		self:ShowOutput()
-		self.LastOverlayUpdate=CurTime()
-	end*/
-	self:NextThink( CurTime() +  self.CachedTickRate) 
+	self:NextThink(CurTime() + self.CachedTickRate) 
 	return true
-	
 end
 
 function ENT:TriggerInput(iname, value)

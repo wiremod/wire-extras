@@ -145,6 +145,7 @@ function TOOL.BuildCPanel(panel)
 			Default = {
 				wire_magnet_len = "100",
 				wire_magnet_strength = "2000",
+				wire_magnet_targetOnlyMetal = "0",
 				wire_magnet_starton = "1",
 				wire_magnet_propfilter = ""
 			}
@@ -153,8 +154,9 @@ function TOOL.BuildCPanel(panel)
 		CVars = {
 			[0] = "wire_magnet_len",
 			[1] = "wire_magnet_strength",
-			[2] = "wire_magnet_starton",
-			[3] = "wire_magnet_propfilter"
+			[2] = "wire_magnet_targetOnlyMetal",
+			[3] = "wire_magnet_starton",
+			[4] = "wire_magnet_propfilter"
 		}
 	})
 
@@ -174,11 +176,16 @@ function TOOL.BuildCPanel(panel)
 		Command = "wire_magnet_streng"
 	})
 	
+	panel:AddControl("CheckBox", {
+		Label = "#WiremagnetTool_metal",
+		Command = "wire_magnet_targetOnlyMetal"
+	})
 	
 	panel:AddControl("CheckBox", {
 		Label = "#WiremagnetTool_starton",
 		Command = "wire_magnet_starton"
 	})
+
 	panel:AddControl("TextBox",{
 		Label="#WiremagnetTool_propfil",
 		MaxLen=500,
