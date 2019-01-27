@@ -515,10 +515,10 @@ function ENT:Pull_Logic()
 
 	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos(), self.prox || 10 ) ) do
 
-		local Path = Center-contact:GetPos();
-		local Length = Path:Length();
-		Path = Path * ( 1.0 / Length ) * math.sqrt(1-Length/self.prox)
-		self:PullPushProp( contact , Path * self.multiplier );
+		local Path = Center-contact:GetPos()
+		local Length = math.max(Path:Length(), 1e-5) 
+		Path = Path * ( self.multiplier * math.sqrt(math.max(1-Length/self.prox, 0)) / Length )
+		self:PullPushProp( contact , Path );
 
 	end
 
@@ -536,10 +536,10 @@ function ENT:Push_Logic()
 
 	for _,contact in pairs( self:GetEverythingInSphere( self:GetPos(), self.prox || 10 ) ) do
 
-		local Path = contact:GetPos()-Center;
-		local Length = Path:Length();
-		Path = Path * ( 1.0 / Length )
-		self:PullPushProp( contact , Path * self.multiplier );
+		local Path = contact:GetPos() - Center
+		local Length = math.max(Path:Length(), 1e-5) 
+		Path = Path * (self.multiplier / Length)
+		self:PullPushProp( contact , Path )
 
 	end
 
@@ -607,58 +607,31 @@ end
 
 function ENT:GetEverythingInSphere( center , range )
 
-	local Objs=ents.FindInSphere( self:GetPos(), range )
-
-	// Filter entities not allowed to modify
-	local Band={}
-	for k,v in ipairs( Objs ) do
-		if v:GetClass()!="player" && !gamemode.Call("PhysgunPickup",self:GetCreator(),v) then // if not allowed,
-			Band[table.Count(Band)] = v // add to band table
-			continue // :P
-		end
-	end
-
-	for k,v in ipairs(Band) do
-		table.RemoveByValue(Objs,v) // probably a hacky way, but little babbys first pull
-	end
+	local pos = self:GetPos()
+	local Objs = {}
 
 	if self.arc >= 0 && self.arc < 360 then
+		local rgc=math.cos( (self.arc/360) * math.pi ) //decrease arc by half, 0-360 isntead of 0-180
+		local upvec=self:GetUp()
 
-		local rgc=math.cos( (self.arc/360) * math.pi ); //decrease arc by half, 0-360 isntead of 0-180
-		local Tmp={}
-		local upvec=self:GetUp();
-		local pos = self:GetPos();
-
-		for _,obj in pairs( Objs ) do
-			if obj:GetMoveType() != MOVETYPE_NOCLIP then
+		for _, obj in ipairs( ents.FindInSphere( pos, range ) ) do
+			if not (obj:IsPlayer() or obj:GetMoveType() == MOVETYPE_NOCLIP or gamemode.Call("PhysgunPickup", self:GetCreator(), obj)==false) then
 				local dir = ( obj:GetPos() - pos );
 				dir:Normalize()
 				if dir:Dot( upvec ) > rgc then
-					table.insert( Tmp , obj );
+					Objs[#Objs + 1] = obj
 				end
 			end
 		end
-
-		Objs=Tmp;
-
 	else
-
-		local Tmp={}
-		local upvec=self:GetUp();
-		local pos = self:GetPos();
-
-		for _,obj in pairs( Objs ) do
-			if obj:GetMoveType() != MOVETYPE_NOCLIP then
-				table.insert( Tmp , obj );
+		for _, obj in ipairs( ents.FindInSphere( pos, range ) ) do
+			if not (obj:IsPlayer() or obj:GetMoveType() == MOVETYPE_NOCLIP or gamemode.Call("PhysgunPickup", self:GetCreator(), obj)==false) then
+				Objs[#Objs + 1] = obj
 			end
 		end
-
-		Objs=Tmp;
-
 	end
 
 	return Objs;
-
 end
 
 function ENT:Vortex_Logic()
