@@ -433,9 +433,6 @@ HMLRenderer.coreTags["text"] = function ( self )
 	local myFont	=	HUD_System.eval:Calc(self.font) or "Default"
 	local value		=	HUD_System.eval:Calc(self.value) or "NIL"
 	
-	if( myFont.value ) then myFont = myFont.value else myFont = "Default" end
-	if( value.value ) then value = value.value else value = "NIL" end
-	
 	--Check if we can run! (BETA)
 	if( HUD_System.opCount > HUD_System.maxOps ) then return false end
 	HUD_System.opCount = HUD_System.opCount + 2
