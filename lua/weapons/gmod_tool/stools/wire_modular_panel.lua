@@ -65,8 +65,8 @@ function TOOL:LeftClick( trace )
 		--local filename = self:GetClientInfo("filename")
 		local fileselect = self:GetClientInfo("fileselect")
 		--Msg("filelist sel = "..fileselect.."\n")
-		if (file.Exists("modular_panels/"..fileselect)) then
-		local pFile = file.Read("modular_panels/"..fileselect) 
+		if (file.Exists("modular_panels/"..fileselect, "DATA")) then
+		local pFile = file.Read("modular_panels/"..fileselect, "DATA") 
 			local widTable = guiP_fileDataToTable (pFile)
 			Msg ("loaded widgets from file:\n")
 			for k, wid in ipairs (widTable) do
@@ -106,7 +106,7 @@ if (SERVER) then
 		--local Smodel = self.Model
 		Ang.pitch = Ang.pitch + 90
 		local model = params
-		wire_modular_panel = MakeWireModularPanel( ply, Ang, trace.HitPos, Model(model), widgetTable )
+		wire_modular_panel = MakeWireModularPanel( ply, Ang, trace.HitPos, model, widgetTable )
 		local min = wire_modular_panel:OBBMins()
 		wire_modular_panel:SetPos( trace.HitPos - trace.HitNormal * min.z )
 
@@ -375,7 +375,7 @@ function modularPanelBuildBrowsePanel(panel)
 		Options = {}
 	}
 	
-	local fileList = file.Find("modular_panels/*.txt")
+	local fileList = file.Find("modular_panels/*.txt", "DATA")
 	local fileTable = {}
 	for k, file in ipairs(fileList) do
 		if(string.sub(file, -4) == ".txt") then
@@ -601,7 +601,7 @@ end
 function modularPanelRebuildPanel(panel, state)
 	LocalPlayer():ConCommand("wire_modular_panel_currentStoolPanel "..state)
 	if !panel then
-		panel = GetControlPanel("wire_modular_panel")
+		panel = controlpanel.Get("wire_modular_panel")
 		if !panel then return end
 	end
 
@@ -633,8 +633,8 @@ end
 function ModularPanelEditPanel(player, command, args)
 	if SERVER then
 		local fileselect = self:GetClientInfo("fileselect")
-		if (file.Exists("modular_panels/"..fileselect)) then
-		local pFile = file.Read("modular_panels/"..fileselect) 
+		if (file.Exists("modular_panels/"..fileselect, "DATA")) then
+		local pFile = file.Read("modular_panels/"..fileselect, "DATA") 
 			local widTable = guiP_fileDataToTable (pFile)
 			sendClientPanel(player, widTable)
 		else
