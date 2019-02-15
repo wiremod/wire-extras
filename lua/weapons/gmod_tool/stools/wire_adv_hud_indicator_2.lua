@@ -1,4 +1,4 @@
-TOOL.Category		= "Wire - Display"
+TOOL.Category		= "Wire Extras/Visuals/Indicators"
 TOOL.Name			= "Adv. Hud Indicator 2"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
