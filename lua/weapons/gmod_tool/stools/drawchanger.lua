@@ -1,4 +1,4 @@
-TOOL.Category		= "GUI Panels"
+TOOL.Category		= "Wire Extras/GUI Panels"
 TOOL.Name			= "Set Draw Params"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""

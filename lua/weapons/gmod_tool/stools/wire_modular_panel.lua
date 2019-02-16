@@ -1,4 +1,4 @@
-TOOL.Category		= "Wire - I/O"
+TOOL.Category		= "Wire Extras/Input, Output"
 TOOL.Name			= "Modular Panel"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""

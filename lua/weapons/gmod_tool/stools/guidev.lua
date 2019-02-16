@@ -1,5 +1,5 @@
 
-TOOL.Category		= "GUI Panels"
+TOOL.Category		= "Wire Extras/GUI Panels"
 TOOL.Name			= "guiPanel Dev"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
