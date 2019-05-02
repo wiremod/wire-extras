@@ -1,14 +1,12 @@
-NOTICE: The github repository (https://github.com/wiremod/wire-extras/) is the only supported source for obtaining the unofficial wire-extras by the wiremod team. Due to licensing issues, there are currently no plans to put the unofficial wire extras repository on the steam workshop. For this reason, please do not upload this addon to the workshop. This may change in the future, and if it does, this notice will be updated or removed.
+# NOTICE
+
+This github repository (https://github.com/wiremod/wire-extras/) is the only supported source for obtaining the unofficial wire-extras by the wiremod team. Due to licensing issues, there are currently no plans to put the unofficial wire extras repository on the steam workshop. For this reason, please do not upload this addon to the workshop. This may change in the future, and if it does, this notice will be updated or removed.
 
 All programs released in this Wire Extras SVN are released under the Apache 2 license, or their respective licenses.
 
------------------
+# Addons list
 
-Addons listed in this format:
-
-Addon Contributed - developer
-
------------------
+Addons listed in this format: Addon Name - Addon Developer
 
 Wire Touch Plate - Asphid_Jackal / TomyLobo
 
