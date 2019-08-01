@@ -77,6 +77,8 @@ Wire Field Generators - AlgorithmX2
 
 XYZ Beacon - Doticatto
 
+[FSensors](https://github.com/dvdvideo1234/ControlSystemsE2/wiki/FSensor) and [STControllers](https://github.com/dvdvideo1234/ControlSystemsE2/wiki/StControl) E2 inteface OOP - [[Sk$Bh]Trick or treat KID! ( DVD )](http://steamcommunity.com/profiles/76561197988124141 )
+
 # Links
 
 [Garry's Mod]: <http://garrysmod.com/>
