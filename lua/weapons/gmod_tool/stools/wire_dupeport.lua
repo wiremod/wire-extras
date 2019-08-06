@@ -1,13 +1,13 @@
 TOOL.Category		= "Wire Extras/Physics"
-TOOL.Name			= "Adv. Dupe. Teleporter"
+TOOL.Name				= "Adv. Dupe. Teleporter"
 TOOL.Command		= nil
-TOOL.ConfigName		= ""
-TOOL.Tab			= "Wire"
+TOOL.ConfigName	= ""
+TOOL.Tab				= "Wire"
 
 if ( CLIENT ) then
-    language.Add( "Tool.wire_dupeport.name", "Adv. Dupe. Teleporter Tool (Wire)" )
-    language.Add( "Tool.wire_dupeport.desc", "Spawns an Adv. Dupe. Teleporter for use with the wire system." )
-    language.Add( "Tool.wire_dupeport.0", "Primary: Create/Update Adv. Dupe. Teleporter" )
+	language.Add( "Tool.wire_dupeport.name", "Adv. Dupe. Teleporter Tool (Wire)" )
+	language.Add( "Tool.wire_dupeport.desc", "Spawns an Adv. Dupe. Teleporter for use with the wire system." )
+	language.Add( "Tool.wire_dupeport.0", "Primary: Create/Update Adv. Dupe. Teleporter" )
 	language.Add( "sboxlimit_wire_dupeports", "You've hit Adv. Dupe. Teleporters limit!" )
 	language.Add( "undone_wiredupeport", "Undone Wire Adv. Dupe. Teleporter" )
 end
@@ -24,7 +24,7 @@ function TOOL:LeftClick( trace )
 
 	local ply = self:GetOwner()
 
-	// If we shot a wire_dupeport do nothing
+	-- If we shot a wire_dupeport do nothing
 	if ( trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_dupeport" && trace.Entity.pl == ply ) then
 		trace.Entity:Setup()
 		return true
@@ -35,7 +35,9 @@ function TOOL:LeftClick( trace )
 	local Ang = trace.HitNormal:Angle()
 	Ang.pitch = Ang.pitch + 90
 
-	wire_dupeport = MakeWireDupePort( ply, Ang, trace.HitPos )
+	local wire_dupeport = MakeWireDupePort( ply, Ang, trace.HitPos )
+	if(not wire_dupeport) then return false end
+	if(not wire_dupeport:IsValid()) then return false end
 
 	local min = wire_dupeport:OBBMins()
 	wire_dupeport:SetPos( trace.HitPos - trace.HitNormal * min.z )
@@ -57,12 +59,12 @@ if (SERVER) then
 
 	function MakeWireDupePort( ply, Ang, Pos)
 		if ply:IsAdmin() or ply:IsSuperAdmin() then
-		
+
 			if ( !ply:CheckLimit( "wire_dupeports" ) ) then return false end
 
 			local wire_dupeport = ents.Create( "gmod_wire_dupeport" )
 			if (!wire_dupeport:IsValid()) then return false end
-			
+
 			wire_dupeport:SetModel( Model("models/jaanus/wiretool/wiretool_speed.mdl") )
 			wire_dupeport:SetBeamLength(100)
 			wire_dupeport:SetAngles( Ang )
@@ -71,7 +73,7 @@ if (SERVER) then
 			wire_dupeport:Spawn()
 
 			wire_dupeport:SetPlayer(ply)
-			
+
 			if (game.SinglePlayer()) then
 				wire_dupeport.OwnerSteamID = ply
 				wire_dupeport.SpawnSteamID = ply
