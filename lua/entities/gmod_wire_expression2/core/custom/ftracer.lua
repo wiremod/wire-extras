@@ -1,5 +1,5 @@
 --[[ ******************************************************************************
- My custom flash sensor tracer type ( Based on wire rangers )
+ My custom flash tracer tracer type ( Based on wire rangers )
 ****************************************************************************** ]]--
 
 local next = next
@@ -20,8 +20,8 @@ local utilGetSurfacePropName = util.GetSurfacePropName
 local outError = error -- The function which generates error and prints it out
 local outPrint = print -- The function that outputs a string into the console
 
--- Register the type up here before the extension registration so that the fsensor still works
-registerType("fsensor", "xfs", nil,
+-- Register the type up here before the extension registration so that the ftracer still works
+registerType("ftracer", "xft", nil,
   nil,
   nil,
   function(retval)
@@ -35,23 +35,23 @@ registerType("fsensor", "xfs", nil,
 
 --[[ ****************************************************************************** ]]
 
-E2Lib.RegisterExtension("fsensor", true, "Lets E2 chips trace ray attachments and check for hits.")
+E2Lib.RegisterExtension("ftracer", true, "Lets E2 chips trace ray attachments and check for hits.")
 
 local gsZeroStr   = "" -- Empty string to use instead of creating one everywhere
 local gaZeroAng   = Angle() -- Dummy zero angle for transformations
 local gvZeroVec   = Vector() -- Dummy zero vector for transformations
 local gtStringMT  = getmetatable(gsZeroStr) -- Store the string metatable
-local gtStoreOOP  = {} -- Store flash sensors here linked to the entity of the E2
+local gtStoreOOP  = {} -- Store flash tracers here linked to the entity of the E2
 local gnMaxBeam   = 50000 -- The tracer maximum length just about one cube map
 local gtEmptyVar  = {["#empty"]=true}; gtEmptyVar[gsZeroStr] = true -- Variable being set to empty string
-local gsVarPrefx  = "wire_expression2_fsensor" -- This is used for variable prefix
+local gsVarPrefx  = "wire_expression2_ftracer" -- This is used for variable prefix
 local gtBoolToNum = {[true]=1,[false]=0} -- This is used to convert between GLua boolean and wire boolean
 local gtMethList  = {} -- Placeholder for blacklist and convar prefix
 local gtConvEnab  = {["LocalToWorld"] = LocalToWorld, ["WorldToLocal"] = WorldToLocal} -- Cooordinate conversion list
 local gnServContr = bitBor(FCVAR_ARCHIVE, FCVAR_ARCHIVE_XBOX, FCVAR_NOTIFY, FCVAR_REPLICATED, FCVAR_PRINTABLEONLY)
-local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServContr, "E2 FSensor entity method black list")
-local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServContr, "E2 FSensor entity method white list")
-local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 30, gnServContr, "E2 FSensor maximum count")
+local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServContr, "E2 FTracer entity method black list")
+local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServContr, "E2 FTracer entity method white list")
+local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 30, gnServContr, "E2 FTracer maximum count")
 local gsVNS, gsVNO = varMethSkip:GetName(), varMethOnly:GetName()
 
 local function isEntity(vE)
@@ -69,16 +69,16 @@ local function getNorm(tV)
     nN = nN + nV^2 end; return mathSqrt(nN)
 end
 
-local function remValue(tSrc, aKey, bCall)
-  tSrc[aKey] = nil; if(bCall) then collectgarbage() end
+local function remValue(tSrc, aKey)
+  tSrc[aKey] = nil; return tSrc
 end
 
 local function logError(sMsg, ...)
-  outError("E2:fsensor:"..tostring(sMsg)); return ...
+  outError("E2:ftracer:"..tostring(sMsg)); return ...
 end
 
 local function logStatus(sMsg, ...)
-  outPrint("E2:fsensor:"..tostring(sMsg)); return ...
+  outPrint("E2:ftracer:"..tostring(sMsg)); return ...
 end
 
 local function convArrayKeys(tA)
@@ -239,15 +239,15 @@ local function newItem(oSelf, vEnt, vPos, vDir, nLen)
     return logError("Count reached ["..tostring(nMax).."]", nil) end
   local oFSen, tSen = {}, gtStoreOOP[eChip]; oFSen.mSet, oFSen.mHit = eChip, {Size=0, ID={}};
   if(not tSen) then gtStoreOOP[eChip] = {}; tSen = gtStoreOOP[eChip] end
-  if(isEntity(vEnt)) then oFSen.mEnt = vEnt -- Store attachment entity to manage local sampling
-    oFSen.mHit.Ent = {SKIP={},ONLY={}} -- No entities are store for ONLY or SKIP by default
+  if(isEntity(vEnt)) then -- No entities are store for ONLY or SKIP by default
+    oFSen.mHit.Ent, oFSen.mEnt = {SKIP={},ONLY={}}, vEnt
   else oFSen.mHit.Ent, oFSen.mEnt = {SKIP={},ONLY={}}, nil end -- Make sure the entity is cleared
   -- Local tracer position the trace starts from
   oFSen.mPos, oFSen.mDir = Vector(), Vector()
   if(isHere(vPos)) then oFSen.mPos.x, oFSen.mPos.y, oFSen.mPos.z = vPos[1], vPos[2], vPos[3] end
   -- Local tracer direction to read the data of
   if(isHere(vDir)) then oFSen.mDir.x, oFSen.mDir.y, oFSen.mDir.z = vDir[1], vDir[2], vDir[3] end
-  -- How long the flash sensor length will be. Must be positive
+  -- How long the flash tracer length will be. Must be positive
   oFSen.mLen = (tonumber(nLen) or 0)
   oFSen.mLen = (oFSen.mLen == 0 and getNorm(vDir) or oFSen.mLen)
   oFSen.mLen = mathClamp(oFSen.mLen,-gnMaxBeam,gnMaxBeam)
@@ -275,7 +275,7 @@ local function newItem(oSelf, vEnt, vPos, vDir, nLen)
       end; return true -- Finally we register the trace hit enabled
     end, ignoreworld = false, -- Should the trace ignore world or not
     collisiongroup = COLLISION_GROUP_NONE } -- Collision group control
-  eChip:CallOnRemove("fsensor_remove_ent", remSensorEntity)
+  eChip:CallOnRemove("ftracer_remove_ent", remSensorEntity)
   tableInsert(tSen, oFSen); collectgarbage(); return oFSen
 end
 
@@ -290,82 +290,82 @@ registerOperator("ass", "xfs", "xfs", function(self, args)
 end)
 
 __e2setcost(1)
-e2function fsensor noFSensor()
+e2function ftracer noFTracer()
   return nil
 end
 
 __e2setcost(20)
-e2function fsensor entity:setFSensor(vector vP, vector vD, number nL)
+e2function ftracer entity:setFTracer(vector vP, vector vD, number nL)
   return newItem(self, this, vP, vD, nL)
 end
 
 __e2setcost(20)
-e2function fsensor newFSensor(vector vP, vector vD, number nL)
+e2function ftracer newFTracer(vector vP, vector vD, number nL)
   return newItem(self, nil, vP, vD, nL)
 end
 
 __e2setcost(20)
-e2function fsensor entity:setFSensor(vector vP, vector vD)
+e2function ftracer entity:setFTracer(vector vP, vector vD)
   return newItem(self, this, vP, vD)
 end
 
 __e2setcost(20)
-e2function fsensor newFSensor(vector vP, vector vD)
+e2function ftracer newFTracer(vector vP, vector vD)
   return newItem(self, nil, vP, vD)
 end
 
 __e2setcost(20)
-e2function fsensor entity:setFSensor(vector vP, number nL)
+e2function ftracer entity:setFTracer(vector vP, number nL)
   return newItem(self, this, vP, nil, nL)
 end
 
 __e2setcost(20)
-e2function fsensor newFSensor(vector vP, number nL)
+e2function ftracer newFTracer(vector vP, number nL)
   return newItem(self, nil, vP, nil, nL)
 end
 
 __e2setcost(20)
-e2function fsensor entity:setFSensor(vector vP)
+e2function ftracer entity:setFTracer(vector vP)
   return newItem(self, this, vP, nil, nil)
 end
 
 __e2setcost(20)
-e2function fsensor newFSensor(vector vP)
+e2function ftracer newFTracer(vector vP)
   return newItem(self, nil, vP, nil, nil)
 end
 
 __e2setcost(20)
-e2function fsensor entity:setFSensor(number nL)
+e2function ftracer entity:setFTracer(number nL)
   return newItem(self, this, nil, nil, nL)
 end
 
 __e2setcost(20)
-e2function fsensor newFSensor(number nL)
+e2function ftracer newFTracer(number nL)
   return newItem(self, nil, nil, nil, nL)
 end
 
 __e2setcost(20)
-e2function fsensor entity:setFSensor()
+e2function ftracer entity:setFTracer()
   return newItem(self, this, nil, nil, nil)
 end
 
 __e2setcost(20)
-e2function fsensor newFSensor()
+e2function ftracer newFTracer()
   return newItem(self, nil, nil, nil, nil)
 end
 
 __e2setcost(1)
-e2function number maxFSensors()
+e2function number maxFTracers()
   return varMaxTotal:GetInt()
 end
 
 __e2setcost(1)
-e2function number sumFSensors()
+e2function number sumFTracers()
   return getSensorsCount()
 end
 
 __e2setcost(15)
-e2function number fsensor:remSelf()
+e2function number ftracer:remSelf()
   if(not this) then return 0 end
   local tSet = gtStoreOOP[this.mSet]
   if(not tSet) then return 0 end
@@ -379,44 +379,44 @@ end
 
 
 __e2setcost(20)
-e2function fsensor fsensor:getCopy()
+e2function ftracer ftracer:getCopy()
   return newItem(self.entity, this.mEnt, this.mPos, this.mDir, this.mLen)
 end
 
 --[[ **************************** ENTITY **************************** ]]
 
 __e2setcost(3)
-e2function fsensor fsensor:addEntityHitSkip(entity vE)
+e2function ftracer ftracer:addEntityHitSkip(entity vE)
   if(not this) then return nil end
   if(not isEntity(vE)) then return nil end
   this.mHit.Ent.SKIP[vE] = true; return this
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:remEntityHitSkip(entity vE)
+e2function ftracer ftracer:remEntityHitSkip(entity vE)
   if(not this) then return nil end
   if(not isEntity(vE)) then return nil end
-  remValue(this.mHit.Ent.SKIP, vE, true); return this
+  remValue(this.mHit.Ent.SKIP, vE); return this
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:addEntityHitOnly(entity vE)
+e2function ftracer ftracer:addEntityHitOnly(entity vE)
   if(not this) then return nil end
   if(not isEntity(vE)) then return nil end
   this.mHit.Ent.ONLY[vE] = true; return this
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:remEntityHitOnly(entity vE)
+e2function ftracer ftracer:remEntityHitOnly(entity vE)
   if(not this) then return nil end
   if(not isEntity(vE)) then return nil end
-  remValue(this.mHit.Ent.ONLY, vE, true); return this
+  remValue(this.mHit.Ent.ONLY, vE); return this
 end
 
 --[[ **************************** FILTER **************************** ]]
 
 __e2setcost(3)
-e2function fsensor fsensor:remHit()
+e2function ftracer ftracer:remHit()
   if(not this) then return nil end
   local tID = this.mHit.ID
   for key, id in pairs(tID) do
@@ -425,168 +425,168 @@ e2function fsensor fsensor:remHit()
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:remHit(string sM)
+e2function ftracer ftracer:remHit(string sM)
   return remHitFilter(this, sM)
 end
 
 --[[ **************************** NUMBER **************************** ]]
 
 __e2setcost(3)
-e2function fsensor fsensor:addHitSkip(string sM, number vN)
+e2function ftracer ftracer:addHitSkip(string sM, number vN)
   return setHitFilter(this, self, sM, "SKIP", vN, true)
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:remHitSkip(string sM, number vN)
+e2function ftracer ftracer:remHitSkip(string sM, number vN)
   return setHitFilter(this, self, sM, "SKIP", vN, nil)
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:addHitOnly(string sM, number vN)
+e2function ftracer ftracer:addHitOnly(string sM, number vN)
   return setHitFilter(this, self, sM, "ONLY", vN, true)
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:remHitOnly(string sM, number vN)
+e2function ftracer ftracer:remHitOnly(string sM, number vN)
   return setHitFilter(this, self, sM, "ONLY", vN, nil)
 end
 
 --[[ **************************** STRING **************************** ]]
 
 __e2setcost(3)
-e2function fsensor fsensor:addHitSkip(string sM, string vS)
+e2function ftracer ftracer:addHitSkip(string sM, string vS)
   return setHitFilter(this, self, sM, "SKIP", vS, true)
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:remHitSkip(string sM, string vS)
+e2function ftracer ftracer:remHitSkip(string sM, string vS)
   return setHitFilter(this, self, sM, "SKIP", vS, nil)
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:addHitOnly(string sM, string vS)
+e2function ftracer ftracer:addHitOnly(string sM, string vS)
   return setHitFilter(this, self, sM, "ONLY", vS, true)
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:remHitOnly(string sM, string vS)
+e2function ftracer ftracer:remHitOnly(string sM, string vS)
   return setHitFilter(this, self, sM, "ONLY", vS, nil)
 end
 
 -------------------------------------------------------------------------------
 
 __e2setcost(3)
-e2function entity fsensor:getAttachEntity()
+e2function entity ftracer:getAttachEntity()
   if(not this) then return nil end; local vE = this.mEnt
   if(not isEntity(vE)) then return nil end; return vE
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:setAttachEntity(entity eE)
+e2function ftracer ftracer:setAttachEntity(entity eE)
   if(not this) then return nil end
   if(not isEntity(eE)) then return this end
   this.mEnt = eE; return this
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:remAttachEntity()
+e2function ftracer ftracer:remAttachEntity()
   if(not this) then return nil end
-  remValue(this, "mEnt", true); return this
+  remValue(this, "mEnt"); return this
 end
 
 __e2setcost(3)
-e2function number fsensor:isIgnoreWorld()
+e2function number ftracer:isIgnoreWorld()
   if(not this) then return 0 end
   return (this.mTrI.ignoreworld and 1 or 0)
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:setIsIgnoreWorld(number nN)
+e2function ftracer ftracer:setIsIgnoreWorld(number nN)
   if(not this) then return nil end
   this.mTrI.ignoreworld = (nN ~= 0); return this
 end
 
 __e2setcost(3)
-e2function vector fsensor:getOrigin()
+e2function vector ftracer:getOrigin()
   if(not this) then return {0,0,0} end
   return {this.mPos.x, this.mPos.y, this.mPos.z}
 end
 
 __e2setcost(3)
-e2function vector fsensor:getOriginLocal()
+e2function vector ftracer:getOriginLocal()
   return convOrgEnt(this, "WorldToLocal", nil)
 end
 
 __e2setcost(3)
-e2function vector fsensor:getOriginWorld()
+e2function vector ftracer:getOriginWorld()
   return convOrgEnt(this, "LocalToWorld", nil)
 end
 
 __e2setcost(3)
-e2function vector fsensor:getOriginLocal(entity vE)
+e2function vector ftracer:getOriginLocal(entity vE)
   return convOrgEnt(this, "WorldToLocal", vE)
 end
 
 __e2setcost(3)
-e2function vector fsensor:getOriginWorld(entity vE)
+e2function vector ftracer:getOriginWorld(entity vE)
   return convOrgEnt(this, "LocalToWorld", vE)
 end
 
 __e2setcost(7)
-e2function vector fsensor:getOriginLocal(vector vP, angle vA)
+e2function vector ftracer:getOriginLocal(vector vP, angle vA)
   return convOrgUCS(this, "WorldToLocal", vP, vA)
 end
 
 __e2setcost(7)
-e2function vector fsensor:getOriginWorld(vector vP, angle vA)
+e2function vector ftracer:getOriginWorld(vector vP, angle vA)
   return convOrgUCS(this, "LocalToWorld", vP, vA)
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:setOrigin(vector vO)
+e2function ftracer ftracer:setOrigin(vector vO)
   if(not this) then return nil end
   this.mPos.x, this.mPos.y, this.mPos.z = vO[1], vO[2], vO[3]
   return this
 end
 
 __e2setcost(3)
-e2function vector fsensor:getDirection()
+e2function vector ftracer:getDirection()
   if(not this) then return nil end
   return {this.mDir.x, this.mDir.y, this.mDir.z}
 end
 
 __e2setcost(3)
-e2function vector fsensor:getDirectionLocal()
+e2function vector ftracer:getDirectionLocal()
   return convDirLocal(this, nil, nil)
 end
 
 __e2setcost(3)
-e2function vector fsensor:getDirectionWorld()
+e2function vector ftracer:getDirectionWorld()
   return convDirWorld(this, nil, nil)
 end
 
 __e2setcost(3)
-e2function vector fsensor:getDirectionLocal(entity vE)
+e2function vector ftracer:getDirectionLocal(entity vE)
   return convDirLocal(this, vE, nil)
 end
 
 __e2setcost(3)
-e2function vector fsensor:getDirectionWorld(entity vE)
+e2function vector ftracer:getDirectionWorld(entity vE)
   return convDirWorld(this, vE, nil)
 end
 
 __e2setcost(3)
-e2function vector fsensor:getDirectionLocal(angle vA)
+e2function vector ftracer:getDirectionLocal(angle vA)
   return convDirLocal(this, nil, vA)
 end
 
 __e2setcost(3)
-e2function vector fsensor:getDirectionWorld(angle vA)
+e2function vector ftracer:getDirectionWorld(angle vA)
   return convDirWorld(this, nil, vA)
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:setDirection(vector vD)
+e2function ftracer ftracer:setDirection(vector vD)
   if(not this) then return nil end
   this.mDir.x, this.mDir.y, this.mDir.z = vD[1], vD[2], vD[3]
   this.mDir:Normalize(); this.mDir:Mul(this.mLen)
@@ -594,13 +594,13 @@ e2function fsensor fsensor:setDirection(vector vD)
 end
 
 __e2setcost(3)
-e2function number fsensor:getLength()
+e2function number ftracer:getLength()
   if(not this) then return nil end
   return (this.mLen or 0)
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:setLength(number nL)
+e2function ftracer ftracer:setLength(number nL)
   if(not this) then return nil end
   this.mLen = mathClamp(nL,-gnMaxBeam,gnMaxBeam)
   this.mDir:Normalize(); this.mDir:Mul(this.mLen)
@@ -608,219 +608,219 @@ e2function fsensor fsensor:setLength(number nL)
 end
 
 __e2setcost(3)
-e2function number fsensor:getMask()
+e2function number ftracer:getMask()
   if(not this) then return 0 end
   return (this.mTrI.mask or 0)
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:setMask(number nN)
+e2function ftracer ftracer:setMask(number nN)
   if(not this) then return nil end
   this.mTrI.mask = nN; return this
 end
 
 __e2setcost(3)
-e2function number fsensor:getCollisionGroup()
+e2function number ftracer:getCollisionGroup()
   if(not this) then return nil end
   return (this.mTrI.collisiongroup or 0)
 end
 
 __e2setcost(3)
-e2function fsensor fsensor:setCollisionGroup(number nN)
+e2function ftracer ftracer:setCollisionGroup(number nN)
   if(not this) then return nil end
   this.mTrI.collisiongroup = nN; return this
 end
 
 __e2setcost(3)
-e2function vector fsensor:getStart()
+e2function vector ftracer:getStart()
   if(not this) then return {0,0,0} end
   local vT = oFSen.mTrI.start
   return {vT.x, vT.y, vT.z}
 end
 
 __e2setcost(3)
-e2function vector fsensor:getStop()
+e2function vector ftracer:getStop()
   if(not this) then return {0,0,0} end
   local vT = oFSen.mTrI.endpos
   return {vT.x, vT.y, vT.z}
 end
 
 __e2setcost(12)
-e2function fsensor fsensor:smpLocal()
+e2function ftracer ftracer:smpLocal()
   return trcLocal(this, nil, nil, nil)
 end
 
 __e2setcost(12)
-e2function fsensor fsensor:smpLocal(entity vE)
+e2function ftracer ftracer:smpLocal(entity vE)
   return trcLocal(this,  vE, nil, nil)
 end
 
 __e2setcost(12)
-e2function fsensor fsensor:smpLocal(vector vP, angle vA)
+e2function ftracer ftracer:smpLocal(vector vP, angle vA)
   return trcLocal(this, nil,  vP,  vA)
 end
 
 __e2setcost(8)
-e2function fsensor fsensor:smpWorld()
+e2function ftracer ftracer:smpWorld()
   return trcWorld(this)
 end
 
 __e2setcost(3)
-e2function number fsensor:isHitNoDraw()
+e2function number ftracer:isHitNoDraw()
   if(not this) then return 0 end
   local trV = this.mTrO.HitNoDraw
   return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:isHitNonWorld()
+e2function number ftracer:isHitNonWorld()
   if(not this) then return 0 end
   local trV = this.mTrO.HitNonWorld
   return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:isHit()
+e2function number ftracer:isHit()
   if(not this) then return 0 end
   local trV = this.mTrO.Hit
   return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:isHitSky()
+e2function number ftracer:isHitSky()
   if(not this) then return 0 end
   local trV = this.mTrO.HitSky
   return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:isHitWorld()
+e2function number ftracer:isHitWorld()
   if(not this) then return 0 end
   local trV = this.mTrO.HitWorld
   return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:getHitBox()
+e2function number ftracer:getHitBox()
   if(not this) then return 0 end
   local trV = this.mTrO.HitBox
   return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:getMatType()
+e2function number ftracer:getMatType()
   if(not this) then return 0 end
   local trV = this.mTrO.MatType
   return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:getHitGroup()
+e2function number ftracer:getHitGroup()
   if(not this) then return 0 end
   local trV = this.mTrO.HitGroup
   return (trV and trV or 0)
 end
 
 __e2setcost(8)
-e2function vector fsensor:getHitPos()
+e2function vector ftracer:getHitPos()
   if(not this) then return {0,0,0} end
   local trV = this.mTrO.HitPos
   return (trV and {trV.x, trV.y, trV.z} or {0,0,0})
 end
 
 __e2setcost(8)
-e2function vector fsensor:getHitNormal()
+e2function vector ftracer:getHitNormal()
   if(not this) then return {0,0,0} end
   local trV = this.mTrO.HitNormal
   return (trV and {trV.x, trV.y, trV.z} or {0,0,0})
 end
 
 __e2setcost(8)
-e2function vector fsensor:getNormal()
+e2function vector ftracer:getNormal()
   if(not this) then return {0,0,0} end
   local trV = this.mTrO.Normal
   return (trV and {trV.x, trV.y, trV.z} or {0,0,0})
 end
 
 __e2setcost(8)
-e2function string fsensor:getHitTexture()
+e2function string ftracer:getHitTexture()
   if(not this) then return gsZeroStr end
   local trV = this.mTrO.HitTexture
   return tostring(trV or gsZeroStr)
 end
 
 __e2setcost(8)
-e2function vector fsensor:getStartPos()
+e2function vector ftracer:getStartPos()
   if(not this) then return {0,0,0} end
   local trV = this.mTrO.StartPos
   return (trV and {trV.x, trV.y, trV.z} or {0,0,0})
 end
 
 __e2setcost(3)
-e2function number fsensor:getSurfaceProps()
+e2function number ftracer:getSurfaceProps()
   if(not this) then return 0 end
   local trV = this.mTrO.SurfaceProps
   return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function string fsensor:getSurfacePropsName()
+e2function string ftracer:getSurfacePropsName()
   if(not this) then return gsZeroStr end
   local trV = this.mTrO.SurfaceProps
   return (trV and utilGetSurfacePropName(trV) or gsZeroStr)
 end
 
 __e2setcost(3)
-e2function number fsensor:getPhysicsBone()
+e2function number ftracer:getPhysicsBone()
   if(not this) then return 0 end
   local trV = this.mTrO.PhysicsBone
   return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:getFraction()
+e2function number ftracer:getFraction()
   if(not this) then return 0 end
   local trV = this.mTrO.Fraction
   return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:getFractionLength()
+e2function number ftracer:getFractionLength()
   if(not this) then return 0 end
   local trV = this.mTrO.Fraction
   return (trV and (trV * this.mLen) or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:isStartSolid()
+e2function number ftracer:isStartSolid()
   if(not this) then return 0 end
   local trV = this.mTrO.StartSolid
   return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:isAllSolid()
+e2function number ftracer:isAllSolid()
   if(not this) then return 0 end
   local trV = this.mTrO.AllSolid
   return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:getFractionLeftSolid()
+e2function number ftracer:getFractionLeftSolid()
   if(not this) then return 0 end
   local trV = this.mTrO.FractionLeftSolid
   return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function number fsensor:getFractionLeftSolidLength()
+e2function number ftracer:getFractionLeftSolidLength()
   if(not this) then return 0 end
   local trV = this.mTrO.FractionLeftSolid
   return (trV and (trV * this.mLen) or 0)
 end
 
 __e2setcost(3)
-e2function entity fsensor:getEntity()
+e2function entity ftracer:getEntity()
   if(not this) then return nil end
   local trV = this.mTrO.Entity
   return (trV and trV or nil)
