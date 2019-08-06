@@ -13,7 +13,7 @@ if ( CLIENT ) then
 end
 
 if (SERVER) then
-	CreateConVar('sbox_maxwire_dupeports', 10)
+	CreateConVar("sbox_maxwire_dupeports", 10)
 end
 
 cleanup.Register( "wire_dupeports" )
