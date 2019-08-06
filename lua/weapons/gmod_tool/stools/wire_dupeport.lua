@@ -1,8 +1,10 @@
-TOOL.Category		= "Wire Extras/Physics"
-TOOL.Name				= "Adv. Dupe. Teleporter"
-TOOL.Command		= nil
-TOOL.ConfigName	= ""
-TOOL.Tab				= "Wire"
+TOOL.Category   = "Wire Extras/Physics"
+TOOL.Name       = "Adv. Dupe. Teleporter"
+TOOL.Command    = nil
+TOOL.ConfigName = ""
+TOOL.Tab        = "Wire"
+
+local gsModel = "models/jaanus/wiretool/wiretool_speed.mdl"
 
 if ( CLIENT ) then
 	language.Add( "Tool.wire_dupeport.name", "Adv. Dupe. Teleporter Tool (Wire)" )
@@ -12,32 +14,32 @@ if ( CLIENT ) then
 	language.Add( "undone_wiredupeport", "Undone Wire Adv. Dupe. Teleporter" )
 end
 
-if (SERVER) then
+if ( SERVER ) then
 	CreateConVar("sbox_maxwire_dupeports", 10)
 end
 
 cleanup.Register( "wire_dupeports" )
 
 function TOOL:LeftClick( trace )
-	if trace.Entity && trace.Entity:IsPlayer() then return false end
-	if (CLIENT) then return true end
+	if trace.Entity and trace.Entity:IsPlayer() then return false end
+	if ( CLIENT ) then return true end
 
 	local ply = self:GetOwner()
 
 	-- If we shot a wire_dupeport do nothing
-	if ( trace.Entity:IsValid() && trace.Entity:GetClass() == "gmod_wire_dupeport" && trace.Entity.pl == ply ) then
+	if ( trace.Entity:IsValid() and trace.Entity:GetClass() == "gmod_wire_dupeport" and trace.Entity.pl == ply ) then
 		trace.Entity:Setup()
 		return true
 	end
 
-	if ( !self:GetSWEP():CheckLimit( "wire_dupeports" ) ) then return false end
+	if ( not self:GetSWEP():CheckLimit( "wire_dupeports" ) ) then return false end
 
 	local Ang = trace.HitNormal:Angle()
 	Ang.pitch = Ang.pitch + 90
 
 	local wire_dupeport = MakeWireDupePort( ply, Ang, trace.HitPos )
-	if(not wire_dupeport) then return false end
-	if(not wire_dupeport:IsValid()) then return false end
+	if ( not wire_dupeport ) then return false end
+	if ( not wire_dupeport:IsValid() ) then return false end
 
 	local min = wire_dupeport:OBBMins()
 	wire_dupeport:SetPos( trace.HitPos - trace.HitNormal * min.z )
@@ -55,18 +57,18 @@ function TOOL:LeftClick( trace )
 	return true
 end
 
-if (SERVER) then
+if ( SERVER ) then
 
 	function MakeWireDupePort( ply, Ang, Pos)
-		if ply:IsAdmin() or ply:IsSuperAdmin() then
+		if ( ply:IsAdmin() or ply:IsSuperAdmin() ) then
 
-			if ( !ply:CheckLimit( "wire_dupeports" ) ) then return false end
+			if ( not ply:CheckLimit( "wire_dupeports" ) ) then return false end
 
 			local wire_dupeport = ents.Create( "gmod_wire_dupeport" )
-			if (!wire_dupeport:IsValid()) then return false end
+			if ( not wire_dupeport:IsValid() ) then return false end
 
-			wire_dupeport:SetModel( Model("models/jaanus/wiretool/wiretool_speed.mdl") )
-			wire_dupeport:SetBeamLength(100)
+			wire_dupeport:SetModel( Model( gsModel ) )
+			wire_dupeport:SetBeamLength( 100 )
 			wire_dupeport:SetAngles( Ang )
 			wire_dupeport:SetPos( Pos )
 			wire_dupeport:SetOverlayText("Adv. Dupe.Teleporter")
@@ -74,7 +76,7 @@ if (SERVER) then
 
 			wire_dupeport:SetPlayer(ply)
 
-			if (game.SinglePlayer()) then
+			if ( game.SinglePlayer() ) then
 				wire_dupeport.OwnerSteamID = ply
 				wire_dupeport.SpawnSteamID = ply
 			else
@@ -96,13 +98,13 @@ if (SERVER) then
 end
 
 function TOOL:UpdateGhostWireDupePort( ent, player )
-	if ( !ent ) then return end
-	if ( !ent:IsValid() ) then return end
+	if ( not ent ) then return end
+	if ( not ent:IsValid() ) then return end
 
 	local trace = player:GetEyeTrace()
-	if (!trace.Hit) then return end
+	if ( not trace.Hit ) then return end
 
-	if (trace.Entity && trace.Entity:GetClass() == "gmod_wire_dupeport" || trace.Entity:IsPlayer()) then
+	if (trace.Entity and trace.Entity:GetClass() == "gmod_wire_dupeport" or trace.Entity:IsPlayer() ) then
 		ent:SetNoDraw( true )
 		return
 	end
@@ -119,8 +121,10 @@ end
 
 
 function TOOL:Think()
-	if (!self.GhostEntity || !self.GhostEntity:IsValid() || self.GhostEntity:GetModel() != "models/jaanus/wiretool/wiretool_speed.mdl" ) then
-		self:MakeGhostEntity( "models/jaanus/wiretool/wiretool_speed.mdl", Vector(0,0,0), Angle(0,0,0) )
+	if ( not self.GhostEntity or
+	     not self.GhostEntity:IsValid() or
+	         self.GhostEntity:GetModel() ~= gsModel ) then
+	  self:MakeGhostEntity( gsModel, Vector(0,0,0), Angle(0,0,0) )
 	end
 
 	self:UpdateGhostWireDupePort( self.GhostEntity, self:GetOwner() )
