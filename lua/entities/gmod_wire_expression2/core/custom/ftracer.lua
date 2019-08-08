@@ -55,8 +55,8 @@ local gtMethList  = {} -- Placeholder for blacklist and convar prefix
 local gtConvEnab  = {["LocalToWorld"] = LocalToWorld, ["WorldToLocal"] = WorldToLocal} -- Cooordinate conversion list
 local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServerControled, "E2 FTracer entity method black list")
 local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServerControled, "E2 FTracer entity method white list")
-local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 30, gnServerControled, "E2 FTracer maximum count")
-local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Print E2 status in the chat area")
+local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 30, gnServerControled, "FTracer items maximum count")
+local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
 local gsVNS, gsVNO = varMethSkip:GetName(), varMethOnly:GetName()
 local gsDefPrint  = "TALK" -- Default print location
 local gtPrintName = {} -- Conttains the print location specificators
