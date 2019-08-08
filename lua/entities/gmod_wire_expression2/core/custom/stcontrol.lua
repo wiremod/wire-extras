@@ -2,18 +2,18 @@
  My custom state LQ-PID control type handling process variables
 ****************************************************************************** ]]--
 
-local pairs = pairs
-local tostring = tostring
-local tonumber = tonumber
-local bitBor = bit.bor
-local mathAbs = math.abs
-local mathModf = math.modf
-local tableConcat = table.concat
-local tableInsert = table.insert
-local tableRemove = table.remove
-local getTime = CurTime -- Using this as time benchmarking supporting game pause
-local outError = error -- The function which generates error and prints it out
-local outPrint = print -- The function that outputs a string into the console
+local pairs        = pairs
+local tostring     = tostring
+local tonumber     = tonumber
+local getmetatable = getmetatable
+local CreateConVar = CreateConVar
+local bitBor       = bit.bor
+local mathAbs      = math.abs
+local mathModf     = math.modf
+local tableConcat  = table.concat
+local tableInsert  = table.insert
+local tableRemove  = table.remove
+local getTime      = CurTime -- Using this as time benchmarking supporting game pause
 
 -- Register the type up here before the extension registration so that the state control still works
 registerType("stcontrol", "xsc", nil,
@@ -21,7 +21,7 @@ registerType("stcontrol", "xsc", nil,
   nil,
   function(retval)
     if(retval == nil) then return end
-    if(not istable(retval)) then outError("Return value is neither nil nor a table, but a "..type(retval).."!",0) end
+    if(not istable(retval)) then error("Return value is neither nil nor a table, but a "..type(retval).."!",0) end
   end,
   function(v)
     return (not istable(v))
@@ -32,13 +32,25 @@ registerType("stcontrol", "xsc", nil,
 
 E2Lib.RegisterExtension("stcontrol", true, "Lets E2 chips have dedicated state control objects")
 
+-- Client and server have independent value
+local gnIndependentUsed = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY)
+-- Server tells the client what value to use
+local gnServerControled = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY, FCVAR_REPLICATED)
+
 local gtComponent = {"P", "I", "D"} -- The names of each term. This is used for indexing and checking
 local gsFormatPID = "(%s%s%s)" -- The general type format for the control power setup
 local gtMissName  = {"Xx", "X", "Nr"} -- This is a placeholder for missing/default type
 local gtStoreOOP  = {} -- Store state controllers here linked to the entity of the E2
 local gsVarPrefx  = "wire_expression2_stcontrol" -- This is used for variable prefix
-local gnServContr = bitBor(FCVAR_ARCHIVE, FCVAR_ARCHIVE_XBOX, FCVAR_NOTIFY, FCVAR_REPLICATED, FCVAR_PRINTABLEONLY)
-local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 20, gnServContr, "E2 StControl maximum count")
+local gtStringMT  = getmetatable(gsVarPrefx) -- Store the string metatable
+local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 20, gnServerControled, "E2 StControl maximum count")
+local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Print E2 status in the chat area")
+local gsDefPrint  = "TALK" -- Default print location
+local gtPrintName = {} -- Conttains the print location specificators
+      gtPrintName["NOTIFY" ] = HUD_PRINTNOTIFY
+      gtPrintName["CONSOLE"] = HUD_PRINTCONSOLE
+      gtPrintName["TALK"   ] = HUD_PRINTTALK
+      gtPrintName["CENTER" ] = HUD_PRINTCENTER
 
 local function isEntity(vE)
   return (vE and vE:IsValid())
@@ -46,6 +58,10 @@ end
 
 local function isHere(vV)
   return (vV ~= nil)
+end
+
+local function isString(vS)
+  return (getmetatable(vS) == gtStringMT)
 end
 
 local function getSign(nV)
@@ -56,16 +72,18 @@ local function getValue(kV,eV,pV)
   return (kV*getSign(eV)*mathAbs(eV)^pV)
 end
 
-local function remValue(tSrc, aKey, bCall)
-  tSrc[aKey] = nil; if(bCall) then collectgarbage() end
+local function remValue(tSrc, aKey)
+  tSrc[aKey] = nil; return tSrc
 end
 
-local function logError(sMsg, ...)
-  outError("E2:stcontrol:"..tostring(sMsg)); return ...
-end
-
-local function logStatus(sMsg, ...)
-  outPrint("E2:stcontrol:"..tostring(sMsg)); return ...
+local function logStatus(sMsg, oSelf, nPos, ...)
+  if(varEnStatus:GetBool()) then
+    local nPos = tonumber(nPos) or gtPrintName[gsDefPrint]
+    local oPly, oEnt = oSelf.player, oSelf.entity
+    local sNam, sEID = oPly:Nick() , tostring(oEnt:EntIndex())
+    local sTxt = "E2{"..sEID.."}{"..sNam.."}:stcontrol:"..tostring(sMsg)
+    oPly:PrintMessage(nPos, sTxt:sub(1, 200))
+  end; return ...
 end
 
 local function getControllersCount() local mC = 0
@@ -76,11 +94,10 @@ local function remControllersEntity(eChip)
   if(not isEntity(eChip)) then return end
   local tCon = gtStoreOOP[eChip]; if(not next(tCon)) then return end
   local mCon = #tCon; for ID = 1, mCon do tableRemove(tCon) end
-  logStatus("Clear ["..tostring(mCon).."] items for "..tostring(eChip))
 end
 
-local function setGains(oStCon, vP, vI, vD, bZ)
-  if(not oStCon) then return logError("Object missing", nil) end
+local function setGains(oStCon, oSelf, vP, vI, vD, bZ)
+  if(not oStCon) then return logStatus("Object missing", oSelf, nil, nil) end
   local nP, nI = (tonumber(vP) or 0), (tonumber(vI) or 0)
   local nD, sT = (tonumber(vD) or 0), "" -- Store control type
   if(vP and ((nP > 0) or (bZ and nP >= 0))) then oStCon.mkP = nP end
@@ -115,15 +132,15 @@ local function getCode(nN)
   end; return gtMissName[1] -- [Invalid settings][N/A]
 end
 
-local function setPower(oStCon, vP, vI, vD)
-  if(not oStCon) then return logError("Object missing", nil) end
+local function setPower(oStCon, oSelf, vP, vI, vD)
+  if(not oStCon) then return logStatus("Object missing", oSelf, nil, nil) end
   oStCon.mpP, oStCon.mpI, oStCon.mpD = (tonumber(vP) or 1), (tonumber(vI) or 1), (tonumber(vD) or 1)
   oStCon.mType[1] = gsFormatPID:format(getCode(oStCon.mpP), getCode(oStCon.mpI), getCode(oStCon.mpD))
   return oStCon
 end
 
-local function resState(oStCon)
-  if(not oStCon) then return logError("Object missing", nil) end
+local function resState(oStCon, oSelf)
+  if(not oStCon) then return logStatus("Object missing", oSelf, nil, nil) end
   oStCon.mErrO, oStCon.mErrN = 0, 0 -- Reset the error
   oStCon.mvCon, oStCon.meInt = 0, true -- Control value and integral enabled
   oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Term values
@@ -137,17 +154,32 @@ local function getType(oStCon)
   end; return tableConcat(oStCon.mType, "-")
 end
 
+local function dumpItem(oStCon, oSelf, sNam, sPos)
+  local sP = tostring(sPos or gsDefPrint)
+  local nP = gtPrintName[sP] -- Print location setup
+  if(not isHere(nP)) then return oStCon end
+  logStatus("["..tostring(sNam).."]["..tostring(oStCon.mnTo or gtMissName[2]).."]["..getType(oStCon).."]["..tostring(oStCon.mTimN).."] Data:", oSelf, nP)
+  logStatus(" Human: ["..tostring(oStCon.mbMan).."] {V="..tostring(oStCon.mvMan)..", B="..tostring(oStCon.mBias).."}", oSelf, nP)
+  logStatus(" Gains: {P="..tostring(oStCon.mkP)..", I="..tostring(oStCon.mkI)..", D="..tostring(oStCon.mkD).."}", oSelf, nP)
+  logStatus(" Power: {P="..tostring(oStCon.mpP)..", I="..tostring(oStCon.mpI)..", D="..tostring(oStCon.mpD).."}", oSelf, nP)
+  logStatus(" Limit: {D="..tostring(oStCon.mSatD)..", U="..tostring(oStCon.mSatU).."}", oSelf, nP)
+  logStatus(" Error: {O="..tostring(oStCon.mErrO)..", N="..tostring(oStCon.mErrN).."}", oSelf, nP)
+  logStatus(" Value: ["..tostring(oStCon.mvCon).."] {P="..tostring(oStCon.mvP)..", I="..tostring(oStCon.mvI)..", D=" ..tostring(oStCon.mvD).."}", oSelf, nP)
+  logStatus(" Flags: ["..tostring(oStCon.mbOn).."] {C="..tostring(oStCon.mbCmb)..", R=" ..tostring(oStCon.mbInv)..", I="..tostring(oStCon.meInt).."}", oSelf, nP)
+  return oStCon -- The dump method
+end
+
 local function newItem(oSelf, nTo)
   local eChip = oSelf.entity; if(not isEntity(eChip)) then
-    return logError("Entity invalid", nil) end
+    return logStatus("Entity invalid", oSelf, nil, nil) end
   local nTot, nMax = getControllersCount(), varMaxTotal:GetInt()
   if(nMax <= 0) then remControllersEntity(eChip)
-    return logError("Limit invalid ["..tostring(nMax).."]", nil) end
+    return logStatus("Limit invalid ["..tostring(nMax).."]", oSelf, nil, nil) end
   if(nTot >= nMax) then remControllersEntity(eChip)
-    return logError("Count reached ["..tostring(nMax).."]", nil) end
+    return logStatus("Count reached ["..tostring(nMax).."]", oSelf, nil, nil) end
   local oStCon, sM = {}, gtMissName[3]; oStCon.mnTo = tonumber(nTo) -- Place to store the object
   if(oStCon.mnTo and oStCon.mnTo <= 0) then remControllersEntity(eChip)
-    return logError("Delta mismatch ["..tostring(oStCon.mnTo).."]", nil) end
+    return logStatus("Delta mismatch ["..tostring(oStCon.mnTo).."]", oSelf, nil, nil) end
   local sT, tCon = gsFormatPID:format(sM, sM, sM), gtStoreOOP[eChip]
   if(not tCon) then gtStoreOOP[eChip] = {}; tCon = gtStoreOOP[eChip] end
   oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
@@ -170,27 +202,27 @@ end
  * are obrained from the output. The value `sM` is a additional
  * tunning option for a PID controller.
 ]]
-local function tuneZieglerNichols(oStCon, uK, uT, uL, sM, bP)
-  if(not oStCon) then return logError("Object missing", nil) end
+local function tuneZieglerNichols(oStCon, oSelf, uK, uT, uL, sM, bP)
+  if(not oStCon) then return logStatus("Object missing", oSelf, nil, nil) end
   local sM, sT = tostring(sM or "classic"), oStCon.mType[2]
   local uK, uT = (tonumber(uK) or 0), (tonumber(uT) or 0)
   if(bP) then if(uT <= 0 or uL <= 0) then return oStCon end
-    if(sT == "P") then return setGains(oStCon, (uT/uL), 0, 0, true)
-    elseif(sT == "PI") then return setGains(oStCon, (0.9*(uT/uL)), (0.3/uL), 0, true)
-    elseif(sT == "PD") then return setGains(oStCon, (1.1*(uT/uL)), 0, (0.8/uL), true)
-    elseif(sT == "PID") then return setGains(oStCon, (1.2*(uT/uL)), 1/(2*uL), 2/uL)
-    else return logError("Type mismatch <"..sT..">", oStCon) end
+    if(sT == "P") then return setGains(oStCon, oSelf, (uT/uL), 0, 0, true)
+    elseif(sT == "PI") then return setGains(oStCon, oSelf, (0.9*(uT/uL)), (0.3/uL), 0, true)
+    elseif(sT == "PD") then return setGains(oStCon, oSelf, (1.1*(uT/uL)), 0, (0.8/uL), true)
+    elseif(sT == "PID") then return setGains(oStCon, oSelf, (1.2*(uT/uL)), 1/(2*uL), 2/uL)
+    else return logStatus("Type mismatch <"..sT..">", oSelf, nil, oStCon) end
   else if(uK <= 0 or uT <= 0) then return oStCon end
-    if(sT == "P") then return setGains(oStCon, (0.5*uK), 0, 0, true)
-    elseif(sT == "PI") then return setGains(oStCon, (0.45*uK), (1.2/uT), 0, true)
-    elseif(sT == "PD") then return setGains(oStCon, (0.80*uK), 0, (uT/8), true)
+    if(sT == "P") then return setGains(oStCon, oSelf, (0.5*uK), 0, 0, true)
+    elseif(sT == "PI") then return setGains(oStCon, oSelf, (0.45*uK), (1.2/uT), 0, true)
+    elseif(sT == "PD") then return setGains(oStCon, oSelf, (0.80*uK), 0, (uT/8), true)
     elseif(sT == "PID") then
-      if(sM == "classic") then return setGains(oStCon, 0.60 * uK, 2.0 / uT, uT / 8.0)
-      elseif(sM == "pessen" ) then return setGains(oStCon, (7*uK)/10, 5/(2*uT), (3*uT)/20)
-      elseif(sM == "sovers") then return setGains(oStCon, (uK/3), (2/uT), (uT/3))
-      elseif(sM == "novers") then return setGains(oStCon, (uK/5), (2/uT), (uT/3))
-      else return logError("Method mismatch <"..sM..">", oStCon) end
-    else return logError("Type mismatch <"..sT..">", oStCon) end
+      if(sM == "classic") then return setGains(oStCon, oSelf, 0.60 * uK, 2.0 / uT, uT / 8.0)
+      elseif(sM == "pessen" ) then return setGains(oStCon, oSelf, (7*uK)/10, 5/(2*uT), (3*uT)/20)
+      elseif(sM == "sovers") then return setGains(oStCon, oSelf, (uK/3), (2/uT), (uT/3))
+      elseif(sM == "novers") then return setGains(oStCon, oSelf, (uK/5), (2/uT), (uT/3))
+      else return logStatus("Method mismatch <"..sM..">", oSelf, nil, oStCon) end
+    else return logStatus("Type mismatch <"..sT..">", oSelf, nil, oStCon) end
   end; return oStCon
 end
 
@@ -198,27 +230,27 @@ end
  * Tunes a controller using the Choen-Coon method
  * Three parameter model: Gain nK, Time nT, Delay nL
 ]]
-local function tuneChoenCoon(oStCon, nK, nT, nL)
-  if(not oStCon) then return logError("Object missing", nil) end
+local function tuneChoenCoon(oStCon, oSelf, nK, nT, nL)
+  if(not oStCon) then return logStatus("Object missing", oSelf, nil, nil) end
   if(nK <= 0 or nT <= 0 or nL <= 0) then return oStCon end
   local sT, mT = oStCon.mType[2], (nL/nT)
   if(sT == "P") then
     local kP = (1/(nK*mT))*(1+(1/3)*mT)
-    return setGains(oStCon, kP, 0, 0, true)
+    return setGains(oStCon, oSelf, kP, 0, 0, true)
   elseif(sT == "PI") then
     local kP = (1/(nK*mT))*(9/10+(1/12)*mT)
     local kI = 1/(nL*((30+3*mT)/(9+20*mT)))
-    return setGains(oStCon, kP, kI, 0, true)
+    return setGains(oStCon, oSelf, kP, kI, 0, true)
   elseif(sT == "PD") then
     local kP = (1/(nK*mT))*(5/4+(1/6)*mT)
     local kD = nL*((6-2*mT)/(22+3*mT))
-    return setGains(oStCon, kP, 0, kD, true)
+    return setGains(oStCon, oSelf, kP, 0, kD, true)
   elseif(sT == "PID") then
     local kP = (1/(nK*mT))*(4/3+(1/4)*mT)
     local kI = 1/(nL*((32+6*mT)/(13+8*mT)))
     local kD = nL*(4/(11+2*mT))
-    return setGains(oStCon, kP, kI, kD)
-  else return logError("Type mismatch <"..sT..">", oStCon) end
+    return setGains(oStCon, oSelf, kP, kI, kD)
+  else return logStatus("Type mismatch <"..sT..">", oSelf, nil, oStCon) end
 end
 
 --[[
@@ -228,37 +260,37 @@ end
  * The flag `bR` if enabled tuning is done for load rejection
  * else the tuning is done for set point tracking
 ]]
-local function tuneChienHronesReswick(oStCon, nK, nT, nL, bM, bR)
-  if(not oStCon) then return logError("Object missing", nil) end
+local function tuneChienHronesReswick(oStCon, oSelf, nK, nT, nL, bM, bR)
+  if(not oStCon) then return logStatus("Object missing", oSelf, nil, nil) end
   if(nK <= 0 or nT <= 0 or nL <= 0) then return oStCon end
   local mA, sT = (nK * nL / nT), oStCon.mType[2]
   if(bR) then -- Load rejection
     if(bM) then -- Overshoot 20%
-      if(sT == "P") then return setGains(oStCon, 0.7/mA, 0, 0, true)
-      elseif(sT == "PI") then return setGains(oStCon, (0.7/mA), (1/(2.3*nT)), 0, true)
-      elseif(sT == "PD") then return setGains(oStCon, (0.82/mA), 0, (0.5*uL), true)
-      elseif(sT == "PID") then return setGains(oStCon, (1.2/mA), 1/(2*nT), 0.42*uL)
-      else return logError("Type mismatch <"..sT..">", oStCon) end
+      if(sT == "P") then return setGains(oStCon, oSelf, 0.7/mA, 0, 0, true)
+      elseif(sT == "PI") then return setGains(oStCon, oSelf, (0.7/mA), (1/(2.3*nT)), 0, true)
+      elseif(sT == "PD") then return setGains(oStCon, oSelf, (0.82/mA), 0, (0.5*uL), true)
+      elseif(sT == "PID") then return setGains(oStCon, oSelf, (1.2/mA), 1/(2*nT), 0.42*uL)
+      else return logStatus("Type mismatch <"..sT..">", oSelf, nil, oStCon) end
     else
-      if(sT == "P") then return setGains(oStCon, (0.3/mA), 0, 0, true)
-      elseif(sT == "PI") then return setGains(oStCon, (0.6/mA), (1/(4*nT)), 0, true)
-      elseif(sT == "PD") then return setGains(oStCon, (0.75/mA), 0, (0.5*uL), true)
-      elseif(sT == "PID") then return setGains(oStCon, (0.95/mA), (1/(2.4*nT)), (0.42*uL))
-      else return logError("Type mismatch <"..sT..">", oStCon) end
+      if(sT == "P") then return setGains(oStCon, oSelf, (0.3/mA), 0, 0, true)
+      elseif(sT == "PI") then return setGains(oStCon, oSelf, (0.6/mA), (1/(4*nT)), 0, true)
+      elseif(sT == "PD") then return setGains(oStCon, oSelf, (0.75/mA), 0, (0.5*uL), true)
+      elseif(sT == "PID") then return setGains(oStCon, oSelf, (0.95/mA), (1/(2.4*nT)), (0.42*uL))
+      else return logStatus("Type mismatch <"..sT..">", oSelf, nil, oStCon) end
     end
   else -- Set point tracking
     if(bM) then -- Overshoot 20%
-      if(sT == "P") then return setGains(oStCon, 0.7/mA, 0, 0, true)
-      elseif(sT == "PI") then return setGains(oStCon, (0.6/mA), 1/nT, 0, true)
-      elseif(sT == "PD") then return setGains(oStCon, (0.7/mA), 0, (0.45*uL), true)
-      elseif(sT == "PID") then return setGains(oStCon, (0.95/mA), 1/(1.4*nT), 0.47*uL)
-      else return logError("Type mismatch <"..sT..">", oStCon) end
+      if(sT == "P") then return setGains(oStCon, oSelf, 0.7/mA, 0, 0, true)
+      elseif(sT == "PI") then return setGains(oStCon, oSelf, (0.6/mA), 1/nT, 0, true)
+      elseif(sT == "PD") then return setGains(oStCon, oSelf, (0.7/mA), 0, (0.45*uL), true)
+      elseif(sT == "PID") then return setGains(oStCon, oSelf, (0.95/mA), 1/(1.4*nT), 0.47*uL)
+      else return logStatus("Type mismatch <"..sT..">", oSelf, nil, oStCon) end
     else
-      if(sT == "P") then return setGains(oStCon, (0.3/mA), 0, 0, true)
-      elseif(sT == "PI") then return setGains(oStCon, (0.35/mA), (1/(1.2*nT)), 0, true)
-      elseif(sT == "PD") then return setGains(oStCon, (0.45/mA), 0, (0.45*uL), true)
-      elseif(sT == "PID") then return setGains(oStCon, (0.6/mA), (1/nT), (0.5*uL))
-      else return logError("Type mismatch <"..sT..">", oStCon) end
+      if(sT == "P") then return setGains(oStCon, oSelf, (0.3/mA), 0, 0, true)
+      elseif(sT == "PI") then return setGains(oStCon, oSelf, (0.35/mA), (1/(1.2*nT)), 0, true)
+      elseif(sT == "PD") then return setGains(oStCon, oSelf, (0.45/mA), 0, (0.45*uL), true)
+      elseif(sT == "PID") then return setGains(oStCon, oSelf, (0.6/mA), (1/nT), (0.5*uL))
+      else return logStatus("Type mismatch <"..sT..">", oSelf, nil, oStCon) end
     end
   end
 end
@@ -267,13 +299,13 @@ end
  * Tunes a controller using the Astrom-Hagglund method
  * Three parameter model: Gain nK, Time nT, Delay nL
 ]]
-local function tuneAstromHagglund(oStCon, nK, nT, nL)
-  if(not oStCon) then return logError("Object missing", nil) end
+local function tuneAstromHagglund(oStCon, oSelf, nK, nT, nL)
+  if(not oStCon) then return logStatus("Object missing", oSelf, nil, nil) end
   if(nK <= 0 or nT <= 0 or nL <= 0) then return oStCon end
   local kP = (1/nK)*(0.2+0.45*(nT/nL))
   local kI = 1/(((0.4*nL+0.8*nT)/(nL+0.1*nT))*nL)
   local kD = (0.5*nL*nT)/(0.3*nL+nT)
-  return setGains(oStCon, kP, kI, kD)
+  return setGains(oStCon, oSelf, kP, kI, kD)
 end
 
 --[[
@@ -294,19 +326,19 @@ local tIE ={
     PID = {1.357, -0.947, 0.842, 0.738, 0.381, 0.995}
   }
 }
-local function tuneIE(oStCon, nK, nT, nL, sM)
-  if(not oStCon) then return logError("Object missing", nil) end
+local function tuneIE(oStCon, oSelf, nK, nT, nL, sM)
+  if(not oStCon) then return logStatus("Object missing", oSelf, nil, nil) end
   if(nK <= 0 or nT <= 0 or nL <= 0) then return oStCon end
   local sM, sT, tT = tostring(sM or "ISE"), oStCon.mType[2], nil
   tT = tIE[sM]; if(not isHere(tT)) then
-    return logError("Mode mismatch <"..sM..">", oStCon) end
+    return logStatus("Mode mismatch <"..sM..">", oSelf, nil, oStCon) end
   tT = tT[sT]; if(not isHere(tT)) then
-    return logError("Type mismatch <"..sT..">", oStCon) end
+    return logStatus("Type mismatch <"..sT..">", oSelf, nil, oStCon) end
   local A, B, C, D, E, F = unpack(tT)
   local kP = (A*(nL/nT)^B)/nK
   local kI = 1/((nT/C)*(nL/nT)^D)
   local kD = nT*E*(nL/nT)^F
-  return setGains(oStCon, kP, kI, kD)
+  return setGains(oStCon, oSelf, kP, kI, kD)
 end
 
 --[[ **************************** CONTROLLER **************************** ]]
@@ -364,112 +396,112 @@ end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainP(number nP)
-  return setGains(this, nP, nil, nil)
+  return setGains(this, self, nP, nil, nil)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainI(number nI)
-  return setGains(this, nil, nI, nil)
+  return setGains(this, self, nil, nI, nil)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainD(number nD)
-  return setGains(this, nil, nil, nD)
+  return setGains(this, self, nil, nil, nD)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainPI(number nP, number nI)
-  return setGains(this, nP, nI, nil)
+  return setGains(this, self, nP, nI, nil)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainPI(vector2 vV)
-  return setGains(this, vV[1], vV[2], nil)
+  return setGains(this, self, vV[1], vV[2], nil)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainPI(array aA)
-  return setGains(this, aA[1], aA[2], nil)
+  return setGains(this, self, aA[1], aA[2], nil)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainPD(number nP, number nD)
-  return setGains(this, nP, nil, nD)
+  return setGains(this, self, nP, nil, nD)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainPD(vector2 vV)
-  return setGains(this, vV[1], nil, vV[2])
+  return setGains(this, self, vV[1], nil, vV[2])
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainPD(array aA)
-  return setGains(this, aA[1], nil, aA[2])
+  return setGains(this, self, aA[1], nil, aA[2])
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainID(number nI, number nD)
-  return setGains(this, nil, nI, nD)
+  return setGains(this, self, nil, nI, nD)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainID(vector2 vV)
-  return setGains(this, nil, vV[1], vV[2])
+  return setGains(this, self, nil, vV[1], vV[2])
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainID(array aA)
-  return setGains(this, nil, aA[1], aA[2])
+  return setGains(this, self, nil, aA[1], aA[2])
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGain(number nP, number nI, number nD)
-  return setGains(this, nP, nI, nD)
+  return setGains(this, self, nP, nI, nD)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGain(array aA)
-  return setGains(this, aA[1], aA[2], aA[3])
+  return setGains(this, self, aA[1], aA[2], aA[3])
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGain(vector vV)
-  return setGains(this, vV[1], vV[2], vV[3])
+  return setGains(this, self, vV[1], vV[2], vV[3])
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:remGainP()
-  return setGains(this, 0, nil, nil, true)
+  return setGains(this, self, 0, nil, nil, true)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:remGainI()
-  return setGains(this, nil, 0, nil, true)
+  return setGains(this, self, nil, 0, nil, true)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:remGainD()
-  return setGains(this, nil, nil, 0, true)
+  return setGains(this, self, nil, nil, 0, true)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:remGainPI()
-  return setGains(this, 0, 0, nil, true)
+  return setGains(this, self, 0, 0, nil, true)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:remGainPD()
-  return setGains(this, 0, nil, 0, true)
+  return setGains(this, self, 0, nil, 0, true)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:remGainID()
-  return setGains(this, nil, 0, 0, true)
+  return setGains(this, self, nil, 0, 0, true)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:remGain()
-  return setGains(this, 0, 0, 0, true)
+  return setGains(this, self, 0, 0, 0, true)
 end
 
 __e2setcost(3)
@@ -591,19 +623,19 @@ end
 __e2setcost(3)
 e2function stcontrol stcontrol:remWindup()
   if(not this) then return nil end
-  remValue(this, "mSatD"); remValue(this, "mSatU", true); return this
+  remValue(this, "mSatD"); remValue(this, "mSatU"); return this
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:remWindupD()
   if(not this) then return nil end
-  remValue(this, "mSatD", true); return this
+  remValue(this, "mSatD"); return this
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:remWindupU()
   if(not this) then return nil end
-  remValue(this, "mSatU", true); return this
+  remValue(this, "mSatU"); return this
 end
 
 __e2setcost(3)
@@ -632,77 +664,77 @@ end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPowerP(number nP)
-  return setPower(this, nP, nil, nil)
+  return setPower(this, self, nP, nil, nil)
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPowerI(number nI)
-  return setPower(this, nil, nI, nil)
+  return setPower(this, self, nil, nI, nil)
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPowerD(number nD)
-  return setPower(this, nil, nil, nD)
+  return setPower(this, self, nil, nil, nD)
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPowerPI(number nP, number nI)
-  return setPower(this, nP, nI, nil)
+  return setPower(this, self, nP, nI, nil)
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPowerPI(vector2 vV)
-  return setPower(this, vV[1], vV[2], nil)
+  return setPower(this, self, vV[1], vV[2], nil)
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPowerPI(array aA)
-  return setPower(this, aA[1], aA[2], nil)
+  return setPower(this, self, aA[1], aA[2], nil)
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPowerPD(number nP, number nD)
-  return setPower(this, nP, nil, nD)
+  return setPower(this, self, nP, nil, nD)
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPowerPD(vector2 vV)
-  return setPower(this, vV[1], nil, vV[2])
+  return setPower(this, self, vV[1], nil, vV[2])
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPowerPD(array aA)
-  return setPower(this, aA[1], nil, aA[2])
+  return setPower(this, self, aA[1], nil, aA[2])
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPowerID(number nI, number nD)
-  return setPower(this, nil, nI, nD)
+  return setPower(this, self, nil, nI, nD)
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPowerID(vector2 vV)
-  return setPower(this, nil, vV[1], vV[2])
+  return setPower(this, self, nil, vV[1], vV[2])
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPowerID(array aA)
-  return setPower(this, nil, aA[1], aA[2])
+  return setPower(this, self, nil, aA[1], aA[2])
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPower(number nP, number nI, number nD)
-  return setPower(this, nP, nI, nD)
+  return setPower(this, self, nP, nI, nD)
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPower(array aA)
-  return setPower(this, aA[1], aA[2], aA[3])
+  return setPower(this, self, aA[1], aA[2], aA[3])
 end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPower(vector vV)
-  return setPower(this, vV[1], vV[2], vV[3])
+  return setPower(this, self, vV[1], vV[2], vV[3])
 end
 
 __e2setcost(3)
@@ -824,7 +856,7 @@ end
 __e2setcost(3)
 e2function stcontrol stcontrol:remTimeSample()
   if(not this) then return 0 end
-  remValue(this, "mnTo", true); return this
+  remValue(this, "mnTo"); return this
 end
 
 __e2setcost(3)
@@ -951,7 +983,7 @@ end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:resState()
-  return resState(this)
+  return resState(this, self)
 end
 
 __e2setcost(20)
@@ -978,7 +1010,7 @@ e2function stcontrol stcontrol:setState(number nR, number nY)
     else this.meInt = true end -- Saturation disables the integrator
     this.mvCon = (this.mvCon + this.mBias) -- Apply the saturated signal bias
     this.mTimB = (getTime() - this.mTimN) -- Benchmark the process
-  else return resState(this) end; return this
+  else return resState(this, self) end; return this
 end
 
 __e2setcost(7)
@@ -1042,14 +1074,21 @@ e2function stcontrol stcontrol:tuneITAE(number nK, number nT, number nL)
 end
 
 __e2setcost(15)
-e2function stcontrol stcontrol:dumpConsole(string sI)
-  logStatus("["..sI.."]["..tostring(this.mnTo or gtMissName[2]).."]["..getType(this).."]["..tostring(this.mTimN).."] Data:")
-  logStatus(" Human: ["..tostring(this.mbMan).."] {V="..tostring(this.mvMan)..", B="..tostring(this.mBias).."}" )
-  logStatus(" Gains: {P="..tostring(this.mkP)..", I="..tostring(this.mkI)..", D="..tostring(this.mkD).."}")
-  logStatus(" Power: {P="..tostring(this.mpP)..", I="..tostring(this.mpI)..", D="..tostring(this.mpD).."}")
-  logStatus(" Limit: {D="..tostring(this.mSatD)..", U="..tostring(this.mSatU).."}")
-  logStatus(" Error: {O="..tostring(this.mErrO)..", N="..tostring(this.mErrN).."}")
-  logStatus(" Value: ["..tostring(this.mvCon).."] {P="..tostring(this.mvP)..", I="..tostring(this.mvI)..", D=" ..tostring(this.mvD).."}")
-  logStatus(" Flags: ["..tostring(this.mbOn).."] {C="..tostring(this.mbCmb)..", R=" ..tostring(this.mbInv)..", I="..tostring(this.meInt).."}")
-  return this -- The dump method
+e2function stcontrol stcontrol:dumpItem(number nN)
+  return dumpItem(this, self, nN)
+end
+
+__e2setcost(15)
+e2function stcontrol stcontrol:dumpItem(string sN)
+  return dumpItem(this, self, sN)
+end
+
+__e2setcost(15)
+e2function stcontrol stcontrol:dumpItem(string nT, number nN)
+  return dumpItem(this, self, nN, nT)
+end
+
+__e2setcost(15)
+e2function stcontrol stcontrol:dumpItem(string nT, string sN)
+  return dumpItem(this, self, sN, nT)
 end
