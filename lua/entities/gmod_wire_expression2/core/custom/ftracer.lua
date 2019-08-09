@@ -546,86 +546,86 @@ e2function ftracer ftracer:setIsIgnoreWorld(number nN)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getOrigin()
+e2function vector ftracer:getPos()
   if(not this) then return {0,0,0} end
   return {this.mPos.x, this.mPos.y, this.mPos.z}
 end
 
 __e2setcost(3)
-e2function vector ftracer:getOriginLocal()
+e2function vector ftracer:getPosLocal()
   return convOrgEnt(this, "WorldToLocal", nil)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getOriginWorld()
+e2function vector ftracer:getPosWorld()
   return convOrgEnt(this, "LocalToWorld", nil)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getOriginLocal(entity vE)
+e2function vector ftracer:getPosLocal(entity vE)
   return convOrgEnt(this, "WorldToLocal", vE)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getOriginWorld(entity vE)
+e2function vector ftracer:getPosWorld(entity vE)
   return convOrgEnt(this, "LocalToWorld", vE)
 end
 
 __e2setcost(7)
-e2function vector ftracer:getOriginLocal(vector vP, angle vA)
+e2function vector ftracer:getPosLocal(vector vP, angle vA)
   return convOrgUCS(this, "WorldToLocal", vP, vA)
 end
 
 __e2setcost(7)
-e2function vector ftracer:getOriginWorld(vector vP, angle vA)
+e2function vector ftracer:getPosWorld(vector vP, angle vA)
   return convOrgUCS(this, "LocalToWorld", vP, vA)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:setOrigin(vector vO)
+e2function ftracer ftracer:setPos(vector vO)
   if(not this) then return nil end
   this.mPos.x, this.mPos.y, this.mPos.z = vO[1], vO[2], vO[3]
   return this
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirection()
+e2function vector ftracer:getDir()
   if(not this) then return nil end
   return {this.mDir.x, this.mDir.y, this.mDir.z}
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirectionLocal()
+e2function vector ftracer:getDirLocal()
   return convDirLocal(this, nil, nil)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirectionWorld()
+e2function vector ftracer:getDirWorld()
   return convDirWorld(this, nil, nil)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirectionLocal(entity vE)
+e2function vector ftracer:getDirLocal(entity vE)
   return convDirLocal(this, vE, nil)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirectionWorld(entity vE)
+e2function vector ftracer:getDirWorld(entity vE)
   return convDirWorld(this, vE, nil)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirectionLocal(angle vA)
+e2function vector ftracer:getDirLocal(angle vA)
   return convDirLocal(this, nil, vA)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirectionWorld(angle vA)
+e2function vector ftracer:getDirWorld(angle vA)
   return convDirWorld(this, nil, vA)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:setDirection(vector vD)
+e2function ftracer ftracer:setDir(vector vD)
   if(not this) then return nil end
   this.mDir.x, this.mDir.y, this.mDir.z = vD[1], vD[2], vD[3]
   this.mDir:Normalize(); this.mDir:Mul(this.mLen)
@@ -633,13 +633,13 @@ e2function ftracer ftracer:setDirection(vector vD)
 end
 
 __e2setcost(3)
-e2function number ftracer:getLength()
+e2function number ftracer:getLen()
   if(not this) then return nil end
   return (this.mLen or 0)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:setLength(number nL)
+e2function ftracer ftracer:setLen(number nL)
   if(not this) then return nil end
   this.mLen = mathClamp(nL,-gnMaxBeam,gnMaxBeam)
   this.mDir:Normalize(); this.mDir:Mul(this.mLen)
@@ -824,7 +824,7 @@ e2function number ftracer:getFraction()
 end
 
 __e2setcost(3)
-e2function number ftracer:getFractionLength()
+e2function number ftracer:getFractionLen()
   if(not this) then return 0 end
   local trV = this.mTrO.Fraction
   return (trV and (trV * this.mLen) or 0)
@@ -845,14 +845,14 @@ e2function number ftracer:isAllSolid()
 end
 
 __e2setcost(3)
-e2function number ftracer:getFractionLeftSolid()
+e2function number ftracer:getFractionLS()
   if(not this) then return 0 end
   local trV = this.mTrO.FractionLeftSolid
   return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:getFractionLeftSolidLength()
+e2function number ftracer:getFractionLenLS()
   if(not this) then return 0 end
   local trV = this.mTrO.FractionLeftSolid
   return (trV and (trV * this.mLen) or 0)
