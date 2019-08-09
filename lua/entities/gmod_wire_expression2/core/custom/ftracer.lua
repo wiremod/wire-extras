@@ -41,6 +41,8 @@ local gnIndependentUsed = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONL
 -- Server tells the client what value to use
 local gnServerControled = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY, FCVAR_REPLICATED)
 
+local gvTransform = Vector() -- Temporary vector for transformation calculation
+local gaTransform = Angle() -- Temporary angle for transformation calculation
 local gsZeroStr   = "" -- Empty string to use instead of creating one everywhere
 local gsNotAvStr  = "N/A" -- What to prinf wjen something is not available
 local gaZeroAng   = Angle() -- Dummy zero angle for transformations
@@ -223,12 +225,11 @@ end
 
 local function trcLocal(oFTrc, eB, vP, vA)
   if(not oFTrc) then return nil end
-  local eE, eP, eA = (eB and eB or oFTrc.mEnt)
-  if(not isEntity(eE)) then
-    eP, eA = Vector(), Angle()
-    eP.x, eP.y, eP.z = vP[1], vP[2], vP[3]
-    eA.p, eP.y, eP.r = vA[1], vA[2], vA[3]
-  else eP, eA = eE:GetPos(), eE:GetAngles() end
+  local eE = (eB and eB or oFTrc.mEnt)
+  local eP, eA = gvTransform, gaTransform
+  if(isEntity(eE)) then eP:Set(eE:GetPos()); eA:Set(eE:GetAngles()) end
+  if(isHere(vP)) then eP.x, eP.y, eP.z = vP[1], vP[2], vP[3] end
+  if(isHere(vA)) then eA.p, eA.y, eA.r = vA[1], vA[2], vA[3] end
   local trS, trE = oFTrc.mTrI.start, oFTrc.mTrI.endpos
   trS:Set(oFTrc.mPos); trS:Rotate(eA); trS:Add(eP)
   trE:Set(oFTrc.mDir); trE:Rotate(eA); trE:Add(trS)
@@ -236,10 +237,15 @@ local function trcLocal(oFTrc, eB, vP, vA)
   utilTraceLine(oFTrc.mTrI); return oFTrc
 end
 
-local function trcWorld(oFTrc)
+local function trcWorld(oFTrc, eE, vP, vA)
   if(not oFTrc) then return nil end
+  local eP, eA = gvTransform, gaTransform
+  eP:Set(oFTrc.mPos); eA:Set(oFTrc.mDir:Angle())
+  if(isEntity(eE)) then eP:Set(eE:GetPos()); eA:Set(eE:GetAngles()) end
+  if(isHere(vP)) then eP.x, eP.y, eP.z = vP[1], vP[2], vP[3] end
+  if(isHere(vA)) then eA.p, eA.y, eA.r = vA[1], vA[2], vA[3] end
   local trS, trE = oFTrc.mTrI.start, oFTrc.mTrI.endpos
-  trS:Set(oFTrc.mPos); trE:Set(oFTrc.mDir); trE:Add(trS)
+  trS:Set(eP); trE:Set(eA:Forward()); trE:Add(trS)
   -- http://wiki.garrysmod.com/page/util/TraceLine
   utilTraceLine(oFTrc.mTrI); return oFTrc
 end
@@ -425,28 +431,28 @@ end
 --[[ **************************** ENTITY **************************** ]]
 
 __e2setcost(3)
-e2function ftracer ftracer:addEntityHitSkip(entity vE)
+e2function ftracer ftracer:addEntHitSkip(entity vE)
   if(not this) then return nil end
   if(not isEntity(vE)) then return nil end
   this.mHit.Ent.SKIP[vE] = true; return this
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:remEntityHitSkip(entity vE)
+e2function ftracer ftracer:remEntHitSkip(entity vE)
   if(not this) then return nil end
   if(not isEntity(vE)) then return nil end
   remValue(this.mHit.Ent.SKIP, vE); return this
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:addEntityHitOnly(entity vE)
+e2function ftracer ftracer:addEntHitOnly(entity vE)
   if(not this) then return nil end
   if(not isEntity(vE)) then return nil end
   this.mHit.Ent.ONLY[vE] = true; return this
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:remEntityHitOnly(entity vE)
+e2function ftracer ftracer:remEntHitOnly(entity vE)
   if(not this) then return nil end
   if(not isEntity(vE)) then return nil end
   remValue(this.mHit.Ent.ONLY, vE); return this
@@ -515,20 +521,20 @@ end
 -------------------------------------------------------------------------------
 
 __e2setcost(3)
-e2function entity ftracer:getAttachEntity()
+e2function entity ftracer:getBase()
   if(not this) then return nil end; local vE = this.mEnt
   if(not isEntity(vE)) then return nil end; return vE
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:setAttachEntity(entity eE)
+e2function ftracer ftracer:setBase(entity eE)
   if(not this) then return nil end
   if(not isEntity(eE)) then return this end
   this.mEnt = eE; return this
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:remAttachEntity()
+e2function ftracer ftracer:remBase()
   if(not this) then return nil end
   remValue(this, "mEnt"); return this
 end
@@ -659,13 +665,13 @@ e2function ftracer ftracer:setMask(number nN)
 end
 
 __e2setcost(3)
-e2function number ftracer:getCollisionGroup()
+e2function number ftracer:getCollideGroup()
   if(not this) then return nil end
   return (this.mTrI.collisiongroup or 0)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:setCollisionGroup(number nN)
+e2function ftracer ftracer:setCollideGroup(number nN)
   if(not this) then return nil end
   this.mTrI.collisiongroup = nN; return this
 end
@@ -695,13 +701,63 @@ e2function ftracer ftracer:smpLocal(entity vE)
 end
 
 __e2setcost(12)
+e2function ftracer ftracer:smpLocal(angle vA)
+  return trcLocal(this, nil,  nil,  vA)
+end
+
+__e2setcost(12)
+e2function ftracer ftracer:smpLocal(vector vP)
+  return trcLocal(this, nil, vP,  nil)
+end
+
+__e2setcost(12)
 e2function ftracer ftracer:smpLocal(vector vP, angle vA)
-  return trcLocal(this, nil,  vP,  vA)
+  return trcLocal(this, nil, vP,  vA)
+end
+
+__e2setcost(12)
+e2function ftracer ftracer:smpLocal(entity vE, vector vP)
+  return trcLocal(this, vE,  vP,  nil)
+end
+
+__e2setcost(12)
+e2function ftracer ftracer:smpLocal(entity vE, angle vA)
+  return trcLocal(this, vE,  nil,  vA)
 end
 
 __e2setcost(8)
 e2function ftracer ftracer:smpWorld()
   return trcWorld(this)
+end
+
+__e2setcost(12)
+e2function ftracer ftracer:smpWorld(entity vE)
+  return trcWorld(this,  vE, nil, nil)
+end
+
+__e2setcost(12)
+e2function ftracer ftracer:smpWorld(angle vA)
+  return trcWorld(this, nil,  nil,  vA)
+end
+
+__e2setcost(12)
+e2function ftracer ftracer:smpWorld(vector vP)
+  return trcWorld(this, nil, vP,  nil)
+end
+
+__e2setcost(12)
+e2function ftracer ftracer:smpWorld(vector vP, angle vA)
+  return trcWorld(this, nil, vP,  vA)
+end
+
+__e2setcost(12)
+e2function ftracer ftracer:smpWorld(entity vE, vector vP)
+  return trcWorld(this, vE,  vP,  nil)
+end
+
+__e2setcost(12)
+e2function ftracer ftracer:smpWorld(entity vE, angle vA)
+  return trcWorld(this, vE,  nil,  vA)
 end
 
 __e2setcost(3)
@@ -796,21 +852,21 @@ e2function vector ftracer:getStartPos()
 end
 
 __e2setcost(3)
-e2function number ftracer:getSurfaceProps()
+e2function number ftracer:getSurfPropsID()
   if(not this) then return 0 end
   local trV = this.mTrO.SurfaceProps
   return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function string ftracer:getSurfacePropsName()
+e2function string ftracer:getSurfPropsName()
   if(not this) then return gsZeroStr end
   local trV = this.mTrO.SurfaceProps
   return (trV and utilGetSurfacePropName(trV) or gsZeroStr)
 end
 
 __e2setcost(3)
-e2function number ftracer:getPhysicsBone()
+e2function number ftracer:getBone()
   if(not this) then return 0 end
   local trV = this.mTrO.PhysicsBone
   return (trV and trV or 0)
