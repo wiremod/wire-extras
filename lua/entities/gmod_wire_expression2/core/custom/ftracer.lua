@@ -44,24 +44,24 @@ local gnServerControled = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONL
 local gvTransform = Vector() -- Temporary vector for transformation calculation
 local gaTransform = Angle() -- Temporary angle for transformation calculation
 local gsZeroStr   = "" -- Empty string to use instead of creating one everywhere
-local gsNotAvStr  = "N/A" -- What to prinf wjen something is not available
+local gsNotAvStr  = "N/A" -- What to print when something is not available
 local gaZeroAng   = Angle() -- Dummy zero angle for transformations
 local gvZeroVec   = Vector() -- Dummy zero vector for transformations
 local gtStoreOOP  = {} -- Store flash tracers here linked to the entity of the E2
 local gnMaxBeam   = 50000 -- The tracer maximum length just about one cube map
 local gtEmptyVar  = {["#empty"]=true}; gtEmptyVar[gsZeroStr] = true -- Variable being set to empty string
 local gsVarPrefx  = "wire_expression2_ftracer" -- This is used for variable prefix
-local gtStringMT  = getmetatable(gsVarPrefx) -- Store the string metatable
+local gtStringMT  = getmetatable(gsVarPrefx) -- Store the string meta-table
 local gtBoolToNum = {[true]=1,[false]=0} -- This is used to convert between GLua boolean and wire boolean
-local gtMethList  = {} -- Placeholder for blacklist and convar prefix
-local gtConvEnab  = {["LocalToWorld"] = LocalToWorld, ["WorldToLocal"] = WorldToLocal} -- Cooordinate conversion list
+local gtMethList  = {} -- Place holder for blacklist and convar prefix
+local gtConvEnab  = {["LocalToWorld"] = LocalToWorld, ["WorldToLocal"] = WorldToLocal} -- Coordinate conversion list
 local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServerControled, "E2 FTracer entity method black list")
 local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServerControled, "E2 FTracer entity method white list")
 local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 30, gnServerControled, "FTracer items maximum count")
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
 local gsVNS, gsVNO = varMethSkip:GetName(), varMethOnly:GetName()
 local gsDefPrint  = "TALK" -- Default print location
-local gtPrintName = {} -- Conttains the print location specificators
+local gtPrintName = {} -- Contains the print location specification
       gtPrintName["NOTIFY" ] = HUD_PRINTNOTIFY
       gtPrintName["CONSOLE"] = HUD_PRINTCONSOLE
       gtPrintName["TALK"   ] = HUD_PRINTTALK
@@ -316,7 +316,7 @@ local function newItem(oSelf, vEnt, vPos, vDir, nLen)
         for IH = 1, tHit.Size do local sFoo = tHit[IH].CALL
           nS, vV = getHitStatus(tHit[IH], convHitValue(oEnt, sFoo))
           if(nS > 1) then return vV end -- Option skipped/selected
-        end -- All options are checked then trace hit notmally
+        end -- All options are checked then trace hit normally
       end; return true -- Finally we register the trace hit enabled
     end, ignoreworld = false, -- Should the trace ignore world or not
     collisiongroup = COLLISION_GROUP_NONE } -- Collision group control
@@ -326,7 +326,7 @@ end
 
 --[[ **************************** TRACER **************************** ]]
 
-registerOperator("ass", "xfs", "xfs", function(self, args)
+registerOperator("ass", "xft", "xft", function(self, args)
   local lhs, op2, scope = args[2], args[3], args[4]
   local rhs = op2[1](self, op2)
   self.Scopes[scope][lhs] = rhs

@@ -39,14 +39,14 @@ local gnServerControled = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONL
 
 local gtComponent = {"P", "I", "D"} -- The names of each term. This is used for indexing and checking
 local gsFormatPID = "(%s%s%s)" -- The general type format for the control power setup
-local gtMissName  = {"Xx", "X", "Nr"} -- This is a placeholder for missing/default type
+local gtMissName  = {"Xx", "X", "Nr"} -- This is a place holder for missing/default type
 local gtStoreOOP  = {} -- Store state controllers here linked to the entity of the E2
 local gsVarPrefx  = "wire_expression2_stcontrol" -- This is used for variable prefix
 local gtStringMT  = getmetatable(gsVarPrefx) -- Store the string metatable
 local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 20, gnServerControled, "StControl items maximum count")
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
 local gsDefPrint  = "TALK" -- Default print location
-local gtPrintName = {} -- Conttains the print location specificators
+local gtPrintName = {} -- Contains the print location specification
       gtPrintName["NOTIFY" ] = HUD_PRINTNOTIFY
       gtPrintName["CONSOLE"] = HUD_PRINTCONSOLE
       gtPrintName["TALK"   ] = HUD_PRINTTALK
@@ -199,7 +199,7 @@ end
  * Tunes a controller using the Ziegler-Nichols method
  * When `bP` is true, then 3-parameter model is used
  * otherwise P-controller is hooked to the plant and uK, uT (no model)
- * are obrained from the output. The value `sM` is a additional
+ * are obtained from the output. The value `sM` is a additional
  * tunning option for a PID controller.
 ]]
 local function tuneZieglerNichols(oStCon, oSelf, uK, uT, uL, sM, bP)
@@ -309,7 +309,7 @@ local function tuneAstromHagglund(oStCon, oSelf, nK, nT, nL)
 end
 
 --[[
- * Tunes a controller using the integrall error method
+ * Tunes a controller using the integral error method
  * Three parameter model: Gain nK, Time nT, Delay nL
 ]]
 local tIE ={
