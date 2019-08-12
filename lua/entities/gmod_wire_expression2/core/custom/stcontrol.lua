@@ -105,7 +105,7 @@ local function setGains(oStCon, oSelf, vP, vI, vD, bZ)
   for key, val in pairs(gtComponent) do
     if(oStCon["mk"..val] > 0) then sT = sT..val end end
   if(sT:len() == 0) then sT = gtMissName[2]:rep(3) end -- Check for invalid control
-  oStCon.mType[2] = sT; collectgarbage(); return oStCon
+  oStCon.mType[2] = sT; return oStCon
 end
 
 local function getCode(nN)
@@ -187,7 +187,7 @@ local function newItem(oSelf, nTo)
   oStCon.mbCmb, oStCon.mbInv, oStCon.mbOn, oStCon.mbMan = false, false, false, false
   oStCon.mvMan, oStCon.mSet = 0, eChip -- Configure manual mode and store indexing
   eChip:CallOnRemove("stcontrol_remove_ent", remControllersEntity)
-  tableInsert(tCon, oStCon); collectgarbage(); return oStCon
+  tableInsert(tCon, oStCon); return oStCon
 end
 
 --[[
