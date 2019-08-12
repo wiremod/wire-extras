@@ -51,7 +51,6 @@ local gtStoreOOP  = {} -- Store flash tracers here linked to the entity of the E
 local gnMaxBeam   = 50000 -- The tracer maximum length just about one cube map
 local gtEmptyVar  = {["#empty"]=true}; gtEmptyVar[gsZeroStr] = true -- Variable being set to empty string
 local gsVarPrefx  = "wire_expression2_ftracer" -- This is used for variable prefix
-local gtStringMT  = getmetatable(gsVarPrefx) -- Store the string meta-table
 local gtBoolToNum = {[true]=1,[false]=0} -- This is used to convert between GLua boolean and wire boolean
 local gtMethList  = {} -- Place holder for blacklist and convar prefix
 local gtConvEnab  = {["LocalToWorld"] = LocalToWorld, ["WorldToLocal"] = WorldToLocal} -- Coordinate conversion list
