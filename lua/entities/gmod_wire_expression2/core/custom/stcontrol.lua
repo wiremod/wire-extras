@@ -42,7 +42,6 @@ local gsFormatPID = "(%s%s%s)" -- The general type format for the control power 
 local gtMissName  = {"Xx", "X", "Nr"} -- This is a place holder for missing/default type
 local gtStoreOOP  = {} -- Store state controllers here linked to the entity of the E2
 local gsVarPrefx  = "wire_expression2_stcontrol" -- This is used for variable prefix
-local gtStringMT  = getmetatable(gsVarPrefx) -- Store the string metatable
 local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 20, gnServerControled, "StControl items maximum count")
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
 local gsDefPrint  = "TALK" -- Default print location
@@ -58,10 +57,6 @@ end
 
 local function isHere(vV)
   return (vV ~= nil)
-end
-
-local function isString(vS)
-  return (getmetatable(vS) == gtStringMT)
 end
 
 local function getSign(nV)
