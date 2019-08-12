@@ -75,10 +75,6 @@ local function isHere(vV)
   return (vV ~= nil)
 end
 
-local function isString(vS)
-  return (getmetatable(vS) == gtStringMT)
-end
-
 local function getNorm(tV)
   local nN = 0; if(not isHere(tV)) then return nN end
   if(tonumber(tV)) then return math.abs(tV) end
