@@ -5,7 +5,6 @@
 local pairs        = pairs
 local tostring     = tostring
 local tonumber     = tonumber
-local getmetatable = getmetatable
 local CreateConVar = CreateConVar
 local bitBor       = bit.bor
 local mathAbs      = math.abs
