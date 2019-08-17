@@ -7,7 +7,6 @@ local Angle = Angle
 local Vector = Vector
 local tostring = tostring
 local tonumber = tonumber
-local getmetatable = getmetatable
 local LocalToWorld = LocalToWorld
 local WorldToLocal = WorldToLocal
 local bitBor = bit.bor
