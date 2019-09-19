@@ -65,23 +65,15 @@ local gtPrintName = {} -- Contains the print location specification
       gtPrintName["TALK"   ] = HUD_PRINTTALK
       gtPrintName["CENTER" ] = HUD_PRINTCENTER
 
-local function isEntity(vE)
+local function isValid(vE)
   return (vE and vE:IsValid())
 end
 
-local function isHere(vV)
-  return (vV ~= nil)
-end
-
 local function getNorm(tV)
-  local nN = 0; if(not isHere(tV)) then return nN end
+  local nN = 0; if(not tV) then return nN end
   if(tonumber(tV)) then return math.abs(tV) end
   for ID = 1, 3 do local nV = tonumber(tV[ID]) or 0
     nN = nN + nV^2 end; return mathSqrt(nN)
-end
-
-local function remValue(tSrc, aKey)
-  tSrc[aKey] = nil; return tSrc
 end
 
 local function logStatus(sMsg, oSelf, nPos, ...)
@@ -99,7 +91,7 @@ local function convArrayKeys(tA)
   if(not next(tA)) then return nil end
   local nE = #tA; for ID = 1, #tA do local key = tA[ID]
     if(not gtEmptyVar[key]) then
-      tA[key] = true end; remValue(tA, ID)
+      tA[key] = true end; tA[ID] = nil
   end; return ((tA and next(tA)) and tA or nil)
 end
 
@@ -120,7 +112,7 @@ end
 local function convDirLocal(oFTrc, vE, vA)
   if(not oFTrc) then return {0,0,0} end
   local oD, oE = oFTrc.mDir, (vE or oFTrc.mEnt)
-  if(not (isEntity(oE) or vA)) then return {oD[1], oD[2], oD[3]} end
+  if(not (isValid(oE) or vA)) then return {oD[1], oD[2], oD[3]} end
   local oV, oA = Vector(oD[1], oD[2], oD[3]), (vA and vA or oE:GetAngles())
   return {oV:Dot(oA:Forward()), -oV:Dot(oA:Right()), oV:Dot(oA:Up())}
 end -- Gmod +Y is the left direction
@@ -128,7 +120,7 @@ end -- Gmod +Y is the left direction
 local function convDirWorld(oFTrc, vE, vA)
   if(not oFTrc) then return {0,0,0} end
   local oD, oE = oFTrc.mDir, (vE or oFTrc.mEnt)
-  if(not (isEntity(oE) or vA)) then return {oD[1], oD[2], oD[3]} end
+  if(not (isValid(oE) or vA)) then return {oD[1], oD[2], oD[3]} end
   local oV, oA = Vector(oD[1], oD[2], oD[3]), (vA and vA or oE:GetAngles())
   oV:Rotate(oA); return {oV[1], oV[2], oV[3]}
 end
@@ -137,7 +129,7 @@ local function convOrgEnt(oFTrc, sF, vE)
   if(not oFTrc) then return {0,0,0} end
   if(not gtConvEnab[sF or gsZeroStr]) then return {0,0,0} end
   local oO, oE = oFTrc.mPos, (vE or oFTrc.mEnt)
-  if(not isEntity(oE)) then return {oO[1], oO[2], oO[3]} end
+  if(not isValid(oE)) then return {oO[1], oO[2], oO[3]} end
   local oV = Vector(oO[1], oO[2], oO[3])
   oV:Set(oE[sF](oE, oV)); return {oV[1], oV[2], oV[3]}
 end
@@ -146,7 +138,7 @@ local function convOrgUCS(oFTrc, sF, vP, vA)
   if(not oFTrc) then return {0,0,0} end
   if(not gtConvEnab[sF or gsZeroStr]) then return {0,0,0} end
   local oO, oE = oFTrc.mPos, (vE or oFTrc.mEnt)
-  if(not isEntity(oE)) then return {oO[1], oO[2], oO[3]} end
+  if(not isValid(oE)) then return {oO[1], oO[2], oO[3]} end
   local oV, vN, aN = Vector(oO[1], oO[2], oO[3])
   vN, aN = gtConvEnab[sF](oV, gaZeroAng, vP, vA); oV:Set(vN)
   return {oV[1], oV[2], oV[3]}
@@ -163,9 +155,9 @@ local function getHitStatus(oF, vK)
   -- Skip current setting on empty data type
   if(not oF.TYPE) then return 1, vNop end
   local tO, tS = oF.ONLY, oF.SKIP
-  if(tO and isHere(next(tO))) then if(tO[vK]) then
+  if(tO and next(tO)) then if(tO[vK]) then
     return 3, vHit else return 2, vSkp end end
-  if(tS and isHere(next(tS))) then if(tS[vK]) then
+  if(tS and next(tS)) then if(tS[vK]) then
     return 2, vSkp else return 1, vNop end end
   return 1, vNop -- Check next setting on empty table
 end
@@ -174,9 +166,9 @@ local function newHitFilter(oFTrc, oSelf, sM)
   if(not oFTrc) then return 0 end -- Check for available method
   if(sM:sub(1,3) ~= "Get" and sM:sub(1,2) ~= "Is" and sM ~= gsZeroStr) then
     return logStatus("Method <"..sM.."> disabled", oSelf, nil, 0) end
-  local tO = gtMethList.ONLY; if(tO and isHere(next(tO)) and not tO[sM]) then
+  local tO = gtMethList.ONLY; if(tO and next(tO) and not tO[sM]) then
     return logStatus("Method <"..sM.."> use only", oSelf, nil, 0) end
-  local tS = gtMethList.SKIP; if(tS and isHere(next(tS)) and tS[sM]) then
+  local tS = gtMethList.SKIP; if(tS and next(tS) and tS[sM]) then
     return logStatus("Method <"..sM.."> use skip", oSelf, nil, 0) end
   if(not oSelf.entity[sM]) then -- Check for available method
     return logStatus("Method <"..sM.."> mismatch", oSelf, nil, 0) end
@@ -189,13 +181,13 @@ end
 local function remHitFilter(oFTrc, sM)
   if(not oFTrc) then return nil end
   local tHit = oFTrc.mHit; tHit.Size = (tHit.Size - 1)
-  tableRemove(tHit, tHit.ID[sM]); remValue(tHit.ID, sM); return oFTrc
+  tableRemove(tHit, tHit.ID[sM]); tHit.ID[sM]; return oFTrc
 end
 
 local function setHitFilter(oFTrc, oSelf, sM, sO, vV, bS)
   if(not oFTrc) then return nil end
   local tHit, sTyp = oFTrc.mHit, type(vV) -- Obtain hit filter location
-  local nID = tHit.ID[sM]; if(not isHere(nID)) then
+  local nID = tHit.ID[sM]; if(not nID) then
     nID = newHitFilter(oFTrc, oSelf, sM)
   end -- Obtain the current data index
   local tID = tHit[nID]; if(not tID.TYPE) then tID.TYPE = type(vV) end
@@ -212,7 +204,7 @@ local function convHitValue(oEnt, sM) local vV = oEnt[sM](oEnt)
 end
 
 local function remSensorEntity(eChip)
-  if(not isEntity(eChip)) then return end
+  if(not isValid(eChip)) then return end
   local tSen = gtStoreOOP[eChip]; if(not next(tSen)) then return end
   local mSen = #tSen; for ID = 1, mSen do tableRemove(tSen) end
 end
@@ -221,9 +213,9 @@ local function trcLocal(oFTrc, eB, vP, vA)
   if(not oFTrc) then return nil end
   local eE = (eB and eB or oFTrc.mEnt)
   local eP, eA = gvTransform, gaTransform
-  if(isEntity(eE)) then eP:Set(eE:GetPos()); eA:Set(eE:GetAngles()) end
-  if(isHere(vP)) then eP.x, eP.y, eP.z = vP[1], vP[2], vP[3] end
-  if(isHere(vA)) then eA.p, eA.y, eA.r = vA[1], vA[2], vA[3] end
+  if(isValid(eE)) then eP:Set(eE:GetPos()); eA:Set(eE:GetAngles()) end
+  if(vP) then eP.x, eP.y, eP.z = vP[1], vP[2], vP[3] end
+  if(vA) then eA.p, eA.y, eA.r = vA[1], vA[2], vA[3] end
   local trS, trE = oFTrc.mTrI.start, oFTrc.mTrI.endpos
   trS:Set(oFTrc.mPos); trS:Rotate(eA); trS:Add(eP)
   trE:Set(oFTrc.mDir); trE:Rotate(eA); trE:Add(trS)
@@ -235,9 +227,9 @@ local function trcWorld(oFTrc, eE, vP, vA)
   if(not oFTrc) then return nil end
   local eP, eA = gvTransform, gaTransform
   eP:Set(oFTrc.mPos); eA:Set(oFTrc.mDir:Angle())
-  if(isEntity(eE)) then eP:Set(eE:GetPos()); eA:Set(eE:GetAngles()) end
-  if(isHere(vP)) then eP.x, eP.y, eP.z = vP[1], vP[2], vP[3] end
-  if(isHere(vA)) then eA.p, eA.y, eA.r = vA[1], vA[2], vA[3] end
+  if(isValid(eE)) then eP:Set(eE:GetPos()); eA:Set(eE:GetAngles()) end
+  if(vP) then eP.x, eP.y, eP.z = vP[1], vP[2], vP[3] end
+  if(vA) then eA.p, eA.y, eA.r = vA[1], vA[2], vA[3] end
   local trS, trE = oFTrc.mTrI.start, oFTrc.mTrI.endpos
   trS:Set(eP); trE:Set(eA:Forward()); trE:Add(trS)
   -- http://wiki.garrysmod.com/page/util/TraceLine
@@ -247,7 +239,7 @@ end
 local function dumpItem(oFTrc, oSelf, sNam, sPos)
   local sP = tostring(sPos or gsDefPrint)
   local nP = gtPrintName[sP] -- Print location setup
-  if(not isHere(nP)) then return oFTrc end
+  if(not nP) then return oFTrc end
   logStatus("["..tostring(sNam or gsNotAvStr).."] Data:", oSelf, nP)
   logStatus(" Len: "..tostring(oFTrc.mLen or gsNotAvStr), oSelf, nP)
   logStatus(" Pos: "..tostring(oFTrc.mPos or gsNotAvStr), oSelf, nP)
@@ -269,7 +261,7 @@ local function dumpItem(oFTrc, oSelf, sNam, sPos)
 end
 
 local function newItem(oSelf, vEnt, vPos, vDir, nLen)
-  local eChip = oSelf.entity; if(not isEntity(eChip)) then
+  local eChip = oSelf.entity; if(not isValid(eChip)) then
     return logStatus("Entity invalid", oSelf, nil, nil) end
   local nTot, nMax = getSensorsCount(), varMaxTotal:GetInt()
   if(nMax <= 0) then remSensorEntity(eChip)
@@ -278,14 +270,14 @@ local function newItem(oSelf, vEnt, vPos, vDir, nLen)
     return logStatus("Count reached ["..tostring(nMax).."]", oSelf, nil, nil) end
   local oFTrc, tSen = {}, gtStoreOOP[eChip]; oFTrc.mSet, oFTrc.mHit = eChip, {Size=0, ID={}};
   if(not tSen) then gtStoreOOP[eChip] = {}; tSen = gtStoreOOP[eChip] end
-  if(isEntity(vEnt)) then -- No entities are store for ONLY or SKIP by default
+  if(isValid(vEnt)) then -- No entities are store for ONLY or SKIP by default
     oFTrc.mHit.Ent, oFTrc.mEnt = {SKIP={},ONLY={}}, vEnt
   else oFTrc.mHit.Ent, oFTrc.mEnt = {SKIP={},ONLY={}}, nil end -- Make sure the entity is cleared
   -- Local tracer position the trace starts from
   oFTrc.mPos, oFTrc.mDir = Vector(), Vector()
-  if(isHere(vPos)) then oFTrc.mPos.x, oFTrc.mPos.y, oFTrc.mPos.z = vPos[1], vPos[2], vPos[3] end
+  if(vPos) then oFTrc.mPos.x, oFTrc.mPos.y, oFTrc.mPos.z = vPos[1], vPos[2], vPos[3] end
   -- Local tracer direction to read the data of
-  if(isHere(vDir)) then oFTrc.mDir.x, oFTrc.mDir.y, oFTrc.mDir.z = vDir[1], vDir[2], vDir[3] end
+  if(vDir) then oFTrc.mDir.x, oFTrc.mDir.y, oFTrc.mDir.z = vDir[1], vDir[2], vDir[3] end
   -- How long the flash tracer length will be. Must be positive
   oFTrc.mLen = (tonumber(nLen) or 0)
   oFTrc.mLen = (oFTrc.mLen == 0 and getNorm(vDir) or oFTrc.mLen)
@@ -303,7 +295,7 @@ local function newItem(oSelf, vEnt, vPos, vDir, nLen)
     output = oFTrc.mTrO, -- Provide output place holder table
     endpos = Vector(), -- The end position of the trace
     filter = function(oEnt) local tHit, nS, vV = oFTrc.mHit
-      if(not isEntity(oEnt)) then return end
+      if(not isValid(oEnt)) then return end
       nS, vV = getHitStatus(tHit.Ent, oEnt)
       if(nS > 1) then return vV end -- Entity found/skipped
       if(tHit.Size > 0) then
@@ -427,29 +419,29 @@ end
 __e2setcost(3)
 e2function ftracer ftracer:addEntHitSkip(entity vE)
   if(not this) then return nil end
-  if(not isEntity(vE)) then return nil end
+  if(not isValid(vE)) then return nil end
   this.mHit.Ent.SKIP[vE] = true; return this
 end
 
 __e2setcost(3)
 e2function ftracer ftracer:remEntHitSkip(entity vE)
   if(not this) then return nil end
-  if(not isEntity(vE)) then return nil end
-  remValue(this.mHit.Ent.SKIP, vE); return this
+  if(not isValid(vE)) then return nil end
+  this.mHit.Ent.SKIP[vE] = nil; return this
 end
 
 __e2setcost(3)
 e2function ftracer ftracer:addEntHitOnly(entity vE)
   if(not this) then return nil end
-  if(not isEntity(vE)) then return nil end
+  if(not isValid(vE)) then return nil end
   this.mHit.Ent.ONLY[vE] = true; return this
 end
 
 __e2setcost(3)
 e2function ftracer ftracer:remEntHitOnly(entity vE)
   if(not this) then return nil end
-  if(not isEntity(vE)) then return nil end
-  remValue(this.mHit.Ent.ONLY, vE); return this
+  if(not isValid(vE)) then return nil end
+  this.mHit.Ent.ONLY[vE] = nil; return this
 end
 
 --[[ **************************** FILTER **************************** ]]
@@ -517,20 +509,20 @@ end
 __e2setcost(3)
 e2function entity ftracer:getBase()
   if(not this) then return nil end; local vE = this.mEnt
-  if(not isEntity(vE)) then return nil end; return vE
+  if(not isValid(vE)) then return nil end; return vE
 end
 
 __e2setcost(3)
 e2function ftracer ftracer:setBase(entity eE)
   if(not this) then return nil end
-  if(not isEntity(eE)) then return this end
+  if(not isValid(eE)) then return this end
   this.mEnt = eE; return this
 end
 
 __e2setcost(3)
 e2function ftracer ftracer:remBase()
   if(not this) then return nil end
-  remValue(this, "mEnt"); return this
+  this.mEnt = nil; return this
 end
 
 __e2setcost(3)

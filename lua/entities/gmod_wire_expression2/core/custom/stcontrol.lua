@@ -50,12 +50,8 @@ local gtPrintName = {} -- Contains the print location specification
       gtPrintName["TALK"   ] = HUD_PRINTTALK
       gtPrintName["CENTER" ] = HUD_PRINTCENTER
 
-local function isEntity(vE)
+local function isValid(vE)
   return (vE and vE:IsValid())
-end
-
-local function isHere(vV)
-  return (vV ~= nil)
 end
 
 local function getSign(nV)
@@ -64,10 +60,6 @@ end
 
 local function getValue(kV,eV,pV)
   return (kV*getSign(eV)*mathAbs(eV)^pV)
-end
-
-local function remValue(tSrc, aKey)
-  tSrc[aKey] = nil; return tSrc
 end
 
 local function logStatus(sMsg, oSelf, nPos, ...)
@@ -85,7 +77,7 @@ local function getControllersCount() local mC = 0
 end
 
 local function remControllersEntity(eChip)
-  if(not isEntity(eChip)) then return end
+  if(not isValid(eChip)) then return end
   local tCon = gtStoreOOP[eChip]; if(not next(tCon)) then return end
   local mCon = #tCon; for ID = 1, mCon do tableRemove(tCon) end
 end
@@ -151,7 +143,7 @@ end
 local function dumpItem(oStCon, oSelf, sNam, sPos)
   local sP = tostring(sPos or gsDefPrint)
   local nP = gtPrintName[sP] -- Print location setup
-  if(not isHere(nP)) then return oStCon end
+  if(not nP) then return oStCon end
   logStatus("["..tostring(sNam).."]["..tostring(oStCon.mnTo or gtMissName[2]).."]["..getType(oStCon).."]["..tostring(oStCon.mTimN).."] Data:", oSelf, nP)
   logStatus(" Human: ["..tostring(oStCon.mbMan).."] {V="..tostring(oStCon.mvMan)..", B="..tostring(oStCon.mBias).."}", oSelf, nP)
   logStatus(" Gains: {P="..tostring(oStCon.mkP)..", I="..tostring(oStCon.mkI)..", D="..tostring(oStCon.mkD).."}", oSelf, nP)
@@ -164,7 +156,7 @@ local function dumpItem(oStCon, oSelf, sNam, sPos)
 end
 
 local function newItem(oSelf, nTo)
-  local eChip = oSelf.entity; if(not isEntity(eChip)) then
+  local eChip = oSelf.entity; if(not isValid(eChip)) then
     return logStatus("Entity invalid", oSelf, nil, nil) end
   local nTot, nMax = getControllersCount(), varMaxTotal:GetInt()
   if(nMax <= 0) then remControllersEntity(eChip)
@@ -324,9 +316,9 @@ local function tuneIE(oStCon, oSelf, nK, nT, nL, sM)
   if(not oStCon) then return logStatus("Object missing", oSelf, nil, nil) end
   if(nK <= 0 or nT <= 0 or nL <= 0) then return oStCon end
   local sM, sT, tT = tostring(sM or "ISE"), oStCon.mType[2], nil
-  tT = tIE[sM]; if(not isHere(tT)) then
+  tT = tIE[sM]; if(not tT) then
     return logStatus("Mode mismatch <"..sM..">", oSelf, nil, oStCon) end
-  tT = tT[sT]; if(not isHere(tT)) then
+  tT = tT[sT]; if(not tT) then
     return logStatus("Type mismatch <"..sT..">", oSelf, nil, oStCon) end
   local A, B, C, D, E, F = unpack(tT)
   local kP = (A*(nL/nT)^B)/nK
@@ -617,19 +609,19 @@ end
 __e2setcost(3)
 e2function stcontrol stcontrol:remWindup()
   if(not this) then return nil end
-  remValue(this, "mSatD"); remValue(this, "mSatU"); return this
+  this.mSatD = nil; this.mSatU = nil; return this
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:remWindupD()
   if(not this) then return nil end
-  remValue(this, "mSatD"); return this
+  this.mSatD = nil; return this
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:remWindupU()
   if(not this) then return nil end
-  remValue(this, "mSatU"); return this
+  this.mSatU = nil; return this
 end
 
 __e2setcost(3)
@@ -850,7 +842,7 @@ end
 __e2setcost(3)
 e2function stcontrol stcontrol:remTimeSample()
   if(not this) then return 0 end
-  remValue(this, "mnTo"); return this
+  this.mnTo = nil; return this
 end
 
 __e2setcost(3)
