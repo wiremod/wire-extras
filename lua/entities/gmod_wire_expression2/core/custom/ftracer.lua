@@ -58,6 +58,7 @@ local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServerControl
 local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 30, gnServerControled, "FTracer items maximum count")
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
 local gsVNS, gsVNO = varMethSkip:GetName(), varMethOnly:GetName()
+local gsFormLogs  = "E2{%s}{%s}:ftracer: %s" -- Contains the logs format of the addon
 local gsDefPrint  = "TALK" -- Default print location
 local gtPrintName = {} -- Contains the print location specification
       gtPrintName["NOTIFY" ] = HUD_PRINTNOTIFY
@@ -81,7 +82,7 @@ local function logStatus(sMsg, oSelf, nPos, ...)
     local nPos = tonumber(nPos) or gtPrintName[gsDefPrint]
     local oPly, oEnt = oSelf.player, oSelf.entity
     local sNam, sEID = oPly:Nick() , tostring(oEnt:EntIndex())
-    local sTxt = "E2{"..sEID.."}{"..sNam.."}:ftracer:"..tostring(sMsg)
+    local sTxt = gsFormLogs:format(sNam, sEID, tostring(sMsg))
     oPly:PrintMessage(nPos, sTxt:sub(1, 200))
   end; return ...
 end
@@ -104,10 +105,6 @@ cvars.RemoveChangeCallback(gsVNO, gsVNO.."_call")
 cvars.AddChangeCallback(gsVNO, function(sVar, vOld, vNew)
   gtMethList.ONLY = convArrayKeys(("/"):Explode(tostring(vNew or gsZeroStr)))
 end, gsVNO.."_call")
-
-local function getSensorsCount() local mC = 0
-  for ent, con in pairs(gtStoreOOP) do mC = mC + #con end; return mC
-end
 
 local function convDirLocal(oFTrc, vE, vA)
   if(not oFTrc) then return {0,0,0} end
@@ -203,7 +200,7 @@ local function convHitValue(oEnt, sM) local vV = oEnt[sM](oEnt)
   if(sM:sub(1,2) == "Is") then vV = gtBoolToNum[vV] end; return vV
 end
 
-local function remSensorEntity(eChip)
+local function remTracerEntity(eChip)
   if(not isValid(eChip)) then return end
   local tSen = gtStoreOOP[eChip]; if(not next(tSen)) then return end
   local mSen = #tSen; for ID = 1, mSen do tableRemove(tSen) end
@@ -263,11 +260,6 @@ end
 local function newItem(oSelf, vEnt, vPos, vDir, nLen)
   local eChip = oSelf.entity; if(not isValid(eChip)) then
     return logStatus("Entity invalid", oSelf, nil, nil) end
-  local nTot, nMax = getSensorsCount(), varMaxTotal:GetInt()
-  if(nMax <= 0) then remSensorEntity(eChip)
-    return logStatus("Limit invalid ["..tostring(nMax).."]", oSelf, nil, nil) end
-  if(nTot >= nMax) then remSensorEntity(eChip)
-    return logStatus("Count reached ["..tostring(nMax).."]", oSelf, nil, nil) end
   local oFTrc, tSen = {}, gtStoreOOP[eChip]; oFTrc.mSet, oFTrc.mHit = eChip, {Size=0, ID={}};
   if(not tSen) then gtStoreOOP[eChip] = {}; tSen = gtStoreOOP[eChip] end
   if(isValid(vEnt)) then -- No entities are store for ONLY or SKIP by default
@@ -306,7 +298,7 @@ local function newItem(oSelf, vEnt, vPos, vDir, nLen)
       end; return true -- Finally we register the trace hit enabled
     end, ignoreworld = false, -- Should the trace ignore world or not
     collisiongroup = COLLISION_GROUP_NONE } -- Collision group control
-  eChip:CallOnRemove("ftracer_remove_ent", remSensorEntity)
+  eChip:CallOnRemove("ftracer_remove_ent", remTracerEntity)
   tableInsert(tSen, oFTrc); return oFTrc
 end
 
@@ -385,16 +377,6 @@ e2function ftracer newFTracer()
   return newItem(self, nil, nil, nil, nil)
 end
 
-__e2setcost(1)
-e2function number maxFTracers()
-  return varMaxTotal:GetInt()
-end
-
-__e2setcost(1)
-e2function number sumFTracers()
-  return getSensorsCount()
-end
-
 __e2setcost(15)
 e2function number ftracer:remSelf()
   if(not this) then return 0 end
@@ -407,7 +389,6 @@ e2function number ftracer:remSelf()
     end -- All other IDs
   end; return 0
 end
-
 
 __e2setcost(20)
 e2function ftracer ftracer:getCopy()

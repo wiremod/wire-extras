@@ -41,9 +41,9 @@ local gsFormatPID = "(%s%s%s)" -- The general type format for the control power 
 local gtMissName  = {"Xx", "X", "Nr"} -- This is a place holder for missing/default type
 local gtStoreOOP  = {} -- Store state controllers here linked to the entity of the E2
 local gsVarPrefx  = "wire_expression2_stcontrol" -- This is used for variable prefix
-local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 20, gnServerControled, "StControl items maximum count")
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
 local gsDefPrint  = "TALK" -- Default print location
+local gsFormLogs  = "E2{%s}{%s}:stcontrol: %s" -- Contains the logs format of the addon
 local gtPrintName = {} -- Contains the print location specification
       gtPrintName["NOTIFY" ] = HUD_PRINTNOTIFY
       gtPrintName["CONSOLE"] = HUD_PRINTCONSOLE
@@ -67,13 +67,9 @@ local function logStatus(sMsg, oSelf, nPos, ...)
     local nPos = tonumber(nPos) or gtPrintName[gsDefPrint]
     local oPly, oEnt = oSelf.player, oSelf.entity
     local sNam, sEID = oPly:Nick() , tostring(oEnt:EntIndex())
-    local sTxt = "E2{"..sEID.."}{"..sNam.."}:stcontrol:"..tostring(sMsg)
+    local sTxt = gsFormLogs:format(sNam, sEID, tostring(sMsg))
     oPly:PrintMessage(nPos, sTxt:sub(1, 200))
   end; return ...
-end
-
-local function getControllersCount() local mC = 0
-  for ent, con in pairs(gtStoreOOP) do mC = mC + #con end; return mC
 end
 
 local function remControllersEntity(eChip)
@@ -158,11 +154,6 @@ end
 local function newItem(oSelf, nTo)
   local eChip = oSelf.entity; if(not isValid(eChip)) then
     return logStatus("Entity invalid", oSelf, nil, nil) end
-  local nTot, nMax = getControllersCount(), varMaxTotal:GetInt()
-  if(nMax <= 0) then remControllersEntity(eChip)
-    return logStatus("Limit invalid ["..tostring(nMax).."]", oSelf, nil, nil) end
-  if(nTot >= nMax) then remControllersEntity(eChip)
-    return logStatus("Count reached ["..tostring(nMax).."]", oSelf, nil, nil) end
   local oStCon, sM = {}, gtMissName[3]; oStCon.mnTo = tonumber(nTo) -- Place to store the object
   if(oStCon.mnTo and oStCon.mnTo <= 0) then remControllersEntity(eChip)
     return logStatus("Delta mismatch ["..tostring(oStCon.mnTo).."]", oSelf, nil, nil) end
@@ -350,16 +341,6 @@ end
 __e2setcost(20)
 e2function stcontrol newStControl(number nTo)
   return newItem(self, nTo)
-end
-
-__e2setcost(1)
-e2function number maxStControls()
-  return varMaxTotal:GetInt()
-end
-
-__e2setcost(1)
-e2function number sumStControls()
-  return getControllersCount()
 end
 
 __e2setcost(15)
