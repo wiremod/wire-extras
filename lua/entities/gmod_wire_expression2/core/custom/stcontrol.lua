@@ -39,7 +39,6 @@ local gnServerControled = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONL
 local gtComponent = {"P", "I", "D"} -- The names of each term. This is used for indexing and checking
 local gsFormatPID = "(%s%s%s)" -- The general type format for the control power setup
 local gtMissName  = {"Xx", "X", "Nr"} -- This is a place holder for missing/default type
-local gtStoreOOP  = {} -- Store state controllers here linked to the entity of the E2
 local gsVarPrefx  = "wire_expression2_stcontrol" -- This is used for variable prefix
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
 local gsDefPrint  = "TALK" -- Default print location
@@ -70,12 +69,6 @@ local function logStatus(sMsg, oSelf, nPos, ...)
     local sTxt = gsFormLogs:format(sNam, sEID, tostring(sMsg))
     oPly:PrintMessage(nPos, sTxt:sub(1, 200))
   end; return ...
-end
-
-local function remControllersEntity(eChip)
-  if(not isValid(eChip)) then return end
-  local tCon = gtStoreOOP[eChip]; if(not next(tCon)) then return end
-  local mCon = #tCon; for ID = 1, mCon do tableRemove(tCon) end
 end
 
 local function setGains(oStCon, oSelf, vP, vI, vD, bZ)
@@ -155,12 +148,11 @@ local function newItem(oSelf, nTo)
   local eChip = oSelf.entity; if(not isValid(eChip)) then
     return logStatus("Entity invalid", oSelf, nil, nil) end
   local oStCon, sM = {}, gtMissName[3]; oStCon.mnTo = tonumber(nTo) -- Place to store the object
-  if(oStCon.mnTo and oStCon.mnTo <= 0) then remControllersEntity(eChip)
+  if(oStCon.mnTo and oStCon.mnTo <= 0) then
     return logStatus("Delta mismatch ["..tostring(oStCon.mnTo).."]", oSelf, nil, nil) end
-  local sT, tCon = gsFormatPID:format(sM, sM, sM), gtStoreOOP[eChip]
-  if(not tCon) then gtStoreOOP[eChip] = {}; tCon = gtStoreOOP[eChip] end
+  local sType = gsFormatPID:format(sM, sM, sM) -- Error state values
   oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
-  oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {sT, gtMissName[2]:rep(3)} -- Error state values
+  oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {sType, gtMissName[2]:rep(3)}
   oStCon.mvCon, oStCon.mTimB, oStCon.meInt = 0, 0, true -- Control value and integral enabled
   oStCon.mBias, oStCon.mSatD, oStCon.mSatU = 0, nil, nil -- Saturation limits and settings
   oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Term values
@@ -168,8 +160,7 @@ local function newItem(oSelf, nTo)
   oStCon.mpP, oStCon.mpI, oStCon.mpD = 1, 1, 1 -- Raise the error to power of that much
   oStCon.mbCmb, oStCon.mbInv, oStCon.mbOn, oStCon.mbMan = false, false, false, false
   oStCon.mvMan, oStCon.mSet = 0, eChip -- Configure manual mode and store indexing
-  eChip:CallOnRemove("stcontrol_remove_ent", remControllersEntity)
-  tableInsert(tCon, oStCon); return oStCon
+  return oStCon -- Return the created controller object
 end
 
 --[[
@@ -341,19 +332,6 @@ end
 __e2setcost(20)
 e2function stcontrol newStControl(number nTo)
   return newItem(self, nTo)
-end
-
-__e2setcost(15)
-e2function number stcontrol:remSelf()
-  if(not this) then return 0 end
-  local tSet = gtStoreOOP[this.mSet]
-  if(not tSet) then return 0 end
-  for ID = 1, #tSet do
-    if(tSet[ID] == this) then
-      tableRemove(tSet, ID)
-      return ID -- Remove ID found
-    end -- All other IDs
-  end; return 0
 end
 
 __e2setcost(20)

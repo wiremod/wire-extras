@@ -46,7 +46,6 @@ local gsZeroStr   = "" -- Empty string to use instead of creating one everywhere
 local gsNotAvStr  = "N/A" -- What to print when something is not available
 local gaZeroAng   = Angle() -- Dummy zero angle for transformations
 local gvZeroVec   = Vector() -- Dummy zero vector for transformations
-local gtStoreOOP  = {} -- Store flash tracers here linked to the entity of the E2
 local gnMaxBeam   = 50000 -- The tracer maximum length just about one cube map
 local gtEmptyVar  = {["#empty"]=true}; gtEmptyVar[gsZeroStr] = true -- Variable being set to empty string
 local gsVarPrefx  = "wire_expression2_ftracer" -- This is used for variable prefix
@@ -200,12 +199,6 @@ local function convHitValue(oEnt, sM) local vV = oEnt[sM](oEnt)
   if(sM:sub(1,2) == "Is") then vV = gtBoolToNum[vV] end; return vV
 end
 
-local function remTracerEntity(eChip)
-  if(not isValid(eChip)) then return end
-  local tSen = gtStoreOOP[eChip]; if(not next(tSen)) then return end
-  local mSen = #tSen; for ID = 1, mSen do tableRemove(tSen) end
-end
-
 local function trcLocal(oFTrc, eB, vP, vA)
   if(not oFTrc) then return nil end
   local eE = (eB and eB or oFTrc.mEnt)
@@ -260,8 +253,7 @@ end
 local function newItem(oSelf, vEnt, vPos, vDir, nLen)
   local eChip = oSelf.entity; if(not isValid(eChip)) then
     return logStatus("Entity invalid", oSelf, nil, nil) end
-  local oFTrc, tSen = {}, gtStoreOOP[eChip]; oFTrc.mSet, oFTrc.mHit = eChip, {Size=0, ID={}};
-  if(not tSen) then gtStoreOOP[eChip] = {}; tSen = gtStoreOOP[eChip] end
+  local oFTrc = {}; oFTrc.mSet, oFTrc.mHit = eChip, {Size=0, ID={}};
   if(isValid(vEnt)) then -- No entities are store for ONLY or SKIP by default
     oFTrc.mHit.Ent, oFTrc.mEnt = {SKIP={},ONLY={}}, vEnt
   else oFTrc.mHit.Ent, oFTrc.mEnt = {SKIP={},ONLY={}}, nil end -- Make sure the entity is cleared
@@ -298,8 +290,7 @@ local function newItem(oSelf, vEnt, vPos, vDir, nLen)
       end; return true -- Finally we register the trace hit enabled
     end, ignoreworld = false, -- Should the trace ignore world or not
     collisiongroup = COLLISION_GROUP_NONE } -- Collision group control
-  eChip:CallOnRemove("ftracer_remove_ent", remTracerEntity)
-  tableInsert(tSen, oFTrc); return oFTrc
+  return oFTrc -- Return the created tracer object
 end
 
 --[[ **************************** TRACER **************************** ]]
@@ -375,19 +366,6 @@ end
 __e2setcost(20)
 e2function ftracer newFTracer()
   return newItem(self, nil, nil, nil, nil)
-end
-
-__e2setcost(15)
-e2function number ftracer:remSelf()
-  if(not this) then return 0 end
-  local tSet = gtStoreOOP[this.mSet]
-  if(not tSet) then return 0 end
-  for ID = 1, #tSet do
-    if(tSet[ID] == this) then
-      tableRemove(tSet, ID)
-      return ID -- Remove ID found
-    end -- All other IDs
-  end; return 0
 end
 
 __e2setcost(20)
