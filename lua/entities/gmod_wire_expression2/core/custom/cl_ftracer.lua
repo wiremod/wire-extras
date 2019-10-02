@@ -69,7 +69,6 @@ E2Helper.Descriptions["remHitOnly(xft:sn)"] = "Removes the option from the flash
 E2Helper.Descriptions["remHitOnly(xft:ss)"] = "Removes the option from the flash tracer internal only hit list"
 E2Helper.Descriptions["remHitSkip(xft:sn)"] = "Removes the option from the flash tracer internal ignore hit list"
 E2Helper.Descriptions["remHitSkip(xft:ss)"] = "Removes the option from the flash tracer internal ignore hit list"
-E2Helper.Descriptions["remSelf(xft:)"] = "Removes the flash tracer from the list"
 E2Helper.Descriptions["setBase(xft:e)"] = "Updates the base attachment entity of the flash tracer"
 E2Helper.Descriptions["setCollideGroup(xft:n)"] = "Updates flash tracer trace collision group enums COLLISION_GROUP"
 E2Helper.Descriptions["setDir(xft:v)"] = "Updates the flash tracer direction vector"

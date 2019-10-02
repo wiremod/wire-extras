@@ -52,7 +52,6 @@ E2Helper.Descriptions["remGainID(xsc:)"] = "Removes state control integral term 
 E2Helper.Descriptions["remGainP(xsc:)"] = "Removes state control proportional term gain"
 E2Helper.Descriptions["remGainPD(xsc:)"] = "Removes state control proportional term gain and derivative term gain"
 E2Helper.Descriptions["remGainPI(xsc:)"] = "Removes state control proportional term gain and integral term gain"
-E2Helper.Descriptions["remSelf(xsc:)"] = "Removes the state control from the list"
 E2Helper.Descriptions["remTimeSample(xsc:)"] = "Removes state control static process time delta"
 E2Helper.Descriptions["remWindup(xsc:)"] = "Removes state control windup lower bound and windup upper bound"
 E2Helper.Descriptions["remWindupD(xsc:)"] = "Removes state control windup lower bound"
