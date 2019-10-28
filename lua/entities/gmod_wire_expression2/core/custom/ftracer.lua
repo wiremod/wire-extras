@@ -170,14 +170,17 @@ local function newHitFilter(oFTrc, oSelf, sM)
     return logStatus("Method <"..sM.."> mismatch", oSelf, nil, 0) end
   local tHit = oFTrc.mHit; if(tHit.ID[sM]) then -- Check for available method
     return logStatus("Method <"..sM.."> exists", oSelf, nil, 0) end
-  tHit.Size = (tHit.Size + 1); tHit[tHit.Size] = {CALL=sM}
+  tHit.Size = (tHit.Size + 1); tHit[tHit.Size] = {CALL=sM, ID=sM}
   tHit.ID[sM] = tHit.Size; return (tHit.Size)
 end
 
 local function remHitFilter(oFTrc, sM)
   if(not oFTrc) then return nil end
-  local tHit = oFTrc.mHit; tHit.Size = (tHit.Size - 1)
-  tableRemove(tHit, tHit.ID[sM]); tHit.ID[sM]; return oFTrc
+  local tHit = oFTrc.mHit; if(not tHit) then return oFTrc end
+  local ID = tHit.ID[sM]; if(not ID) then return oFTrc end
+  tHit.Size = (tHit.Size - 1); tableRemove(tHit, tHit.ID[sM])
+  for IH = 1, tHit.Size do local HM = tHit[IH].ID; tHit.ID[HM] = IH end
+  tHit.ID[sM] = nil; return oFTrc
 end
 
 local function setHitFilter(oFTrc, oSelf, sM, sO, vV, bS)
