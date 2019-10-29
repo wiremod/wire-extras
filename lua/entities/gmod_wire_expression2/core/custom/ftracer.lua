@@ -57,9 +57,10 @@ local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServerControl
 local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServerControled, "E2 FTracer entity method white list")
 local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 30, gnServerControled, "FTracer items maximum count")
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
-local gsVNS, gsVNO = varMethSkip:GetName(), varMethOnly:GetName()
+local varDefPrint = CreateConVar(gsVarPrefx.."_dprn", "TALK", gnServerControled, "FTracer default status output")
+local gsVNS, gsVNO, gsVDP = varMethSkip:GetName(), varMethOnly:GetName(), varDefPrint:GetName()
 local gsFormLogs  = "E2{%s}{%s}:ftracer: %s" -- Contains the logs format of the addon
-local gsDefPrint  = "TALK" -- Default print location
+local gsDefPrint  = varDefPrint:GetString() -- Default print location
 local gtPrintName = {} -- Contains the print location specification
 			gtPrintName["NOTIFY" ] = HUD_PRINTNOTIFY
 			gtPrintName["CONSOLE"] = HUD_PRINTCONSOLE
@@ -109,6 +110,11 @@ cvars.RemoveChangeCallback(gsVNO, gsVNO.."_call")
 cvars.AddChangeCallback(gsVNO, function(sVar, vOld, vNew)
 	gtMethList.ONLY = convArrayKeys(("/"):Explode(tostring(vNew or gsZeroStr)))
 end, gsVNO.."_call")
+
+cvars.RemoveChangeCallback(gsVDP, gsVDP.."_call")
+cvars.AddChangeCallback(gsVDP, function(sVar, vOld, vNew)
+	local sK = tostring(vNew):upper(); if(gtPrintName[sK]) then gsDefPrint = sK end
+end, gsVDP.."_call")
 
 local function convDirLocal(oFTrc, vE, vA)
 	if(not oFTrc) then return {0,0,0} end

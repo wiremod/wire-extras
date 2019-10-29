@@ -41,13 +41,20 @@ local gsFormatPID = "(%s%s%s)" -- The general type format for the control power 
 local gtMissName  = {"Xx", "X", "Nr"} -- This is a place holder for missing/default type
 local gsVarPrefx  = "wire_expression2_stcontrol" -- This is used for variable prefix
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
-local gsDefPrint  = "TALK" -- Default print location
+local varDefPrint = CreateConVar(gsVarPrefx.."_dprn", "TALK", gnServerControled, "FTracer default status output")
+local gsDefPrint  = varDefPrint:GetString() -- Default print location
 local gsFormLogs  = "E2{%s}{%s}:stcontrol: %s" -- Contains the logs format of the addon
 local gtPrintName = {} -- Contains the print location specification
 			gtPrintName["NOTIFY" ] = HUD_PRINTNOTIFY
 			gtPrintName["CONSOLE"] = HUD_PRINTCONSOLE
 			gtPrintName["TALK"   ] = HUD_PRINTTALK
 			gtPrintName["CENTER" ] = HUD_PRINTCENTER
+
+local gsVDP = varDefPrint:GetName()
+cvars.RemoveChangeCallback(gsVDP, gsVDP.."_call")
+cvars.AddChangeCallback(gsVDP, function(sVar, vOld, vNew)
+	local sK = tostring(vNew):upper(); if(gtPrintName[sK]) then gsDefPrint = sK end
+end, gsVDP.."_call")
 
 local function isValid(vE)
 	return (vE and vE:IsValid())
