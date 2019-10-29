@@ -53,11 +53,11 @@ local gsVarPrefx  = "wire_expression2_ftrace" -- This is used for variable prefi
 local gtBoolToNum = {[true]=1,[false]=0} -- This is used to convert between GLua boolean and wire boolean
 local gtMethList  = {} -- Place holder for blacklist and convar prefix
 local gtConvEnab  = {["LocalToWorld"] = LocalToWorld, ["WorldToLocal"] = WorldToLocal} -- Coordinate conversion list
-local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServerControled, "E2 FTracer entity method black list")
-local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServerControled, "E2 FTracer entity method white list")
-local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 30, gnServerControled, "FTracer items maximum count")
+local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServerControled, "E2 FTrace entity method black list")
+local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServerControled, "E2 FTrace entity method white list")
+local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 30, gnServerControled, "FTrace items maximum count")
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
-local varDefPrint = CreateConVar(gsVarPrefx.."_dprn", "TALK", gnServerControled, "FTracer default status output")
+local varDefPrint = CreateConVar(gsVarPrefx.."_dprn", "TALK", gnServerControled, "FTrace default status output")
 local gsVNS, gsVNO, gsVDP = varMethSkip:GetName(), varMethOnly:GetName(), varDefPrint:GetName()
 local gsFormLogs  = "E2{%s}{%s}:ftrace: %s" -- Contains the logs format of the addon
 local gsDefPrint  = varDefPrint:GetString() -- Default print location
@@ -313,67 +313,67 @@ registerOperator("ass", "xft", "xft", function(self, args)
 end)
 
 __e2setcost(1)
-e2function ftrace noFTracer()
+e2function ftrace noFTrace()
 	return nil
 end
 
 __e2setcost(20)
-e2function ftrace entity:setFTracer(vector vP, vector vD, number nL)
+e2function ftrace entity:setFTrace(vector vP, vector vD, number nL)
 	return newItem(self, this, vP, vD, nL)
 end
 
 __e2setcost(20)
-e2function ftrace newFTracer(vector vP, vector vD, number nL)
+e2function ftrace newFTrace(vector vP, vector vD, number nL)
 	return newItem(self, nil, vP, vD, nL)
 end
 
 __e2setcost(20)
-e2function ftrace entity:setFTracer(vector vP, vector vD)
+e2function ftrace entity:setFTrace(vector vP, vector vD)
 	return newItem(self, this, vP, vD)
 end
 
 __e2setcost(20)
-e2function ftrace newFTracer(vector vP, vector vD)
+e2function ftrace newFTrace(vector vP, vector vD)
 	return newItem(self, nil, vP, vD)
 end
 
 __e2setcost(20)
-e2function ftrace entity:setFTracer(vector vP, number nL)
+e2function ftrace entity:setFTrace(vector vP, number nL)
 	return newItem(self, this, vP, nil, nL)
 end
 
 __e2setcost(20)
-e2function ftrace newFTracer(vector vP, number nL)
+e2function ftrace newFTrace(vector vP, number nL)
 	return newItem(self, nil, vP, nil, nL)
 end
 
 __e2setcost(20)
-e2function ftrace entity:setFTracer(vector vP)
+e2function ftrace entity:setFTrace(vector vP)
 	return newItem(self, this, vP, nil, nil)
 end
 
 __e2setcost(20)
-e2function ftrace newFTracer(vector vP)
+e2function ftrace newFTrace(vector vP)
 	return newItem(self, nil, vP, nil, nil)
 end
 
 __e2setcost(20)
-e2function ftrace entity:setFTracer(number nL)
+e2function ftrace entity:setFTrace(number nL)
 	return newItem(self, this, nil, nil, nL)
 end
 
 __e2setcost(20)
-e2function ftrace newFTracer(number nL)
+e2function ftrace newFTrace(number nL)
 	return newItem(self, nil, nil, nil, nL)
 end
 
 __e2setcost(20)
-e2function ftrace entity:setFTracer()
+e2function ftrace entity:setFTrace()
 	return newItem(self, this, nil, nil, nil)
 end
 
 __e2setcost(20)
-e2function ftrace newFTracer()
+e2function ftrace newFTrace()
 	return newItem(self, nil, nil, nil, nil)
 end
 
