@@ -18,8 +18,8 @@ local tableInsert = table.insert
 local utilTraceLine = util.TraceLine
 local utilGetSurfacePropName = util.GetSurfacePropName
 
--- Register the type up here before the extension registration so that the ftracer still works
-registerType("ftracer", "xft", nil,
+-- Register the type up here before the extension registration so that the ftrace still works
+registerType("ftrace", "xft", nil,
 	nil,
 	nil,
 	function(retval)
@@ -33,7 +33,7 @@ registerType("ftracer", "xft", nil,
 
 --[[ ****************************************************************************** ]]
 
-E2Lib.RegisterExtension("ftracer", true, "Lets E2 chips trace ray attachments and check for hits.")
+E2Lib.RegisterExtension("ftrace", true, "Lets E2 chips trace ray attachments and check for hits.")
 
 -- Client and server have independent value
 local gnIndependentUsed = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY)
@@ -49,7 +49,7 @@ local gaZeroAng   = Angle() -- Dummy zero angle for transformations
 local gvZeroVec   = Vector() -- Dummy zero vector for transformations
 local gnMaxBeam   = 50000 -- The tracer maximum length just about one cube map
 local gtEmptyVar  = {["#empty"]=true}; gtEmptyVar[gsZeroStr] = true -- Variable being set to empty string
-local gsVarPrefx  = "wire_expression2_ftracer" -- This is used for variable prefix
+local gsVarPrefx  = "wire_expression2_ftrace" -- This is used for variable prefix
 local gtBoolToNum = {[true]=1,[false]=0} -- This is used to convert between GLua boolean and wire boolean
 local gtMethList  = {} -- Place holder for blacklist and convar prefix
 local gtConvEnab  = {["LocalToWorld"] = LocalToWorld, ["WorldToLocal"] = WorldToLocal} -- Coordinate conversion list
@@ -59,7 +59,7 @@ local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 30, gnServerControled, "FT
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
 local varDefPrint = CreateConVar(gsVarPrefx.."_dprn", "TALK", gnServerControled, "FTracer default status output")
 local gsVNS, gsVNO, gsVDP = varMethSkip:GetName(), varMethOnly:GetName(), varDefPrint:GetName()
-local gsFormLogs  = "E2{%s}{%s}:ftracer: %s" -- Contains the logs format of the addon
+local gsFormLogs  = "E2{%s}{%s}:ftrace: %s" -- Contains the logs format of the addon
 local gsDefPrint  = varDefPrint:GetString() -- Default print location
 local gtPrintName = {} -- Contains the print location specification
 			gtPrintName["NOTIFY" ] = HUD_PRINTNOTIFY
@@ -313,100 +313,100 @@ registerOperator("ass", "xft", "xft", function(self, args)
 end)
 
 __e2setcost(1)
-e2function ftracer noFTracer()
+e2function ftrace noFTracer()
 	return nil
 end
 
 __e2setcost(20)
-e2function ftracer entity:setFTracer(vector vP, vector vD, number nL)
+e2function ftrace entity:setFTracer(vector vP, vector vD, number nL)
 	return newItem(self, this, vP, vD, nL)
 end
 
 __e2setcost(20)
-e2function ftracer newFTracer(vector vP, vector vD, number nL)
+e2function ftrace newFTracer(vector vP, vector vD, number nL)
 	return newItem(self, nil, vP, vD, nL)
 end
 
 __e2setcost(20)
-e2function ftracer entity:setFTracer(vector vP, vector vD)
+e2function ftrace entity:setFTracer(vector vP, vector vD)
 	return newItem(self, this, vP, vD)
 end
 
 __e2setcost(20)
-e2function ftracer newFTracer(vector vP, vector vD)
+e2function ftrace newFTracer(vector vP, vector vD)
 	return newItem(self, nil, vP, vD)
 end
 
 __e2setcost(20)
-e2function ftracer entity:setFTracer(vector vP, number nL)
+e2function ftrace entity:setFTracer(vector vP, number nL)
 	return newItem(self, this, vP, nil, nL)
 end
 
 __e2setcost(20)
-e2function ftracer newFTracer(vector vP, number nL)
+e2function ftrace newFTracer(vector vP, number nL)
 	return newItem(self, nil, vP, nil, nL)
 end
 
 __e2setcost(20)
-e2function ftracer entity:setFTracer(vector vP)
+e2function ftrace entity:setFTracer(vector vP)
 	return newItem(self, this, vP, nil, nil)
 end
 
 __e2setcost(20)
-e2function ftracer newFTracer(vector vP)
+e2function ftrace newFTracer(vector vP)
 	return newItem(self, nil, vP, nil, nil)
 end
 
 __e2setcost(20)
-e2function ftracer entity:setFTracer(number nL)
+e2function ftrace entity:setFTracer(number nL)
 	return newItem(self, this, nil, nil, nL)
 end
 
 __e2setcost(20)
-e2function ftracer newFTracer(number nL)
+e2function ftrace newFTracer(number nL)
 	return newItem(self, nil, nil, nil, nL)
 end
 
 __e2setcost(20)
-e2function ftracer entity:setFTracer()
+e2function ftrace entity:setFTracer()
 	return newItem(self, this, nil, nil, nil)
 end
 
 __e2setcost(20)
-e2function ftracer newFTracer()
+e2function ftrace newFTracer()
 	return newItem(self, nil, nil, nil, nil)
 end
 
 __e2setcost(20)
-e2function ftracer ftracer:getCopy()
+e2function ftrace ftrace:getCopy()
 	return newItem(self.entity, this.mEnt, this.mPos, this.mDir, this.mLen)
 end
 
 --[[ **************************** ENTITY **************************** ]]
 
 __e2setcost(3)
-e2function ftracer ftracer:addEntHitSkip(entity vE)
+e2function ftrace ftrace:addEntHitSkip(entity vE)
 	if(not this) then return nil end
 	if(not isValid(vE)) then return nil end
 	this.mHit.Ent.SKIP[vE] = true; return this
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:remEntHitSkip(entity vE)
+e2function ftrace ftrace:remEntHitSkip(entity vE)
 	if(not this) then return nil end
 	if(not isValid(vE)) then return nil end
 	this.mHit.Ent.SKIP[vE] = nil; return this
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:addEntHitOnly(entity vE)
+e2function ftrace ftrace:addEntHitOnly(entity vE)
 	if(not this) then return nil end
 	if(not isValid(vE)) then return nil end
 	this.mHit.Ent.ONLY[vE] = true; return this
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:remEntHitOnly(entity vE)
+e2function ftrace ftrace:remEntHitOnly(entity vE)
 	if(not this) then return nil end
 	if(not isValid(vE)) then return nil end
 	this.mHit.Ent.ONLY[vE] = nil; return this
@@ -415,7 +415,7 @@ end
 --[[ **************************** FILTER **************************** ]]
 
 __e2setcost(3)
-e2function ftracer ftracer:remHit()
+e2function ftrace ftrace:remHit()
 	if(not this) then return nil end
 	local tID = this.mHit.ID
 	for key, id in pairs(tID) do
@@ -424,168 +424,168 @@ e2function ftracer ftracer:remHit()
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:remHit(string sM)
+e2function ftrace ftrace:remHit(string sM)
 	return remHitFilter(this, sM)
 end
 
 --[[ **************************** NUMBER **************************** ]]
 
 __e2setcost(3)
-e2function ftracer ftracer:addHitSkip(string sM, number vN)
+e2function ftrace ftrace:addHitSkip(string sM, number vN)
 	return setHitFilter(this, self, sM, "SKIP", vN, true)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:remHitSkip(string sM, number vN)
+e2function ftrace ftrace:remHitSkip(string sM, number vN)
 	return setHitFilter(this, self, sM, "SKIP", vN, nil)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:addHitOnly(string sM, number vN)
+e2function ftrace ftrace:addHitOnly(string sM, number vN)
 	return setHitFilter(this, self, sM, "ONLY", vN, true)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:remHitOnly(string sM, number vN)
+e2function ftrace ftrace:remHitOnly(string sM, number vN)
 	return setHitFilter(this, self, sM, "ONLY", vN, nil)
 end
 
 --[[ **************************** STRING **************************** ]]
 
 __e2setcost(3)
-e2function ftracer ftracer:addHitSkip(string sM, string vS)
+e2function ftrace ftrace:addHitSkip(string sM, string vS)
 	return setHitFilter(this, self, sM, "SKIP", vS, true)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:remHitSkip(string sM, string vS)
+e2function ftrace ftrace:remHitSkip(string sM, string vS)
 	return setHitFilter(this, self, sM, "SKIP", vS, nil)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:addHitOnly(string sM, string vS)
+e2function ftrace ftrace:addHitOnly(string sM, string vS)
 	return setHitFilter(this, self, sM, "ONLY", vS, true)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:remHitOnly(string sM, string vS)
+e2function ftrace ftrace:remHitOnly(string sM, string vS)
 	return setHitFilter(this, self, sM, "ONLY", vS, nil)
 end
 
 -------------------------------------------------------------------------------
 
 __e2setcost(3)
-e2function entity ftracer:getBase()
+e2function entity ftrace:getBase()
 	if(not this) then return nil end; local vE = this.mEnt
 	if(not isValid(vE)) then return nil end; return vE
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:setBase(entity eE)
+e2function ftrace ftrace:setBase(entity eE)
 	if(not this) then return nil end
 	if(not isValid(eE)) then return this end
 	this.mEnt = eE; return this
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:remBase()
+e2function ftrace ftrace:remBase()
 	if(not this) then return nil end
 	this.mEnt = nil; return this
 end
 
 __e2setcost(3)
-e2function number ftracer:isIgnoreWorld()
+e2function number ftrace:isIgnoreWorld()
 	if(not this) then return 0 end
 	return (this.mTrI.ignoreworld and 1 or 0)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:setIsIgnoreWorld(number nN)
+e2function ftrace ftrace:setIsIgnoreWorld(number nN)
 	if(not this) then return nil end
 	this.mTrI.ignoreworld = (nN ~= 0); return this
 end
 
 __e2setcost(3)
-e2function vector ftracer:getPos()
+e2function vector ftrace:getPos()
 	if(not this) then return {0,0,0} end
 	return {this.mPos.x, this.mPos.y, this.mPos.z}
 end
 
 __e2setcost(3)
-e2function vector ftracer:getPosLocal()
+e2function vector ftrace:getPosLocal()
 	return convOrgEnt(this, "WorldToLocal", nil)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getPosWorld()
+e2function vector ftrace:getPosWorld()
 	return convOrgEnt(this, "LocalToWorld", nil)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getPosLocal(entity vE)
+e2function vector ftrace:getPosLocal(entity vE)
 	return convOrgEnt(this, "WorldToLocal", vE)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getPosWorld(entity vE)
+e2function vector ftrace:getPosWorld(entity vE)
 	return convOrgEnt(this, "LocalToWorld", vE)
 end
 
 __e2setcost(7)
-e2function vector ftracer:getPosLocal(vector vP, angle vA)
+e2function vector ftrace:getPosLocal(vector vP, angle vA)
 	return convOrgUCS(this, "WorldToLocal", vP, vA)
 end
 
 __e2setcost(7)
-e2function vector ftracer:getPosWorld(vector vP, angle vA)
+e2function vector ftrace:getPosWorld(vector vP, angle vA)
 	return convOrgUCS(this, "LocalToWorld", vP, vA)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:setPos(vector vO)
+e2function ftrace ftrace:setPos(vector vO)
 	if(not this) then return nil end
 	this.mPos.x, this.mPos.y, this.mPos.z = vO[1], vO[2], vO[3]
 	return this
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDir()
+e2function vector ftrace:getDir()
 	if(not this) then return nil end
 	return {this.mDir.x, this.mDir.y, this.mDir.z}
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirLocal()
+e2function vector ftrace:getDirLocal()
 	return convDirLocal(this, nil, nil)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirWorld()
+e2function vector ftrace:getDirWorld()
 	return convDirWorld(this, nil, nil)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirLocal(entity vE)
+e2function vector ftrace:getDirLocal(entity vE)
 	return convDirLocal(this, vE, nil)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirWorld(entity vE)
+e2function vector ftrace:getDirWorld(entity vE)
 	return convDirWorld(this, vE, nil)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirLocal(angle vA)
+e2function vector ftrace:getDirLocal(angle vA)
 	return convDirLocal(this, nil, vA)
 end
 
 __e2setcost(3)
-e2function vector ftracer:getDirWorld(angle vA)
+e2function vector ftrace:getDirWorld(angle vA)
 	return convDirWorld(this, nil, vA)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:setDir(vector vD)
+e2function ftrace ftrace:setDir(vector vD)
 	if(not this) then return nil end
 	this.mDir.x, this.mDir.y, this.mDir.z = vD[1], vD[2], vD[3]
 	this.mDir:Normalize(); this.mDir:Mul(this.mLen)
@@ -593,13 +593,13 @@ e2function ftracer ftracer:setDir(vector vD)
 end
 
 __e2setcost(3)
-e2function number ftracer:getLen()
+e2function number ftrace:getLen()
 	if(not this) then return nil end
 	return (this.mLen or 0)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:setLen(number nL)
+e2function ftrace ftrace:setLen(number nL)
 	if(not this) then return nil end
 	this.mLen = mathClamp(nL,-gnMaxBeam,gnMaxBeam)
 	this.mDir:Normalize(); this.mDir:Mul(this.mLen)
@@ -607,290 +607,290 @@ e2function ftracer ftracer:setLen(number nL)
 end
 
 __e2setcost(3)
-e2function number ftracer:getMask()
+e2function number ftrace:getMask()
 	if(not this) then return 0 end
 	return (this.mTrI.mask or 0)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:setMask(number nN)
+e2function ftrace ftrace:setMask(number nN)
 	if(not this) then return nil end
 	this.mTrI.mask = nN; return this
 end
 
 __e2setcost(3)
-e2function number ftracer:getCollideGroup()
+e2function number ftrace:getCollideGroup()
 	if(not this) then return nil end
 	return (this.mTrI.collisiongroup or 0)
 end
 
 __e2setcost(3)
-e2function ftracer ftracer:setCollideGroup(number nN)
+e2function ftrace ftrace:setCollideGroup(number nN)
 	if(not this) then return nil end
 	this.mTrI.collisiongroup = nN; return this
 end
 
 __e2setcost(3)
-e2function vector ftracer:getStart()
+e2function vector ftrace:getStart()
 	if(not this) then return {0,0,0} end
 	local vT = this.mTrI.start
 	return {vT.x, vT.y, vT.z}
 end
 
 __e2setcost(3)
-e2function vector ftracer:getStop()
+e2function vector ftrace:getStop()
 	if(not this) then return {0,0,0} end
 	local vT = this.mTrI.endpos
 	return {vT.x, vT.y, vT.z}
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpLocal()
+e2function ftrace ftrace:smpLocal()
 	return trcLocal(this, nil, nil, nil)
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpLocal(entity vE)
+e2function ftrace ftrace:smpLocal(entity vE)
 	return trcLocal(this,  vE, nil, nil)
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpLocal(angle vA)
+e2function ftrace ftrace:smpLocal(angle vA)
 	return trcLocal(this, nil,  nil,  vA)
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpLocal(vector vP)
+e2function ftrace ftrace:smpLocal(vector vP)
 	return trcLocal(this, nil, vP,  nil)
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpLocal(vector vP, angle vA)
+e2function ftrace ftrace:smpLocal(vector vP, angle vA)
 	return trcLocal(this, nil, vP,  vA)
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpLocal(entity vE, vector vP)
+e2function ftrace ftrace:smpLocal(entity vE, vector vP)
 	return trcLocal(this, vE,  vP,  nil)
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpLocal(entity vE, angle vA)
+e2function ftrace ftrace:smpLocal(entity vE, angle vA)
 	return trcLocal(this, vE,  nil,  vA)
 end
 
 __e2setcost(8)
-e2function ftracer ftracer:smpWorld()
+e2function ftrace ftrace:smpWorld()
 	return trcWorld(this)
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpWorld(entity vE)
+e2function ftrace ftrace:smpWorld(entity vE)
 	return trcWorld(this,  vE, nil, nil)
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpWorld(angle vA)
+e2function ftrace ftrace:smpWorld(angle vA)
 	return trcWorld(this, nil,  nil,  vA)
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpWorld(vector vP)
+e2function ftrace ftrace:smpWorld(vector vP)
 	return trcWorld(this, nil, vP,  nil)
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpWorld(vector vP, angle vA)
+e2function ftrace ftrace:smpWorld(vector vP, angle vA)
 	return trcWorld(this, nil, vP,  vA)
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpWorld(entity vE, vector vP)
+e2function ftrace ftrace:smpWorld(entity vE, vector vP)
 	return trcWorld(this, vE,  vP,  nil)
 end
 
 __e2setcost(12)
-e2function ftracer ftracer:smpWorld(entity vE, angle vA)
+e2function ftrace ftrace:smpWorld(entity vE, angle vA)
 	return trcWorld(this, vE,  nil,  vA)
 end
 
 __e2setcost(3)
-e2function number ftracer:isHitNoDraw()
+e2function number ftrace:isHitNoDraw()
 	if(not this) then return 0 end
 	local trV = this.mTrO.HitNoDraw
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:isHitNonWorld()
+e2function number ftrace:isHitNonWorld()
 	if(not this) then return 0 end
 	local trV = this.mTrO.HitNonWorld
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:isHit()
+e2function number ftrace:isHit()
 	if(not this) then return 0 end
 	local trV = this.mTrO.Hit
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:isHitSky()
+e2function number ftrace:isHitSky()
 	if(not this) then return 0 end
 	local trV = this.mTrO.HitSky
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:isHitWorld()
+e2function number ftrace:isHitWorld()
 	if(not this) then return 0 end
 	local trV = this.mTrO.HitWorld
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:getHitBox()
+e2function number ftrace:getHitBox()
 	if(not this) then return 0 end
 	local trV = this.mTrO.HitBox
 	return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:getMatType()
+e2function number ftrace:getMatType()
 	if(not this) then return 0 end
 	local trV = this.mTrO.MatType
 	return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:getHitGroup()
+e2function number ftrace:getHitGroup()
 	if(not this) then return 0 end
 	local trV = this.mTrO.HitGroup
 	return (trV and trV or 0)
 end
 
 __e2setcost(8)
-e2function vector ftracer:getHitPos()
+e2function vector ftrace:getHitPos()
 	if(not this) then return {0,0,0} end
 	local trV = this.mTrO.HitPos
 	return (trV and {trV.x, trV.y, trV.z} or {0,0,0})
 end
 
 __e2setcost(8)
-e2function vector ftracer:getHitNormal()
+e2function vector ftrace:getHitNormal()
 	if(not this) then return {0,0,0} end
 	local trV = this.mTrO.HitNormal
 	return (trV and {trV.x, trV.y, trV.z} or {0,0,0})
 end
 
 __e2setcost(8)
-e2function vector ftracer:getNormal()
+e2function vector ftrace:getNormal()
 	if(not this) then return {0,0,0} end
 	local trV = this.mTrO.Normal
 	return (trV and {trV.x, trV.y, trV.z} or {0,0,0})
 end
 
 __e2setcost(8)
-e2function string ftracer:getHitTexture()
+e2function string ftrace:getHitTexture()
 	if(not this) then return gsZeroStr end
 	local trV = this.mTrO.HitTexture
 	return tostring(trV or gsZeroStr)
 end
 
 __e2setcost(8)
-e2function vector ftracer:getStartPos()
+e2function vector ftrace:getStartPos()
 	if(not this) then return {0,0,0} end
 	local trV = this.mTrO.StartPos
 	return (trV and {trV.x, trV.y, trV.z} or {0,0,0})
 end
 
 __e2setcost(3)
-e2function number ftracer:getSurfPropsID()
+e2function number ftrace:getSurfPropsID()
 	if(not this) then return 0 end
 	local trV = this.mTrO.SurfaceProps
 	return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function string ftracer:getSurfPropsName()
+e2function string ftrace:getSurfPropsName()
 	if(not this) then return gsZeroStr end
 	local trV = this.mTrO.SurfaceProps
 	return (trV and utilGetSurfacePropName(trV) or gsZeroStr)
 end
 
 __e2setcost(3)
-e2function number ftracer:getBone()
+e2function number ftrace:getBone()
 	if(not this) then return 0 end
 	local trV = this.mTrO.PhysicsBone
 	return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:getFraction()
+e2function number ftrace:getFraction()
 	if(not this) then return 0 end
 	local trV = this.mTrO.Fraction
 	return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:getFractionLen()
+e2function number ftrace:getFractionLen()
 	if(not this) then return 0 end
 	local trV = this.mTrO.Fraction
 	return (trV and (trV * this.mLen) or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:isStartSolid()
+e2function number ftrace:isStartSolid()
 	if(not this) then return 0 end
 	local trV = this.mTrO.StartSolid
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:isAllSolid()
+e2function number ftrace:isAllSolid()
 	if(not this) then return 0 end
 	local trV = this.mTrO.AllSolid
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:getFractionLS()
+e2function number ftrace:getFractionLS()
 	if(not this) then return 0 end
 	local trV = this.mTrO.FractionLeftSolid
 	return (trV and trV or 0)
 end
 
 __e2setcost(3)
-e2function number ftracer:getFractionLenLS()
+e2function number ftrace:getFractionLenLS()
 	if(not this) then return 0 end
 	local trV = this.mTrO.FractionLeftSolid
 	return (trV and (trV * this.mLen) or 0)
 end
 
 __e2setcost(3)
-e2function entity ftracer:getEntity()
+e2function entity ftrace:getEntity()
 	if(not this) then return nil end
 	local trV = this.mTrO.Entity
 	return (trV and trV or nil)
 end
 
 __e2setcost(15)
-e2function ftracer ftracer:dumpItem(number nN)
+e2function ftrace ftrace:dumpItem(number nN)
 	return dumpItem(this, self, nN)
 end
 
 __e2setcost(15)
-e2function ftracer ftracer:dumpItem(string sN)
+e2function ftrace ftrace:dumpItem(string sN)
 	return dumpItem(this, self, sN)
 end
 
 __e2setcost(15)
-e2function ftracer ftracer:dumpItem(string nT, number nN)
+e2function ftrace ftrace:dumpItem(string nT, number nN)
 	return dumpItem(this, self, nN, nT)
 end
 
 __e2setcost(15)
-e2function ftracer ftracer:dumpItem(string nT, string sN)
+e2function ftrace ftrace:dumpItem(string nT, string sN)
 	return dumpItem(this, self, sN, nT)
 end

@@ -77,7 +77,7 @@ Wire Field Generators - AlgorithmX2
 
 XYZ Beacon - Doticatto
 
-[FTracers](https://github.com/dvdvideo1234/ControlSystemsE2/wiki/FTracer) and [STControllers](https://github.com/dvdvideo1234/ControlSystemsE2/wiki/StControl) E2 inteface OOP - [[Sk$Bh]Trick or treat KID! ( DVD )](http://steamcommunity.com/profiles/76561197988124141 )
+[FTracers][ref-ftr] and [STControllers][ref-stc] E2 inteface OOP - [[Sk$Bh]Trick or treat KID! ( DVD )][ref-udvd]
 
 # Links
 
@@ -93,3 +93,6 @@ XYZ Beacon - Doticatto
 
 See CONTRIBUTING.md for guidelines on contributing and participating in the wiremod project.
 
+[ref-ftr]: https://github.com/dvdvideo1234/ControlSystemsE2/wiki/FTrace
+[ref-stc]: https://github.com/dvdvideo1234/ControlSystemsE2/wiki/StControl
+[ref-udvd]: http://steamcommunity.com/profiles/76561197988124141
