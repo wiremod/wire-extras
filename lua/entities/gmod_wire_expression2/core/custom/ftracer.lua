@@ -43,6 +43,7 @@ local gnServerControled = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONL
 local gvTransform = Vector() -- Temporary vector for transformation calculation
 local gaTransform = Angle() -- Temporary angle for transformation calculation
 local gsZeroStr   = "" -- Empty string to use instead of creating one everywhere
+local gsFormDump  = "  [%s] : {%s} > {%s}" -- The format used for dumping SKIP/ONLY interals
 local gsNotAvStr  = "N/A" -- What to print when something is not available
 local gaZeroAng   = Angle() -- Dummy zero angle for transformations
 local gvZeroVec   = Vector() -- Dummy zero vector for transformations
@@ -67,6 +68,10 @@ local gtPrintName = {} -- Contains the print location specification
 
 local function isValid(vE)
 	return (vE and vE:IsValid())
+end
+
+local function formDump(sS, sM, sV)
+	return gsFormDump:format(sS, sM, tostring(sV))
 end
 
 local function getNorm(tV)
@@ -240,17 +245,12 @@ local function dumpItem(oFTrc, oSelf, sNam, sPos)
 	logStatus(" Ent: "..tostring(oFTrc.mEnt or gsNotAvStr), oSelf, nP)
 	logStatus(" E2 : "..tostring(oFTrc.mSet or gsNotAvStr), oSelf, nP)
 	local nSz = oFTrc.mHit.Size; if(nSz <= 0) then return oFTrc end
-	for iH = 1, nSz do
-		local tHit = oFTrc.mHit[iH]
+	for iH = 1, nSz do local tHit = oFTrc.mHit[iH]
 		local tS, tO = tHit.SKIP, tHit.ONLY
-		logStatus(" Hit: ["..tostring(iH).."]"..tostring(tHit.CALL or gsNotAvStr), oSelf, nP)
-		if(tS) then for kS, vS in pairs(tS) do
-			logStatus(" Hit [SKIP] : {"..tostring(kS).."} > {"..tostring(vS).."}", oSelf, nP)
-		end end
-		if(tO) then for kO, vO in pairs(tO) do
-			logStatus(" Hit [ONLY] : {"..tostring(kO).."} > {"..tostring(vO).."}", oSelf, nP)
-		end end
-	end; return oFTrc -- The dump method
+		logStatus(" Hit: ["..tostring(iH).."] "..tostring(tHit.CALL or gsNotAvStr), oSelf, nP)
+		if(tS) then for kS, vS in pairs(tS) do logStatus(formDump("SKIP", kS, vS), oSelf, nP) end end
+		if(tO) then for kO, vO in pairs(tO) do logStatus(formDump("ONLY", kO, vO), oSelf, nP) end end
+	end; return oFTrc -- The dump method returns a pointer to the current instance
 end
 
 local function newItem(oSelf, vEnt, vPos, vDir, nLen)
