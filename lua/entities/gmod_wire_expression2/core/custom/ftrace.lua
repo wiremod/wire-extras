@@ -312,6 +312,8 @@ registerOperator("ass", "xft", "xft", function(self, args)
 	return rhs
 end)
 
+--[[ **************************** CREATE **************************** ]]
+
 __e2setcost(1)
 e2function ftrace noFTrace()
 	return nil
@@ -377,9 +379,66 @@ e2function ftrace newFTrace()
 	return newItem(self, nil, nil, nil, nil)
 end
 
+--[[ **************************** COPY **************************** ]]
+
+__e2setcost(20)
+e2function ftrace ftrace:getCopy(entity eE, vector vP, vector vD, number nL)
+	return newItem(self, eE, vP, vD, nL)
+end
+
+__e2setcost(20)
+e2function ftrace ftrace:getCopy(vector vP, vector vD, number nL)
+	return newItem(self, nil, vP, vD, nL)
+end
+
+__e2setcost(20)
+e2function ftrace ftrace:getCopy(entity eE, vector vP, vector vD)
+	return newItem(self, eE, vP, vD)
+end
+
+__e2setcost(20)
+e2function ftrace ftrace:getCopy(vector vP, vector vD)
+	return newItem(self, nil, vP, vD)
+end
+
+__e2setcost(20)
+e2function ftrace ftrace:getCopy(entity eE, vector vP, number nL)
+	return newItem(self, eE, vP, nil, nL)
+end
+
+__e2setcost(20)
+e2function ftrace ftrace:getCopy(vector vP, number nL)
+	return newItem(self, nil, vP, nil, nL)
+end
+
+__e2setcost(20)
+e2function ftrace ftrace:getCopy(entity eE, vector vP)
+	return newItem(self, eE, vP, nil, nil)
+end
+
+__e2setcost(20)
+e2function ftrace ftrace:getCopy(vector vP)
+	return newItem(self, nil, vP, nil, nil)
+end
+
+__e2setcost(20)
+e2function ftrace ftrace:getCopy(entity eE, number nL)
+	return newItem(self, this, nil, nil, nL)
+end
+
+__e2setcost(20)
+e2function ftrace ftrace:getCopy(number nL)
+	return newItem(self, nil, nil, nil, nL)
+end
+
+__e2setcost(20)
+e2function ftrace ftrace:getCopy(entity eE)
+	return newItem(self, this, nil, nil, nil)
+end
+
 __e2setcost(20)
 e2function ftrace ftrace:getCopy()
-	return newItem(self.entity, this.mEnt, this.mPos, this.mDir, this.mLen)
+	return newItem(self, this.mEnt, this.mPos, this.mDir, this.mLen)
 end
 
 --[[ **************************** ENTITY **************************** ]]
@@ -472,7 +531,7 @@ e2function ftrace ftrace:remHitOnly(string sM, string vS)
 	return setHitFilter(this, self, sM, "ONLY", vS, nil)
 end
 
--------------------------------------------------------------------------------
+--[[ **************************** NUDGE **************************** ]]
 
 __e2setcost(3)
 e2function ftrace ftrace:rayNudge()
@@ -501,6 +560,8 @@ e2function ftrace ftrace:rayNudge(vector vV, number nL)
 	vD:Normalize(); vD:Mul(nL); this.mPos:Add(vD); return this
 end
 
+--[[ **************************** BASE **************************** ]]
+
 __e2setcost(3)
 e2function entity ftrace:getBase()
 	if(not this) then return nil end; local vE = this.mEnt
@@ -519,6 +580,8 @@ e2function ftrace ftrace:remBase()
 	if(not this) then return nil end
 	this.mEnt = nil; return this
 end
+
+--[[ **************************** MANAGMENT **************************** ]]
 
 __e2setcost(3)
 e2function number ftrace:isIgnoreWorld()
