@@ -475,6 +475,33 @@ end
 -------------------------------------------------------------------------------
 
 __e2setcost(3)
+e2function ftrace ftrace:rayNudge()
+	if(not this) then return nil end
+	this.mPos:Add(this.mDir); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayNudge(number nL)
+	if(not this) then return nil end
+	local vD = this.mDir:GetNormalized()
+	vD:Mul(nL); this.mPos:Add(vD); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayNudge(vector vV)
+	if(not this) then return nil end
+	local vD = Vector(vV[1], vV[2], vV[3])
+	this.mPos:Add(vD); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayNudge(vector vV, number nL)
+	if(not this) then return nil end
+	local vD = Vector(vV[1], vV[2], vV[3])
+	vD:Normalize(); vD:Mul(nL); this.mPos:Add(vD); return this
+end
+
+__e2setcost(3)
 e2function entity ftrace:getBase()
 	if(not this) then return nil end; local vE = this.mEnt
 	if(not isValid(vE)) then return nil end; return vE

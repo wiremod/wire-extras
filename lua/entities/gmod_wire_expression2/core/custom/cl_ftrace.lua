@@ -96,3 +96,7 @@ E2Helper.Descriptions["smpWorld(xft:ea)"] = "Samples the flash trace and updates
 E2Helper.Descriptions["smpWorld(xft:ev)"] = "Samples the flash trace and updates the trace-result by argument [position | entity angle]"
 E2Helper.Descriptions["smpWorld(xft:v)"] = "Samples the flash trace and updates the trace-result by position vector and entity forward"
 E2Helper.Descriptions["smpWorld(xft:va)"] = "Samples the flash trace and updates the trace-result by argument [position | angle]"
+E2Helper.Descriptions["rayNudge(xft:)"] = "Nudges the flash trace ray with its own direction and magniture"
+E2Helper.Descriptions["rayNudge(xft:n)"] = "Nudges the flash trace ray with its own direction and argument magnitude length"
+E2Helper.Descriptions["rayNudge(xft:v)"] = "Nudges the flash trace ray with argument displacement vector"
+E2Helper.Descriptions["rayNudge(xft:vn)"] = "Nudges the flash trace ray with argument [direction vector | magnitude length]"
