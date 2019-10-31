@@ -746,27 +746,27 @@ end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpLocal(angle vA)
-	return trcLocal(this, nil,  nil,  vA)
+	return trcLocal(this, nil, nil,  vA)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpLocal(vector vP)
-	return trcLocal(this, nil, vP,  nil)
+	return trcLocal(this, nil,  vP, nil)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpLocal(vector vP, angle vA)
-	return trcLocal(this, nil, vP,  vA)
+	return trcLocal(this, nil,  vP,  vA)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpLocal(entity vE, vector vP)
-	return trcLocal(this, vE,  vP,  nil)
+	return trcLocal(this,  vE,  vP, nil)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpLocal(entity vE, angle vA)
-	return trcLocal(this, vE,  nil,  vA)
+	return trcLocal(this,  vE, nil,  vA)
 end
 
 __e2setcost(8)
@@ -781,27 +781,27 @@ end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpWorld(angle vA)
-	return trcWorld(this, nil,  nil,  vA)
+	return trcWorld(this, nil, nil,  vA)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpWorld(vector vP)
-	return trcWorld(this, nil, vP,  nil)
+	return trcWorld(this, nil,  vP, nil)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpWorld(vector vP, angle vA)
-	return trcWorld(this, nil, vP,  vA)
+	return trcWorld(this, nil,  vP,  vA)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpWorld(entity vE, vector vP)
-	return trcWorld(this, vE,  vP,  nil)
+	return trcWorld(this,  vE,  vP, nil)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpWorld(entity vE, angle vA)
-	return trcWorld(this, vE,  nil,  vA)
+	return trcWorld(this,  vE, nil,  vA)
 end
 
 __e2setcost(3)
