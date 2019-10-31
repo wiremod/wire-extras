@@ -9,6 +9,7 @@ E2Helper.Descriptions["getControlTermD(xsc:)"] = "Returns state control derivati
 E2Helper.Descriptions["getControlTermI(xsc:)"] = "Returns state control integral automated control term signal"
 E2Helper.Descriptions["getControlTermP(xsc:)"] = "Returns state control proportional automated control term signal"
 E2Helper.Descriptions["getCopy(xsc:)"] = "Returns state control object copy instance"
+E2Helper.Descriptions["getCopy(xsc:n)"] = "Returns state control object copy instance with static sampling time"
 E2Helper.Descriptions["getErrorDelta(xsc:)"] = "Returns state control process error delta"
 E2Helper.Descriptions["getErrorNow(xsc:)"] = "Returns state control process current error"
 E2Helper.Descriptions["getErrorOld(xsc:)"] = "Returns state control process passed error"

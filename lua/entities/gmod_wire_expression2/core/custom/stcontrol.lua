@@ -346,6 +346,11 @@ e2function stcontrol stcontrol:getCopy()
 	return newItem(self, this.mnTo)
 end
 
+__e2setcost(20)
+e2function stcontrol stcontrol:getCopy(number nT)
+	return newItem(self, nT)
+end
+
 __e2setcost(7)
 e2function stcontrol stcontrol:setGainP(number nP)
 	return setGains(this, self, nP, nil, nil)
