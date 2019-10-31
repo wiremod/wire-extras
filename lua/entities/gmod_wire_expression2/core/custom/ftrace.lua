@@ -152,7 +152,7 @@ local function convOrgUCS(oFTrc, sF, vP, vA)
 end
 
 local function vectorScale(vV, nX, nY, nZ)
-	vV[1], vV[2], vV[3] = (vV[1] * nX), (vV[2] * nY), (vV[3] * nZ)
+	vV.x, vV.y, vV.z = (vV.x * nX), (vV.y * nY), (vV.z * nZ)
 	return vV -- returned the first argument scaled vector
 end
 
