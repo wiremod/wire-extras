@@ -151,8 +151,13 @@ local function convOrgUCS(oFTrc, sF, vP, vA)
 	return {oV[1], oV[2], oV[3]}
 end
 
-local function vectorScale(vV, nX, nY, nZ)
+local function vectorMul(vV, nX, nY, nZ)
 	vV.x, vV.y, vV.z = (vV.x * nX), (vV.y * nY), (vV.z * nZ)
+	return vV -- returned the first argument scaled vector
+end
+
+local function vectorDiv(vV, nX, nY, nZ)
+	vV.x, vV.y, vV.z = (vV.x / nX), (vV.y / nY), (vV.z / nZ)
 	return vV -- returned the first argument scaled vector
 end
 
@@ -582,28 +587,28 @@ end
 __e2setcost(3)
 e2function ftrace ftrace:rayMul(vector vV)
 	if(not this) then return nil end
-	vectorScale(this.mDir, vV[1], vV[2], vV[3])
+	vectorMul(this.mDir, vV[1], vV[2], vV[3])
 	this.mLen = this.mDir:Length(); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayDiv(vector vV)
 	if(not this) then return nil end
-	vectorScale(this.mDir, (1 / vV[1]), (1 / vV[2]), (1 / vV[3]))
+	vectorDiv(this.mDir, vV[1], vV[2], vV[3])
 	this.mLen = this.mDir:Length(); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayMul(number nX, number nY, number nZ)
 	if(not this) then return nil end
-	vectorScale(this.mDir, nX, nY, nZ)
+	vectorMul(this.mDir, nX, nY, nZ)
 	this.mLen = this.mDir:Length(); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayDiv(number nX, number nY, number nZ)
 	if(not this) then return nil end
-	vectorScale(this.mDir, (1 / nX), (1 / nY), (1 / nZ))
+	vectorDiv(this.mDir, nX, nY, nZ)
 	this.mLen = this.mDir:Length(); return this
 end
 
