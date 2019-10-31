@@ -151,6 +151,11 @@ local function convOrgUCS(oFTrc, sF, vP, vA)
 	return {oV[1], oV[2], oV[3]}
 end
 
+local function vectorScale(vV, nX, nY, nZ)
+	vV[1], vV[2], vV[3] = (vV[1] * nX), (vV[2] * nY), (vV[3] * nZ)
+	return vV -- returned the first argument scaled vector
+end
+
 --[[ Returns the hit status based on filter parameters
  * oF > The filter to be checked
  * vK > Value key to be checked
@@ -531,7 +536,7 @@ e2function ftrace ftrace:remHitOnly(string sM, string vS)
 	return setHitFilter(this, self, sM, "ONLY", vS, nil)
 end
 
---[[ **************************** NUDGE **************************** ]]
+--[[ **************************** RAY **************************** ]]
 
 __e2setcost(3)
 e2function ftrace ftrace:rayNudge()
@@ -558,6 +563,48 @@ e2function ftrace ftrace:rayNudge(vector vV, number nL)
 	if(not this) then return nil end
 	local vD = Vector(vV[1], vV[2], vV[3])
 	vD:Normalize(); vD:Mul(nL); this.mPos:Add(vD); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayMul(number nN)
+	if(not this) then return nil end
+	this.mLen = this.mLen * nN
+	this.mDir:Normalize(); this.mDir:Mul(this.mLen); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayDiv(number nN)
+	if(not this) then return nil end
+	this.mLen = this.mLen / nN
+	this.mDir:Normalize(); this.mDir:Mul(this.mLen); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayMul(vector vV)
+	if(not this) then return nil end
+	vectorScale(this.mDir, vV[1], vV[2], vV[3])
+	this.mLen = this.mDir:Length(); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayDiv(vector vV)
+	if(not this) then return nil end
+	vectorScale(this.mDir, (1 / vV[1]), (1 / vV[2]), (1 / vV[3]))
+	this.mLen = this.mDir:Length(); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayMul(number nX, number nY, number nZ)
+	if(not this) then return nil end
+	vectorScale(this.mDir, nX, nY, nZ)
+	this.mLen = this.mDir:Length(); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayDiv(number nX, number nY, number nZ)
+	if(not this) then return nil end
+	vectorScale(this.mDir, (1 / nX), (1 / nY), (1 / nZ))
+	this.mLen = this.mDir:Length(); return this
 end
 
 --[[ **************************** BASE **************************** ]]
@@ -769,7 +816,7 @@ e2function ftrace ftrace:smpLocal(entity vE, angle vA)
 	return trcLocal(this,  vE, nil,  vA)
 end
 
-__e2setcost(8)
+__e2setcost(12)
 e2function ftrace ftrace:smpWorld()
 	return trcWorld(this)
 end
