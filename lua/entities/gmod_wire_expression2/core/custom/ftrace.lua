@@ -55,7 +55,6 @@ local gtMethList  = {} -- Place holder for blacklist and convar prefix
 local gtConvEnab  = {["LocalToWorld"] = LocalToWorld, ["WorldToLocal"] = WorldToLocal} -- Coordinate conversion list
 local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServerControled, "E2 FTrace entity method black list")
 local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServerControled, "E2 FTrace entity method white list")
-local varMaxTotal = CreateConVar(gsVarPrefx.."_max" , 30, gnServerControled, "FTrace items maximum count")
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
 local varDefPrint = CreateConVar(gsVarPrefx.."_dprn", "TALK", gnServerControled, "FTrace default status output")
 local gsVNS, gsVNO, gsVDP = varMethSkip:GetName(), varMethOnly:GetName(), varDefPrint:GetName()
