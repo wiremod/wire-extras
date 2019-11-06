@@ -31,7 +31,7 @@ registerType("ftrace", "xft", nil,
 	end
 )
 
---[[ ****************************************************************************** ]]
+--[[ **************************** CONFIGURATION **************************** ]]
 
 E2Lib.RegisterExtension("ftrace", true, "Lets E2 chips trace ray attachments and check for hits.")
 
@@ -57,7 +57,6 @@ local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServerControl
 local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServerControled, "E2 FTrace entity method white list")
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
 local varDefPrint = CreateConVar(gsVarPrefx.."_dprn", "TALK", gnServerControled, "FTrace default status output")
-local gsVNS, gsVNO, gsVDP = varMethSkip:GetName(), varMethOnly:GetName(), varDefPrint:GetName()
 local gsFormLogs  = "E2{%s}{%s}:ftrace: %s" -- Contains the logs format of the addon
 local gsDefPrint  = varDefPrint:GetString() -- Default print location
 local gtPrintName = {} -- Contains the print location specification
@@ -65,6 +64,8 @@ local gtPrintName = {} -- Contains the print location specification
 			gtPrintName["CONSOLE"] = HUD_PRINTCONSOLE
 			gtPrintName["TALK"   ] = HUD_PRINTTALK
 			gtPrintName["CENTER" ] = HUD_PRINTCENTER
+
+--[[ **************************** PRIMITIVES **************************** ]]
 
 local function isValid(vE)
 	return (vE and vE:IsValid())
@@ -100,20 +101,29 @@ local function convArrayKeys(tA)
 	end; return ((tA and next(tA)) and tA or nil)
 end
 
-cvars.RemoveChangeCallback(gsVNS, gsVNS.."_call")
-cvars.AddChangeCallback(gsVNS, function(sVar, vOld, vNew)
+--[[ **************************** CALLBACKS **************************** ]]
+local gsVarName = "" -- This stores current variable name
+local gsCbcHash = "_call" -- This keeps suffix realted to the file
+
+gsVarName = varMethSkip:GetName()
+cvars.RemoveChangeCallback(gsVarName, gsVarName..gsCbcHash)
+cvars.AddChangeCallback(gsVarName, function(sVar, vOld, vNew)
 	gtMethList.SKIP = convArrayKeys(("/"):Explode(tostring(vNew or gsZeroStr)))
-end, gsVNS.."_call")
+end, gsVarName..gsCbcHash)
 
-cvars.RemoveChangeCallback(gsVNO, gsVNO.."_call")
-cvars.AddChangeCallback(gsVNO, function(sVar, vOld, vNew)
+gsVarName = varMethOnly:GetName()
+cvars.RemoveChangeCallback(gsVarName, gsVarName..gsCbcHash)
+cvars.AddChangeCallback(gsVarName, function(sVar, vOld, vNew)
 	gtMethList.ONLY = convArrayKeys(("/"):Explode(tostring(vNew or gsZeroStr)))
-end, gsVNO.."_call")
+end, gsVarName..gsCbcHash)
 
-cvars.RemoveChangeCallback(gsVDP, gsVDP.."_call")
-cvars.AddChangeCallback(gsVDP, function(sVar, vOld, vNew)
+gsVarName = varDefPrint:GetName()
+cvars.RemoveChangeCallback(gsVarName, gsVarName..gsCbcHash)
+cvars.AddChangeCallback(gsVarName, function(sVar, vOld, vNew)
 	local sK = tostring(vNew):upper(); if(gtPrintName[sK]) then gsDefPrint = sK end
-end, gsVDP.."_call")
+end, gsVarName..gsCbcHash)
+
+--[[ **************************** WRAPPERS **************************** ]]
 
 local function convDirLocal(oFTrc, vE, vA)
 	if(not oFTrc) then return {0,0,0} end

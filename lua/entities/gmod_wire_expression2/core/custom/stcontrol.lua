@@ -27,7 +27,7 @@ registerType("stcontrol", "xsc", nil,
 	end
 )
 
---[[ ****************************************************************************** ]]
+--[[ **************************** CONFIGURATION **************************** ]]
 
 E2Lib.RegisterExtension("stcontrol", true, "Lets E2 chips have dedicated state control objects")
 
@@ -50,11 +50,7 @@ local gtPrintName = {} -- Contains the print location specification
 			gtPrintName["TALK"   ] = HUD_PRINTTALK
 			gtPrintName["CENTER" ] = HUD_PRINTCENTER
 
-local gsVDP = varDefPrint:GetName()
-cvars.RemoveChangeCallback(gsVDP, gsVDP.."_call")
-cvars.AddChangeCallback(gsVDP, function(sVar, vOld, vNew)
-	local sK = tostring(vNew):upper(); if(gtPrintName[sK]) then gsDefPrint = sK end
-end, gsVDP.."_call")
+--[[ **************************** PRIMITIVES **************************** ]]
 
 local function isValid(vE)
 	return (vE and vE:IsValid())
@@ -77,6 +73,18 @@ local function logStatus(sMsg, oSelf, nPos, ...)
 		oPly:PrintMessage(nPos, sTxt:sub(1, 200))
 	end; return ...
 end
+
+--[[ **************************** CALLBACKS **************************** ]]
+local gsVarName = "" -- This stores current variable name
+local gsCbcHash = "_call" -- This keeps suffix realted to the file
+
+local gsVarName = varDefPrint:GetName()
+cvars.RemoveChangeCallback(gsVarName, gsVarName..gsCbcHash)
+cvars.AddChangeCallback(gsVarName, function(sVar, vOld, vNew)
+	local sK = tostring(vNew):upper(); if(gtPrintName[sK]) then gsDefPrint = sK end
+end, gsVarName..gsCbcHash)
+
+--[[ **************************** WRAPPERS **************************** ]]
 
 local function setGains(oStCon, oSelf, vP, vI, vD, bZ)
 	if(not oStCon) then return logStatus("Object missing", oSelf, nil, nil) end
