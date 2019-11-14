@@ -53,8 +53,8 @@ local gsVarPrefx  = "wire_expression2_ftrace" -- This is used for variable prefi
 local gtBoolToNum = {[true]=1,[false]=0} -- This is used to convert between GLua boolean and wire boolean
 local gtMethList  = {} -- Place holder for blacklist and convar prefix
 local gtConvEnab  = {["LocalToWorld"] = LocalToWorld, ["WorldToLocal"] = WorldToLocal} -- Coordinate conversion list
-local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServerControled, "E2 FTrace entity method black list")
-local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServerControled, "E2 FTrace entity method white list")
+local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServerControled, "E2 FTrace entity black listed methods")
+local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServerControled, "E2 FTrace entity white listed methods")
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "Enables status output messages")
 local varDefPrint = CreateConVar(gsVarPrefx.."_dprn", "TALK", gnServerControled, "FTrace default status output")
 local gsFormLogs  = "E2{%s}{%s}:ftrace: %s" -- Contains the logs format of the addon
@@ -84,7 +84,7 @@ end
 
 local function logStatus(sMsg, oSelf, nPos, ...)
 	if(varEnStatus:GetBool()) then
-		local nPos = tonumber(nPos) or gtPrintName[gsDefPrint]
+		local nPos = (tonumber(nPos) or gtPrintName[gsDefPrint])
 		local oPly, oEnt = oSelf.player, oSelf.entity
 		local sNam, sEID = oPly:Nick() , tostring(oEnt:EntIndex())
 		local sTxt = gsFormLogs:format(sNam, sEID, tostring(sMsg))
@@ -95,7 +95,8 @@ end
 local function convArrayKeys(tA)
 	if(not tA) then return nil end
 	if(not next(tA)) then return nil end
-	local nE = #tA; for ID = 1, #tA do local key = tA[ID]
+	for ID = 1, #tA do
+		local key = tostring(tA[ID] or ""):gsub("%s+", "")
 		if(not gtEmptyVar[key]) then
 			tA[key] = true end; tA[ID] = nil
 	end; return ((tA and next(tA)) and tA or nil)
@@ -219,7 +220,9 @@ local function setHitFilter(oFTrc, oSelf, sM, sO, vV, bS)
 	local nID = tHit.ID[sM]; if(not nID) then
 		nID = newHitFilter(oFTrc, oSelf, sM)
 	end -- Obtain the current data index
-	local tID = tHit[nID]; if(not tID.TYPE) then tID.TYPE = type(vV) end
+	local tID = tHit[nID]; if(not tID) then -- Check the current data type and prevent the user from messing up
+		return logStatus("ID mismatch <"..nID.."@"..sM..">", oSelf, nil, oFTrc) end
+	if(not tID.TYPE) then tID.TYPE = type(vV) end
 	if(tID.TYPE ~= sTyp) then -- Check the current data type and prevent the user from messing up
 		return logStatus("Type "..sTyp.." mismatch <"..tID.TYPE.."@"..sM..">", oSelf, nil, oFTrc) end
 	if(not tID[sO]) then tID[sO] = {} end

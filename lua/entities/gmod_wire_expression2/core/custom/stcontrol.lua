@@ -66,7 +66,7 @@ end
 
 local function logStatus(sMsg, oSelf, nPos, ...)
 	if(varEnStatus:GetBool()) then
-		local nPos = tonumber(nPos) or gtPrintName[gsDefPrint]
+		local nPos = (tonumber(nPos) or gtPrintName[gsDefPrint])
 		local oPly, oEnt = oSelf.player, oSelf.entity
 		local sNam, sEID = oPly:Nick() , tostring(oEnt:EntIndex())
 		local sTxt = gsFormLogs:format(sNam, sEID, tostring(sMsg))
