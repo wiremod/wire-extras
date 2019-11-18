@@ -104,7 +104,8 @@ function TOOL:UpdateGhostWireDupePort( ent, player )
 	local trace = player:GetEyeTrace()
 	if ( not trace.Hit ) then return end
 
-	if (trace.Entity and trace.Entity:GetClass() == "gmod_wire_dupeport" or trace.Entity:IsPlayer() ) then
+	if (trace.Entity and trace.Entity:IsValid() and
+		 (trace.Entity:GetClass() == "gmod_wire_dupeport" or trace.Entity:IsPlayer()) ) then
 		ent:SetNoDraw( true )
 		return
 	end
@@ -122,9 +123,9 @@ end
 
 function TOOL:Think()
 	if ( not self.GhostEntity or
-	     not self.GhostEntity:IsValid() or
-	         self.GhostEntity:GetModel() ~= gsModel ) then
-	  self:MakeGhostEntity( gsModel, Vector(0,0,0), Angle(0,0,0) )
+			 not self.GhostEntity:IsValid() or
+					 self.GhostEntity:GetModel() ~= gsModel ) then
+		self:MakeGhostEntity( gsModel, Vector(0,0,0), Angle(0,0,0) )
 	end
 
 	self:UpdateGhostWireDupePort( self.GhostEntity, self:GetOwner() )
