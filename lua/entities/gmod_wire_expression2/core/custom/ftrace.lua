@@ -43,6 +43,7 @@ local gnServerControled = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONL
 local gvTransform = Vector() -- Temporary vector for transformation calculation
 local gaTransform = Angle() -- Temporary angle for transformation calculation
 local gsZeroStr   = "" -- Empty string to use instead of creating one everywhere
+local gsFormHit   = " Hit: [%d]{%s} Entity" -- This stores the hit parameters dump format
 local gsFormDump  = "  [%s] : {%s} > {%s}" -- The format used for dumping SKIP/ONLY interals
 local gsNotAvStr  = "N/A" -- What to print when something is not available
 local gaZeroAng   = Angle() -- Dummy zero angle for transformations
@@ -73,6 +74,10 @@ end
 
 local function formDump(sS, sM, sV)
 	return gsFormDump:format(sS, sM, tostring(sV))
+end
+
+local function formType(iD, sT)
+	return gsFormHit:format(iD, tostring(sT))
 end
 
 local function getNorm(tV)
@@ -272,10 +277,15 @@ local function dumpItem(oFTrc, oSelf, sNam, sPos)
 	logStatus(" Dir: "..tostring(oFTrc.mDir or gsNotAvStr), oSelf, nP)
 	logStatus(" Ent: "..tostring(oFTrc.mEnt or gsNotAvStr), oSelf, nP)
 	logStatus(" E2 : "..tostring(oFTrc.mSet or gsNotAvStr), oSelf, nP)
-	local nSz = oFTrc.mHit.Size; if(nSz <= 0) then return oFTrc end
-	for iH = 1, nSz do local tHit = oFTrc.mHit[iH]
-		local tS, tO = tHit.SKIP, tHit.ONLY
-		logStatus(" Hit: ["..tostring(iH).."] "..tostring(tHit.CALL or gsNotAvStr), oSelf, nP)
+	local tHit = oFTrc.mHit -- Read the general hit list
+	local tEnt = tHit.Ent   -- Read the direct hit entities list
+	local tS, tO = tEnt.SKIP, tEnt.ONLY -- Read entity skip and only list
+	logStatus(formType(0, tEnt.TYPE), oSelf, nP)
+	if(tS and next(tS)) then for kS, vS in pairs(tS) do logStatus(formDump("SKIP", kS, vS), oSelf, nP) end end
+	if(tO and next(tO)) then for kO, vO in pairs(tO) do logStatus(formDump("ONLY", kO, vO), oSelf, nP) end end
+	local nSz = tHit.Size; if(nSz <= 0) then return oFTrc end
+	for iH = 1, nSz do local tID = tHit[iH]; tS, tO = tID.SKIP, tID.ONLY
+		logStatus(formType(iH, tID.TYPE)..":"..tostring(tID.CALL or gsNotAvStr), oSelf, nP)
 		if(tS) then for kS, vS in pairs(tS) do logStatus(formDump("SKIP", kS, vS), oSelf, nP) end end
 		if(tO) then for kO, vO in pairs(tO) do logStatus(formDump("ONLY", kO, vO), oSelf, nP) end end
 	end; return oFTrc -- The dump method returns a pointer to the current instance
@@ -284,10 +294,9 @@ end
 local function newItem(oSelf, vEnt, vPos, vDir, nLen)
 	local eChip = oSelf.entity; if(not isValid(eChip)) then
 		return logStatus("Entity invalid", oSelf, nil, nil) end
-	local oFTrc = {}; oFTrc.mSet, oFTrc.mHit = eChip, {Size=0, ID={}};
-	if(isValid(vEnt)) then -- No entities are store for ONLY or SKIP by default
-		oFTrc.mHit.Ent, oFTrc.mEnt = {SKIP={},ONLY={}}, vEnt
-	else oFTrc.mHit.Ent, oFTrc.mEnt = {SKIP={},ONLY={}}, nil end -- Make sure the entity is cleared
+	local oFTrc = {}; oFTrc.mSet, oFTrc.mHit = eChip, {Size = 0, ID = {}};
+	oFTrc.mHit.Ent = {SKIP = {}, ONLY = {}, TYPE = type(eChip)} -- No entities in ONLY or SKIP by default
+	if(isValid(vEnt)) then oFTrc.mEnt = vEnt else oFTrc.mEnt = nil end -- Make sure the entity is cleared
 	-- Local tracer position the trace starts from
 	oFTrc.mPos, oFTrc.mDir = Vector(), Vector()
 	if(vPos) then oFTrc.mPos.x, oFTrc.mPos.y, oFTrc.mPos.z = vPos[1], vPos[2], vPos[3] end
@@ -622,6 +631,14 @@ e2function ftrace ftrace:rayDiv(number nX, number nY, number nZ)
 	if(not this) then return nil end
 	vectorDiv(this.mDir, nX, nY, nZ)
 	this.mLen = this.mDir:Length(); return this
+end
+
+--[[ **************************** CHIP **************************** ]]
+
+__e2setcost(3)
+e2function entity ftrace:getChip()
+	if(not this) then return nil end; local vE = this.mSet
+	if(not isValid(vE)) then return nil end; return vE
 end
 
 --[[ **************************** BASE **************************** ]]
