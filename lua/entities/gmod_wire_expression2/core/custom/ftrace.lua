@@ -204,14 +204,14 @@ local function newHitFilter(oFTrc, oSelf, sM)
 	if(not oFTrc) then return 0 end -- Check for available method
 	if(sM:sub(1,3) ~= "Get" and sM:sub(1,2) ~= "Is" and sM ~= gsZeroStr) then
 		return logStatus("Method <"..sM.."> disabled", oSelf, nil, 0) end
+	local tHit = oFTrc.mHit; if(tHit.ID[sM]) then -- Check for available method
+		return logStatus("Method <"..sM.."> exists", oSelf, nil, 0) end
+	if(not oSelf.entity[sM]) then -- Check for available method
+		return logStatus("Method <"..sM.."> mismatch", oSelf, nil, 0) end
 	local tO = gtMethList.ONLY; if(tO and next(tO) and not tO[sM]) then
 		return logStatus("Method <"..sM.."> use only", oSelf, nil, 0) end
 	local tS = gtMethList.SKIP; if(tS and next(tS) and tS[sM]) then
 		return logStatus("Method <"..sM.."> use skip", oSelf, nil, 0) end
-	if(not oSelf.entity[sM]) then -- Check for available method
-		return logStatus("Method <"..sM.."> mismatch", oSelf, nil, 0) end
-	local tHit = oFTrc.mHit; if(tHit.ID[sM]) then -- Check for available method
-		return logStatus("Method <"..sM.."> exists", oSelf, nil, 0) end
 	tHit.Size = (tHit.Size + 1); tHit[tHit.Size] = {CALL = sM}
 	tHit.ID[sM] = tHit.Size; return (tHit.Size)
 end
