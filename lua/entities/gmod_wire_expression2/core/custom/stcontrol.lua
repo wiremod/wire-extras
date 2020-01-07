@@ -2,17 +2,20 @@
  My custom state LQ-PID control type handling process variables
 ****************************************************************************** ]]--
 
+local type         = type
 local pairs        = pairs
+local error        = error
+local istable      = istable
 local tostring     = tostring
 local tonumber     = tonumber
-local CreateConVar = CreateConVar
-local bitBor       = bit.bor
-local mathAbs      = math.abs
-local mathModf     = math.modf
-local tableConcat  = table.concat
-local tableInsert  = table.insert
-local tableRemove  = table.remove
 local getTime      = CurTime -- Using this as time benchmarking supporting game pause
+local CreateConVar = CreateConVar
+local bitBor       = bit and bit.bor
+local mathAbs      = math and math.abs
+local mathModf     = math and math.modf
+local tableConcat  = table and table.concat
+local tableInsert  = table and table.insert
+local tableRemove  = table and table.remove
 
 -- Register the type up here before the extension registration so that the state control still works
 registerType("stcontrol", "xsc", nil,
@@ -36,6 +39,8 @@ local gnIndependentUsed = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONL
 -- Server tells the client what value to use
 local gnServerControled = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY, FCVAR_REPLICATED)
 
+local gsVarName   = "" -- This stores current variable name
+local gsCbcHash   = "_call" -- This keeps suffix realted to the file
 local gtComponent = {"P", "I", "D"} -- The names of each term. This is used for indexing and checking
 local gsFormatPID = "(%s%s%s)" -- The general type format for the control power setup
 local gtMissName  = {"Xx", "X", "Nr"} -- This is a place holder for missing/default type
@@ -75,10 +80,8 @@ local function logStatus(sMsg, oSelf, nPos, ...)
 end
 
 --[[ **************************** CALLBACKS **************************** ]]
-local gsVarName = "" -- This stores current variable name
-local gsCbcHash = "_call" -- This keeps suffix realted to the file
 
-local gsVarName = varDefPrint:GetName()
+gsVarName = varDefPrint:GetName()
 cvars.RemoveChangeCallback(gsVarName, gsVarName..gsCbcHash)
 cvars.AddChangeCallback(gsVarName, function(sVar, vOld, vNew)
 	local sK = tostring(vNew):upper(); if(gtPrintName[sK]) then gsDefPrint = sK end
