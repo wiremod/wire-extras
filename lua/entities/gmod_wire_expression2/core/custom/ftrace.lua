@@ -2,21 +2,27 @@
  My custom flash tracer tracer type ( Based on wire rangers )
 ****************************************************************************** ]]--
 
-local next = next
-local Angle = Angle
-local Vector = Vector
-local tostring = tostring
-local tonumber = tonumber
-local LocalToWorld = LocalToWorld
-local WorldToLocal = WorldToLocal
-local bitBor = bit.bor
-local mathAbs = math.abs
-local mathSqrt = math.sqrt
-local mathClamp = math.Clamp
-local tableRemove = table.remove
-local tableInsert = table.insert
-local utilTraceLine = util.TraceLine
-local utilGetSurfacePropName = util.GetSurfacePropName
+local next          = next
+local type          = type
+local pairs         = pairs
+local error         = error
+local Angle         = Angle
+local Vector        = Vector
+local istable       = istable
+local tostring      = tostring
+local tonumber      = tonumber
+local CreateConVar  = CreateConVar
+local LocalToWorld  = LocalToWorld
+local WorldToLocal  = WorldToLocal
+local bitBor        = bit and bit.bor
+local mathAbs       = math and math.abs
+local mathSqrt      = math and math.sqrt
+local mathClamp     = math and math.Clamp
+local tableEmpty    = table and table.Empty
+local tableRemove   = table and table.remove
+local tableInsert   = table and table.insert
+local utilTraceLine = util and util.TraceLine
+local utilGetSurfacePropName = util and util.GetSurfacePropName
 
 -- Register the type up here before the extension registration so that the ftrace still works
 registerType("ftrace", "xft", nil,
@@ -82,7 +88,7 @@ end
 
 local function getNorm(tV)
 	local nN = 0; if(not tV) then return nN end
-	if(tonumber(tV)) then return math.abs(tV) end
+	if(tonumber(tV)) then return mathAbs(tV) end
 	for ID = 1, 3 do local nV = tonumber(tV[ID]) or 0
 		nN = nN + nV^2 end; return mathSqrt(nN)
 end
@@ -108,26 +114,21 @@ local function convArrayKeys(tA)
 end
 
 --[[ **************************** CALLBACKS **************************** ]]
-local gsVarName = "" -- This stores current variable name
-local gsCbcHash = "_call" -- This keeps suffix realted to the file
 
-gsVarName = varMethSkip:GetName()
-cvars.RemoveChangeCallback(gsVarName, gsVarName..gsCbcHash)
-cvars.AddChangeCallback(gsVarName, function(sVar, vOld, vNew)
+cvars.RemoveChangeCallback(varMethSkip:GetName(), varMethSkip:GetName().."_call")
+cvars.AddChangeCallback(varMethSkip:GetName(), function(sVar, vOld, vNew)
 	gtMethList.SKIP = convArrayKeys(("/"):Explode(tostring(vNew or gsZeroStr)))
-end, gsVarName..gsCbcHash)
+end, varMethSkip:GetName().."_call")
 
-gsVarName = varMethOnly:GetName()
-cvars.RemoveChangeCallback(gsVarName, gsVarName..gsCbcHash)
-cvars.AddChangeCallback(gsVarName, function(sVar, vOld, vNew)
+cvars.RemoveChangeCallback(varMethOnly:GetName(), varMethOnly:GetName().."_call")
+cvars.AddChangeCallback(varMethOnly:GetName(), function(sVar, vOld, vNew)
 	gtMethList.ONLY = convArrayKeys(("/"):Explode(tostring(vNew or gsZeroStr)))
-end, gsVarName..gsCbcHash)
+end, varMethOnly:GetName().."_call")
 
-gsVarName = varDefPrint:GetName()
-cvars.RemoveChangeCallback(gsVarName, gsVarName..gsCbcHash)
-cvars.AddChangeCallback(gsVarName, function(sVar, vOld, vNew)
+cvars.RemoveChangeCallback(varDefPrint:GetName(), varDefPrint:GetName().."_call")
+cvars.AddChangeCallback(varDefPrint:GetName(), function(sVar, vOld, vNew)
 	local sK = tostring(vNew):upper(); if(gtPrintName[sK]) then gsDefPrint = sK end
-end, gsVarName..gsCbcHash)
+end, varDefPrint:GetName().."_call")
 
 --[[ **************************** WRAPPERS **************************** ]]
 
@@ -198,14 +199,14 @@ local function newHitFilter(oFTrc, oSelf, sM)
 	if(not oFTrc) then return 0 end -- Check for available method
 	if(sM:sub(1,3) ~= "Get" and sM:sub(1,2) ~= "Is" and sM ~= gsZeroStr) then
 		return logStatus("Method <"..sM.."> disabled", oSelf, nil, 0) end
+	local tHit = oFTrc.mHit; if(tHit.ID[sM]) then -- Check for available method
+		return logStatus("Method <"..sM.."> exists", oSelf, nil, 0) end
+	if(not oSelf.entity[sM]) then -- Check for available method
+		return logStatus("Method <"..sM.."> mismatch", oSelf, nil, 0) end
 	local tO = gtMethList.ONLY; if(tO and next(tO) and not tO[sM]) then
 		return logStatus("Method <"..sM.."> use only", oSelf, nil, 0) end
 	local tS = gtMethList.SKIP; if(tS and next(tS) and tS[sM]) then
 		return logStatus("Method <"..sM.."> use skip", oSelf, nil, 0) end
-	if(not oSelf.entity[sM]) then -- Check for available method
-		return logStatus("Method <"..sM.."> mismatch", oSelf, nil, 0) end
-	local tHit = oFTrc.mHit; if(tHit.ID[sM]) then -- Check for available method
-		return logStatus("Method <"..sM.."> exists", oSelf, nil, 0) end
 	tHit.Size = (tHit.Size + 1); tHit[tHit.Size] = {CALL = sM}
 	tHit.ID[sM] = tHit.Size; return (tHit.Size)
 end
@@ -489,6 +490,12 @@ e2function ftrace ftrace:remEntHitSkip(entity vE)
 end
 
 __e2setcost(3)
+e2function ftrace ftrace:remEntHitSkip()
+	if(not this) then return nil end
+	tableEmpty(this.mHit.Ent.SKIP); return this
+end
+
+__e2setcost(3)
 e2function ftrace ftrace:addEntHitOnly(entity vE)
 	if(not this) then return nil end
 	if(not isValid(vE)) then return nil end
@@ -500,6 +507,19 @@ e2function ftrace ftrace:remEntHitOnly(entity vE)
 	if(not this) then return nil end
 	if(not isValid(vE)) then return nil end
 	this.mHit.Ent.ONLY[vE] = nil; return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:remEntHitOnly()
+	if(not this) then return nil end
+	tableEmpty(this.mHit.Ent.ONLY); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:remEntHit()
+	if(not this) then return nil end
+	tableEmpty(this.mHit.Ent.SKIP)
+	tableEmpty(this.mHit.Ent.ONLY); return this
 end
 
 --[[ **************************** FILTER **************************** ]]
