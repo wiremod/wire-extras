@@ -75,14 +75,12 @@ local function logStatus(sMsg, oSelf, nPos, ...)
 end
 
 --[[ **************************** CALLBACKS **************************** ]]
-local gsVarName = "" -- This stores current variable name
-local gsCbcHash = "_call" -- This keeps suffix realted to the file
 
 local gsVarName = varDefPrint:GetName()
-cvars.RemoveChangeCallback(gsVarName, gsVarName..gsCbcHash)
-cvars.AddChangeCallback(gsVarName, function(sVar, vOld, vNew)
+cvars.RemoveChangeCallback(varDefPrint:GetName(), varDefPrint:GetName().."_call")
+cvars.AddChangeCallback(varDefPrint:GetName(), function(sVar, vOld, vNew)
 	local sK = tostring(vNew):upper(); if(gtPrintName[sK]) then gsDefPrint = sK end
-end, gsVarName..gsCbcHash)
+end, varDefPrint:GetName().."_call")
 
 --[[ **************************** WRAPPERS **************************** ]]
 

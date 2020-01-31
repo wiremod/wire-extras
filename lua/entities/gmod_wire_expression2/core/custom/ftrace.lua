@@ -108,26 +108,21 @@ local function convArrayKeys(tA)
 end
 
 --[[ **************************** CALLBACKS **************************** ]]
-local gsVarName = "" -- This stores current variable name
-local gsCbcHash = "_call" -- This keeps suffix realted to the file
 
-gsVarName = varMethSkip:GetName()
-cvars.RemoveChangeCallback(gsVarName, gsVarName..gsCbcHash)
-cvars.AddChangeCallback(gsVarName, function(sVar, vOld, vNew)
+cvars.RemoveChangeCallback(varMethSkip:GetName(), varMethSkip:GetName().."_call")
+cvars.AddChangeCallback(varMethSkip:GetName(), function(sVar, vOld, vNew)
 	gtMethList.SKIP = convArrayKeys(("/"):Explode(tostring(vNew or gsZeroStr)))
-end, gsVarName..gsCbcHash)
+end, varMethSkip:GetName().."_call")
 
-gsVarName = varMethOnly:GetName()
-cvars.RemoveChangeCallback(gsVarName, gsVarName..gsCbcHash)
-cvars.AddChangeCallback(gsVarName, function(sVar, vOld, vNew)
+cvars.RemoveChangeCallback(varMethOnly:GetName(), varMethOnly:GetName().."_call")
+cvars.AddChangeCallback(varMethOnly:GetName(), function(sVar, vOld, vNew)
 	gtMethList.ONLY = convArrayKeys(("/"):Explode(tostring(vNew or gsZeroStr)))
-end, gsVarName..gsCbcHash)
+end, varMethOnly:GetName().."_call")
 
-gsVarName = varDefPrint:GetName()
-cvars.RemoveChangeCallback(gsVarName, gsVarName..gsCbcHash)
-cvars.AddChangeCallback(gsVarName, function(sVar, vOld, vNew)
+cvars.RemoveChangeCallback(varDefPrint:GetName(), varDefPrint:GetName().."_call")
+cvars.AddChangeCallback(varDefPrint:GetName(), function(sVar, vOld, vNew)
 	local sK = tostring(vNew):upper(); if(gtPrintName[sK]) then gsDefPrint = sK end
-end, gsVarName..gsCbcHash)
+end, varDefPrint:GetName().."_call")
 
 --[[ **************************** WRAPPERS **************************** ]]
 
