@@ -2,17 +2,20 @@
  My custom state LQ-PID control type handling process variables
 ****************************************************************************** ]]--
 
+local type         = type
 local pairs        = pairs
+local error        = error
+local istable      = istable
 local tostring     = tostring
 local tonumber     = tonumber
-local CreateConVar = CreateConVar
-local bitBor       = bit.bor
-local mathAbs      = math.abs
-local mathModf     = math.modf
-local tableConcat  = table.concat
-local tableInsert  = table.insert
-local tableRemove  = table.remove
 local getTime      = CurTime -- Using this as time benchmarking supporting game pause
+local CreateConVar = CreateConVar
+local bitBor       = bit and bit.bor
+local mathAbs      = math and math.abs
+local mathModf     = math and math.modf
+local tableConcat  = table and table.concat
+local tableInsert  = table and table.insert
+local tableRemove  = table and table.remove
 
 -- Register the type up here before the extension registration so that the state control still works
 registerType("stcontrol", "xsc", nil,
@@ -76,7 +79,6 @@ end
 
 --[[ **************************** CALLBACKS **************************** ]]
 
-local gsVarName = varDefPrint:GetName()
 cvars.RemoveChangeCallback(varDefPrint:GetName(), varDefPrint:GetName().."_call")
 cvars.AddChangeCallback(varDefPrint:GetName(), function(sVar, vOld, vNew)
 	local sK = tostring(vNew):upper(); if(gtPrintName[sK]) then gsDefPrint = sK end
