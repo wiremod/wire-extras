@@ -619,6 +619,27 @@ e2function ftrace ftrace:rayMove(vector vV, number nL)
 end
 
 __e2setcost(3)
+e2function ftrace ftrace:rayAmend(vector vV)
+	if(not this) then return nil end
+	local vD = Vector(vV[1], vV[2], vV[3])
+	this.mDir:Add(vD); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayAmend(number nX, number nY, number nZ)
+	if(not this) then return nil end
+	local vD = Vector(nX, nY, nZ)
+	this.mDir:Add(vD); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayAmend(vector vV, number nL)
+	if(not this) then return nil end
+	local vD = Vector(vV[1], vV[2], vV[3])
+	vD:Normalize(); vD:Mul(nL); this.mDir:Add(vD); return this
+end
+
+__e2setcost(3)
 e2function ftrace ftrace:rayMul(number nN)
 	if(not this) then return nil end
 	this.mLen = this.mLen * nN; this.mDir:Normalize()

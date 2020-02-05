@@ -124,3 +124,6 @@ E2Helper.Descriptions["rayMul(xft:nnn)"] = "Expands the flash trace ray each com
 E2Helper.Descriptions["rayMul(xft:v)"] = "Expands the flash trace ray each component individually using a vector"
 E2Helper.Descriptions["rayAim(xft:nnn)"] = "Aims the flash trace ray at a given position using three numbers"
 E2Helper.Descriptions["rayAim(xft:v)"] = "Aims the flash trace ray at a given position using a vector"
+E2Helper.Descriptions["rayAmend(xft:v)"] = "Amends the flash trace ray direction using a vector"
+E2Helper.Descriptions["rayAmend(xft:vn)"] = "Amends the flash trace ray direction using vector and magnitude"
+E2Helper.Descriptions["rayAmend(xft:nnn)"] = "Amends the flash trace ray direction using three numbers"
