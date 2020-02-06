@@ -132,7 +132,7 @@ end
 local function resState(oStCon, oSelf)
 	if(not oStCon) then return logStatus("Object missing", oSelf, nil, nil) end
 	oStCon.mErrO, oStCon.mErrN = 0, 0 -- Reset the error
-	oStCon.mvCon, oStCon.meInt = 0, true -- Control value and integral enabled
+	oStCon.mvCon, oStCon.meInt, oStCon.meDif = 0, true, true -- Control value and integral enabled
 	oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Term values
 	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Update clock
 	return oStCon
@@ -148,14 +148,33 @@ local function dumpItem(oStCon, oSelf, sNam, sPos)
 	local sP = tostring(sPos or gsDefPrint)
 	local nP = gtPrintName[sP] -- Print location setup
 	if(not nP) then return oStCon end
-	logStatus("["..tostring(sNam).."]["..tostring(oStCon.mnTo or gtMissName[2]).."]["..getType(oStCon).."]["..tostring(oStCon.mTimN).."] Data:", oSelf, nP)
-	logStatus(" Human: ["..tostring(oStCon.mbMan).."] {V="..tostring(oStCon.mvMan)..", B="..tostring(oStCon.mBias).."}", oSelf, nP)
-	logStatus(" Gains: {P="..tostring(oStCon.mkP)..", I="..tostring(oStCon.mkI)..", D="..tostring(oStCon.mkD).."}", oSelf, nP)
-	logStatus(" Power: {P="..tostring(oStCon.mpP)..", I="..tostring(oStCon.mpI)..", D="..tostring(oStCon.mpD).."}", oSelf, nP)
-	logStatus(" Limit: {D="..tostring(oStCon.mSatD)..", U="..tostring(oStCon.mSatU).."}", oSelf, nP)
-	logStatus(" Error: {O="..tostring(oStCon.mErrO)..", N="..tostring(oStCon.mErrN).."}", oSelf, nP)
-	logStatus(" Value: ["..tostring(oStCon.mvCon).."] {P="..tostring(oStCon.mvP)..", I="..tostring(oStCon.mvI)..", D=" ..tostring(oStCon.mvD).."}", oSelf, nP)
-	logStatus(" Flags: ["..tostring(oStCon.mbOn).."] {C="..tostring(oStCon.mbCmb)..", R=" ..tostring(oStCon.mbInv)..", I="..tostring(oStCon.meInt).."}", oSelf, nP)
+	logStatus("Controller ["..tostring(sNam).."]["..tostring(oStCon.mnTo or gtMissName[2]).."]["..getType(oStCon).."]["..tostring(oStCon.mTimN).."]:", oSelf, nP)
+	logStatus(" Manual mode enabled: ["..tostring(oStCon.mbMan).."]", oSelf, nP)
+	logStatus("  Value: "..tostring(oStCon.mvMan), oSelf, nP)
+	logStatus("   Bias: "..tostring(oStCon.mBias), oSelf, nP)
+	logStatus(" Gains for terms:", oSelf, nP)
+	logStatus("      P: "..tostring(oStCon.mkP), oSelf, nP)
+	logStatus("      I: "..tostring(oStCon.mkI), oSelf, nP)
+	logStatus("      D: "..tostring(oStCon.mkD), oSelf, nP)
+	logStatus(" Powers for terms:", oSelf, nP)
+	logStatus("      P: "..tostring(oStCon.mpP), oSelf, nP)
+	logStatus("      I: "..tostring(oStCon.mpI), oSelf, nP)
+	logStatus("      D: "..tostring(oStCon.mpD), oSelf, nP)
+	logStatus(" Saturation limits:", oSelf, nP)
+	logStatus("     Up: "..tostring(oStCon.mSatU), oSelf, nP)
+	logStatus("   Down: "..tostring(oStCon.mSatD), oSelf, nP)
+	logStatus(" Error memory state:", oSelf, nP)
+	logStatus("    New: "..tostring(oStCon.mErrN), oSelf, nP)
+	logStatus("    Old: "..tostring(oStCon.mErrO), oSelf, nP)
+	logStatus(" Control state value: ["..tostring(oStCon.mvCon).."]", oSelf, nP)
+	logStatus("      P: "..tostring(oStCon.mvP), oSelf, nP)
+	logStatus("      I: "..tostring(oStCon.mvI), oSelf, nP)
+	logStatus("      D: "..tostring(oStCon.mvD), oSelf, nP)
+	logStatus(" Control enable flags: ["..tostring(oStCon.mbOn).."]", oSelf, nP)
+	logStatus("   BCmb: "..tostring(oStCon.mbCmb), oSelf, nP)
+	logStatus("   BInv: "..tostring(oStCon.mbInv), oSelf, nP)
+	logStatus("   EInt: "..tostring(oStCon.meInt), oSelf, nP)
+	logStatus("   EDif: "..tostring(oStCon.meDif), oSelf, nP)
 	return oStCon -- The dump method
 end
 
@@ -168,7 +187,7 @@ local function newItem(oSelf, nTo)
 	local sType = gsFormatPID:format(sM, sM, sM) -- Error state values
 	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
 	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {sType, gtMissName[2]:rep(3)}
-	oStCon.mvCon, oStCon.mTimB, oStCon.meInt = 0, 0, true -- Control value and integral enabled
+	oStCon.mvCon, oStCon.mTimB, oStCon.meInt, oStCon.meDif = 0, 0, true, true -- Control value and integral enabled
 	oStCon.mBias, oStCon.mSatD, oStCon.mSatU = 0, nil, nil -- Saturation limits and settings
 	oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Term values
 	oStCon.mkP, oStCon.mkI, oStCon.mkD = 0, 0, 0 -- P, I and D term gains
@@ -839,15 +858,27 @@ e2function number stcontrol:getTimeRatio()
 end
 
 __e2setcost(3)
-e2function stcontrol stcontrol:setIsIntegrating(number nN)
+e2function stcontrol stcontrol:setIsIntegral(number nN)
 	if(not this) then return nil end
 	this.meInt = (nN ~= 0); return this
 end
 
 __e2setcost(3)
-e2function number stcontrol:isIntegrating()
+e2function number stcontrol:isIntegral()
 	if(not this) then return 0 end
 	return (this.meInt and 1 or 0)
+end
+
+__e2setcost(3)
+e2function stcontrol stcontrol:setIsDerivative(number nN)
+	if(not this) then return nil end
+	this.meDif = (nN ~= 0); return this
+end
+
+__e2setcost(3)
+e2function number stcontrol:isDerivative()
+	if(not this) then return 0 end
+	return (this.meDif and 1 or 0)
 end
 
 __e2setcost(3)
@@ -964,7 +995,7 @@ e2function stcontrol stcontrol:setState(number nR, number nY)
 		if((this.mkI > 0) and (this.mErrN ~= 0) and this.meInt and (timDt > 0)) then -- I-Term
 			local arInt = (this.mErrN + this.mErrO) * timDt -- Integral error function area
 			this.mvI = getValue(this.mkI * timDt, arInt, this.mpI) + this.mvI end
-		if((this.mkD > 0) and (this.mErrN ~= this.mErrO) and (timDt > 0)) then -- D-Term
+		if((this.mkD > 0) and (this.mErrN ~= this.mErrO) and this.meDif and (timDt > 0)) then -- D-Term
 			local arDif = (this.mErrN - this.mErrO) / timDt -- Derivative dY/dT
 			this.mvD = getValue(this.mkD * timDt, arDif, this.mpD) else this.mvD = 0 end
 		this.mvCon = this.mvP + this.mvI + this.mvD -- Calculate the control signal

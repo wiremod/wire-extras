@@ -167,12 +167,12 @@ local function convOrgUCS(oFTrc, sF, vP, vA)
 	return {oV[1], oV[2], oV[3]}
 end
 
-local function vectorMul(vV, nX, nY, nZ)
+local function vecMultiply(vV, nX, nY, nZ)
 	vV.x, vV.y, vV.z = (vV.x * nX), (vV.y * nY), (vV.z * nZ)
 	return vV -- returned the first argument scaled vector
 end
 
-local function vectorDiv(vV, nX, nY, nZ)
+local function vecDivide(vV, nX, nY, nZ)
 	vV.x, vV.y, vV.z = (vV.x / nX), (vV.y / nY), (vV.z / nZ)
 	return vV -- returned the first argument scaled vector
 end
@@ -585,72 +585,118 @@ end
 --[[ **************************** RAY **************************** ]]
 
 __e2setcost(3)
-e2function ftrace ftrace:rayNudge()
+e2function ftrace ftrace:rayMove()
 	if(not this) then return nil end
 	this.mPos:Add(this.mDir); return this
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:rayNudge(number nL)
+e2function ftrace ftrace:rayMove(number nL)
 	if(not this) then return nil end
 	local vD = this.mDir:GetNormalized()
 	vD:Mul(nL); this.mPos:Add(vD); return this
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:rayNudge(vector vV)
+e2function ftrace ftrace:rayMove(vector vV)
 	if(not this) then return nil end
 	local vD = Vector(vV[1], vV[2], vV[3])
 	this.mPos:Add(vD); return this
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:rayNudge(vector vV, number nL)
+e2function ftrace ftrace:rayMove(number nX, number nY, number nZ)
+	if(not this) then return nil end
+	local vD = Vector(nX, nY, nZ)
+	this.mPos:Add(vD); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayMove(vector vV, number nL)
 	if(not this) then return nil end
 	local vD = Vector(vV[1], vV[2], vV[3])
 	vD:Normalize(); vD:Mul(nL); this.mPos:Add(vD); return this
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:rayMul(number nN)
+e2function ftrace ftrace:rayAmend(vector vV)
 	if(not this) then return nil end
-	this.mLen = this.mLen * nN
-	this.mDir:Normalize(); this.mDir:Mul(this.mLen); return this
+	local vD = Vector(vV[1], vV[2], vV[3])
+	this.mDir:Add(vD); return this
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:rayDiv(number nN)
+e2function ftrace ftrace:rayAmend(number nX, number nY, number nZ)
 	if(not this) then return nil end
-	this.mLen = this.mLen / nN
-	this.mDir:Normalize(); this.mDir:Mul(this.mLen); return this
+	local vD = Vector(nX, nY, nZ)
+	this.mDir:Add(vD); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayAmend(vector vV, number nL)
+	if(not this) then return nil end
+	local vD = Vector(vV[1], vV[2], vV[3])
+	vD:Normalize(); vD:Mul(nL); this.mDir:Add(vD); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayMul(number nN)
+	if(not this) then return nil end
+	this.mLen = this.mLen * nN; this.mDir:Normalize()
+	this.mDir:Mul(this.mLen); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayMul(vector vV)
 	if(not this) then return nil end
-	vectorMul(this.mDir, vV[1], vV[2], vV[3])
-	this.mLen = this.mDir:Length(); return this
-end
-
-__e2setcost(3)
-e2function ftrace ftrace:rayDiv(vector vV)
-	if(not this) then return nil end
-	vectorDiv(this.mDir, vV[1], vV[2], vV[3])
+	vecMultiply(this.mDir, vV[1], vV[2], vV[3])
 	this.mLen = this.mDir:Length(); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayMul(number nX, number nY, number nZ)
 	if(not this) then return nil end
-	vectorMul(this.mDir, nX, nY, nZ)
+	vecMultiply(this.mDir, nX, nY, nZ)
+	this.mLen = this.mDir:Length(); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayDiv(number nN)
+	if(not this) then return nil end
+	this.mLen = this.mLen / nN; this.mDir:Normalize()
+	this.mDir:Mul(this.mLen); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayDiv(vector vV)
+	if(not this) then return nil end
+	vecDivide(this.mDir, vV[1], vV[2], vV[3])
 	this.mLen = this.mDir:Length(); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayDiv(number nX, number nY, number nZ)
 	if(not this) then return nil end
-	vectorDiv(this.mDir, nX, nY, nZ)
+	vecDivide(this.mDir, nX, nY, nZ)
 	this.mLen = this.mDir:Length(); return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayAim(vector vV)
+	if(not this) then return nil end
+	local vD = Vector(vV[1], vV[2], vV[3])
+	vD:Sub(this.mPos); vD:Normalize()
+	vD:Mul(this.mLen); this.mDir:Set(vD)
+	return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:rayAim(number nX, number nY, number nZ)
+	if(not this) then return nil end
+	local vD = Vector(nX, nY, nZ)
+	vD:Sub(this.mPos); vD:Normalize()
+	vD:Mul(this.mLen); this.mDir:Set(vD)
+	return this
 end
 
 --[[ **************************** CHIP **************************** ]]
