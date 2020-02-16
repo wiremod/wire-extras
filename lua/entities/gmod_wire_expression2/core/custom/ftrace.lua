@@ -2,28 +2,6 @@
  My custom flash tracer tracer type ( Based on wire rangers )
 ****************************************************************************** ]]--
 
-local next          = next
-local type          = type
-local pairs         = pairs
-local error         = error
-local Angle         = Angle
-local Vector        = Vector
-local istable       = istable
-local tostring      = tostring
-local tonumber      = tonumber
-local CreateConVar  = CreateConVar
-local LocalToWorld  = LocalToWorld
-local WorldToLocal  = WorldToLocal
-local bitBor        = bit and bit.bor
-local mathAbs       = math and math.abs
-local mathSqrt      = math and math.sqrt
-local mathClamp     = math and math.Clamp
-local tableEmpty    = table and table.Empty
-local tableRemove   = table and table.remove
-local tableInsert   = table and table.insert
-local utilTraceLine = util and util.TraceLine
-local utilGetSurfacePropName = util and util.GetSurfacePropName
-
 -- Register the type up here before the extension registration so that the ftrace still works
 registerType("ftrace", "xft", nil,
 	nil,
@@ -39,12 +17,15 @@ registerType("ftrace", "xft", nil,
 
 --[[ **************************** CONFIGURATION **************************** ]]
 
-E2Lib.RegisterExtension("ftrace", true, "Lets E2 chips trace ray attachments and check for hits.")
+E2Lib.RegisterExtension("ftrace", true,
+	"Lets E2 chips trace ray attachments and check for hits.",
+	"Creates a dedicated object oriented class that can be customized and extract every aspect of a trace result."
+)
 
 -- Client and server have independent value
-local gnIndependentUsed = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY)
+local gnIndependentUsed = bit.bor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY)
 -- Server tells the client what value to use
-local gnServerControled = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY, FCVAR_REPLICATED)
+local gnServerControled = bit.bor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY, FCVAR_REPLICATED)
 
 local gvTransform = Vector() -- Temporary vector for transformation calculation
 local gaTransform = Angle() -- Temporary angle for transformation calculation
@@ -52,8 +33,6 @@ local gsZeroStr   = "" -- Empty string to use instead of creating one everywhere
 local gsFormHit   = " Hit: [%d]{%s} Entity" -- This stores the hit parameters dump format
 local gsFormDump  = "  [%s] : {%s} > {%s}" -- The format used for dumping SKIP/ONLY interals
 local gsNotAvStr  = "N/A" -- What to print when something is not available
-local gaZeroAng   = Angle() -- Dummy zero angle for transformations
-local gvZeroVec   = Vector() -- Dummy zero vector for transformations
 local gnMaxBeam   = 50000 -- The tracer maximum length just about one cube map
 local gtEmptyVar  = {["#empty"]=true}; gtEmptyVar[gsZeroStr] = true -- Variable being set to empty string
 local gsVarPrefx  = "wire_expression2_ftrace" -- This is used for variable prefix
@@ -88,9 +67,9 @@ end
 
 local function getNorm(tV)
 	local nN = 0; if(not tV) then return nN end
-	if(tonumber(tV)) then return mathAbs(tV) end
+	if(tonumber(tV)) then return math.abs(tV) end
 	for ID = 1, 3 do local nV = tonumber(tV[ID]) or 0
-		nN = nN + nV^2 end; return mathSqrt(nN)
+		nN = nN + nV^2 end; return math.sqrt(nN)
 end
 
 local function logStatus(sMsg, oSelf, nPos, ...)
@@ -162,8 +141,8 @@ local function convOrgUCS(oFTrc, sF, vP, vA)
 	if(not gtConvEnab[sF or gsZeroStr]) then return {0,0,0} end
 	local oO, oE = oFTrc.mPos, (vE or oFTrc.mEnt)
 	if(not isValid(oE)) then return {oO[1], oO[2], oO[3]} end
-	local oV, vN, aN = Vector(oO[1], oO[2], oO[3])
-	vN, aN = gtConvEnab[sF](oV, gaZeroAng, vP, vA); oV:Set(vN)
+	local oV, oA = Vector(oO[1], oO[2], oO[3]), Angle()
+	local vN, aN = gtConvEnab[sF](oV, oA, vP, vA); oV:Set(vN)
 	return {oV[1], oV[2], oV[3]}
 end
 
@@ -215,7 +194,7 @@ local function remHitFilter(oFTrc, sM)
 	if(not oFTrc) then return nil end
 	local tHit = oFTrc.mHit; if(not tHit) then return oFTrc end
 	local ID = tHit.ID[sM]; if(not ID) then return oFTrc end
-	tHit.Size = (tHit.Size - 1); tableRemove(tHit, ID)
+	tHit.Size = (tHit.Size - 1); table.remove(tHit, ID)
 	for IH = 1, tHit.Size do local HM = tHit[IH].CALL
 		tHit.ID[HM] = IH end; tHit.ID[sM] = nil; return oFTrc
 end
@@ -252,7 +231,7 @@ local function trcLocal(oFTrc, eB, vP, vA)
 	trS:Set(oFTrc.mPos); trS:Rotate(eA); trS:Add(eP)
 	trE:Set(oFTrc.mDir); trE:Rotate(eA); trE:Add(trS)
 	-- http://wiki.garrysmod.com/page/util/TraceLine
-	utilTraceLine(oFTrc.mTrI); return oFTrc
+	util.TraceLine(oFTrc.mTrI); return oFTrc
 end
 
 local function trcWorld(oFTrc, eE, vP, vA)
@@ -265,7 +244,7 @@ local function trcWorld(oFTrc, eE, vP, vA)
 	local trS, trE = oFTrc.mTrI.start, oFTrc.mTrI.endpos
 	trS:Set(eP); trE:Set(eA:Forward()); trE:Add(trS)
 	-- http://wiki.garrysmod.com/page/util/TraceLine
-	utilTraceLine(oFTrc.mTrI); return oFTrc
+	util.TraceLine(oFTrc.mTrI); return oFTrc
 end
 
 local function dumpItem(oFTrc, oSelf, sNam, sPos)
@@ -306,11 +285,11 @@ local function newItem(oSelf, vEnt, vPos, vDir, nLen)
 	-- How long the flash tracer length will be. Must be positive
 	oFTrc.mLen = (tonumber(nLen) or 0)
 	oFTrc.mLen = (oFTrc.mLen == 0 and getNorm(vDir) or oFTrc.mLen)
-	oFTrc.mLen = mathClamp(oFTrc.mLen,-gnMaxBeam,gnMaxBeam)
+	oFTrc.mLen = math.Clamp(oFTrc.mLen,-gnMaxBeam,gnMaxBeam)
 	-- Internal failsafe configurations
 	oFTrc.mDir:Normalize() -- Normalize the direction
 	oFTrc.mDir:Mul(oFTrc.mLen) -- Multiply to add in real-time
-	oFTrc.mLen = mathAbs(oFTrc.mLen) -- Length to absolute
+	oFTrc.mLen = math.abs(oFTrc.mLen) -- Length to absolute
 	-- http://wiki.garrysmod.com/page/Structures/TraceResult
 	oFTrc.mTrO = {} -- Trace output parameters
 	-- http://wiki.garrysmod.com/page/Structures/Trace
@@ -492,7 +471,7 @@ end
 __e2setcost(3)
 e2function ftrace ftrace:remEntHitSkip()
 	if(not this) then return nil end
-	tableEmpty(this.mHit.Ent.SKIP); return this
+	table.Empty(this.mHit.Ent.SKIP); return this
 end
 
 __e2setcost(3)
@@ -512,14 +491,14 @@ end
 __e2setcost(3)
 e2function ftrace ftrace:remEntHitOnly()
 	if(not this) then return nil end
-	tableEmpty(this.mHit.Ent.ONLY); return this
+	table.Empty(this.mHit.Ent.ONLY); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:remEntHit()
 	if(not this) then return nil end
-	tableEmpty(this.mHit.Ent.SKIP)
-	tableEmpty(this.mHit.Ent.ONLY); return this
+	table.Empty(this.mHit.Ent.SKIP)
+	table.Empty(this.mHit.Ent.ONLY); return this
 end
 
 --[[ **************************** FILTER **************************** ]]
@@ -779,9 +758,23 @@ e2function vector ftrace:getPosWorld(vector vP, angle vA)
 end
 
 __e2setcost(3)
+e2function ftrace ftrace:setPos(array aO)
+	if(not this) then return nil end
+	this.mPos.x, this.mPos.y, this.mPos.z = aO[1], aO[2], aO[3]
+	return this
+end
+
+__e2setcost(3)
 e2function ftrace ftrace:setPos(vector vO)
 	if(not this) then return nil end
 	this.mPos.x, this.mPos.y, this.mPos.z = vO[1], vO[2], vO[3]
+	return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:setPos(number X, number Y, number Z)
+	if(not this) then return nil end
+	this.mPos.x, this.mPos.y, this.mPos.z = X, Y, Z
 	return this
 end
 
@@ -822,9 +815,25 @@ e2function vector ftrace:getDirWorld(angle vA)
 end
 
 __e2setcost(3)
+e2function ftrace ftrace:setDir(array aD)
+	if(not this) then return nil end
+	this.mDir.x, this.mDir.y, this.mDir.z = aD[1], aD[2], aD[3]
+	this.mDir:Normalize(); this.mDir:Mul(this.mLen)
+	return this
+end
+
+__e2setcost(3)
 e2function ftrace ftrace:setDir(vector vD)
 	if(not this) then return nil end
 	this.mDir.x, this.mDir.y, this.mDir.z = vD[1], vD[2], vD[3]
+	this.mDir:Normalize(); this.mDir:Mul(this.mLen)
+	return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:setDir(number X, number Y, number Z)
+	if(not this) then return nil end
+	this.mDir.x, this.mDir.y, this.mDir.z = X, Y, Z
 	this.mDir:Normalize(); this.mDir:Mul(this.mLen)
 	return this
 end
@@ -838,9 +847,9 @@ end
 __e2setcost(3)
 e2function ftrace ftrace:setLen(number nL)
 	if(not this) then return nil end
-	this.mLen = mathClamp(nL,-gnMaxBeam,gnMaxBeam)
+	this.mLen = math.Clamp(nL,-gnMaxBeam,gnMaxBeam)
 	this.mDir:Normalize(); this.mDir:Mul(this.mLen)
-	this.mLen = mathAbs(this.mLen); return this
+	this.mLen = math.abs(this.mLen); return this
 end
 
 __e2setcost(3)
@@ -1053,7 +1062,7 @@ __e2setcost(3)
 e2function string ftrace:getSurfPropsName()
 	if(not this) then return gsZeroStr end
 	local trV = this.mTrO.SurfaceProps
-	return (trV and utilGetSurfacePropName(trV) or gsZeroStr)
+	return (trV and util.GetSurfacePropName(trV) or gsZeroStr)
 end
 
 __e2setcost(3)

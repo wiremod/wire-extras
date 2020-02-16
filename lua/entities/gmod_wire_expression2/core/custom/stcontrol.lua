@@ -2,21 +2,6 @@
  My custom state LQ-PID control type handling process variables
 ****************************************************************************** ]]--
 
-local type         = type
-local pairs        = pairs
-local error        = error
-local istable      = istable
-local tostring     = tostring
-local tonumber     = tonumber
-local getTime      = CurTime -- Using this as time benchmarking supporting game pause
-local CreateConVar = CreateConVar
-local bitBor       = bit and bit.bor
-local mathAbs      = math and math.abs
-local mathModf     = math and math.modf
-local tableConcat  = table and table.concat
-local tableInsert  = table and table.insert
-local tableRemove  = table and table.remove
-
 -- Register the type up here before the extension registration so that the state control still works
 registerType("stcontrol", "xsc", nil,
 	nil,
@@ -32,12 +17,15 @@ registerType("stcontrol", "xsc", nil,
 
 --[[ **************************** CONFIGURATION **************************** ]]
 
-E2Lib.RegisterExtension("stcontrol", true, "Lets E2 chips have dedicated state control objects")
+E2Lib.RegisterExtension("stcontrol", true,
+	"Lets E2 chips have dedicated state control objects.",
+	"Creates a dedicated object oriented class that is destined to control internal in-game dynamic processes."
+)
 
 -- Client and server have independent value
-local gnIndependentUsed = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY)
+local gnIndependentUsed = bit.bor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY)
 -- Server tells the client what value to use
-local gnServerControled = bitBor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY, FCVAR_REPLICATED)
+local gnServerControled = bit.bor(FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_PRINTABLEONLY, FCVAR_REPLICATED)
 
 local gtComponent = {"P", "I", "D"} -- The names of each term. This is used for indexing and checking
 local gsFormatPID = "(%s%s%s)" -- The general type format for the control power setup
@@ -64,7 +52,7 @@ local function getSign(nV)
 end
 
 local function getValue(kV,eV,pV)
-	return (kV*getSign(eV)*mathAbs(eV)^pV)
+	return (kV*getSign(eV)*math.abs(eV)^pV)
 end
 
 local function logStatus(sMsg, oSelf, nPos, ...)
@@ -104,7 +92,7 @@ local function setGains(oStCon, oSelf, vP, vI, vD, bZ)
 end
 
 local function getCode(nN)
-	local nW, nF = mathModf(nN, 1)
+	local nW, nF = math.modf(nN, 1)
 	if(nN == 1) then return gtMissName[3] end -- [Natural conventional][y=k*x]
 	if(nN ==-1) then return "Rr" end -- [Reciprocal relation][y=1/k*x]
 	if(nN == 0) then return "Sr" end -- [Sign function relay term][y=k*sign(x)]
@@ -134,14 +122,14 @@ local function resState(oStCon, oSelf)
 	oStCon.mErrO, oStCon.mErrN = 0, 0 -- Reset the error
 	oStCon.mvCon, oStCon.meInt, oStCon.meDif = 0, true, true -- Control value and integral enabled
 	oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Term values
-	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Update clock
+	oStCon.mTimN = CurTime(); oStCon.mTimO = oStCon.mTimN; -- Update clock
 	return oStCon
 end
 
 local function getType(oStCon)
 	if(not oStCon) then local mP, mT = gtMissName[1], gtMissName[2]
 		return (gsFormatPID:format(mP,mP,mP).."-"..mT:rep(3))
-	end; return tableConcat(oStCon.mType, "-")
+	end; return table.concat(oStCon.mType, "-")
 end
 
 local function dumpItem(oStCon, oSelf, sNam, sPos)
@@ -156,7 +144,7 @@ local function dumpItem(oStCon, oSelf, sNam, sPos)
 	logStatus("      P: "..tostring(oStCon.mkP), oSelf, nP)
 	logStatus("      I: "..tostring(oStCon.mkI), oSelf, nP)
 	logStatus("      D: "..tostring(oStCon.mkD), oSelf, nP)
-	logStatus(" Powers for terms:", oSelf, nP)
+	logStatus(" Power for terms:", oSelf, nP)
 	logStatus("      P: "..tostring(oStCon.mpP), oSelf, nP)
 	logStatus("      I: "..tostring(oStCon.mpI), oSelf, nP)
 	logStatus("      D: "..tostring(oStCon.mpD), oSelf, nP)
@@ -170,7 +158,7 @@ local function dumpItem(oStCon, oSelf, sNam, sPos)
 	logStatus("      P: "..tostring(oStCon.mvP), oSelf, nP)
 	logStatus("      I: "..tostring(oStCon.mvI), oSelf, nP)
 	logStatus("      D: "..tostring(oStCon.mvD), oSelf, nP)
-	logStatus(" Control enable flags: ["..tostring(oStCon.mbOn).."]", oSelf, nP)
+	logStatus(" Control enable flag: ["..tostring(oStCon.mbOn).."]", oSelf, nP)
 	logStatus("   BCmb: "..tostring(oStCon.mbCmb), oSelf, nP)
 	logStatus("   BInv: "..tostring(oStCon.mbInv), oSelf, nP)
 	logStatus("   EInt: "..tostring(oStCon.meInt), oSelf, nP)
@@ -185,7 +173,7 @@ local function newItem(oSelf, nTo)
 	if(oStCon.mnTo and oStCon.mnTo <= 0) then
 		return logStatus("Delta mismatch ["..tostring(oStCon.mnTo).."]", oSelf, nil, nil) end
 	local sType = gsFormatPID:format(sM, sM, sM) -- Error state values
-	oStCon.mTimN = getTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
+	oStCon.mTimN = CurTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
 	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {sType, gtMissName[2]:rep(3)}
 	oStCon.mvCon, oStCon.mTimB, oStCon.meInt, oStCon.meDif = 0, 0, true, true -- Control value and integral enabled
 	oStCon.mBias, oStCon.mSatD, oStCon.mSatU = 0, nil, nil -- Saturation limits and settings
@@ -195,6 +183,38 @@ local function newItem(oSelf, nTo)
 	oStCon.mbCmb, oStCon.mbInv, oStCon.mbOn, oStCon.mbMan = false, false, false, false
 	oStCon.mvMan, oStCon.mSet = 0, eChip -- Configure manual mode and store indexing
 	return oStCon -- Return the created controller object
+end
+
+--[[
+ * Calculates the control signal and updates the internal controller state
+ * oStCon > Pointer to internal state controller object type
+ * oSelf  > Pinter to the current expression chip structure
+ * nRef   >
+ * tuning option for a PID controller.
+]]
+local function conProcess(oStCon, oSelf, nRef, nOut)
+	if(oStCon.mbOn) then
+		if(oStCon.mbMan) then oStCon.mvCon = (oStCon.mvMan + oStCon.mBias); return oStCon end
+		oStCon.mTimO = oStCon.mTimN; oStCon.mTimN = CurTime()
+		oStCon.mErrO = oStCon.mErrN; oStCon.mErrN = (oStCon.mbInv and (nOut-nRef) or (nRef-nOut))
+		local timDt = (oStCon.mnTo and oStCon.mnTo or (oStCon.mTimN - oStCon.mTimO))
+		if(oStCon.mkP > 0) then -- Does not get affected by the time and just multiplies
+			oStCon.mvP = getValue(oStCon.mkP, oStCon.mErrN, oStCon.mpP) end
+		if((oStCon.mkI > 0) and (oStCon.mErrN ~= 0) and oStCon.meInt and (timDt > 0)) then -- I-Term
+			local arInt = (oStCon.mErrN + oStCon.mErrO) * timDt -- Integral error function area
+			oStCon.mvI = getValue(oStCon.mkI * timDt, arInt, oStCon.mpI) + oStCon.mvI end
+		if((oStCon.mkD > 0) and (oStCon.mErrN ~= oStCon.mErrO) and oStCon.meDif and (timDt > 0)) then -- D-Term
+			local arDif = (oStCon.mErrN - oStCon.mErrO) / timDt -- Error derivative dE/dT
+			oStCon.mvD = getValue(oStCon.mkD * timDt, arDif, oStCon.mpD) else oStCon.mvD = 0 end
+		oStCon.mvCon = oStCon.mvP + oStCon.mvI + oStCon.mvD -- Calculate the control signal
+		if(oStCon.mSatD and oStCon.mvCon < oStCon.mSatD) then -- Saturate lower limit
+			oStCon.mvCon, oStCon.meInt = oStCon.mSatD, false -- Integral is disabled
+		elseif(oStCon.mSatU and oStCon.mvCon > oStCon.mSatU) then -- Saturate upper limit
+			oStCon.mvCon, oStCon.meInt = oStCon.mSatU, false -- Integral is disabled
+		else oStCon.meInt = true end -- Saturation disables the integrator
+		oStCon.mvCon = (oStCon.mvCon + oStCon.mBias) -- Apply the saturated signal bias
+		oStCon.mTimB = (CurTime() - oStCon.mTimN) -- Benchmark the process
+	else return resState(oStCon, oSelf) end; return oStCon
 end
 
 --[[
@@ -983,30 +1003,9 @@ e2function stcontrol stcontrol:resState()
 end
 
 __e2setcost(20)
-e2function stcontrol stcontrol:setState(number nR, number nY)
+e2function stcontrol stcontrol:setState(number nR, number nO)
 	if(not this) then return nil end
-	if(this.mbOn) then
-		if(this.mbMan) then this.mvCon = (this.mvMan + this.mBias); return this end
-		this.mTimO = this.mTimN; this.mTimN = getTime()
-		this.mErrO = this.mErrN; this.mErrN = (this.mbInv and (nY-nR) or (nR-nY))
-		local timDt = (this.mnTo and this.mnTo or (this.mTimN - this.mTimO))
-		if(this.mkP > 0) then -- This does not get affected by the time and just multiplies
-			this.mvP = getValue(this.mkP, this.mErrN, this.mpP) end
-		if((this.mkI > 0) and (this.mErrN ~= 0) and this.meInt and (timDt > 0)) then -- I-Term
-			local arInt = (this.mErrN + this.mErrO) * timDt -- Integral error function area
-			this.mvI = getValue(this.mkI * timDt, arInt, this.mpI) + this.mvI end
-		if((this.mkD > 0) and (this.mErrN ~= this.mErrO) and this.meDif and (timDt > 0)) then -- D-Term
-			local arDif = (this.mErrN - this.mErrO) / timDt -- Derivative dY/dT
-			this.mvD = getValue(this.mkD * timDt, arDif, this.mpD) else this.mvD = 0 end
-		this.mvCon = this.mvP + this.mvI + this.mvD -- Calculate the control signal
-		if(this.mSatD and this.mvCon < this.mSatD) then -- Saturate lower limit
-			this.mvCon, this.meInt = this.mSatD, false -- Integral is disabled
-		elseif(this.mSatU and this.mvCon > this.mSatU) then -- Saturate upper limit
-			this.mvCon, this.meInt = this.mSatU, false -- Integral is disabled
-		else this.meInt = true end -- Saturation disables the integrator
-		this.mvCon = (this.mvCon + this.mBias) -- Apply the saturated signal bias
-		this.mTimB = (getTime() - this.mTimN) -- Benchmark the process
-	else return resState(this, self) end; return this
+	return conProcess(this, self, nR, nO)
 end
 
 __e2setcost(7)
