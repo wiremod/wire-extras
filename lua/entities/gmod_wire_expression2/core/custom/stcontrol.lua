@@ -316,7 +316,7 @@ local function tuneChienHronesReswick(oStCon, nK, nT, nL, bM, bR)
 	if(not oStCon) then return nil end; local oChip = oStCon.mChip
 	if(nK <= 0 or nT <= 0 or nL <= 0) then return oStCon end
 	local mA, sT = (nK * nL / nT), oStCon.mType[2]
-	if(bR) then -- Load rejection
+	if(bR) then -- Load disturbance rejection
 		if(bM) then -- Overshoot 20%
 			if(sT == "P") then return setGains(oStCon, 0.7/mA, 0, 0, true)
 			elseif(sT == "PI") then return setGains(oStCon, (0.7/mA), (1/(2.3*nT)), 0, true)
