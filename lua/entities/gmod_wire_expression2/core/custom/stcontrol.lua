@@ -136,7 +136,7 @@ local function dumpItem(oStCon, sNam, sPos)
 	local sP = tostring(sPos or gsDefPrint)
 	local nP, oChip = gtPrintName[sP], oStCon.mChip -- Print location setup
 	if(not nP) then return oStCon end
-	logStatus("Controller ["..tostring(sNam).."]["..tostring(oStCon.mnTo or gtMissName[2]).."]["..getType(oStCon).."]["..tostring(oStCon.mTimN).."]:", oChip, nP)
+	logStatus("Controller ["..tostring(sNam).."]["..tostring(oStCon.mnTo or gtMissName[2]).."]["..getType(oStCon).."]:", oChip, nP)
 	logStatus(" Manual mode enabled: ["..tostring(oStCon.mbMan).."]", oChip, nP)
 	logStatus("  Value: "..tostring(oStCon.mvMan), oChip, nP)
 	logStatus("   Bias: "..tostring(oStCon.mBias), oChip, nP)
