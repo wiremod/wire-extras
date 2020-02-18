@@ -137,7 +137,7 @@ local function dumpItem(oStCon, sNam, sPos)
 	local nP, oChip = gtPrintName[sP], oStCon.mChip -- Print location setup
 	if(not nP) then return oStCon end
 	logStatus("Controller ["..tostring(sNam).."]["..tostring(oStCon.mnTo or gtMissName[2]).."]["..getType(oStCon).."]:", oChip, nP)
-	logStatus(" Manual mode enabled: ["..tostring(oStCon.mbMan).."]", oChip, nP)
+	logStatus(" Manual mode enabled: "..tostring(oStCon.mbMan), oChip, nP)
 	logStatus("  Value: "..tostring(oStCon.mvMan), oChip, nP)
 	logStatus("   Bias: "..tostring(oStCon.mBias), oChip, nP)
 	logStatus(" Gains for terms:", oChip, nP)
@@ -146,7 +146,7 @@ local function dumpItem(oStCon, sNam, sPos)
 	logStatus(" Power for terms:", oChip, nP)
 	for iD = 1, #gtComponent do local sC = gtComponent[iD]
 		logStatus("      "..sC..": "..tostring(oStCon["mp"..sC]), oChip, nP) end
-	logStatus(" Control state value: ["..tostring(oStCon.mvCon).."]", oChip, nP)
+	logStatus(" Control state value: "..tostring(oStCon.mvCon), oChip, nP)
 	for iD = 1, #gtComponent do local sC = gtComponent[iD]
 		logStatus("      "..sC..": "..tostring(oStCon["mv"..sC]), oChip, nP) end
 	logStatus(" Saturation limits:", oChip, nP)
@@ -158,7 +158,7 @@ local function dumpItem(oStCon, sNam, sPos)
 	logStatus(" Error memory state:", oChip, nP)
 	logStatus("    Now: "..tostring(oStCon.mErrN), oChip, nP)
 	logStatus("   Past: "..tostring(oStCon.mErrO), oChip, nP)
-	logStatus(" Control enable flag: ["..tostring(oStCon.mbOn).."]", oChip, nP)
+	logStatus(" Control enable flag: "..tostring(oStCon.mbOn), oChip, nP)
 	logStatus("   BCmb: "..tostring(oStCon.mbCmb), oChip, nP)
 	logStatus("   BInv: "..tostring(oStCon.mbInv), oChip, nP)
 	logStatus("   EInt: "..tostring(oStCon.meInt), oChip, nP)
