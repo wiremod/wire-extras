@@ -1122,17 +1122,17 @@ e2function stcontrol stcontrol:tuneProcAH(number nK, number nT, number nL)
 end
 
 __e2setcost(7)
-e2function stcontrol stcontrol:tuneISE(number nK, number nT, number nL)
+e2function stcontrol stcontrol:tuneProcISE(number nK, number nT, number nL)
 	return tuneIE(this, nK, nT, nL, "ISE")
 end
 
 __e2setcost(7)
-e2function stcontrol stcontrol:tuneIAE(number nK, number nT, number nL)
+e2function stcontrol stcontrol:tuneProcIAE(number nK, number nT, number nL)
 	return tuneIE(this, nK, nT, nL, "IAE")
 end
 
 __e2setcost(7)
-e2function stcontrol stcontrol:tuneITAE(number nK, number nT, number nL)
+e2function stcontrol stcontrol:tuneProcITAE(number nK, number nT, number nL)
 	return tuneIE(this, nK, nT, nL, "ITAE")
 end
 
