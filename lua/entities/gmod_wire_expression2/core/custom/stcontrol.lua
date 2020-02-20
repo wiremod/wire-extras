@@ -245,13 +245,14 @@ end
 						Plant time constant when the mathematical model is known
  * uL     > Plant time delay when the mathematical model is known
  * sM     > Method especially for PID controller setup. Default is `classic`
- * nT     > Type of the actual tuning for plant mathematical model present
+ * vT     > Type of the actual tuning for plant mathematical model present
 ]]
-local function tuneZieglerNichols(oStCon, uK, uT, uL, sM, nT)
+local function tuneZieglerNichols(oStCon, uK, uT, uL, sM, vT)
 	if(not oStCon) then return nil end; local oChip = oStCon.mChip
 	local sM, sT = tostring(sM or "classic"):lower(), oStCon.mType[2]
 	local uK, uT = (tonumber(uK) or 0), (tonumber(uT) or 0)
-	if(nT) then if(uT <= 0 or uL <= 0) then return oStCon end
+	if(vT) then if(uT <= 0 or uL <= 0) then return oStCon end
+		local nT = (tonumber(vT) or 0) -- Try converting it to number
 		if(nT == 1) then -- Do we have a mathematical model present
 			if(sT == "P") then return setGains(oStCon, (uT/uL), 0, 0, true)
 			elseif(sT == "PI") then return setGains(oStCon, (0.9*(uT/uL)), (0.3/uL), 0, true)
@@ -264,7 +265,7 @@ local function tuneZieglerNichols(oStCon, uK, uT, uL, sM, nT)
 			elseif(sT == "PD") then return setGains(oStCon, (0.84/mA), 0, (0.35/uT), true)
 			elseif(sT == "PID") then return setGains(oStCon, (0.95/mA), 1/(1.4*uT), (0.47*uT))
 			else return logStatus("Controller mismatch <"..sT..">", oChip, nil, oStCon) end
-		else return logStatus("Method mismatch <"..sM..">", oChip, nil, oStCon) end
+		else return logStatus("Method mismatch <"..tostring(vT)..">"..nT, oChip, nil, oStCon) end
 	else if(uK <= 0 or uT <= 0) then return oStCon end
 		if(sT == "P") then return setGains(oStCon, (0.5*uK), 0, 0, true)
 		elseif(sT == "PI") then return setGains(oStCon, (0.45*uK), (1.2/uT), 0, true)
