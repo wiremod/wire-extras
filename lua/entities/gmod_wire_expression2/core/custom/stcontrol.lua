@@ -245,18 +245,26 @@ end
 						Plant time constant when the mathematical model is known
  * uL     > Plant time delay when the mathematical model is known
  * sM     > Method especially for PID controller setup. Default is `classic`
- * bP     > Flag for and actual plant mathematical model present
+ * nT     > Type of the actual tuning for plant mathematical model present
 ]]
-local function tuneZieglerNichols(oStCon, uK, uT, uL, sM, bP)
+local function tuneZieglerNichols(oStCon, uK, uT, uL, sM, nT)
 	if(not oStCon) then return nil end; local oChip = oStCon.mChip
 	local sM, sT = tostring(sM or "classic"):lower(), oStCon.mType[2]
 	local uK, uT = (tonumber(uK) or 0), (tonumber(uT) or 0)
-	if(bP) then if(uT <= 0 or uL <= 0) then return oStCon end
-		if(sT == "P") then return setGains(oStCon, (uT/uL), 0, 0, true)
-		elseif(sT == "PI") then return setGains(oStCon, (0.9*(uT/uL)), (0.3/uL), 0, true)
-		elseif(sT == "PD") then return setGains(oStCon, (1.1*(uT/uL)), 0, (0.8/uL), true)
-		elseif(sT == "PID") then return setGains(oStCon, (1.2*(uT/uL)), 1/(2*uL), 2/uL)
-		else return logStatus("Type mismatch <"..sT..">", oChip, nil, oStCon) end
+	if(nT) then if(uT <= 0 or uL <= 0) then return oStCon end
+		if(nT == 1) then -- Do we have a mathematical model present
+			if(sT == "P") then return setGains(oStCon, (uT/uL), 0, 0, true)
+			elseif(sT == "PI") then return setGains(oStCon, (0.9*(uT/uL)), (0.3/uL), 0, true)
+			elseif(sT == "PD") then return setGains(oStCon, (1.1*(uT/uL)), 0, (0.8/uL), true)
+			elseif(sT == "PID") then return setGains(oStCon, (1.2*(uT/uL)), 1/(2*uL), 2/uL)
+			else return logStatus("Controller mismatch <"..sT..">", oChip, nil, oStCon) end
+		elseif(nT == 2) then local mA = (nK * nL / nT)
+			if(sT == "P") then return setGains(oStCon, (0.7/mA), 0, 0, true)
+			elseif(sT == "PI") then return setGains(oStCon, (0.6/mA), (1/uT), 0, true)
+			elseif(sT == "PD") then return setGains(oStCon, (0.84/mA), 0, (0.35/uT), true)
+			elseif(sT == "PID") then return setGains(oStCon, (0.95/mA), 1/(1.4*uT), (0.47*uT))
+			else return logStatus("Controller mismatch <"..sT..">", oChip, nil, oStCon) end
+		else return logStatus("Method mismatch <"..sM..">", oChip, nil, oStCon) end
 	else if(uK <= 0 or uT <= 0) then return oStCon end
 		if(sT == "P") then return setGains(oStCon, (0.5*uK), 0, 0, true)
 		elseif(sT == "PI") then return setGains(oStCon, (0.45*uK), (1.2/uT), 0, true)
@@ -267,7 +275,7 @@ local function tuneZieglerNichols(oStCon, uK, uT, uL, sM, bP)
 			elseif(sM == "sovers") then return setGains(oStCon, (uK/3), (2/uT), (uT/3))
 			elseif(sM == "novers") then return setGains(oStCon, (uK/5), (2/uT), (uT/3))
 			else return logStatus("Method mismatch <"..sM..">", oChip, nil, oStCon) end
-		else return logStatus("Type mismatch <"..sT..">", oChip, nil, oStCon) end
+		else return logStatus("Controller mismatch <"..sT..">", oChip, nil, oStCon) end
 	end; return oStCon
 end
 
@@ -280,7 +288,7 @@ end
 ]]
 local function tuneChoenCoon(oStCon, nK, nT, nL)
 	if(not oStCon) then return nil end; local oChip = oStCon.mChip
-	if(nK <= 0 or nT <= 0 or nL <= 0) then return oStCon end
+	if(nT <= 0 or nL <= 0) then return oStCon end
 	local sT, mT = oStCon.mType[2], (nL/nT)
 	if(sT == "P") then
 		local kP = (1/(nK*mT))*(1+(1/3)*mT)
@@ -356,7 +364,7 @@ end
 ]]
 local function tuneAstromHagglund(oStCon, nK, nT, nL)
 	if(not oStCon) then return nil end
-	if(nK <= 0 or nT <= 0 or nL <= 0) then return oStCon end
+	if(nT <= 0 or nL <= 0) then return oStCon end
 	local kP = (1/nK)*(0.2+0.45*(nT/nL))
 	local kI = 1/(((0.4*nL+0.8*nT)/(nL+0.1*nT))*nL)
 	local kD = (0.5*nL*nT)/(0.3*nL+nT)
@@ -398,6 +406,16 @@ local function tuneIE(oStCon, nK, nT, nL, sM)
 	local kI = 1/((nT/C)*(nL/nT)^D)
 	local kD = nT*E*(nL/nT)^F
 	return setGains(oStCon, kP, kI, kD)
+end
+
+local function tuneTyreusLuyben(uK, uT)
+	if(not oStCon) then return nil end
+	if(nT <= 0 or nL <= 0) then return oStCon end; local sT = oStCon.mType[2]
+	if(sT == "P") then return setGains(oStCon, (uK/2.8), 0, 0, true)
+	elseif(sT == "PI") then return setGains(oStCon, (uK/3.2), 1/(2.2*uT), 0, true)
+	elseif(sT == "PD") then return setGains(oStCon, (uK/2.8), 0, (uT/5.2), true)
+	elseif(sT == "PID") then return setGains(oStCon, (uK/2.2), 1/(2.2*uT), (uT/6.3), true)
+	else return logStatus("Type mismatch <"..sT..">", oChip, nil, oStCon) end
 end
 
 --[[ **************************** CONTROLLER **************************** ]]
@@ -1059,17 +1077,17 @@ end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:tuneAutoZN(number uK, number uT)
-	return tuneZieglerNichols(this, uK, uT, nil, nil, false)
+	return tuneZieglerNichols(this, uK, uT)
 end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:tuneAutoZN(number uK, number uT, string sM)
-	return tuneZieglerNichols(this, uK, uT, nil, sM, false)
+	return tuneZieglerNichols(this, uK, uT, nil, sM)
 end
 
 __e2setcost(7)
-e2function stcontrol stcontrol:tuneProcZN(number uK, number uT, number uL)
-	return tuneZieglerNichols(this, uK, uT, uL, nil, true)
+e2function stcontrol stcontrol:tuneProcZN(number uK, number uT, number uL, number nM)
+	return tuneZieglerNichols(this, uK, uT, uL, nil, nM)
 end
 
 __e2setcost(7)
@@ -1098,7 +1116,7 @@ e2function stcontrol stcontrol:tuneOverCHRLR(number nK, number nT, number nL)
 end
 
 __e2setcost(7)
-e2function stcontrol stcontrol:tuneAH(number nK, number nT, number nL)
+e2function stcontrol stcontrol:tuneProcAH(number nK, number nT, number nL)
 	return tuneAstromHagglund(this, nK, nT, nL)
 end
 
@@ -1115,6 +1133,11 @@ end
 __e2setcost(7)
 e2function stcontrol stcontrol:tuneITAE(number nK, number nT, number nL)
 	return tuneIE(this, nK, nT, nL, "ITAE")
+end
+
+__e2setcost(7)
+e2function stcontrol stcontrol:tuneAutoTL(number uK, number uT)
+	return tuneTyreusLuyben(this, uK, uT)
 end
 
 __e2setcost(15)
