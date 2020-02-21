@@ -133,6 +133,7 @@ local function getType(oStCon)
 end
 
 local function dumpItem(oStCon, sNam, sPos)
+	if(not oStCon) then return nil end
 	local sP = tostring(sPos or gsDefPrint)
 	local nP, oChip = gtPrintName[sP], oStCon.mChip -- Print location setup
 	if(not nP) then return oStCon end
@@ -167,25 +168,6 @@ local function dumpItem(oStCon, sNam, sPos)
 	return oStCon -- The dump method
 end
 
-local function newItem(oChip, nTo)
-	local eChip = oChip.entity; if(not isValid(eChip)) then
-		return logStatus("Entity invalid", oChip, nil, nil) end
-	local oStCon, sM = {}, gtMissName[3]; oStCon.mnTo = tonumber(nTo) -- Place to store the object
-	if(oStCon.mnTo and oStCon.mnTo <= 0) then
-		return logStatus("Delta mismatch ["..tostring(oStCon.mnTo).."]", oChip, nil, nil) end
-	local sType = gsFormatPID:format(sM, sM, sM) -- Error state values
-	oStCon.mTimN = CurTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
-	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {sType, gtMissName[2]:rep(3)}
-	oStCon.mvCon, oStCon.mTimB, oStCon.meInt, oStCon.meDif = 0, 0, true, true -- Control value and integral enabled
-	oStCon.mBias, oStCon.mSatD, oStCon.mSatU = 0, nil, nil -- Saturation limits and settings
-	oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Term values
-	oStCon.mkP, oStCon.mkI, oStCon.mkD = 0, 0, 0 -- P, I and D term gains
-	oStCon.mpP, oStCon.mpI, oStCon.mpD = 1, 1, 1 -- Raise the error to power of that much
-	oStCon.mbCmb, oStCon.mbInv, oStCon.mbOn, oStCon.mbMan = false, false, false, false
-	oStCon.mvMan, oStCon.mChip, oStCon.meZcx = 0, oChip, false -- Configure manual mode and store indexing
-	return oStCon -- Return the created controller object
-end
-
 --[[
  * Calculates the control signal and updates the internal controller state
  * oStCon > Pointer to internal state controller object type
@@ -193,6 +175,7 @@ end
  * nOut   > The dynamic system current output value
 ]]
 local function conProcess(oStCon, nRef, nOut)
+	if(not oStCon) then return nil end
 	if(oStCon.mbOn) then
 		if(oStCon.mbMan) then
 			oStCon.mvCon = (oStCon.mvMan + oStCon.mBias); return oStCon
@@ -417,6 +400,25 @@ local function tuneTyreusLuyben(uK, uT)
 	elseif(sT == "PD") then return setGains(oStCon, (uK/2.8), 0, (uT/5.2), true)
 	elseif(sT == "PID") then return setGains(oStCon, (uK/2.2), 1/(2.2*uT), (uT/6.3), true)
 	else return logStatus("Type mismatch <"..sT..">", oChip, nil, oStCon) end
+end
+
+local function newItem(oChip, nTo)
+	local eChip = oChip.entity; if(not isValid(eChip)) then
+		return logStatus("Entity invalid", oChip, nil, nil) end
+	local oStCon, sM = {}, gtMissName[3]; oStCon.mnTo = tonumber(nTo) -- Place to store the object
+	if(oStCon.mnTo and oStCon.mnTo <= 0) then
+		return logStatus("Delta mismatch ["..tostring(oStCon.mnTo).."]", oChip, nil, nil) end
+	local sType = gsFormatPID:format(sM, sM, sM) -- Error state values
+	oStCon.mTimN = CurTime(); oStCon.mTimO = oStCon.mTimN; -- Reset clock
+	oStCon.mErrO, oStCon.mErrN, oStCon.mType = 0, 0, {sType, gtMissName[2]:rep(3)}
+	oStCon.mvCon, oStCon.mTimB, oStCon.meInt, oStCon.meDif = 0, 0, true, true -- Control value and integral enabled
+	oStCon.mBias, oStCon.mSatD, oStCon.mSatU = 0, nil, nil -- Saturation limits and settings
+	oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Term values
+	oStCon.mkP, oStCon.mkI, oStCon.mkD = 0, 0, 0 -- P, I and D term gains
+	oStCon.mpP, oStCon.mpI, oStCon.mpD = 1, 1, 1 -- Raise the error to power of that much
+	oStCon.mbCmb, oStCon.mbInv, oStCon.mbOn, oStCon.mbMan = false, false, false, false
+	oStCon.mvMan, oStCon.mChip, oStCon.meZcx = 0, oChip, false -- Configure manual mode and store indexing
+	return oStCon -- Return the created controller object
 end
 
 --[[ **************************** CONTROLLER **************************** ]]
