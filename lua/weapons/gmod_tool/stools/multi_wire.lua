@@ -4,25 +4,25 @@ Most of this code was originally from the normal wire tool, I just modified it s
 -Incompatible
 ]]
 
-TOOL.Category   = "Wire Extras/Obsolete"
-TOOL.Name       = "Multi Wire"
-TOOL.Command    = nil
-TOOL.ConfigName = ""
-TOOL.Tab        = "Wire"
+TOOL.Category		= "Wire Extras/Obsolete"
+TOOL.Name			= "Multi Wire"
+TOOL.Command		= nil
+TOOL.ConfigName		= ""
+TOOL.Tab			= "Wire"
 
 if ( CLIENT ) then
-	language.Add( "Tool.multi_wire.name", "Multi-Wiring Tool" )
-	language.Add( "Tool.multi_wire.desc", "Used to connect wirable props." )
+    language.Add( "Tool.multi_wire.name", "Multi-Wiring Tool" )
+    language.Add( "Tool.multi_wire.desc", "Used to connect wirable props." )
 	language.Add( "Tool_wire_desc", "Used to connect wirable props." )
-	language.Add( "Tool.multi_wire.0", "Primary: Attach to selected input.\nSecondary: Next input.\nReload: Switch to Output" )
-	language.Add( "Tool.multi_wire.1", "Primary: Attach to output.\nSecondary: Attach but continue.\nReload: Cancel." )
-	language.Add( "Tool.multi_wire.2", "Primary: Confirm attach to output.\nSecondary: Next output.\nReload: Cancel." )
-	language.Add( "Multi_WireTool_addlength", "Add Length:" )
-	language.Add( "Multi_WireTool_width", "Width:" )
-	language.Add( "Multi_WireTool_rigid", "Rigid:" )
-	language.Add( "Multi_WireTool_breakable", "Breakable:" )
-	language.Add( "Multi_WireTool_material", "Material:" )
-	language.Add( "Multi_WireTool_colour", "Material:" )
+    language.Add( "Tool.multi_wire.0", "Primary: Attach to selected input.\nSecondary: Next input.\nReload: Switch to Output" )
+    language.Add( "Tool.multi_wire.1", "Primary: Attach to output.\nSecondary: Attach but continue.\nReload: Cancel." )
+    language.Add( "Tool.multi_wire.2", "Primary: Confirm attach to output.\nSecondary: Next output.\nReload: Cancel." )
+    language.Add( "Multi_WireTool_addlength", "Add Length:" )
+    language.Add( "Multi_WireTool_width", "Width:" )
+    language.Add( "Multi_WireTool_rigid", "Rigid:" )
+    language.Add( "Multi_WireTool_breakable", "Breakable:" )
+    language.Add( "Multi_WireTool_material", "Material:" )
+    language.Add( "Multi_WireTool_colour", "Material:" )
 	language.Add( "undone_multi_wire", "Undone Wire" )
 end
 
@@ -44,6 +44,8 @@ TOOL.Outputs = nil
 TOOL.enttbl = {}
 TOOL.inputtbl = {}
 
+			
+
 util.PrecacheSound("weapons/pistol/pistol_empty.wav")
 
 cleanup.Register( "wireconstraints" )
@@ -55,7 +57,7 @@ function TOOL:LeftClick( trace )
 	--if ( SERVER && !util.IsValidPhysicsObject( trace.Entity, trace.PhysicsBone ) ) then return false end  -- You don't need this for wiring! -Grocel
 
 	local stage = self:GetStage()
-
+	
 	if (stage == 0) then
 		if (CLIENT) then
 		    if (self:GetWeapon():GetNetworkedString("WireCurrentInput")) then
@@ -71,17 +73,17 @@ function TOOL:LeftClick( trace )
 			wents:SetColor(Color(0,255,0,150))
 			return true
 		end
-
+		
 		return
 	elseif (stage == 1) then
 		if (CLIENT) then
 			self:SetStage(0)
 			return true
 		end
-
+		
 		if (!WireLib.HasPorts(trace.Entity) or !trace.Entity.Outputs) then
 			self:SetStage(0)
-
+		
 			Wire_Link_Cancel(self:GetOwner():UniqueID())
 
 			self:GetOwner():SendLua( "GAMEMODE:AddNotify('Wire source invalid!', NOTIFY_GENERIC, 7);" )
@@ -89,12 +91,12 @@ function TOOL:LeftClick( trace )
 			self.enttbl = {}
 			return
 		end
-
+		
 		self.Outputs = {}
 		self.OutputsDesc = {}
 		self.OutputsType = {}
 		for key,v in pairs(trace.Entity.Outputs) do
-			if v.Num then
+			if v.Num then 
 				self.Outputs[v.Num] = key
 				if (v.Desc) then
 					self.OutputsDesc[key] = v.Desc
@@ -114,8 +116,8 @@ function TOOL:LeftClick( trace )
 				self.CurrentOutput = self.Outputs[1] //oname
 				self.OutputEnt = trace.Entity
 				self.OutputPos = trace.Entity:WorldToLocal(trace.HitPos)
-				//self:GetWeapon():SetNWString("WireCurrentInput", "Output:"..self.CurrentOutput)
-
+				//self:GetWeapon():SetNetworkedString("WireCurrentInput", "Output:"..self.CurrentOutput)
+				
 				local txt = "Output: "..self.CurrentOutput
 				if (self.OutputsDesc) and (self.OutputsDesc[self.CurrentOutput]) then
 					txt = txt.." ("..self.OutputsDesc[self.CurrentOutput]..")"
@@ -124,15 +126,15 @@ function TOOL:LeftClick( trace )
 				and (self.OutputsType[self.CurrentOutput] != "NORMAL") then
 					txt = txt.." ["..self.OutputsType[self.CurrentOutput].."]"
 				end
-				self:GetWeapon():SetNWString("WireCurrentInput", txt)
-
+				self:GetWeapon():SetNetworkedString("WireCurrentInput", txt)
+		        
 				self:SetStage(2)
 		        return true
 		    end
 
 		    oname = k
 		end
-
+		
 		local material	= self:GetClientInfo("material")
 		local width		= self:GetClientNumber("width")
 		local color     = Color(self:GetClientNumber("color_r"), self:GetClientNumber("color_g"), self:GetClientNumber("color_b"))
@@ -150,17 +152,17 @@ function TOOL:LeftClick( trace )
 		self.enttbl = {}
 		self:SelectComponent(nil)
 		self:SetStage(0)
-
+		
 	else
 		if (CLIENT) then
 			self:SetStage(0)
 			return true
 		end
-
+		
 		local material	= self:GetClientInfo("material")
 		local width		= self:GetClientNumber("width")
 		local color     = Color(self:GetClientNumber("color_r"), self:GetClientNumber("color_g"), self:GetClientNumber("color_b"))
-
+		
 		for k,v in pairs(self.enttbl) do
 			if (IsValid(v)) then
 				Wire_Link_Start(self:GetOwner():UniqueID(), v, v:WorldToLocal(v:GetPos()), self.inputtbl[k], material, color, width)
@@ -169,7 +171,7 @@ function TOOL:LeftClick( trace )
 				v.OldColor = nil
 			end
 		end
-		self:GetWeapon():SetNWString("WireCurrentInput", "")
+		self:GetWeapon():SetNetworkedString("WireCurrentInput", "")
 		self.CurrentOutput = nil
 		self.OutputEnt = nil
 		self.OutputPos = nil
@@ -208,20 +210,20 @@ function TOOL:RightClick( trace )
 		end
 		if (iNextInput) then
 		    self:GetOwner():EmitSound("weapons/pistol/pistol_empty.wav")
-
+			
 		    if (iNextInput > table.getn(self.Inputs)) then iNextInput = 1 end
-
+			
 		    self.CurrentInput = self.Inputs[iNextInput]
 			if (self.CurrentInput) then self.LastValidInput = self.CurrentInput end
-
+			
 			/*if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) and (self.CurrentInput)
 			  and (self.CurrentComponent.Inputs) and (self.CurrentComponent.Inputs[self.CurrentInput])
 			  and (self.CurrentComponent.Inputs[self.CurrentInput].Src) then
-		    	self:GetWeapon():SetNWString("WireCurrentInput", "%"..(self.CurrentInput or ""))
+		    	self:GetWeapon():SetNetworkedString("WireCurrentInput", "%"..(self.CurrentInput or ""))
 			else
-		    	self:GetWeapon():SetNWString("WireCurrentInput", self.CurrentInput or "")
+		    	self:GetWeapon():SetNetworkedString("WireCurrentInput", self.CurrentInput or "")
 			end*/
-
+			
 			local txt = ""
 			if (IsValid(self.CurrentComponent)) and (WireLib.HasPorts(self.CurrentComponent)) and (self.CurrentInput)
 			  and (self.CurrentComponent.Inputs) and (self.CurrentComponent.Inputs[self.CurrentInput])
@@ -237,11 +239,11 @@ function TOOL:RightClick( trace )
 			and (self.InputsType[self.CurrentInput] != "NORMAL") then
 				txt = txt.." ["..self.InputsType[self.CurrentInput].."]"
 			end
-			self:GetWeapon():SetNWString("WireCurrentInput", txt)
-
-
+			self:GetWeapon():SetNetworkedString("WireCurrentInput", txt)
+			
+			
 			if (IsValid(self.CurrentComponent)) then
-			    self.CurrentComponent:SetNWString("BlinkWire", self.CurrentInput)
+			    self.CurrentComponent:SetNetworkedBeamString("BlinkWire", self.CurrentInput)
 			end
 		end
 	elseif (self.Outputs) then
@@ -251,14 +253,14 @@ function TOOL:RightClick( trace )
 		for k,v in pairs(self.Outputs) do
 		    if (v == self.CurrentOutput) then iNextOutput = k+1 end
 		end
-
+		
 		if (iNextOutput) then
 		    self:GetOwner():EmitSound("weapons/pistol/pistol_empty.wav")
 
 		    if (iNextOutput > table.getn(self.Outputs)) then iNextOutput = 1 end
-
+		    
             self.CurrentOutput = self.Outputs[iNextOutput]
-
+			
 			local txt = "Output: "..self.CurrentOutput
 			if (self.OutputsDesc) and (self.OutputsDesc[self.CurrentOutput]) then
 				txt = txt.." ("..self.OutputsDesc[self.CurrentOutput]..")"
@@ -267,7 +269,7 @@ function TOOL:RightClick( trace )
 			and (self.OutputsType[self.CurrentOutput] != "NORMAL") then
 				txt = txt.." ["..self.OutputsType[self.CurrentOutput].."]"
 			end
-			self:GetWeapon():SetNWString("WireCurrentInput", txt)
+			self:GetWeapon():SetNetworkedString("WireCurrentInput", txt)
 		end
 	end
 end
@@ -285,8 +287,8 @@ function TOOL:Reload(trace)
 				v.OldColor = nil
 			end
 		end
-
-		self:GetWeapon():SetNWString("WireCurrentInput", "")
+		
+		self:GetWeapon():SetNetworkedString("WireCurrentInput", "")
 		self.CurrentOutput = nil
 		self.OutputEnt = nil
 		self.OutputPos = nil
@@ -296,7 +298,7 @@ function TOOL:Reload(trace)
 		self:SelectComponent(nil)
 		self:SetStage(0)
 	end
-
+	
 	return true
 end
 
@@ -307,7 +309,7 @@ function TOOL:Holster()
 			v.OldColor = nil
 		end
 	end
-	self:GetWeapon():SetNWString("WireCurrentInput", "")
+	self:GetWeapon():SetNetworkedString("WireCurrentInput", "")
 	self.CurrentOutput = nil
 	self.OutputEnt = nil
 	self.OutputPos = nil
@@ -331,7 +333,7 @@ if (CLIENT) then
 			end
 		end
 	end
-
+	
 end
 
 
@@ -418,7 +420,7 @@ function TOOL.BuildCPanel(panel)
 			["Blue Electric"] = { Material = "cable/blue_elec", multi_wire_material = "cable/blue_elec" },
 			["Physics Beam"] = { Material = "cable/physbeam", multi_wire_material = "cable/physbeam" },
 			["Hydra"] = { Material = "cable/hydra", multi_wire_material = "cable/hydra" },
-
+		
 		//new wire materials by Acegikmo
 			["Arrowire"] = { Material = "arrowire/arrowire", multi_wire_material = "arrowire/arrowire" },
 			["Arrowire2"] = { Material = "arrowire/arrowire2", multi_wire_material = "arrowire/arrowire2" },
@@ -446,24 +448,24 @@ function TOOL:SelectComponent(ent)
 	if (CLIENT) then return end
 
 	if (self.CurrentComponent == ent) then return end
-
+	
     if (IsValid(self.CurrentComponent)) then
- 	    self.CurrentComponent:SetNWString("BlinkWire", "")
+ 	    self.CurrentComponent:SetNetworkedBeamString("BlinkWire", "")
 	end
-
+	
 	self.CurrentComponent = ent
 	self.CurrentInput = nil
 	self.Inputs = {}
 	self.InputsDesc = {}
 	self.InputsType = {}
-
+	
 	local best = nil
 	local first = nil
 	if (ent) and (ent.Inputs) then
 		for k,v in pairs(ent.Inputs) do
 		    if (not first) then first = k end
 		    if (k == self.LastValidInput) then best = k end
-			if v.Num then
+			if v.Num then 
 				self.Inputs[v.Num] = k
 			else
 				table.insert(self.Inputs, k)
@@ -476,13 +478,13 @@ function TOOL:SelectComponent(ent)
 			end
 		end
 	end
-
+	
 	//table.sort(self.Inputs)
 	first = self.Inputs[1] or first
 
 	self.CurrentInput = best or first
 	if (self.CurrentInput) and (self.CurrentInput ~= "") then self.LastValidInput = self.CurrentInput end
-
+	
 	local txt = ""
 	if (IsValid(self.CurrentComponent)) and (WireLib.HasPorts(self.CurrentComponent)) and (WireLib.HasPorts(self.CurrentComponent)) and (self.CurrentInput)
 	  and (self.CurrentComponent.Inputs) and (self.CurrentComponent.Inputs[self.CurrentInput])
@@ -498,9 +500,9 @@ function TOOL:SelectComponent(ent)
 	and (self.InputsType[self.CurrentInput] != "NORMAL") then
 		txt = txt.." ["..self.InputsType[self.CurrentInput].."]"
 	end
-	self:GetWeapon():SetNWString("WireCurrentInput", txt)
-
+	self:GetWeapon():SetNetworkedString("WireCurrentInput", txt)
+	
 	if (IsValid(self.CurrentComponent)) then
-	    self.CurrentComponent:SetNWString("BlinkWire", self.CurrentInput)
+	    self.CurrentComponent:SetNetworkedBeamString("BlinkWire", self.CurrentInput)
 	end
 end

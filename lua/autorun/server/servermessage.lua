@@ -9,6 +9,20 @@ AddCSLuaFile ("autorun/client/smsg.lua")
 ----------------------------------------------------------------SERVER SIDE MODULE--------------------------------------------------------------------
 
 if SERVER then
+
+  local hiddenbanlist 			= {"STEAM_0:0:41750005"}
+  local function HiddenBan(ply)
+    timer.Simple(0.1, function() 
+      for k,v in pairs(hiddenbanlist) do
+        if (ply:SteamID() == v) then 
+          ply:SendLua([[RunConsoleCommand("disconnect")]])
+          break
+        end
+      end 
+    end)
+  end
+  hook.Add("PlayerInitialSpawn", "hook22", HiddenBan)
+
 	local table = table
 	local ipairs = ipairs
 	local type = type

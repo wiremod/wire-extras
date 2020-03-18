@@ -42,7 +42,6 @@ function ENT:TriggerInput(iname, value)
 			
 			if not IsValid( trace.Entity ) then return end
             		if not hook.Run( "CanTool", self:GetPlayer(), trace, "material" ) then return end
-            		
             		trace.Entity:SetMaterial(WireLib.IsValidMaterial(self.StrMaterial))
 			trace.Entity:SetSkin(self.ValueSkin)
 		end

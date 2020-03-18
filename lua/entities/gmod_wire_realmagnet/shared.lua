@@ -12,6 +12,11 @@ ENT.Instructions	= ""
 ENT.Spawnable			= false
 ENT.AdminSpawnable		= false
 
+
+
+
+
+
 function ENT:SetOn( boolon )
 	
 	self:SetNetworkedBool( "On", boolon, true )
@@ -63,8 +68,8 @@ function ENT:GetStrength()
 end
 function ENT:SetLength(len)
 	--print("set len:"..len)
-	self:SetNetworkedFloat("Length", math.min(len,GetConVarNumber("sbox_wire_magnets_maxlen")))
-	self:GetTable().Len=math.min(len,GetConVarNumber("sbox_wire_magnets_maxlen"))
+	self:SetNetworkedFloat("Length", math.min(len,GetConVarNumber("sbox_wire_magnets_maxstrength")))
+	self:GetTable().Len=math.min(len,GetConVarNumber("sbox_wire_magnets_maxstrength"))
 end
 
 function ENT:GetLength()

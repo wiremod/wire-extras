@@ -1,4 +1,4 @@
-TOOL.Category		= "Wire Extras/Input, Output"
+TOOL.Category		= "Wire Extras/Other"
 TOOL.Name			= "Keycard"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""

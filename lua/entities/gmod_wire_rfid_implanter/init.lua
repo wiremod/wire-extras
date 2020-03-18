@@ -58,14 +58,12 @@ function ENT:TriggerInput(iname, value)
 			trace.Entity.__RFID_B = self.B;
 			trace.Entity.__RFID_C = self.C;
 			trace.Entity.__RFID_D = self.D;
-			duplicator.StoreEntityModifier(trace.Entity, "WireRFID", {A = self.A, B = self.B, C = self.C, D = self.D})
 		else                     -- Remove RFID
 			trace.Entity.__RFID_HASRFID = false;
 			trace.Entity.__RFID_A = nil;
 			trace.Entity.__RFID_B = nil;
 			trace.Entity.__RFID_C = nil;
 			trace.Entity.__RFID_D = nil;
-			duplicator.ClearEntityModifier(trace.Entity, "WireRFID")
 		end
 		-- Generate spark effect
 		local effectdata = EffectData()
@@ -80,14 +78,6 @@ function ENT:TriggerInput(iname, value)
 		self:ShowOutput(self.A,self.B,self.C,self.D)
 	end
 end
-
-duplicator.RegisterEntityModifier( "WireRFID", function( ply, ent, data )
-	ent.__RFID_HASRFID = true
-	ent.__RFID_A = data.A
-	ent.__RFID_B = data.B
-	ent.__RFID_C = data.C
-	ent.__RFID_D = data.D
-end )
 
 function ENT:Think()
 	self.BaseClass.Think(self)

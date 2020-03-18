@@ -16,6 +16,7 @@ end
 local function MakeBuoyancyController( pl, pos, ang, collide )
 	// Create the controller.
 	local control = ents.Create( "gmod_wire_buoyancy" )
+		if ( !IsValid( control ) ) then return end
 		control:SetModel( "models/jaanus/wiretool/wiretool_siren.mdl" )
 		control:SetPos( pos )
 		control:SetAngles( ang )

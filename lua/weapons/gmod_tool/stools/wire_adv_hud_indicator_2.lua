@@ -1,17 +1,17 @@
-TOOL.Category		= "Wire Extras/Visuals/Indicators"
+TOOL.Category		= "Wire - Display"
 TOOL.Name			= "Adv. Hud Indicator 2"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
 if ( CLIENT ) then
-    language.Add( "Tool_wire_adv_hud_indicator_2_name", "Adv. HUD Indicator 2 ! (Wire)" )
-    language.Add( "Tool_wire_adv_hud_indicator_2_desc", "Spawns an Adv. HUD Indicator 2 for use with the wire system." )
-    language.Add( "Tool_wire_adv_hud_indicator_2_0", "Primary: Create/Update Hud Indicator Secondary: Hook/Unhook a HUD Indicator" )
-	language.Add( "Tool_wire_adv_hud_indicator_2_1", "Now use Reload on a vehicle to link this HUD Indicator to it, or on the same HUD Indicator to unlink it" )
+    language.Add( "Tool.wire_adv_hud_indicator_2.name", "Adv. HUD Indicator 2 Tool" )
+    language.Add( "Tool.wire_adv_hud_indicator_2.desc", "Spawns an Adv. HUD Indicator 2 for use with the wire system." )
+    language.Add( "Tool.wire_adv_hud_indicator_2.0", "Primary: Create/Update Hud Indicator Secondary: Hook/Unhook a HUD Indicator" )
+	language.Add( "Tool.wire_adv_hud_indicator_2.1", "Now use Reload on a vehicle to link this HUD Indicator to it, or on the same HUD Indicator to unlink it" )
 	
-	language.Add( "Tool_wire_adv_hud_menu_showEditor", "Open the HML Editor" )
+	language.Add( "Tool.wire_adv_hud_menu.showEditor", "Open the HML Editor" )
 	
-	language.Add( "undone_gmod_wire_hud_indicator_2", "Undone Wire Adv. HUD Indicator 2" )
+	language.Add( "undone.gmod_wire_hud_indicator_2", "Undone Wire Adv. HUD Indicator 2" )
 end
 
 //--Runs SERVERSIDE--//

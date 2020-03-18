@@ -1,6 +1,7 @@
 
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "shared.lua" )
+AddCSLuaFile( "init.lua" )
 
 AddCSLuaFile( "expressions/expr_stack.lua" )
 AddCSLuaFile( "expressions/expr_tokenizer.lua" )

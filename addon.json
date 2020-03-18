@@ -1,18 +1,9 @@
 {
-	"title"		:	"Wiremod Unofficial Extras",
-	"type"		:	"tool",
-	"tags"		:	[ "build", "fun" ],
-	"description":	"This is a collection of community created wire addons.",
-	"ignore"	:
+	"title":"uwsvn",
+	"type":"tool",
+	"tags":[ "build", "fun" ],
+	"ignore":
 	[
-		"*.psd",
-		"*.vcproj",
-		"*.svn*",
-		"*.txt",
-		"*.xcf",
-		".git*",
-		".travis.yml",
-		"license",
-		"readme.md",
+		"icon.jpg"
 	]
 }

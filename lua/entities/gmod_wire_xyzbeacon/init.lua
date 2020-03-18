@@ -28,10 +28,6 @@ function ENT:GetBeaconPos(sensor)
 	return self.VPos
 end
 
-function ENT:GetBeaconVelocity(sensor)
-	return Vector()
-end
-
 function ENT:ShowOutput(value)
 	if (value ~= self.PrevOutput) then
 		self:SetOverlayText( "XYZ Beacon" )
