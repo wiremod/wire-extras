@@ -46,10 +46,10 @@ local varDefPrint = CreateConVar(gsVarPrefx.."_dprn", "TALK", gnServerControled,
 local gsFormLogs  = "E2{%s}{%d}:ftrace: %s" -- Contains the logs format of the addon
 local gsDefPrint  = varDefPrint:GetString() -- Default print location
 local gtPrintName = {} -- Contains the print location specification
-			gtPrintName["NOTIFY" ] = HUD_PRINTNOTIFY
-			gtPrintName["CONSOLE"] = HUD_PRINTCONSOLE
-			gtPrintName["TALK"   ] = HUD_PRINTTALK
-			gtPrintName["CENTER" ] = HUD_PRINTCENTER
+      gtPrintName["NOTIFY" ] = HUD_PRINTNOTIFY
+      gtPrintName["CONSOLE"] = HUD_PRINTCONSOLE
+      gtPrintName["TALK"   ] = HUD_PRINTTALK
+      gtPrintName["CENTER" ] = HUD_PRINTCENTER
 
 --[[ **************************** PRIMITIVES **************************** ]]
 
@@ -1134,6 +1134,27 @@ e2function entity ftrace:getEntity()
 	if(not this) then return nil end
 	local trV = this.mTrO.Entity
 	return (trV and trV or nil)
+end
+
+__e2setcost(3)
+e2function number ftrace:getSurfaceFlags()
+	if(not this) then return 0 end
+	local trV = this.mTrO.SurfaceFlags
+	return (trV and trV or 0)
+end
+
+__e2setcost(3)
+e2function number ftrace:getDisplayFlags()
+	if(not this) then return 0 end
+	local trV = this.mTrO.DispFlags
+	return (trV and trV or 0)
+end
+
+__e2setcost(3)
+e2function number ftrace:getHitContents()
+	if(not this) then return 0 end
+	local trV = this.mTrO.Contents
+	return (trV and trV or 0)
 end
 
 __e2setcost(15)
