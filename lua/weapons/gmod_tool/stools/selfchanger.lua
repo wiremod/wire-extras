@@ -1,4 +1,3 @@
-
 TOOL.Category   = "GUI Panels"
 TOOL.Name       = "Self changer"
 TOOL.Command    = nil
@@ -29,8 +28,11 @@ if ( CLIENT ) then
 	language.Add( "tool.selfchanger.desc", "Changes self....." )
 	language.Add( "tool.selfchanger.0", "Primary: Set self value, Secondary: reload draw parameters" )
 	language.Add( "tool.selfchanger.widvariable", "Variable:")
+	language.Add( "tool.selfchanger.widvariable_con", "Enter variable name here")
 	language.Add( "tool.selfchanger.widvalue", "Value:")
-	language.Add( "tool.selfchanger.widvaluenum", "Force numver conversion on the value" )
+	language.Add( "tool.selfchanger.widvalue_con", "Enter value name here")
+	language.Add( "tool.selfchanger.widvaluenum", "Force value number conversion" )
+	language.Add( "tool.selfchanger.widvaluenum_con", "Check this for force converting the value to a number" )
 
 	function setEntitySetting()
 		local ent = net.ReadEntity()
@@ -108,13 +110,9 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel(cPanel)
-	local pItem -- pItem is the current panel created
-	pItem = cPanel:SetName("#tool.selfchanger.name")
-	pItem = cPanel:Help   ("#tool.selfchanger.desc")
-	pItem = cPanel:TextEntry("#tool.selfchanger.widvariable", "selfchanger_widvariable")
-	pItem:SetTooltip("#tool.selfchanger.widvariable")
-	pItem = cPanel:TextEntry("#tool.selfchanger.widvalue", "selfchanger_widvalue")
-	pItem:SetTooltip("#tool.selfchanger.widvalue")
-	pItem = cPanel:CheckBox("#tool.selfchanger.widvaluenum", "selfchanger_widvaluenum")
-	pItem:SetTooltip("#tool.selfchanger.widvaluenum")
+	cPanel:SetName( "#tool.selfchanger.name" )
+	cPanel:Help   ( "#tool.selfchanger.desc" )
+	cPanel:TextEntry( "#tool.selfchanger.widvariable", "selfchanger_widvariable" ):SetTooltip( "#tool.selfchanger.widvariable_con" )
+	cPanel:TextEntry( "#tool.selfchanger.widvalue"   , "selfchanger_widvalue"    ):SetTooltip( "#tool.selfchanger.widvalue_con"    )
+	cPanel:CheckBox ( "#tool.selfchanger.widvaluenum", "selfchanger_widvaluenum" ):SetTooltip( "#tool.selfchanger.widvaluenum_con" )
 end
