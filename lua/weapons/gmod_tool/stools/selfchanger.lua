@@ -28,9 +28,9 @@ if ( CLIENT ) then
 	language.Add( "tool.selfchanger.desc", "Changes self....." )
 	language.Add( "tool.selfchanger.0", "Primary: Set self value, Secondary: reload draw parameters" )
 	language.Add( "tool.selfchanger.widvariable", "Variable:")
-	language.Add( "tool.selfchanger.widvariable_con", "Enter variable name here")
+	language.Add( "tool.selfchanger.widvariable_con", "Write variable entity hash name here")
 	language.Add( "tool.selfchanger.widvalue", "Value:")
-	language.Add( "tool.selfchanger.widvalue_con", "Enter value name here")
+	language.Add( "tool.selfchanger.widvalue_con", "Write desired variable value here")
 	language.Add( "tool.selfchanger.widvaluenum", "Force value number conversion" )
 	language.Add( "tool.selfchanger.widvaluenum_con", "Check this for force converting the value to a number" )
 
