@@ -49,8 +49,8 @@ Wire Touch Plate - Asphid_Jackal / TomyLobo
 Adv. HUD Indicator - Moggie100 (Based on the original by TheApathetic)
 
 Borsty's Wire Ents:
-Dynamic Memory
-Wire Highspeed ranger
+* Dynamic Memory
+* Wire Highspeed ranger
 
 Buoyancy Stool - RabidToaster
 
@@ -59,27 +59,27 @@ Door Stool - Doridian
 DuFace's Gates
 
 Free Fall's Extentions:
-Adv. Dupe. Teleporter
-Adv. Dupe RAM-Chip
-Interactive Holoemitter
-String Switch Gate
-RAM-Card's
+* Adv. Dupe. Teleporter
+* Adv. Dupe RAM-Chip
+*Interactive Holoemitter
+*String Switch Gate
+* RAM-Cards
 
 High-speed holoemitter - Fizyk
 
 Insanely Huge Memory and Phi Gate - MagnetoHydroDynamics
 
 Incompatible (That's his username):
-Facer
-Freezer
-Multi-wire tool
+* Facer
+* Freezer
+* Multi-wire tool
 
 _Kilburn's Addons:
-Wire Materializer
-Wire Painter
-Wire Motor
-Wire Microphone
-Wire RFID Systems
+* Wire Materializer
+* Wire Painter
+* Wire Motor
+* Wire Microphone
+* Wire RFID Systems
 
 Keycards - adb - (Placed in public domain by Author)
 
@@ -114,9 +114,9 @@ Wire Field Generators - AlgorithmX2
 XYZ Beacon - Doticatto
 
 Deyan MagLev Vasilev's Addons:
-[FTracers][ref-ftr]
-[STControllers][ref-stc]
-E2 inteface OOP - [[Sk$Bh]Trick or treat KID! ( DVD )][ref-udvd]
+* [FTracers][ref-ftr]
+* [STControllers][ref-stc]
+* E2 inteface OOP - [[Sk$Bh]Trick or treat KID! ( DVD )][ref-udvd]
 
 [ref-ftr]: https://github.com/dvdvideo1234/ControlSystemsE2/wiki/FTrace
 [ref-stc]: https://github.com/dvdvideo1234/ControlSystemsE2/wiki/StControl
