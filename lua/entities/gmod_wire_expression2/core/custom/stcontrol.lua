@@ -36,10 +36,10 @@ local varDefPrint = CreateConVar(gsVarPrefx.."_dprn", "TALK", gnServerControled,
 local gsDefPrint  = varDefPrint:GetString() -- Default print location
 local gsFormLogs  = "E2{%s}{%d}:stcontrol: %s" -- Contains the logs format of the addon
 local gtPrintName = {} -- Contains the print location specification
-      gtPrintName["NOTIFY" ] = HUD_PRINTNOTIFY
-      gtPrintName["CONSOLE"] = HUD_PRINTCONSOLE
-      gtPrintName["TALK"   ] = HUD_PRINTTALK
-      gtPrintName["CENTER" ] = HUD_PRINTCENTER
+			gtPrintName["NOTIFY" ] = HUD_PRINTNOTIFY
+			gtPrintName["CONSOLE"] = HUD_PRINTCONSOLE
+			gtPrintName["TALK"   ] = HUD_PRINTTALK
+			gtPrintName["CENTER" ] = HUD_PRINTCENTER
 
 --[[ **************************** PRIMITIVES **************************** ]]
 
