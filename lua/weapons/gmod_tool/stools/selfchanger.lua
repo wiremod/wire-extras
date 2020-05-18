@@ -10,19 +10,6 @@ TOOL.ClientConVar =
 	["widvaluenum"] = "0"
 }
 
-local function playerNotify(var, val, set, ply)
-	local msg = "["..tostring(var).."] = <"..tostring(val)..">{"..tostring(set).."}"
-	if(SERVER) then
-		if(ply and ply:IsValid()) then
-			ply:SendLua("GAMEMODE:AddNotify(\"Server: "..msg.."\", NOTIFY_GENERIC, 6)")
-		  ply:SendLua("surface.PlaySound(\"ambient/water/drip\"..math.random(1, 4)..\".wav\")")
-		end
-	else
-		GAMEMODE:AddNotify("Client: "..msg, NOTIFY_GENERIC, 6)
-		surface.PlaySound("ambient/water/drip"..math.random(1, 4)..".wav")
-	end
-end
-
 if ( CLIENT ) then
 	language.Add( "tool.selfchanger.name", "Developer Tool" )
 	language.Add( "tool.selfchanger.desc", "Changes self....." )
@@ -46,7 +33,10 @@ if ( CLIENT ) then
 			ent[var] = (tostring(val) or "")
 		end
 
-		playerNotify(var, val, (ent and ent[var] or "N/A"))
+		local set = tostring(ent and ent[var] or "N/A")
+		local msg = "["..tostring(var).."] = <"..tostring(val)..">{"..set.."}"
+
+		WireLib.AddNotify(LocalPlayer(), "Client: "..msg, NOTIFY_GENERIC, 6)
 	end
 
 	net.Receive("selfchangerSetEntitySetting", setEntitySetting)
@@ -65,7 +55,10 @@ function TOOL:sendSetVal(ent, var, val)
 		ent[var] = (tostring(val) or "")
 	end
 
-	playerNotify(var, val, (ent and ent[var] or "N/A"), self:GetOwner())
+	local set = tostring(ent and ent[var] or "N/A")
+	local msg = "["..tostring(var).."] = <"..tostring(val)..">{"..set.."}"
+
+	WireLib.AddNotify(self:GetOwner(), "Server: "..msg, NOTIFY_GENERIC, 6)
 
 	net.Start("selfchangerSetEntitySetting")
 		net.WriteEntity(ent)
