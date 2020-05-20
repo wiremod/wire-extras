@@ -4,7 +4,7 @@
 dofile( "fakelib/system.lua" )
 
 -- Set up alias paths for non-direct loading of includes... damn you Garry...
-mapInclude( "Constants.lua", "parser/Constants.lua" )
+mapInclude( "constants.lua", "parser/constants.lua" )
 mapInclude( "entities/gmod_wire_hud_indicator_2/util/tables.lua", "util/tables.lua" )
 mapInclude( "valid_fonts.lua", "renderer/valid_fonts.lua" )
 mapInclude( "tags/core.lua", "renderer/tags/core.lua" )
@@ -17,9 +17,9 @@ include( "util/tables.lua" )
 include( "expressions/expr_tokenizer.lua" )
 include( "expressions/expr_stack.lua" )
 
-include( "parser/HMLParser.lua" )
+include( "parser/hmlparser.lua" )
 
-include( "renderer/HMLRenderer.lua" )
+include( "renderer/hmlrenderer.lua" )
 include( "expression_parser.lua" )
 
 -- ------------------------------------------------------------------- --

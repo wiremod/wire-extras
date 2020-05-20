@@ -1,8 +1,8 @@
 dofile( "fakelib/system.lua" )
 
 
-include( "parser/HMLParser.lua" )
-include( "renderer/HMLRenderer.lua" )
+include( "parser/hmlparser.lua" )
+include( "renderer/hmlrenderer.lua" )
 
 
 
