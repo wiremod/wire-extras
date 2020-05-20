@@ -2,7 +2,7 @@
 	"title"		:	"Wiremod Unofficial Extras",
 	"type"		:	"tool",
 	"tags"		:	[ "build", "fun" ],
-	"description":	"This is a collection of community created wire addons.",
+	"description":	"This is a collection of experimental community created wire addons.",
 	"ignore"	:
 	[
 		"*.psd",
@@ -11,8 +11,18 @@
 		"*.txt",
 		"*.xcf",
 		".git*",
+		".gitignore",
+		".luacheckrc",
 		".travis.yml",
+		"CODE_OF_CONDUCT.md",
+		"CONTRIBUTING.md",
+		"generate-luacheck.sh",
+		"git-hooks-pre-commit",
+		"gitrid.sh",
 		"license",
 		"readme.md",
+		"SECURITY.md",
+		"wire-extras.jpg",
+		"wire-extras.psd"
 	]
 }
