@@ -1,4 +1,0 @@
-"slider1"	sliderV			10	10	40	180	WIREO	"A"
-"slider2"	sliderV			60	10	40	180	WIREO	"B"
-"slider3"	sliderV			110	10	40	180	WIREO	"C"
-"slider4"	sliderV			160	10	40	180	WIREO	"D"
