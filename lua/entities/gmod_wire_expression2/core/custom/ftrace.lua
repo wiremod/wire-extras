@@ -1084,7 +1084,7 @@ e2function string ftrace:getSurfPropsName()
 end
 
 __e2setcost(3)
-e2function number ftrace:getBone()
+e2function number ftrace:getPhysicsBoneID()
 	if(not this) then return 0 end
 	local trV = this.mTrO.PhysicsBone
 	return (trV and trV or 0)
