@@ -183,9 +183,11 @@ local function conProcess(oStCon, nRef, nOut)
 		if(oStCon.mbMan) then
 			oStCon.mvCon = (oStCon.mvMan + oStCon.mBias); return oStCon
 		end -- If manual mode is enabled add bias and go to the output
+		local satU, satD = oStCon.mSatU, oStCon.mSatD -- Saturation access
+		local errPs = oStCon.mErrN -- When called the error from previous tick
 		local errNw = (oStCon.mbInv and (nOut - nRef) or (nRef - nOut))
-		oStCon.mErrO = oStCon.mErrN; oStCon.mErrN = errNw
-		oStCon.mTimO = oStCon.mTimN; oStCon.mTimN = CurTime()
+		oStCon.mErrO = errPs; oStCon.mErrN = errNw -- Sync internal state
+		oStCon.mTimO = oStCon.mTimN; oStCon.mTimN = CurTime() -- Sync the time
 		local timDt = (oStCon.mnTo and oStCon.mnTo or (oStCon.mTimN - oStCon.mTimO))
 		-- Does not get affected by the time and just multiplies. Not approximated
 		if(oStCon.mkP > 0) then
@@ -193,28 +195,28 @@ local function conProcess(oStCon, nRef, nOut)
 		end
 		-- Direct approximation with error sampling average for calculating the integral term
 		if((oStCon.mkI > 0) and oStCon.meInt and (timDt > 0)) then
-			if(oStCon.meZcx and (getSign(errNw) ~= getSign(oStCon.mErrO))) then
+			if(oStCon.meZcx and (getSign(errNw) ~= getSign(errPs))) then
 				oStCon.mvI = 0 -- Reset on zero for avoid having the same value in the other direction
 			else -- If the flag is not set and an error delta is present calculate the integral area
-				local arInt = (errNw + oStCon.mErrO) * timDt -- Integral error area
+				local arInt = (errNw + errPs) * timDt -- Integral error area
 				oStCon.mvI = getValue(oStCon.mkI * timDt, arInt, oStCon.mpI) + oStCon.mvI
 			end
 		end
 		-- Direct approximation for calculating the derivative term
-		if((oStCon.mkD > 0) and (errNw ~= oStCon.mErrO) and oStCon.meDif and (timDt > 0)) then
-			local arDif = (errNw - oStCon.mErrO) / timDt -- Error derivative slope dE/dT
+		if((oStCon.mkD > 0) and (errNw ~= errPs) and oStCon.meDif and (timDt > 0)) then
+			local arDif = (errNw - errPs) / timDt -- Error derivative slope dE/dT
 			oStCon.mvD = getValue(oStCon.mkD * timDt, arDif, oStCon.mpD)
 		else -- Reset the derivative as there is no slope to be used
 			oStCon.mvD = 0
 		end
 		oStCon.mvCon = oStCon.mvP + oStCon.mvI + oStCon.mvD -- Calculate the control signal
-		if(oStCon.mSatD and oStCon.mvCon < oStCon.mSatD) then -- Saturate lower limit
-			oStCon.mvCon, oStCon.meInt = oStCon.mSatD, false -- Integral is disabled
-		elseif(oStCon.mSatU and oStCon.mvCon > oStCon.mSatU) then -- Saturate upper limit
-			oStCon.mvCon, oStCon.meInt = oStCon.mSatU, false -- Integral is disabled
+		if(satD and oStCon.mvCon < satD) then -- Saturate lower limit
+			oStCon.mvCon, oStCon.meInt = satD, false -- Integral is disabled
+		elseif(satU and oStCon.mvCon > satU) then -- Saturate upper limit
+			oStCon.mvCon, oStCon.meInt = satU, false -- Integral is disabled
 		else oStCon.meInt = true end -- Saturation enables the integrator in determined bounds
 		oStCon.mvCon = (oStCon.mvCon + oStCon.mBias) -- Apply the saturated signal bias
-		oStCon.mTimB = (CurTime() - oStCon.mTimN) -- Benchmark the process
+		oStCon.mTimB = (CurTime()    - oStCon.mTimN) -- Benchmark the process
 	else return resState(oStCon) end; return oStCon
 end
 
