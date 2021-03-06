@@ -7,22 +7,13 @@
 	[
 		"*.psd",
 		"*.vcproj",
-		"*.svn*",
 		"*.txt",
 		"*.xcf",
 		".git*",
-		".gitignore",
-		".luacheckrc",
+		"*.md",
 		".travis.yml",
-		"CODE_OF_CONDUCT.md",
-		"CONTRIBUTING.md",
-		"generate-luacheck.sh",
 		"git-hooks-pre-commit",
-		"gitrid.sh",
-		"license",
-		"readme.md",
-		"SECURITY.md",
-		"wire_extras.jpg",
-		"wire_extras.kra"
+		"LICENSE",
+		"wire_extras_icon.*"
 	]
 }
