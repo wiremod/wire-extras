@@ -74,9 +74,9 @@ if ( SERVER ) then
 		if( !pl:CheckLimit( "wire_useholoemitters" ) ) then return; end
 		
 		// create the emitter
-		local emitter = ents.Create( "gmod_wire_useholoemitter" );
-			emitter:SetPos( pos );
-			emitter:SetAngles( ang );
+		local emitter = ents.Create( "gmod_wire_useholoemitter" )
+		emitter:SetPos( pos );
+		emitter:SetAngles( ang );
 		emitter:Spawn();
 		emitter:Activate();
 		
