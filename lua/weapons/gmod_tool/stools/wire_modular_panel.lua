@@ -893,8 +893,8 @@ if CLIENT then
 	
 	function modpanDrawHud()
 		if modular_panel_preview_enabled then
-			local sh = surface.ScrH( )
-			local sw = surface.ScrW( )
+			local sh = ScrH( )
+			local sw = ScrW( )
 			surface.SetDrawColor( 50, 255, 50, 50 )
 			local prevWidth = 200
 			local prevHeight = 200

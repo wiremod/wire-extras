@@ -67,8 +67,8 @@ function umSendPanelState(ent, state)
 end
 
 function guiP_cl_drawUpdate(widget, paramNum, value)
-	local allPlayers = RecipientFilter()
-	allPlayers:AddAllPlayers()
+	//local allPlayers = RecipientFilter()
+	//allPlayers:AddAllPlayers()
 	isString = (type(value) == "string")
 	net.Start("umsgDrawUpdate")
 		net.WriteEntity(widget.parent)
@@ -80,7 +80,7 @@ function guiP_cl_drawUpdate(widget, paramNum, value)
 		else
 			net.WriteFloat(value)
 		end
-	net.Send(allPlayers)
+	net.Broadcast()
 end
 
 --[[
@@ -396,8 +396,8 @@ end
 
 --Send panel config to client
 function guiP_SendClientWidgets(ent)
-	local allPlayers = RecipientFilter()
-	allPlayers:AddAllPlayers()
+	//local allPlayers = RecipientFilter()
+	//allPlayers:AddAllPlayers()
 	net.Start("umsgPanelConfig")
 		--Msg("starting panel usmg\n")
 		net.WriteEntity(ent)
@@ -434,7 +434,7 @@ function guiP_SendClientWidgets(ent)
 			end
 		end
 	net.WriteBool(true)
-	net.Send(allPlayers) 
+	net.Broadcast()
 end
 
 --function guiP_PanelEnable(ent)

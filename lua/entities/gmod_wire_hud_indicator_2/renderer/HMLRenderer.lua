@@ -79,8 +79,8 @@ function HMLRenderer:Draw()
 		end
 		v.xOffset = 0
 		v.yOffset = 0
-		v.width = surface.ScreenWidth()
-		v.height = surface.ScreenHeight()
+		v.width = ScrW()
+		v.height = ScrH()
 		
 		if( type(v.tag) == "function" ) then
 			status = v:tag()

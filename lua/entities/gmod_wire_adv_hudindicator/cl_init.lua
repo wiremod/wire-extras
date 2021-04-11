@@ -70,8 +70,8 @@ local function DrawAdvHUDIndicators()
 
 	if (!LocalPlayer():Alive()) then return end
 
-	local screenWidth = surface.ScrW()
-	local screenHeight = surface.ScrH()
+	local screenWidth = ScrW()
+	local screenHeight = ScrH()
 
 	//local halfScreenWidth = screenWidth/2
 	//local halfScreenHeight = screenHeight/2
