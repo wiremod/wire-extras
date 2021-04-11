@@ -58,7 +58,7 @@ function TOOL:LeftClick( trace )
 
 	if (stage == 0) then
 		if (CLIENT) then
-		    if (self:GetWeapon():GetNetworkedString("WireCurrentInput")) then
+		    if (self:GetWeapon():GetNWString("WireCurrentInput")) then
 				self:SetStage(0)
 				return true
 			end
@@ -209,7 +209,7 @@ function TOOL:RightClick( trace )
 		if (iNextInput) then
 		    self:GetOwner():EmitSound("weapons/pistol/pistol_empty.wav")
 
-		    if (iNextInput > table.getn(self.Inputs)) then iNextInput = 1 end
+		    if (iNextInput > #self.Inputs) then iNextInput = 1 end
 
 		    self.CurrentInput = self.Inputs[iNextInput]
 			if (self.CurrentInput) then self.LastValidInput = self.CurrentInput end
@@ -255,7 +255,7 @@ function TOOL:RightClick( trace )
 		if (iNextOutput) then
 		    self:GetOwner():EmitSound("weapons/pistol/pistol_empty.wav")
 
-		    if (iNextOutput > table.getn(self.Outputs)) then iNextOutput = 1 end
+		    if (iNextOutput > #self.Outputs) then iNextOutput = 1 end
 
             self.CurrentOutput = self.Outputs[iNextOutput]
 
@@ -322,7 +322,7 @@ end
 if (CLIENT) then
 
 	function TOOL:DrawHUD()
-	    local current_input = self:GetWeapon():GetNetworkedString("WireCurrentInput") or ""
+	    local current_input = self:GetWeapon():GetNWString("WireCurrentInput") or ""
 		if (current_input ~= "") then
 		    if (string.sub(current_input, 1, 1) == "%") then
 		    	draw.WordBox(8, ScrW()/2+10, ScrH()/2+10, string.sub(current_input, 2), "Default", Color(150,50,50,192), Color(255,255,255,255) )

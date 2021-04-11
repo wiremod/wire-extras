@@ -1,6 +1,13 @@
 AddCSLuaFile ("autorun/shared/lib-gui-panel-shared.lua")
 AddCSLuaFile ("autorun/client/lib-gui-panel-client.lua")
 
+util.AddNetworkString("umsgClientPanelInit")
+util.AddNetworkString("umsgPanelScheme")
+util.AddNetworkString("umsgPanelWake")
+util.AddNetworkString("umsgPanelState")
+util.AddNetworkString("umsgDrawUpdate")
+util.AddNetworkString("umsgPanelConfig")
+
 include ("autorun/shared/lib-gui-panel-shared.lua")
 
 guiP_schemeTable = {}
@@ -32,48 +39,48 @@ end
 concommand.Add("guiPinitMe", clientPanelInitRequest)
 
 function umSendPanelInit(ent, entID)
-	umsg.Start("umsgClientPanelInit", player)
-		umsg.Entity(ent)
-		umsg.Short(entID)
-	umsg.End() 
+	net.Start("umsgClientPanelInit")
+		net.WriteEntity(ent)
+		net.WriteInt(entID, 16)
+	net.Send(player) 
 end
 	
 function umSendPanelScheme(ent, scheme)
-	umsg.Start("umsgPanelScheme", player)
-		umsg.Entity(ent)
-		umsg.Short(guiP_schemeTable[scheme])
-	umsg.End() 
+	net.Start("umsgPanelScheme")
+		net.WriteEntity(ent)
+		net.WriteInt(guiP_schemeTable[scheme], 16)
+	net.Send(player) 
 end
 
 function umSendPanelWake(ent)	
-	umsg.Start("umsgPanelWake", player)
-		umsg.Short(42)
-		umsg.Entity(ent)
-	umsg.End() 
+	net.Start("umsgPanelWake")
+		net.WriteInt(42, 16)
+		net.WriteEntity(ent)
+	net.Send(player) 
 end
 
 function umSendPanelState(ent, state)	
-	umsg.Start("umsgPanelState", player)
-		umsg.Entity(ent)
-		umsg.Bool(state)
-	umsg.End() 
+	net.Start("umsgPanelState")
+		net.WriteEntity(ent)
+		net.WriteBool(state)
+	net.Send(player) 
 end
 
 function guiP_cl_drawUpdate(widget, paramNum, value)
 	local allPlayers = RecipientFilter()
 	allPlayers:AddAllPlayers()
 	isString = (type(value) == "string")
-	umsg.Start("umsgDrawUpdate", allPlayers)
-		umsg.Entity(widget.parent)
-		umsg.Short(widget.modIndex)
-		umsg.Short(paramNum)
-		umsg.Bool(isString)
+	net.Start("umsgDrawUpdate")
+		net.WriteEntity(widget.parent)
+		net.WriteInt(widget.modIndex, 16)
+		net.WriteInt(paramNum, 16)
+		net.WriteBool(isString)
 		if (isString) then
-			umsg.String(value)
+			net.WriteString(value)
 		else
-			umsg.Float(value)
+			net.WriteFloat(value)
 		end
-	umsg.End()
+	net.Send(allPlayers)
 end
 
 --[[
@@ -125,7 +132,7 @@ hook.Add( "KeyPress", "guipanelKeyHook", AttackKeyPress )
 --------------------------User Functions----------------------------------------------------
 
 function guiP_PanelInit(ent, w, h)
-	local newID = table.getn(guiP_panelDatabase) + 1
+	local newID = #guiP_panelDatabase + 1
 	table.insert(guiP_panelDatabase, ent)
 	guipLastNewEnt = ent
 	ent.entID = newID
@@ -275,8 +282,8 @@ function guiP_fileDataToTable (fileData)
 				parmStart = 9
 			end
 			--read extra parameters
-			if (table.getn(lineData) > parmStart) then
-				for iv=parmStart, table.getn(lineData), 2 do
+			if (#lineData > parmStart) then
+				for iv=parmStart, #lineData, 2 do
 					newWidget.params[lineData[iv]] = lineData[iv + 1]
 				end
 			end
@@ -289,7 +296,7 @@ function guiP_fileDataToTable (fileData)
 			newWidget.h = mHeight
 			table.insert (widgetTable, table.Copy (newWidget))
 			Msg("widget.y = "..newWidget.w.."\n")
-			widgetTable[table.getn (widgetTable)].index = table.getn (widgetTable)
+			widgetTable[#widgetTable].index = #widgetTable
 		end	
 		
 	end
@@ -374,8 +381,8 @@ function guiP_LoadWidgetsFromFileData(ent, fileData)
 				parmStart = 9
 			end
 			--read extra parameters
-			if (table.getn(lineData) > parmStart) then
-				for iv=parmStart, table.getn(lineData), 2 do
+			if (#lineData > parmStart) then
+				for iv=parmStart, #lineData, 2 do
 					parmTable[lineData[iv]] = lineData[iv + 1]
 					--Msg("added param "..lineData[iv].." = "..lineData[iv + 1].."\n")
 				end
@@ -391,24 +398,24 @@ end
 function guiP_SendClientWidgets(ent)
 	local allPlayers = RecipientFilter()
 	allPlayers:AddAllPlayers()
-	umsg.Start("umsgPanelConfig", allPlayers)
+	net.Start("umsgPanelConfig")
 		--Msg("starting panel usmg\n")
-		umsg.Entity(ent)
-		umsg.Short(table.getn(ent.pWidgets))
+		net.WriteEntity(ent)
+		net.WriteInt(#ent.pWidgets, 16)
 		for key, modu in ipairs(ent.pWidgets) do
 			Msg(string.format("sending panel #%d\n", key))
-			--umsg.String(modu.modType.name)
+			--net.WriteString(modu.modType.name)
 			Msg("sending type = "..tostring(modu.modType.name).."\n")
 			Msg("modindex "..tostring(guiP_widgetLookup[modu.modType.name]).."\n")
-			umsg.Short(guiP_widgetLookup[modu.modType.name])
-			--umsg.Short(key)
-			umsg.Short(modu.X)
-			umsg.Short(modu.Y)
-			umsg.Short(modu.W)
-			umsg.Short(modu.H)
+			net.WriteInt(guiP_widgetLookup[modu.modType.name], 16)
+			--net.WriteInt(key, 16)
+			net.WriteInt(modu.X, 16)
+			net.WriteInt(modu.Y, 16)
+			net.WriteInt(modu.W, 16)
+			net.WriteInt(modu.H, 16)
 			--check extra params
 			local numParams = table.Count(modu.paramTable)
-			umsg.Short(numParams)
+			net.WriteInt(numParams, 16)
 			local keysend = 0
 						
 			for pkey, param in pairs(modu.paramTable) do
@@ -422,12 +429,12 @@ function guiP_SendClientWidgets(ent)
 				---	Msg(ent.errorMsg.."param error\n")
 				--end
 				--Msg("(server) param #"..tostring(keysend).." = "..tostring(param).."\n")
-				umsg.Short(pkey)
-				umsg.String(tostring(param))
+				net.WriteInt(pkey, 16)
+				net.WriteString(tostring(param))
 			end
 		end
-	umsg.Bool(true)
-	umsg.End() 
+	net.WriteBool(true)
+	net.Send(allPlayers) 
 end
 
 --function guiP_PanelEnable(ent)

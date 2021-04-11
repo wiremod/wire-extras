@@ -5,8 +5,8 @@ ENT.RenderGroup 		= RENDERGROUP_BOTH
 
 local advhudindicators = {}
 // Default HUD x/y
-local hudx = 0
-local hudy = 0
+//local hudx = 0
+//local hudy = 0
 local nextupdate = 0
 
 // Text Height Constant
@@ -16,11 +16,11 @@ local dtextheight = draw.GetFontHeight("Default")
 local pbarheight = dtextheight + 16
 
 // Y Offset constants
-local offsety = {32, 32, 32, 92 + dtextheight, 60 + dtextheight}
+//local offsety = {32, 32, 32, 92 + dtextheight, 60 + dtextheight}
 
 // Texture IDs for Full/Semi-Circle styles
-local fullcircletexid = surface.GetTextureID("hudindicator/hi_fullcircle")
-local semicircletexid = surface.GetTextureID("hudindicator/hi_semicircle")
+//local fullcircletexid = surface.GetTextureID("hudindicator/hi_fullcircle")
+//local semicircletexid = surface.GetTextureID("hudindicator/hi_semicircle")
 
 local tex_sci_fi_1 = surface.GetTextureID("adv_hud/sci_fi_style_1")
 
@@ -41,7 +41,7 @@ end
 function ENT:ClientCheckRegister()
 	local ply = LocalPlayer()
 	local plyuid = ply:UniqueID()
-	return (ply != self:GetPlayer() && !self:GetNetworkedBool(plyuid))
+	return ply != self:GetPlayer() && !self:GetNWBool(plyuid)
 end
 
 // Used by STool for unregister control panel
@@ -51,13 +51,11 @@ function AdvHUDIndicator_GetCurrentRegistered()
 	local registered = {}
 	for eindex,_ in pairs(advhudindicators) do
 		local ent = ents.GetByIndex(eindex)
-		if (ent && ent:IsValid()) then
-			if (ent:CheckClientRegister()) then
-				local entry = {}
-				entry.EIndex = eindex
-				entry.Description = advhudindicators[eindex].Description
-				table.insert(registered, entry)
-			end
+		if (ent && ent:IsValid()) and (ent:CheckClientRegister()) then
+			local entry = {}
+			entry.EIndex = eindex
+			entry.Description = advhudindicators[eindex].Description
+			table.insert(registered, entry)
 		end
 	end
 
@@ -65,25 +63,18 @@ function AdvHUDIndicator_GetCurrentRegistered()
 end
 
 local function isInsideZone( x, y, minX, minY, maxX, maxY )
-
-	if( x > minX && x < maxX ) then
-		if( y > minY && y < maxY ) then
-			return true
-		end
-	end
-
-	return false
+	return ( x > minX && x < maxX ) and ( y > minY && y < maxY )
 end
 
 local function DrawAdvHUDIndicators()
 
 	if (!LocalPlayer():Alive()) then return end
 
-	local screenWidth = surface.ScreenWidth()
-	local screenHeight = surface.ScreenHeight()
+	local screenWidth = surface.ScrW()
+	local screenHeight = surface.ScrH()
 
-	local halfScreenWidth = screenWidth/2
-	local halfScreenHeight = screenHeight/2
+	//local halfScreenWidth = screenWidth/2
+	//local halfScreenHeight = screenHeight/2
 
 	local errors = 0
 
@@ -143,7 +134,7 @@ local function DrawAdvHUDIndicators()
 
 					local txt = indinfo.FullText or ""
 
-					local alphaVal = 160
+					//local alphaVal = 160
 					if( indinfo.alpha != nil ) then
 						alphaVal = indinfo.alpha
 					end
@@ -172,7 +163,7 @@ local function DrawAdvHUDIndicators()
 					//--Text Box - Pretty much only useful with string gates--//
 					elseif (indinfo.Style == 2) then
 						local lines = string.Explode("|", indinfo.Description)
-						local totalLines = table.Count(lines)
+						//local totalLines = table.Count(lines)
 						local boxWidth = 0
 						local boxHeight = 0
 
@@ -197,7 +188,7 @@ local function DrawAdvHUDIndicators()
 						surface.SetTextColor(255, 255, 255, 255)
 						local index = 0
 						for k,v in pairs(lines) do
-							local lineWidth, lineHeight = surface.GetTextSize( v )
+							//local lineWidth, lineHeight = surface.GetTextSize( v )
 
 							surface.SetTextPos( xPos+5, yPos+5+(index*(lineHeight+2)) )
 							surface.DrawText( v );
@@ -556,21 +547,17 @@ local function DrawAdvHUDIndicators()
 						surface.SetDrawColor(BColor.r, BColor.g, BColor.b, 160)
 
 						//-- Left Brace --//
-						if( indinfo.exio_lbrace != nil ) then
-							if( indinfo.exio_lbrace > 0 ) then
-								surface.DrawLine( xPos-30, yPos-10, xPos-30, yPos+10 )
-								surface.DrawLine( xPos-30, yPos-10, xPos-25, yPos-10 )
-								surface.DrawLine( xPos-30, yPos+10, xPos-25, yPos+10 )
-							end
+						if( indinfo.exio_lbrace != nil ) and ( indinfo.exio_lbrace > 0 ) then
+							surface.DrawLine( xPos-30, yPos-10, xPos-30, yPos+10 )
+							surface.DrawLine( xPos-30, yPos-10, xPos-25, yPos-10 )
+							surface.DrawLine( xPos-30, yPos+10, xPos-25, yPos+10 )
 						end
 
 						//-- Right Brace --//
-						if( indinfo.exio_rbrace != nil ) then
-							if( indinfo.exio_rbrace > 0 ) then
-								surface.DrawLine( xPos+30, yPos-10, xPos+30, yPos+10 )
-								surface.DrawLine( xPos+30, yPos-10, xPos+25, yPos-10 )
-								surface.DrawLine( xPos+30, yPos+10, xPos+25, yPos+10 )
-							end
+						if( indinfo.exio_rbrace != nil ) and ( indinfo.exio_rbrace > 0 ) then
+							surface.DrawLine( xPos+30, yPos-10, xPos+30, yPos+10 )
+							surface.DrawLine( xPos+30, yPos-10, xPos+25, yPos-10 )
+							surface.DrawLine( xPos+30, yPos+10, xPos+25, yPos+10 )
 						end
 
 					//-- Divided Box --//
@@ -690,7 +677,7 @@ local function AdvHUDFormatDescription( eindex )
 	if( indinfo.zPos == nil ) then indinfo.zPos = 0 end
 
 	if (indinfo.ShowValue == 1) then // Percent
-		advhudindicators[eindex].FullText = indinfo.Description.." "..string.format("%.1f", ((indinfo.Factor or 0) * 100)).."%"
+		advhudindicators[eindex].FullText = indinfo.Description.." "..string.format("%.1f", (indinfo.Factor or 0) * 100).."%"
 	elseif (indinfo.ShowValue == 2) then // Value
 		// Round to up to 2 places
 		advhudindicators[eindex].FullText = indinfo.Description.." "..string.format("%g", math.Round((indinfo.Value or 0) * 100) / 100)..""
@@ -718,12 +705,12 @@ end
 
 // UserMessage stuff
 local function AdvHUDIndicatorRegister( um )
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 	AdvCheckHITableElement(eindex)
 
-	advhudindicators[eindex].Description = um:ReadString()
-	advhudindicators[eindex].ShowValue = um:ReadShort()
-	local tempstyle = um:ReadShort()
+	advhudindicators[eindex].Description = net.ReadString()
+	advhudindicators[eindex].ShowValue = net.ReadInt(16)
+	local tempstyle = net.ReadInt(16)
 	if (!advhudindicators[eindex].Style || advhudindicators[eindex].Style != tempstyle) then
 		advhudindicators[eindex].Ready = false // Make sure that everything's ready first before drawing
 	end
@@ -738,73 +725,73 @@ local function AdvHUDIndicatorRegister( um )
 	AdvHUDFormatDescription( eindex )
 
 	//--Position method tacked on the end of the end -Moggie100--//
-	advhudindicators[eindex].positionMethod = um:ReadShort()
+	advhudindicators[eindex].positionMethod = net.ReadInt(16)
 
 	//--Depending on which input mode we're in, we'll get differing input here...--//
-	if( um:ReadShort() == 1 ) then
+	if( net.ReadInt(16) == 1 ) then
 		//--Start XYZ Position--//
-		advhudindicators[eindex].xPos = um:ReadFloat()
-		advhudindicators[eindex].yPos = um:ReadFloat()
-		advhudindicators[eindex].zPos = um:ReadFloat()
+		advhudindicators[eindex].xPos = net.ReadFloat()
+		advhudindicators[eindex].yPos = net.ReadFloat()
+		advhudindicators[eindex].zPos = net.ReadFloat()
 
 		//--Start XYZ Position--//
-		advhudindicators[eindex].xEnd = um:ReadFloat()
-		advhudindicators[eindex].yEnd = um:ReadFloat()
-		advhudindicators[eindex].zEnd = um:ReadFloat()
+		advhudindicators[eindex].xEnd = net.ReadFloat()
+		advhudindicators[eindex].yEnd = net.ReadFloat()
+		advhudindicators[eindex].zEnd = net.ReadFloat()
 
 		advhudindicators[eindex].useWorldCoords = 1
 	else
 		//--Position data tacked on the end.--//
-		advhudindicators[eindex].xPos = um:ReadFloat()
-		advhudindicators[eindex].yPos = um:ReadFloat()
+		advhudindicators[eindex].xPos = net.ReadFloat()
+		advhudindicators[eindex].yPos = net.ReadFloat()
 
 		//--End XY Position--//
-		advhudindicators[eindex].xEnd = um:ReadFloat()
-		advhudindicators[eindex].yEnd = um:ReadFloat()
+		advhudindicators[eindex].xEnd = net.ReadFloat()
+		advhudindicators[eindex].yEnd = net.ReadFloat()
 	end
 
 end
-usermessage.Hook("AdvHUDIndicatorRegister", AdvHUDIndicatorRegister)
+net.Receive("AdvHUDIndicatorRegister", AdvHUDIndicatorRegister)
 
 local function AdvHUDIndicatorUnRegister( um )
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 	advhudindicators[eindex] = nil
 end
-usermessage.Hook("AdvHUDIndicatorUnRegister", AdvHUDIndicatorUnRegister)
+net.Receive("AdvHUDIndicatorUnRegister", AdvHUDIndicatorUnRegister)
 
 local function AdvHUDIndicatorFactor( um )
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 	AdvCheckHITableElement(eindex)
 
-	advhudindicators[eindex].Factor = um:ReadFloat()
-	advhudindicators[eindex].Value = um:ReadFloat()
+	advhudindicators[eindex].Factor = net.ReadFloat()
+	advhudindicators[eindex].Value = net.ReadFloat()
 	AdvHUDFormatDescription( eindex )
 end
-usermessage.Hook("AdvHUDIndicatorFactor", AdvHUDIndicatorFactor)
+net.Receive("AdvHUDIndicatorFactor", AdvHUDIndicatorFactor)
 
 local function AdvHUDIndicatorHideHUD( um )
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 	AdvCheckHITableElement(eindex)
 
-	advhudindicators[eindex].HideHUD = um:ReadBool()
+	advhudindicators[eindex].HideHUD = net.ReadBool()
 end
-usermessage.Hook("AdvHUDIndicatorHideHUD", AdvHUDIndicatorHideHUD)
+net.Receive("AdvHUDIndicatorHideHUD", AdvHUDIndicatorHideHUD)
 
 //--Forces the HUD data to be updated -Moggie100
 local function AdvHUDIndicatorUpdatePosition( um )
 	//--Get the table index
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 
 	//--Ensure it exists and is ready to use
 	AdvCheckHITableElement(eindex)
 
 	//--Update the data for this indicator
-	advhudindicators[eindex].xPos = um:ReadFloat()
-	advhudindicators[eindex].yPos = um:ReadFloat()
-	advhudindicators[eindex].positionMethod = um:ReadShort()
+	advhudindicators[eindex].xPos = net.ReadFloat()
+	advhudindicators[eindex].yPos = net.ReadFloat()
+	advhudindicators[eindex].positionMethod = net.ReadInt(16)
 	advhudindicators[eindex].useWorldCoords = 0
 end
-usermessage.Hook("AdvHUDIndicatorUpdatePosition", AdvHUDIndicatorUpdatePosition)
+net.Receive("AdvHUDIndicatorUpdatePosition", AdvHUDIndicatorUpdatePosition)
 
 
 
@@ -812,18 +799,18 @@ usermessage.Hook("AdvHUDIndicatorUpdatePosition", AdvHUDIndicatorUpdatePosition)
 //--Forces the HUD data to be updated -Moggie100
 local function AdvHUDIndicatorUpdatePositionTwo( um )
 	//--Get the table index
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 
 	//--Ensure it exists and is ready to use
 	AdvCheckHITableElement(eindex)
 
 	//--Update the data for this indicator
-	advhudindicators[eindex].xEnd = um:ReadFloat()
-	advhudindicators[eindex].yEnd = um:ReadFloat()
-	advhudindicators[eindex].positionMethod = um:ReadShort()
+	advhudindicators[eindex].xEnd = net.ReadFloat()
+	advhudindicators[eindex].yEnd = net.ReadFloat()
+	advhudindicators[eindex].positionMethod = net.ReadInt(16)
 	advhudindicators[eindex].useWorldCoords = 0
 end
-usermessage.Hook("AdvHUDIndicatorUpdatePositionTwo", AdvHUDIndicatorUpdatePositionTwo)
+net.Receive("AdvHUDIndicatorUpdatePositionTwo", AdvHUDIndicatorUpdatePositionTwo)
 
 
 
@@ -832,15 +819,15 @@ usermessage.Hook("AdvHUDIndicatorUpdatePositionTwo", AdvHUDIndicatorUpdatePositi
 //--May just explode in everyone's faces!--//
 local function AdvHUDIndicator_UpdateSTRING( um )
 	//--Get the table index
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 
 	//--Ensure it exists and is ready to use
 	AdvCheckHITableElement(eindex)
 
 	//--Update the data for this indicator
-	advhudindicators[eindex].Description = um:ReadString()
+	advhudindicators[eindex].Description = net.ReadString()
 end
-usermessage.Hook("AdvHUDIndicator_STRING", AdvHUDIndicator_UpdateSTRING)
+net.Receive("AdvHUDIndicator_STRING", AdvHUDIndicator_UpdateSTRING)
 
 
 
@@ -849,59 +836,59 @@ usermessage.Hook("AdvHUDIndicator_STRING", AdvHUDIndicator_UpdateSTRING)
 //--Forces the HUD data to be updated from 3D position data -Moggie100
 local function AdvHUDIndicatorUpdate3DPosition( um )
 	//--Get the table index
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 
 	//--Ensure it exists and is ready to use
 	AdvCheckHITableElement(eindex)
 
 	//--Update the data for this indicator
-	advhudindicators[eindex].xPos = um:ReadFloat()
-	advhudindicators[eindex].yPos = um:ReadFloat()
-	advhudindicators[eindex].zPos = um:ReadFloat()
+	advhudindicators[eindex].xPos = net.ReadFloat()
+	advhudindicators[eindex].yPos = net.ReadFloat()
+	advhudindicators[eindex].zPos = net.ReadFloat()
 	advhudindicators[eindex].useWorldCoords = 1
 end
-usermessage.Hook("AdvHUDIndicatorUpdate3DPosition", AdvHUDIndicatorUpdate3DPosition)
+net.Receive("AdvHUDIndicatorUpdate3DPosition", AdvHUDIndicatorUpdate3DPosition)
 
 
 //--Forces the HUD data to be updated from 3D position data -Moggie100
 local function AdvHUDIndicatorUpdate3DPositionTwo( um )
 	//--Get the table index
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 
 	//--Ensure it exists and is ready to use
 	AdvCheckHITableElement(eindex)
 
 	//--Update the data for this indicator
-	advhudindicators[eindex].xEnd = um:ReadFloat()
-	advhudindicators[eindex].yEnd = um:ReadFloat()
-	advhudindicators[eindex].zEnd = um:ReadFloat()
+	advhudindicators[eindex].xEnd = net.ReadFloat()
+	advhudindicators[eindex].yEnd = net.ReadFloat()
+	advhudindicators[eindex].zEnd = net.ReadFloat()
 	advhudindicators[eindex].useWorldCoords = 1
 end
-usermessage.Hook("AdvHUDIndicatorUpdate3DPositionTwo", AdvHUDIndicatorUpdate3DPositionTwo)
+net.Receive("AdvHUDIndicatorUpdate3DPositionTwo", AdvHUDIndicatorUpdate3DPositionTwo)
 
 
 
 //-- Seeing as this is the only function to set up colours, I'm calling it on a creation/update event even if its not this
 //-- indicator type. -Moggie100
 local function AdvHUDIndicatorStylePercent( um )
-	local eindex = um:ReadShort()
-	local ainfo = string.Explode("|", um:ReadString())
-	local binfo = string.Explode("|", um:ReadString())
+	local eindex = net.ReadInt(16)
+	local ainfo = string.Explode("|", net.ReadString())
+	local binfo = string.Explode("|", net.ReadString())
 	AdvCheckHITableElement(eindex)
 
 	advhudindicators[eindex].AColor = { r = ainfo[1], g = ainfo[2], b = ainfo[3]}
 	advhudindicators[eindex].BColor = { r = binfo[1], g = binfo[2], b = binfo[3]}
 end
-usermessage.Hook("AdvHUDIndicatorStylePercent", AdvHUDIndicatorStylePercent)
+net.Receive("AdvHUDIndicatorStylePercent", AdvHUDIndicatorStylePercent)
 
 local function AdvHUDIndicatorStyleFullCircle( um )
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 	AdvCheckHITableElement(eindex)
 
-	advhudindicators[eindex].FullCircleAngle = um:ReadFloat()
+	advhudindicators[eindex].FullCircleAngle = net.ReadFloat()
 	AdvHUDFormatDescription( eindex ) // So the gauge updates with FullCircleAngle factored in
 end
-usermessage.Hook("AdvHUDIndicatorStyleFullCircle", AdvHUDIndicatorStyleFullCircle)
+net.Receive("AdvHUDIndicatorStyleFullCircle", AdvHUDIndicatorStyleFullCircle)
 
 
 
@@ -909,11 +896,11 @@ usermessage.Hook("AdvHUDIndicatorStyleFullCircle", AdvHUDIndicatorStyleFullCircl
 
 //-- EXTENDED I/O UMSG HOOKS --//
 local function AdvHUDIndicator_EXIO( um )
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 	AdvCheckHITableElement(eindex)
 
-	local key = um:ReadShort();
-	local value = um:ReadFloat();
+	local key = net.ReadInt(16);
+	local value = net.ReadFloat();
 
 	if( key == 1 ) then								//-- SIZE update --//
 		advhudindicators[eindex].exio_size = value
@@ -934,7 +921,7 @@ local function AdvHUDIndicator_EXIO( um )
 	//--Msg("[II] Updated EXIO value index=" ..key.. " value=" ..value.. "\n")
 
 end
-usermessage.Hook("AdvHUDIndicator_EXIO", AdvHUDIndicator_EXIO)
+net.Receive("AdvHUDIndicator_EXIO", AdvHUDIndicator_EXIO)
 
 
 

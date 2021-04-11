@@ -8,7 +8,7 @@ local function CC_StringToChars (player, command, args)
     local out = "%s"
     
     // Output usage
-    if (table.getn (args) == 0) then
+    if (#args == 0) then
         Msg ("USAGE: stringtochars [PACKET] \"string\"\n  Use PACKET to output in expression gate packet form.\n")
         return
     end
@@ -20,10 +20,10 @@ local function CC_StringToChars (player, command, args)
     end
     
     // Loop through the arguments
-    for i = 1 + adj, table.getn (args) do
+    for i = 1 + adj, #args do
         local fmt   = ""
         local chars = { string.byte (args[i], 1, string.len (args[i])) }
-        for j = 1, table.getn (chars) do
+        for j = 1, #chars do
             if (string.len (fmt) > 0) then
                 fmt = fmt .. ", "
             end

@@ -2,6 +2,18 @@
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "shared.lua" )
 
+util.AddNetworkString("AdvHUDIndicatorStylePercent")
+util.AddNetworkString("AdvHUDIndicatorRegister")
+util.AddNetworkString("AdvHUDIndicatorUnRegister")
+util.AddNetworkString("AdvHUDIndicator_STRING")
+util.AddNetworkString("AdvHUDIndicator_EXIO")
+util.AddNetworkString("AdvHUDIndicatorUpdate3DPositionTwo")
+util.AddNetworkString("AdvHUDIndicatorUpdatePositionTwo")
+util.AddNetworkString("AdvHUDIndicatorUpdate3DPosition")
+util.AddNetworkString("AdvHUDIndicatorUpdatePosition")
+util.AddNetworkString("AdvHUDIndicatorFactor")
+util.AddNetworkString("AdvHUDIndicatorHideHUD")
+
 include('shared.lua')
 
 ENT.WireDebugName = "Adv. HUD Indicator"
@@ -86,7 +98,7 @@ end
 function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, flags)
 
 	local ply = self:GetPlayer()
-	local eindex = self:EntIndex()
+	//local eindex = self:EntIndex()
 
 	// If user updates with the STool to take indicator off of HUD
 	if (!showinhud && self.ShowInHUD) then
@@ -109,11 +121,11 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 
 		// Add name if desired
 		if (hudaddname) then
-			self:SetNetworkedString("WireName", huddesc)
-		elseif (self:GetNetworkedString("WireName") == huddesc) then
+			self:SetNWString("WireName", huddesc)
+		elseif (self:GetNWString("WireName") == huddesc) then
 			// Only remove it if the HUD Description was there
 			// because there might be another name on it
-			self:SetNetworkedString("WireName", "")
+			self:SetNWString("WireName", "")
 		end
 
 	end
@@ -169,7 +181,7 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 
 	//--Flag Options--//
 	local flag_worldcoords = 1
-	local flag_alphainput = 2
+	//local flag_alphainput = 2
 	local flag_position_by_pixel = 4
 	local flag_position_by_percent = 8
 	local flag_position_by_decimal = 16
@@ -361,6 +373,8 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 
 end
 
+util.AddNetworkString("AdvHUDIndicatorStylePercent")
+util.AddNetworkString("AdvHUDIndicatorRegister")
 // This is called from RegisterPlayer to send any style-specific info
 function ENT:SetupHUDStyle(hudstyle, rplayer)
 	// 0 (Basic) and 1 (Gradient) don't require any extra info
@@ -371,11 +385,11 @@ function ENT:SetupHUDStyle(hudstyle, rplayer)
 	// Send as string (there should be a way to send colors)
 	local ainfo = self.AR.."|"..self.AG.."|"..self.AB
 	local binfo = self.BR.."|"..self.BG.."|"..self.BB
-	umsg.Start("AdvHUDIndicatorStylePercent", pl)
-		umsg.Short(self:EntIndex())
-		umsg.String(ainfo)
-		umsg.String(binfo)
-	umsg.End()
+	net.Start("AdvHUDIndicatorStylePercent")
+		net.WriteInt(self:EntIndex(), 16)
+		net.WriteString(ainfo)
+		net.WriteString(binfo)
+	net.Send(pl)
 end
 
 // Hook this player to the HUD Indicator
@@ -386,12 +400,12 @@ function ENT:RegisterPlayer(ply, hookhidehud, podonly)
 
 	//--Flag Options--//
 	local flag_worldcoords = 1
-	local flag_alphainput = 2
+	/*local flag_alphainput = 2
 	local flag_position_by_pixel = 4
 	local flag_position_by_percent = 8
 	local flag_position_by_decimal = 16
 	local flag_string_input = 32
-	local flag_vector_inputs = 64
+	local flag_vector_inputs = 64*/
 
 
 	// If player is already registered, this will send an update
@@ -399,50 +413,50 @@ function ENT:RegisterPlayer(ply, hookhidehud, podonly)
 	if (!self.RegisteredPlayers[plyuid]) then
 		self.RegisteredPlayers[plyuid] = { ply = ply, hookhidehud = hookhidehud, podonly = podonly }
 		// This is used to check for pod-only status in ClientCheckRegister()
-		self:SetNetworkedBool( plyuid, util.tobool(podonly) )
+		self:SetNWBool( plyuid, tobool(podonly) )
 	end
 
-	umsg.Start("AdvHUDIndicatorRegister", ply)
-		umsg.Short(eindex)
-		umsg.String(self.HUDDesc or "")
-		umsg.Short(self.HUDShowValue)
-		umsg.Short(self.HUDStyle)
+	net.Start("AdvHUDIndicatorRegister")
+		net.WriteInt(eindex, 16)
+		net.WriteString(self.HUDDesc or "")
+		net.WriteInt(self.HUDShowValue, 16)
+		net.WriteInt(self.HUDStyle, 16)
 
 		//--Position style, tacked on the end of the end - Moggie100--//
-		umsg.Short( self.positionMethod )
+		net.WriteInt( self.positionMethod , 16)
 
 		if( bit.band( self.flags, flag_worldcoords ) == flag_worldcoords ) then
 
 			//--Set the 3D position number--//
-			umsg.Short( 1 );
+			net.WriteInt( 1 , 16);
 
 			//--Start XYZ position data--//
-			umsg.Float( self.world_x )
-			umsg.Float( self.world_y )
-			umsg.Float( self.world_z )
+			net.WriteFloat( self.world_x )
+			net.WriteFloat( self.world_y )
+			net.WriteFloat( self.world_z )
 
 			//--End XYZ position data--//
-			umsg.Float( self.world_end_x )
-			umsg.Float( self.world_end_y )
-			umsg.Float( self.world_end_z )
+			net.WriteFloat( self.world_end_x )
+			net.WriteFloat( self.world_end_y )
+			net.WriteFloat( self.world_end_z )
 		else
 
 			//--Set the 2D position number--//
-			umsg.Short( 0 );
+			net.WriteInt( 0 , 16);
 
 			//--Position data, tacked on the end. - Moggie100--//
-			umsg.Float(self.xPos)
-			umsg.Float(self.yPos)
+			net.WriteFloat(self.xPos)
+			net.WriteFloat(self.yPos)
 
 			//--End XY Position--//
-			umsg.Float( self.xEnd )
-			umsg.Float( self.yEnd )
+			net.WriteFloat( self.xEnd )
+			net.WriteFloat( self.yEnd )
 		end
 
 		//--Display text--//
-		umsg.String( self.displayText )
+		net.WriteString( self.displayText )
 
-	umsg.End()
+	net.Send(ply)
 	self:SetupHUDStyle(self.HUDStyle, ply)
 
 	// Trigger inputs to fully add this player to the list
@@ -453,9 +467,9 @@ end
 
 function ENT:UnRegisterPlayer(ply)
 	if IsValid(ply) then
-		umsg.Start("AdvHUDIndicatorUnRegister", ply)
-			umsg.Short(self:EntIndex())
-		umsg.End()
+		net.Start("AdvHUDIndicatorUnRegister")
+			net.WriteInt(self:EntIndex(), 16)
+		net.Send(ply)
 	end
 	self.RegisteredPlayers[ply:UniqueID()] = nil
 end
@@ -571,10 +585,10 @@ function ENT:TriggerInput(iname, value)
 			if IsValid(rplayer.ply) then
 				if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 					//--Build a new usermessage to update the position
-					umsg.Start("AdvHUDIndicator_STRING", rplayer.ply)
-						umsg.Short(self:EntIndex())	//--Entity inded
-						umsg.String( self.displayText )				//-- The new string to set --//
-					umsg.End()								//--Send message
+					net.Start("AdvHUDIndicator_STRING")
+						net.WriteInt(self:EntIndex(), 16)	//--Entity inded
+						net.WriteString( self.displayText )				//-- The new string to set --//
+					net.Send(rplayer.ply)								//--Send message
 				end
 			else
 				self.RegisteredPlayers[index] = nil
@@ -633,11 +647,11 @@ function ENT:TriggerInput(iname, value)
 			if IsValid(rplayer.ply) then
 				if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 					//--Build a new usermessage to update the position
-					umsg.Start("AdvHUDIndicator_EXIO", rplayer.ply)
-						umsg.Short(self:EntIndex())	//--Entity index
-						umsg.Short( EXIO_update )			//-- The variable to update --//
-						umsg.Float( EXIO_value )			//-- The value to set --//
-					umsg.End()								//--Send message
+					net.Start("AdvHUDIndicator_EXIO")
+						net.WriteInt(self:EntIndex(), 16)	//--Entity index
+						net.WriteInt( EXIO_update , 16)			//-- The variable to update --//
+						net.WriteFloat( EXIO_value )			//-- The value to set --//
+					net.Send(rplayer.ply)								//--Send message
 				end
 			else
 				self.RegisteredPlayers[index] = nil
@@ -658,12 +672,12 @@ function ENT:TriggerInput(iname, value)
 				if IsValid(rplayer.ply) then
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 						//--Build a new usermessage to update the position
-						umsg.Start("AdvHUDIndicatorUpdate3DPositionTwo", rplayer.ply)
-							umsg.Short(self:EntIndex())	//--Entity index
-							umsg.Float( self.world_end_x )				//--X Position update
-							umsg.Float( self.world_end_y )				//--Y Position update
-							umsg.Float( self.world_end_z )				//--Z Position update
-						umsg.End()								//--Send message
+						net.Start("AdvHUDIndicatorUpdate3DPositionTwo")
+							net.WriteInt(self:EntIndex(), 16)	//--Entity index
+							net.WriteFloat( self.world_end_x )				//--X Position update
+							net.WriteFloat( self.world_end_y )				//--Y Position update
+							net.WriteFloat( self.world_end_z )				//--Z Position update
+						net.Send(rplayer.ply)								//--Send message
 					end
 				else
 					self.RegisteredPlayers[index] = nil
@@ -675,12 +689,12 @@ function ENT:TriggerInput(iname, value)
 				if IsValid(rplayer.ply) then
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 						//--Build a new usermessage to update the position
-						umsg.Start("AdvHUDIndicatorUpdatePositionTwo", rplayer.ply)
-							umsg.Short(self:EntIndex())	//--Entity index
-							umsg.Float( self.xEnd )				//--X Position update
-							umsg.Float( self.yEnd )				//--Y Position update
-							umsg.Short( self.positionMethod )	//--The method to position the indicator with.
-						umsg.End()								//--Send message
+						net.Start("AdvHUDIndicatorUpdatePositionTwo")
+							net.WriteInt(self:EntIndex(), 16)	//--Entity index
+							net.WriteFloat( self.xEnd )				//--X Position update
+							net.WriteFloat( self.yEnd )				//--Y Position update
+							net.WriteInt( self.positionMethod , 16)	//--The method to position the indicator with.
+						net.Send(rplayer.ply)								//--Send message
 					end
 				else
 					self.RegisteredPlayers[index] = nil
@@ -693,12 +707,12 @@ function ENT:TriggerInput(iname, value)
 				if IsValid(rplayer.ply) then
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 						//--Build a new usermessage to update the position
-						umsg.Start("AdvHUDIndicatorUpdate3DPosition", rplayer.ply)
-							umsg.Short(self:EntIndex())	//--Entity index
-							umsg.Float( self.world_x )				//--X Position update
-							umsg.Float( self.world_y )				//--Y Position update
-							umsg.Float( self.world_z )				//--Z Position update
-						umsg.End()								//--Send message
+						net.Start("AdvHUDIndicatorUpdate3DPosition")
+							net.WriteInt(self:EntIndex(), 16)	//--Entity index
+							net.WriteFloat( self.world_x )				//--X Position update
+							net.WriteFloat( self.world_y )				//--Y Position update
+							net.WriteFloat( self.world_z )				//--Z Position update
+						net.Send(rplayer.ply)								//--Send message
 					end
 				else
 					self.RegisteredPlayers[index] = nil
@@ -711,12 +725,12 @@ function ENT:TriggerInput(iname, value)
 				if IsValid(rplayer.ply) then
 					if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
 						//--Build a new usermessage to update the position
-						umsg.Start("AdvHUDIndicatorUpdatePosition", rplayer.ply)
-							umsg.Short(self:EntIndex())	//--Entity index
-							umsg.Float( self.xPos )				//--X Position update
-							umsg.Float( self.yPos )				//--Y Position update
-							umsg.Short( self.positionMethod )	//--The method to position the indicator with.
-						umsg.End()								//--Send message
+						net.Start("AdvHUDIndicatorUpdatePosition")
+							net.WriteInt(self:EntIndex(), 16)	//--Entity index
+							net.WriteFloat( self.xPos )				//--X Position update
+							net.WriteFloat( self.yPos )				//--Y Position update
+							net.WriteInt( self.positionMethod , 16)	//--The method to position the indicator with.
+						net.Send(rplayer.ply)								//--Send message
 					end
 				else
 					self.RegisteredPlayers[index] = nil
@@ -748,12 +762,12 @@ function ENT:ShowOutput(factor, value)
 			end
 		end
 
-		umsg.Start("AdvHUDIndicatorFactor", rf)
-			umsg.Short(self:EntIndex())
+		net.Start("AdvHUDIndicatorFactor")
+			net.WriteInt(self:EntIndex(), 16)
 			// Send both to ensure that all styles work properly
-			umsg.Float(factor)
-			umsg.Float(value)
-		umsg.End()
+			net.WriteFloat(factor)
+			net.WriteFloat(value)
+		net.Send(rf)
 	end
 end
 
@@ -764,15 +778,15 @@ function ENT:SendHUDInfo(hidehud)
 	for index,rplayer in pairs(self.RegisteredPlayers) do
 		if IsValid(rplayer.ply) then
 			if (rplayer.ply != pl || (self.ShowInHUD || self.PodPly == pl)) then
-				umsg.Start("AdvHUDIndicatorHideHUD", rplayer.ply)
-					umsg.Short(self:EntIndex())
+				net.Start("AdvHUDIndicatorHideHUD")
+					net.WriteInt(self:EntIndex(), 16)
 					// Check player's preference
 					if (rplayer.hookhidehud) then
-						umsg.Bool(hidehud)
+						net.WriteBool(hidehud)
 					else
-						umsg.Bool(false)
+						net.WriteBool(false)
 					end
-				umsg.End()
+				net.Send(rplayer.ply)
 			end
 		else
 			self.RegisteredPlayers[index] = nil

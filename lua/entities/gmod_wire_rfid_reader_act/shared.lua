@@ -16,34 +16,34 @@ ENT.AdminSpawnable		= false
 
 
 function ENT:SetEffect( name )
-	self:SetNetworkedString( "Effect", name )
+	self:SetNWString( "Effect", name )
 end
 
 function ENT:GetEffect( name )
-	return self:GetNetworkedString( "Effect" )
+	return self:GetNWString( "Effect" )
 end
 
 
 function ENT:SetOn( boolon )
-	self:SetNetworkedBool( "On", boolon, true )
+	self:SetNWBool( "On", boolon, true )
 end
 
 function ENT:IsOn( name )
-	return self:GetNetworkedBool( "On" )
+	return self:GetNWBool( "On" )
 end
 
 function ENT:SetOffset( v )
-	self:SetNetworkedVector( "Offset", v, true )
+	self:SetNWVector( "Offset", v, true )
 end
 
 function ENT:GetOffset( name )
-	return self:GetNetworkedVector( "Offset" )
+	return self:GetNWVector( "Offset" )
 end
 
 function ENT:SetBeamRange(length)
-	self:SetNetworkedFloat("BeamLength", length)
+	self:SetNWFloat("BeamLength", length)
 end
 
 function ENT:GetBeamRange()
-	return self:GetNetworkedFloat("BeamLength") or 0
+	return self:GetNWFloat("BeamLength") or 0
 end

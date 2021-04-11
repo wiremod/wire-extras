@@ -8,7 +8,7 @@ if ( CLIENT ) then
 	language.Add( "Tool.gui_wiring.name", "GUI Wiring Tool" )
 	language.Add( "Tool.gui_wiring.desc", "Used to connect wirable props." )
 	language.Add( "Tool.gui_wiring.0", "Primary: Select entity.\nSecondary: Deselect entity.\nReload: Open GUI." )
-	
+
 	language.Add( "Tool_gui_wiring_showports", "Show overlay of ports in HUD" )
     language.Add( "GUI_WiringTool_width", "Width:" )
     language.Add( "GUI_WiringTool_material", "Material:" )
@@ -25,6 +25,8 @@ TOOL.ClientConVar[ "color_g" ] = "255"
 TOOL.ClientConVar[ "color_b" ] = "255"
 
 cleanup.Register( "wireconstraints" )
+
+
 
 local von = WireLib.von
 
@@ -43,17 +45,17 @@ function TOOL:LeftClick(trace)
 	if (!IsWire(ent)) then return end
 	if (CLIENT) then return true end
 
-	
+
 	ply_idx = self:GetOwner()
 	Components[ply_idx] = Components[ply_idx] or {}
 	if table.HasValue(Components[ply_idx],ent) then return end
-	
+
 	table.insert(Components[ply_idx], ent)
-	
+
 	local TmpClr = ent:GetColor()
 	ent.OldColorR, ent.OldColorG, ent.OldColorB, ent.OldColorA = TmpClr.r, TmpClr.g, TmpClr.b, TmpClr.a
 	ent:SetColor(Color(255,0,0,128))
-	
+
 	return true
 end
 
@@ -631,13 +633,13 @@ function TOOL:Think() --get and transmit the info on the overlay, but only when 
 			end
 			
 			if(InputString != LastOverBoxInput) then
-				self:GetWeapon():SetNetworkedString("WireDebugOverlayInputs", InputString)
+				self:GetWeapon():SetNWString("WireDebugOverlayInputs", InputString)
 				LastOverBoxInput = InputString
 			end
 		else
 			if(LastOverBoxInput != "") then
 				LastOverBoxInput = ""
-				self:GetWeapon():SetNetworkedString("WireDebugOverlayInputs", "")
+				self:GetWeapon():SetNWString("WireDebugOverlayInputs", "")
 			end
 		end
 		
@@ -653,24 +655,24 @@ function TOOL:Think() --get and transmit the info on the overlay, but only when 
 			end
 			
 			if(OutputString != LastOverBoxOutput) then
-				self:GetWeapon():SetNetworkedString("WireDebugOverlayOutputs", OutputString)
+				self:GetWeapon():SetNWString("WireDebugOverlayOutputs", OutputString)
 				LastOverBoxOutput = OutputString
 			end
 		else
 			if(LastOverBoxOutput != "") then
 				LastOverBoxOutput = ""
-				self:GetWeapon():SetNetworkedString("WireDebugOverlayOutputs", "")
+				self:GetWeapon():SetNWString("WireDebugOverlayOutputs", "")
 			end
 		end
 	else
 		if(LastOverBoxInput != "") then
 			LastOverBoxInput = ""
-			self:GetWeapon():SetNetworkedString("WireDebugOverlayInputs", "")
+			self:GetWeapon():SetNWString("WireDebugOverlayInputs", "")
 		end
 		
 		if(LastOverBoxOutput != "") then
 			LastOverBoxOutput = ""
-			self:GetWeapon():SetNetworkedString("WireDebugOverlayOutputs", "")
+			self:GetWeapon():SetNWString("WireDebugOverlayOutputs", "")
 		end
 	end
 
@@ -679,8 +681,8 @@ end
 if CLIENT then
 
 	function TOOL:DrawHUD()
-		local InputText = self:GetWeapon():GetNetworkedString("WireDebugOverlayInputs") or ""
-		local OutputText = self:GetWeapon():GetNetworkedString("WireDebugOverlayOutputs") or ""
+		local InputText = self:GetWeapon():GetNWString("WireDebugOverlayInputs") or ""
+		local OutputText = self:GetWeapon():GetNWString("WireDebugOverlayOutputs") or ""
 		
 		if(InputText != "") then
 			surface.SetFont("Trebuchet24")

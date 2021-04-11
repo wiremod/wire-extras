@@ -1,6 +1,7 @@
 AddCSLuaFile( "cl_init.lua" );
 AddCSLuaFile( "shared.lua" );
 include( "shared.lua" );
+util.AddNetworkString("hsholoemitter_datamsg")
 
 // wire debug and overlay crap.
 ENT.WireDebugName	= "High speed Holographic Emitter"
@@ -19,9 +20,9 @@ function ENT:Initialize( )
 	self:SetSolid( SOLID_VPHYSICS );
 	
 	// vars
-	self:SetNetworkedBool( "UseGPS", false );
-	self:SetNetworkedInt( "LastClear", 0 );
-	self:SetNetworkedEntity( "grid", self );
+	self:SetNWBool( "UseGPS", false );
+	self:SetNWInt( "LastClear", 0 );
+	self:SetNWEntity( "grid", self );
 
 	// create inputs.
 	self.Inputs = Wire_CreateInputs( self, { "Active", "Reset" } )
@@ -56,13 +57,13 @@ end
 
 // link to grid
 function ENT:LinkToGrid( ent )
-	self:SetNetworkedEntity( "grid", ent );
+	self:SetNWEntity( "grid", ent );
 end
 
 function ENT:BuildDupeInfo()
 	local info = self.BaseClass.BuildDupeInfo(self) or {}
 
-	grid = self:GetNetworkedEntity( "grid" )
+	grid = self:GetNWEntity( "grid" )
 	if (grid) and (grid:IsValid()) then
 		info.holoemitter_grid = grid:EntIndex()
 	end
@@ -104,14 +105,14 @@ function ENT:SendData()
 		local rp = RecipientFilter()
 		rp:AddAllPlayers()
 
-		umsg.Start("hsholoemitter_datamsg", rp)
-			umsg.Long(self:EntIndex())
-			umsg.Long(self.packetStartAddr)
-			umsg.Long(self.packetLen)
+		net.Start("hsholoemitter_datamsg")
+			net.WriteInt(self:EntIndex(), 32)
+			net.WriteInt(self.packetStartAddr, 32)
+			net.WriteInt(self.packetLen, 32)
 			for i = 0, self.packetLen-1 do
-				umsg.Float(self.Memory[self.packetStartAddr + i])
+				net.WriteFloat(self.Memory[self.packetStartAddr + i])
 			end
-		umsg.End()
+		net.Send(rp)
 	end
 	self.packetLen = 0
 	self.packetStartAddr = 0
@@ -119,13 +120,13 @@ end
 
 function ENT:ReadCell( Address )
     if(!self.Memory) then return; end
-	if ( Address >= 0 and Address <= 4 + 3*GetConVarNumber("hsholoemitter_max_points") ) then
+	if ( Address >= 0 and Address <= 4 + 3*GetConVar("hsholoemitter_max_points"):GetInt() ) then
 		return self.Memory[Address]
 	end
 end
 
 function ENT:WriteCell( Address, Value )
-	if ( Address >= 0 and Address <= 4 + 3*GetConVarNumber("hsholoemitter_max_points") ) then
+	if ( Address >= 0 and Address <= 4 + 3*GetConVar("hsholoemitter_max_points"):GetInt() ) then
 		self.Memory[Address] = Value
 		self.lastThinkChange = true
 		

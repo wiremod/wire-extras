@@ -8,7 +8,7 @@ local matpoint = Material( "sprites/gmdm_pickups/light" );
 function ENT:Initialize( )
 	// point list
 	self.PointList = {};
-	self.LastClear = self:GetNetworkedBool("Clear");
+	self.LastClear = self:GetNWBool("Clear");
 	
 	// active point
 	self.ActivePoint = Vector( 0, 0, 0 );
@@ -27,12 +27,12 @@ end
 function ENT:Think( )
 	// read point.
 	local point = Vector(
-		self:GetNetworkedFloat( "X" ),
-		self:GetNetworkedFloat( "Y" ),
-		self:GetNetworkedFloat( "Z" )
+		self:GetNWFloat( "X" ),
+		self:GetNWFloat( "Y" ),
+		self:GetNWFloat( "Z" )
 	);
 
-	lastclear = self:GetNetworkedInt("Clear")
+	lastclear = self:GetNWInt("Clear")
 	if(lastclear != self.LastClear) then
 		self.PointList = {}
 		self.LastClear = lastclear
@@ -43,18 +43,18 @@ function ENT:Think( )
 	self:SetRenderBoundsWS( p - self.RBound, p + self.RBound )
 	
 	// did the point differ from active point?
-	if( point != self.ActivePoint && self:GetNetworkedBool( "Active" ) ) then
+	if( point != self.ActivePoint && self:GetNWBool( "Active" ) ) then
 		// fetch color.
 		local a = self:GetColor().a;
 	
 		// store this point inside the point list
 		local tempfaderate
 		if (game.SinglePlayer()) then
-			tempfaderate = math.Clamp( self:GetNetworkedFloat( "FadeRate" ), 0.1, 255 )
+			tempfaderate = math.Clamp( self:GetNWFloat( "FadeRate" ), 0.1, 255 )
 		else
 			-- Due to a request, in Multiplayer, the people can controle this with a CL side cvar (aVoN)
-			local minfaderate = GetConVarNumber("cl_wire_holoemitter_minfaderate") or 10;
-			tempfaderate = math.Clamp( self:GetNetworkedFloat( "FadeRate" ),minfaderate, 255 )
+			local minfaderate = GetConVar("cl_wire_holoemitter_minfaderate"):GetInt() or 10;
+			tempfaderate = math.Clamp( self:GetNWFloat( "FadeRate" ),minfaderate, 255 )
 		end
 		table.insert( self.PointList, { pos = self.ActivePoint, alpha = a, faderate = tempfaderate } );
 		
@@ -71,10 +71,10 @@ function ENT:Draw( )
 	self:DrawModel();
 	
 	// are we rendering?
-	if( !self:GetNetworkedBool( "Active" ) ) then return; end
+	if( !self:GetNWBool( "Active" ) ) then return; end
 	
 	// read emitter.
-	local emitter = self:GetNetworkedEntity( "grid" );
+	local emitter = self:GetNWEntity( "grid" );
 	if( !emitter || !emitter:IsValid() ) then return; end
 	
 	// calculate emitter position.
@@ -82,14 +82,14 @@ function ENT:Draw( )
 	local right 	= emitter:GetRight();
 	local up 	= emitter:GetUp();
 	local pos 	= emitter:GetPos() + up * 64;
-	local usegps = emitter:GetNetworkedBool( "UseGPS" )
+	local usegps = emitter:GetNWBool( "UseGPS" )
 
 	// draw beam?
-	local drawbeam	= self:GetNetworkedBool( "ShowBeam" );
-	local groundbeam	= self:GetNetworkedBool( "GroundBeam" );
+	local drawbeam	= self:GetNWBool( "ShowBeam" );
+	local groundbeam	= self:GetNWBool( "GroundBeam" );
 	
 	// read point size
-	local size	= self:GetNetworkedFloat( "PointSize" );
+	local size	= self:GetNWFloat( "PointSize" );
 	local beamsize	= size * 0.25;
 	
 	// read color
@@ -128,7 +128,7 @@ function ENT:Draw( )
 	// draw fading points.
 	local point, lastpos, i = nil, pixelpos;
 	local newlist = {}
-	for i = table.getn( self.PointList ), 1, -1 do
+	for i = # self.PointList , 1, -1 do
 		// easy access
 		local point = self.PointList[i];
 
@@ -216,18 +216,18 @@ local function HoloPressCheck( ply, key )
 			local LastEnt = 0
 			
 			for _,v in ipairs( emitters ) do
-				local emitter = v.Entity:GetNetworkedEntity( "grid" );
-				if (v.Entity:GetNetworkedBool( "Active" )) then
+				local emitter = v.Entity:GetNWEntity( "grid" );
+				if (v.Entity:GetNWBool( "Active" )) then
 					local fwd = emitter:GetForward();
 					local right = emitter:GetRight();
 					local up = emitter:GetUp();
 					local pos = emitter:GetPos() + (up*64)
-					count = table.getn( v.PointList )
+					count = # v.PointList 
 
 					for i = count,1,-1 do
 						point = v.PointList[i];
 						
-						if (v.Entity:GetNetworkedBool( "UseGPS" )) then
+						if (v.Entity:GetNWBool( "UseGPS" )) then
 							pixelpos = point.pos
 						else
 							pixelpos = v:CalculatePixelPoint( point.pos, pos, fwd, right, up );

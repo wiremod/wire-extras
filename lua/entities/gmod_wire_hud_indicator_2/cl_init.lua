@@ -98,9 +98,9 @@ concommand.Add("HUD2_uploadCode", HUD2_uploadCode, nil);
 
 //-- Hook the user message 'HUD2_SYNC' and keep our lookup table up to date! --//
 local function HUD2_Sync( um )
-	local eindex = um:ReadShort()
-	local name = um:ReadString()
-	local inType = um:ReadShort()
+	local eindex = net.ReadInt(16)
+	local name = net.ReadString()
+	local inType = net.ReadInt(16)
 
 	if( HUD_System.hookedEnts[eindex] == nil or HUD_System.hookedEnts[eindex].renderer == nil ) then return end
 
@@ -117,53 +117,53 @@ local function HUD2_Sync( um )
 	-- 
 	-- Alpha'd colors are vector4's but with lower precision, hence the additional type - even though its not used by wiremod at the mo AFAIK. -Moggie100
 	if ( inType == NORMAL ) then
-		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="VALUE", value=um:ReadFloat() }
+		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="VALUE", value=net.ReadFloat() }
 
 	elseif( inType == STRING ) then
-		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="VALUE", value=um:ReadString() }
+		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="VALUE", value=net.ReadString() }
 
 	elseif( inType == COLOR ) then
-		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="COLLECTION", value = { {value=um:ReadShort(), type="VALUE"}, {value=um:ReadShort(), type="VALUE"}, {value=um:ReadShort(), type="VALUE"}, 255} }
+		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="COLLECTION", value = { {value=net.ReadInt(16), type="VALUE"}, {value=net.ReadInt(16), type="VALUE"}, {value=net.ReadInt(16), type="VALUE"}, 255} }
 
 	elseif( inType == COLOR_ALPHA ) then
-		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="COLLECTION", value = { {value=um:ReadShort(), type="VALUE"}, {value=um:ReadShort(), type="VALUE"}, {value=um:ReadShort(), type="VALUE"}, {value=um:ReadShort(), type="VALUE"}} }
+		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="COLLECTION", value = { {value=net.ReadInt(16), type="VALUE"}, {value=net.ReadInt(16), type="VALUE"}, {value=net.ReadInt(16), type="VALUE"}, {value=net.ReadInt(16), type="VALUE"}} }
 
 	elseif( inType == VECTOR2 ) then
-		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="COLLECTION", value = { {value=um:ReadFloat(), type="VALUE"}, {value=um:ReadFloat(), type="VALUE"}} }
+		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="COLLECTION", value = { {value=net.ReadFloat(), type="VALUE"}, {value=net.ReadFloat(), type="VALUE"}} }
 
 	elseif( inType == VECTOR3 ) then
-		local inVec = um:ReadVector()
+		local inVec = net.ReadVector()
 		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="COLLECTION", value = { {value=inVec.x, type="VALUE"}, {value=inVec.y, type="VALUE"}, {value=inVec.z}} }
 
 	elseif( inType == VECTOR4 ) then
-		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="COLLECTION", value = { {value=um:ReadFloat(), type="VALUE"}, {value=um:ReadFloat(), type="VALUE"}, {value=um:ReadFloat(), type="VALUE"}, {value=um:ReadFloat(), type="VALUE"}} }
+		HUD_System.hookedEnts[eindex].renderer.inputs[name] = { type="COLLECTION", value = { {value=net.ReadFloat(), type="VALUE"}, {value=net.ReadFloat(), type="VALUE"}, {value=net.ReadFloat(), type="VALUE"}, {value=net.ReadFloat(), type="VALUE"}} }
 
 	end
 
 end
-usermessage.Hook("HUD2_SYNC", HUD2_Sync)
+net.Receive("HUD2_SYNC", HUD2_Sync)
 
 
 //-- Hook the user message 'HUD2_REG' so we get register messages
 local function HUD2_Register( um )
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 
 	HUD_System.hookedEnts[eindex] = { renderer = HMLRenderer:new() }
 	
 	GAMEMODE:AddNotify("[HUD] Linking to HUD extention...", NOTIFY_CLEANUP, 3)
 	
 end
-usermessage.Hook("HUD2_REG", HUD2_Register)
+net.Receive("HUD2_REG", HUD2_Register)
 
 
 //-- Hook the user message 'HUD2_UNREG' so we can unregister
 local function HUD2_Register( um )
-	local eindex = um:ReadShort()
+	local eindex = net.ReadInt(16)
 
 	HUD_System.hookedEnts[eindex] = nil
 	GAMEMODE:AddNotify("[HUD] Link broken!", NOTIFY_CLEANUP, 3)
 end
-usermessage.Hook("HUD2_UNREG", HUD2_Register)
+net.Receive("HUD2_UNREG", HUD2_Register)
 
 function HML_RenderTableUpdate( len )
 	local tbl = net.ReadTable()

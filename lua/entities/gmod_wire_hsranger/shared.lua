@@ -11,27 +11,27 @@ ENT.AdminSpawnable		= false
 if ( SERVER ) then
 
 	function ENT:SetSkewX( value )
-		self:SetNetworkedFloat( "SkewX", math.max( -1, math.min( value, 1 ) ) )
+		self:SetNWFloat( "SkewX", math.max( -1, math.min( value, 1 ) ) )
 	end
 
 	function ENT:SetSkewY( value )
-		self:SetNetworkedFloat( "SkewY", math.max( -1, math.min( value, 1 ) ) )
+		self:SetNWFloat( "SkewY", math.max( -1, math.min( value, 1 ) ) )
 	end
 
 	function ENT:SetBeamLength( length )
-		self:SetNetworkedFloat( "BeamLength", length )
+		self:SetNWFloat( "BeamLength", length )
 	end
 	
 end
 
 function ENT:GetSkewX()
-	return self:GetNetworkedFloat( "SkewX", 0 )
+	return self:GetNWFloat( "SkewX", 0 )
 end
 
 function ENT:GetSkewY()
-	return self:GetNetworkedFloat( "SkewY", 0 )
+	return self:GetNWFloat( "SkewY", 0 )
 end
 
 function ENT:GetBeamLength()
-	return self:GetNetworkedFloat( "BeamLength", 0 )
+	return self:GetNWFloat( "BeamLength", 0 )
 end

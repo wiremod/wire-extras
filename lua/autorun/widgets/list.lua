@@ -16,7 +16,7 @@ panelWidget["list"] = {
 						end
 						if widget.paramTable[2] then
 							widget.options = string.Explode("|", widget.paramTable[2])
-							widget.numOptions = table.getn(widget.options) - 1
+							widget.numOptions = #widget.options - 1
 						else
 							widget.options = {}
 							widget.numOptions = 0
@@ -73,7 +73,7 @@ panelWidget["list"] = {
 							--clientSendOutput(widget, 1, widget.selected + 1)
 							widget.parent:widgetOutput(nil, widget.modName, "selected", widget.selected + 1)
 							widget.options = string.Explode("|", value)
-							widget.numOptions = table.getn(widget.options) - 1
+							widget.numOptions = #widget.options - 1
 							widget.selected = 0
 							guiP_cl_drawUpdate(widget, 2, value)
 							--print ("sent "..value.."\n")
@@ -85,7 +85,7 @@ panelWidget["list"] = {
 							widget.selected = value
 						elseif (paramNum == 2) then
 							widget.options = string.Explode("|", value)
-							widget.numOptions = table.getn(widget.options) - 1
+							widget.numOptions = #widget.options - 1
 							widget.selected = 0
 						end
 					end,

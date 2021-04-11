@@ -55,13 +55,13 @@ function TOOL:LeftClick( trace )
 			for a, b in pairs(datatable) do
 				datatable[a] = string.gsub(datatable[a]," ", "")
 				explode  = string.Explode("=",datatable[a])
-					if table.getn(explode)!=2 then PrintError(player,a,"Wrong number of arguments","","") return false end
+					if #explode!=2 then PrintError(player,a,"Wrong number of arguments","","") return false end
 					for k, v in pairs(explode) do
 						if string.Left(v,1)=="(" && string.Right(v,1)==")" then
 							if k==1 && type=="ARRAY" then PrintError(player,a,"Array only takes integer indexes, not vector","","") return false end
 							vtype = string.sub(v, 2, string.len(v)-1)
 							vtype = string.Explode(",",vtype)
-							if table.getn(vtype)!=3 then PrintError(player,a,"Vector requires 3 components","","") return false end
+							if #vtype!=3 then PrintError(player,a,"Vector requires 3 components","","") return false end
 								for i=1, 3 do
 									if _G.type(tonumber(vtype[i]))!="number" then PrintError(player,a,"Vector only takes numbers as arguments","","") return false end
 								end
@@ -115,7 +115,7 @@ function TOOL:RightClick( trace )
 		if (iNextInput) then
 		    self:GetOwner():EmitSound("weapons/pistol/pistol_empty.wav")
 			
-		    if (iNextInput > table.getn(self.Inputs)) then iNextInput = 1 end
+		    if (iNextInput > #self.Inputs) then iNextInput = 1 end
 			
 		    self.CurrentInput = self.Inputs[iNextInput]
 			if (self.CurrentInput) then self.LastValidInput = self.CurrentInput end
@@ -135,11 +135,11 @@ function TOOL:RightClick( trace )
 			and (self.InputsType[self.CurrentInput] != "NORMAL") then
 				txt = txt.." ["..self.InputsType[self.CurrentInput].."]"
 			end
-			self:GetWeapon():SetNetworkedString("WireCurrentInput", txt)
+			self:GetWeapon():SetNWString("WireCurrentInput", txt)
 			
 			
 			if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) then
-			    self.CurrentComponent:SetNetworkedBeamString("BlinkWire", self.CurrentInput)
+			    self.CurrentComponent:SetNWString("BlinkWire", self.CurrentInput)
 			end
 		end
 	elseif (self.Outputs) then
@@ -153,7 +153,7 @@ function TOOL:RightClick( trace )
 		if (iNextOutput) then
 		    self:GetOwner():EmitSound("weapons/pistol/pistol_empty.wav")
 
-		    if (iNextOutput > table.getn(self.Outputs)) then iNextOutput = 1 end
+		    if (iNextOutput > #self.Outputs) then iNextOutput = 1 end
 		    
             self.CurrentOutput = self.Outputs[iNextOutput] or "" --if that's nil then somethis is wrong with the ent
 			
@@ -165,7 +165,7 @@ function TOOL:RightClick( trace )
 			and (self.OutputsType[self.CurrentOutput] != "NORMAL") then
 				txt = txt.." ["..self.OutputsType[self.CurrentOutput].."]"
 			end
-			self:GetWeapon():SetNetworkedString("WireCurrentInput", txt)
+			self:GetWeapon():SetNWString("WireCurrentInput", txt)
 		end
 	end
 end
@@ -181,7 +181,7 @@ end
 
 if (CLIENT) then
 	function TOOL:DrawHUD()
-	    local current_input = self:GetWeapon():GetNetworkedString("WireCurrentInput") or ""
+	    local current_input = self:GetWeapon():GetNWString("WireCurrentInput") or ""
 		if (current_input ~= "") then
 		    if (string.sub(current_input, 1, 1) == "%") then
 		    	draw.WordBox(8, ScrW()/2+10, ScrH()/2+10, string.sub(current_input, 2), "Default", Color(150,50,50,192), Color(255,255,255,255) )
@@ -302,7 +302,7 @@ function TOOL:SelectComponent(ent)
 	if (self.CurrentComponent == ent) then return end
 	
     if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) then
- 	    self.CurrentComponent:SetNetworkedBeamString("BlinkWire", "")
+ 	    self.CurrentComponent:SetNWString("BlinkWire", "")
 	end
 	
 	self.CurrentComponent = ent
@@ -351,10 +351,10 @@ function TOOL:SelectComponent(ent)
 	and (self.InputsType[self.CurrentInput] != "NORMAL") then
 		txt = txt.." ["..self.InputsType[self.CurrentInput].."]"
 	end
-	self:GetWeapon():SetNetworkedString("WireCurrentInput", txt)
+	self:GetWeapon():SetNWString("WireCurrentInput", txt)
 	
 	if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) then
-	    self.CurrentComponent:SetNetworkedBeamString("BlinkWire", self.CurrentInput)
+	    self.CurrentComponent:SetNWString("BlinkWire", self.CurrentInput)
 	end
 end
 
