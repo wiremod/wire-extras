@@ -109,11 +109,10 @@ function gpCursorClick (ply)
 		if (xval >= 0 and yval >= 0 and xval <= 1 and yval <= 1) then
 			--Msg ("clicked at ( "..xval.." , "..yval.." )\n")
 			for k, widget in ipairs(ent.pWidgets) do
-				if (xval * ent.drawParams.screenWidth > widget.X) && (yval * ent.drawParams.screenHeight > widget.Y) && (xval * ent.drawParams.screenWidth < widget.X + widget.W) && (yval * ent.drawParams.screenHeight < widget.Y + widget.H) then
-				--Msg("clicked on widget\n")
-					if (widget.enabled) then
-						widget.modType.modClicked (ply, widget, (xval * ent.drawParams.screenWidth) - widget.X, (yval * ent.drawParams.screenHeight) - widget.Y)
-					end
+				if xval * ent.drawParams.screenWidth > widget.X and yval * ent.drawParams.screenHeight > widget.Y
+				and xval * ent.drawParams.screenWidth < widget.X + widget.W and yval * ent.drawParams.screenHeight < widget.Y + widget.H
+				and widget.enabled then
+					widget.modType.modClicked (ply, widget, (xval * ent.drawParams.screenWidth) - widget.X, (yval * ent.drawParams.screenHeight) - widget.Y)
 				end
 			end
 		end
@@ -267,7 +266,7 @@ function guiP_fileDataToTable (fileData)
 			local mTop = tonumber(lineData[4])
 			local mWidth = tonumber(lineData[5])
 			local mHeight = tonumber(lineData[6])
-			local parmTable = {}
+			//local parmTable = {}
 			local parmStart = 7
 			
 			--read wire settings
