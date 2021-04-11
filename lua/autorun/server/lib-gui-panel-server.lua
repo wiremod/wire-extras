@@ -415,7 +415,7 @@ function guiP_SendClientWidgets(ent)
 			--check extra params
 			local numParams = table.Count(modu.paramTable)
 			net.WriteInt(numParams, 16)
-			local keysend = 0
+			//local keysend = 0
 						
 			for pkey, param in pairs(modu.paramTable) do
 				--Msg(string.format("key = %s, param = %s, cms = '%s'\n", pkey, param, table.concat(modu.modType.paramTable)))

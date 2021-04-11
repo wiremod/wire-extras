@@ -323,10 +323,10 @@ else
 	--server to client send panel
 	function sendClientPanel(player, widgetTable)
 		Msg("sending config\n")
-		//local conf = net.ReadBool()		
+		local _ = net.ReadBool()
 		net.Start("smsgModularPanel")
 			net.WriteInt(#widgetTable, 16)
-			
+
 			for k, wid in ipairs (widgetTable) do
 				if (wid and wid.name) then
 					Msg("trying "..wid.name.."\n")
