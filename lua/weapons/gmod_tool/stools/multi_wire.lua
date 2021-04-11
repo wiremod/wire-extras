@@ -117,10 +117,10 @@ function TOOL:LeftClick( trace )
 				//self:GetWeapon():SetNWString("WireCurrentInput", "Output:"..self.CurrentOutput)
 
 				local txt = "Output: "..self.CurrentOutput
-				if (self.OutputsDesc) and (self.OutputsDesc[self.CurrentOutput]) then
+				if self.OutputsDesc and self.OutputsDesc[self.CurrentOutput] then
 					txt = txt.." ("..self.OutputsDesc[self.CurrentOutput]..")"
 				end
-				if (self.OutputsType) and (self.OutputsType[self.CurrentOutput])
+				if self.OutputsType and self.OutputsType[self.CurrentOutput]
 				and (self.OutputsType[self.CurrentOutput] != "NORMAL") then
 					txt = txt.." ["..self.OutputsType[self.CurrentOutput].."]"
 				end
@@ -223,17 +223,17 @@ function TOOL:RightClick( trace )
 			end*/
 
 			local txt = ""
-			if (IsValid(self.CurrentComponent)) and (WireLib.HasPorts(self.CurrentComponent)) and (self.CurrentInput)
-			  and (self.CurrentComponent.Inputs) and (self.CurrentComponent.Inputs[self.CurrentInput])
-			  and (self.CurrentComponent.Inputs[self.CurrentInput].Src) then
+			if IsValid(self.CurrentComponent) and WireLib.HasPorts(self.CurrentComponent) and self.CurrentInput
+			  and self.CurrentComponent.Inputs and self.CurrentComponent.Inputs[self.CurrentInput]
+			  and self.CurrentComponent.Inputs[self.CurrentInput].Src then
 				txt = "%"..(self.CurrentInput or "")
 			else
 				txt = self.CurrentInput or ""
 			end
-			if (self.InputsDesc) and (self.InputsDesc[self.CurrentInput]) then
+			if self.InputsDesc and self.InputsDesc[self.CurrentInput] then
 				txt = txt.." ("..self.InputsDesc[self.CurrentInput]..")"
 			end
-			if (self.InputsType) and (self.InputsType[self.CurrentInput])
+			if self.InputsType and self.InputsType[self.CurrentInput]
 			and (self.InputsType[self.CurrentInput] != "NORMAL") then
 				txt = txt.." ["..self.InputsType[self.CurrentInput].."]"
 			end
@@ -260,11 +260,11 @@ function TOOL:RightClick( trace )
             self.CurrentOutput = self.Outputs[iNextOutput]
 
 			local txt = "Output: "..self.CurrentOutput
-			if (self.OutputsDesc) and (self.OutputsDesc[self.CurrentOutput]) then
+			if self.OutputsDesc and self.OutputsDesc[self.CurrentOutput] then
 				txt = txt.." ("..self.OutputsDesc[self.CurrentOutput]..")"
 			end
-			if (self.OutputsType) and (self.OutputsType[self.CurrentOutput])
-			and (self.OutputsType[self.CurrentOutput] != "NORMAL") then
+			if self.OutputsType and self.OutputsType[self.CurrentOutput]
+			and self.OutputsType[self.CurrentOutput] != "NORMAL" then
 				txt = txt.." ["..self.OutputsType[self.CurrentOutput].."]"
 			end
 			self:GetWeapon():SetNWString("WireCurrentInput", txt)
@@ -341,7 +341,7 @@ function TOOL:Think()
 		local tr = util.GetPlayerTrace(player, player:GetAimVector())
 		local trace = util.TraceLine(tr)
 
-		if (trace.Hit) and (trace.Entity:IsValid()) then
+		if trace.Hit and trace.Entity:IsValid() then
 			self:SelectComponent(trace.Entity)
 		else
             self:SelectComponent(nil)
@@ -459,7 +459,7 @@ function TOOL:SelectComponent(ent)
 
 	local best = nil
 	local first = nil
-	if (ent) and (ent.Inputs) then
+	if ent and ent.Inputs then
 		for k,v in pairs(ent.Inputs) do
 		    if (not first) then first = k end
 		    if (k == self.LastValidInput) then best = k end
@@ -481,20 +481,20 @@ function TOOL:SelectComponent(ent)
 	first = self.Inputs[1] or first
 
 	self.CurrentInput = best or first
-	if (self.CurrentInput) and (self.CurrentInput ~= "") then self.LastValidInput = self.CurrentInput end
+	if self.CurrentInput and self.CurrentInput ~= "" then self.LastValidInput = self.CurrentInput end
 
 	local txt = ""
-	if (IsValid(self.CurrentComponent)) and (WireLib.HasPorts(self.CurrentComponent)) and (WireLib.HasPorts(self.CurrentComponent)) and (self.CurrentInput)
-	  and (self.CurrentComponent.Inputs) and (self.CurrentComponent.Inputs[self.CurrentInput])
-	  and (self.CurrentComponent.Inputs[self.CurrentInput].Src) then
+	if IsValid(self.CurrentComponent) and WireLib.HasPorts(self.CurrentComponent) and WireLib.HasPorts(self.CurrentComponent) and self.CurrentInput
+	  and self.CurrentComponent.Inputs and self.CurrentComponent.Inputs[self.CurrentInput]
+	  and self.CurrentComponent.Inputs[self.CurrentInput].Src then
     	txt = "%"..(self.CurrentInput or "")
 	else
     	txt = self.CurrentInput or ""
 	end
-	if (self.InputsDesc) and (self.InputsDesc[self.CurrentInput]) then
+	if self.InputsDesc and self.InputsDesc[self.CurrentInput] then
 		txt = txt.." ("..self.InputsDesc[self.CurrentInput]..")"
 	end
-	if (self.InputsType) and (self.InputsType[self.CurrentInput])
+	if self.InputsType and self.InputsType[self.CurrentInput]
 	and (self.InputsType[self.CurrentInput] != "NORMAL") then
 		txt = txt.." ["..self.InputsType[self.CurrentInput].."]"
 	end

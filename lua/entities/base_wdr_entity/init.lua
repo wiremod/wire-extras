@@ -30,10 +30,10 @@ function ENT:Setup(tx)
 		if self.is_tx then
 			self.Inputs = Wire_CreateInputs(self, {"On", "TxWatts", "BaseMHz", "Channel1", "Channel2", "Channel3", "Channel4"})
 			-- transmitters consume energy. 1 energy unit = 1 watt per second, 4 channels = 4 energy units (4 watts) per second
-			if RES_DISTRIB then RD.AddResource(self.Entity, "energy", 0) end
+			if RES_DISTRIB then RD.AddResource(self, "energy", 0) end
 		else -- if it's a receiver
-			self.Inputs = Wire_CreateInputs(self.Entity, {"BaseMHz"})
-			self.Outputs = Wire_CreateOutputs(self.Entity, {"Channel1", "Ch1_HasSignal", "Ch1_dBm",
+			self.Inputs = Wire_CreateInputs(self, {"BaseMHz"})
+			self.Outputs = Wire_CreateOutputs(self, {"Channel1", "Ch1_HasSignal", "Ch1_dBm",
 									 "Channel2", "Ch2_HasSignal", "Ch2_dBm",
 									 "Channel3", "Ch3_HasSignal", "Ch3_dBm",
 									 "Channel4", "Ch4_HasSignal", "Ch4_dBm"})
@@ -45,10 +45,10 @@ end
 
 -- Can we transmit? (Got enough resources?)
 function ENT:CanTX()
-	if not self.is_tx or not (self.active == true) or not (self.txwatts > 0) then return false end
+	if not self.is_tx or not (self.active == true) or (self.txwatts <= 0) then return false end
 	if not RES_DISTRIB then return true end
 
-	return (RD.GetResourceAmount(self, "energy") >= (self.txwatts * 4 * ThinkInterval))
+	return RD.GetResourceAmount(self, "energy") >= (self.txwatts * 4 * ThinkInterval)
 end
 
 -- Returns the background noise at this location in decibels relative to one milliwatt
@@ -99,9 +99,9 @@ end
 function ENT:Randomize()
 	for i=1, 4 do
 		local c = tostring(i)
-		Wire_TriggerOutput(self.Entity, "Channel" .. c, math.random() * 10)
-		Wire_TriggerOutput(self.Entity, "Ch" .. tostring(i) .. "_HasSignal", 0)
-		Wire_TriggerOutput(self.Entity, "Ch" .. c .. "_dBm", -math.random()*1000)
+		Wire_TriggerOutput(self, "Channel" .. c, math.random() * 10)
+		Wire_TriggerOutput(self, "Ch" .. tostring(i) .. "_HasSignal", 0)
+		Wire_TriggerOutput(self, "Ch" .. c .. "_dBm", -math.random()*1000)
 	end
 end
 
@@ -115,7 +115,7 @@ function ENT:Think()
 			if amt < (self.txwatts * 4 * ThinkInterval) then
 				RD.ConsumeResource(self, "energy", amt)
 			else
-				RD.ConsumeResource(self, "energy", (self.txwatts * 4 * ThinkInterval))
+				RD.ConsumeResource(self, "energy", self.txwatts * 4 * ThinkInterval)
 			end
 		end
 
@@ -167,8 +167,8 @@ function ENT:Think()
 				skewloss = math.abs(math.sin(math.rad(v:GetAngles().r) - math.rad(self:GetAngles().r) + skew) * 20)
 			end
 
-			local onedir = math.abs(math.acos(normVectToTx:DotProduct(myAngle)))
-			local otherdir = math.abs(math.acos(txAngle:DotProduct(normVectFromTx)))
+			local onedir = math.abs(math.acos(normVectToTx:Dot(myAngle)))
+			local otherdir = math.abs(math.acos(txAngle:Dot(normVectFromTx)))
 
 			angleloss = (onedir + otherdir) * 30
 
@@ -270,9 +270,9 @@ function ENT:Think()
 
 				if receiveCh ~= 0 then
 					local c = tostring(receiveCh)
-					Wire_TriggerOutput(self.Entity, "Channel" .. c, sig)
-					Wire_TriggerOutput(self.Entity, "Ch" .. c .. "_HasSignal", signalLock)
-					Wire_TriggerOutput(self.Entity, "Ch" .. c .. "_dBm", dBm)
+					Wire_TriggerOutput(self, "Channel" .. c, sig)
+					Wire_TriggerOutput(self, "Ch" .. c .. "_HasSignal", signalLock)
+					Wire_TriggerOutput(self, "Ch" .. c .. "_dBm", dBm)
 					setset[receiveCh] = true
 				end
 			end
@@ -281,11 +281,11 @@ function ENT:Think()
 		-- set the remaining channels randomly
 		for i=1,4 do
 			if not setset[i] then
-				Wire_TriggerOutput(self.Entity, "Channel" .. tostring(i), math.random() * 10)
-				Wire_TriggerOutput(self.Entity, "Ch" .. tostring(i) .. "_HasSignal", 0)
-				Wire_TriggerOutput(self.Entity, "Ch" .. tostring(i) .. "_dBm", -math.random()*1000)
+				Wire_TriggerOutput(self, "Channel" .. tostring(i), math.random() * 10)
+				Wire_TriggerOutput(self, "Ch" .. tostring(i) .. "_HasSignal", 0)
+				Wire_TriggerOutput(self, "Ch" .. tostring(i) .. "_dBm", -math.random()*1000)
 			end
 		end
 	end
-	self.Entity:NextThink(CurTime() + ThinkInterval)
+	self:NextThink(CurTime() + ThinkInterval)
 end

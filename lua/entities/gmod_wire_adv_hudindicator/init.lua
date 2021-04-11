@@ -476,14 +476,14 @@ end
 
 // Is this player registered?
 function ENT:CheckRegister(ply)
-	return (self.RegisteredPlayers[ply:UniqueID()] != nil)
+	return self.RegisteredPlayers[ply:UniqueID()] != nil
 end
 
 // Is this player registered only because he is in a linked pod?
 function ENT:CheckPodOnly(ply)
 	if IsValid(ply) then
 		local plyuid = ply:UniqueID()
-		return (self.RegisteredPlayers[plyuid] != nil && self.RegisteredPlayers[plyuid].podonly)
+		return self.RegisteredPlayers[plyuid] != nil && self.RegisteredPlayers[plyuid].podonly
 	end
 	return false
 end
@@ -745,7 +745,7 @@ end
 
 function ENT:ShowOutput(factor, value)
 	if (factor ~= self.PrevOutput) then
-		self:SetOverlayText( self.PrefixText .. string.format("%.1f", (factor * 100)) .. "%" )
+		self:SetOverlayText( self.PrefixText .. string.format("%.1f", factor * 100) .. "%" )
 		self.PrevOutput = factor
 
 		local rf = RecipientFilter()

@@ -326,7 +326,7 @@ if CLIENT then
 	end
 	function PANEL:SetComponent(vx)
 		local kx = vx[5]
-		local ekey = kx:EntIndex()
+		//local ekey = kx:EntIndex()
 		local nam = vx[3] or kx.WireDebugName or kx.PrintName or ""
 		nam = nam .. " ("..tostring(kx)..")"
 		self.Entity = kx
@@ -696,7 +696,7 @@ if CLIENT then
 			local FontHeight = draw.GetFontHeight("Trebuchet24")+1
 			local MaxWidth = 0
 			for i, Input in ipairs(Inputs) do
-				local W, H = surface.GetTextSize(Input)
+				local W, _ = surface.GetTextSize(Input)
 				if(W > MaxWidth) then
 					MaxWidth = W
 				end
@@ -719,7 +719,7 @@ if CLIENT then
 				draw.Text({
 					text = Input or "",
 					font = "Trebuchet24",
-					pos = {ScrW()/2-(MaxWidth+16)-12, (FontHeight)*(i-1)+(ScrH()/2-#Inputs*FontHeight/2)},
+					pos = {ScrW()/2-(MaxWidth+16)-12, FontHeight*(i-1)+(ScrH()/2-#Inputs*FontHeight/2)},
 					color = TextCol
 				})
 			end
@@ -733,7 +733,7 @@ if CLIENT then
 			local FontHeight = draw.GetFontHeight("Trebuchet24")+1
 			local MaxWidth = 0
 			for i, Output in ipairs(Outputs) do
-				local W, H = surface.GetTextSize(Output)
+				local W, _ = surface.GetTextSize(Output)
 				if(W > MaxWidth) then
 					MaxWidth = W
 				end
@@ -752,7 +752,7 @@ if CLIENT then
 				draw.Text({
 					text = Output or "",
 					font = "Trebuchet24",
-					pos = {ScrW()/2+28, (FontHeight)*(i-1)+(ScrH()/2-#Outputs*FontHeight/2)},
+					pos = {ScrW()/2+28, FontHeight*(i-1)+(ScrH()/2-#Outputs*FontHeight/2)},
 					color = Color(255,255,255)
 				})
 			end

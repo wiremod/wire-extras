@@ -23,16 +23,16 @@ end
 
 
 function ENT:Draw()
-	self.Entity:DrawModel()
+	self:DrawModel()
 	if (!self.panelInitEnable or !self.panelWoken or !self.currentScheme) then return true end	--!self.currentScheme is temp safeguard
 	local showAlways = false
 	
-	local ang = self.Entity:GetAngles()
+	local ang = self:GetAngles()
 	local rot = Vector(-90,90,0)
 	ang:RotateAroundAxis(ang:Right(), rot.x)
 	ang:RotateAroundAxis(ang:Up(), rot.y)
 	ang:RotateAroundAxis(ang:Forward(), rot.z)
-	local pos = self.Entity:GetPos() + (self.Entity:GetForward() * self.z)
+	local pos = self:GetPos() + (self:GetForward() * self.z)
 	
 	cam.Start3D2D(pos, ang, self.res)
 		local trace = {}
@@ -41,8 +41,8 @@ function ENT:Draw()
 			trace.filter = LocalPlayer()
 		local trace = util.TraceLine(trace)
 		--Msg("sd = "..tostring(self.stillDraw)..",sa = "..tostring (showAlways).."\n")
-		if (trace.Entity == self.Entity or self.stillDraw or showAlways) then	
-			local pos = self.Entity:WorldToLocal(trace.HitPos)
+		if (trace.Entity == self or self.stillDraw or showAlways) then	
+			local pos = self:WorldToLocal(trace.HitPos)
 			local cx = (self.x1 - pos.y) / (self.x1 - self.x2)
 			local cy = (self.y1 - pos.z) / (self.y1 - self.y2)
 			
@@ -52,7 +52,7 @@ function ENT:Draw()
 			for k, modu in ipairs(self.pWidgets) do
 				--Msg(string.format("drawing widget: x=%d, y=%d, h=%d, w=%d. startx=%d, starty=%d, endx=%d, endy=%d", modu.X, modu.Y, modu.modType.height, modu.modType.width, x + modu.X, y + modu.Y, x + modu.X + modu.modType.width, y + modu.Y + modu.modType.height))
 				if (modu.visible) then
-					modu.modType.modDraw(self.Entity, modu)
+					modu.modType.modDraw(self, modu)
 				end
 			end
 			
@@ -62,15 +62,15 @@ function ENT:Draw()
 				surface.DrawTexturedRectRotated (self.x + (self.w * cx) + self.ox, self.y + (self.h * cy) + self.oy, 16, 16, 45)
 			end
 			
-			self.lastDrawn = (trace.Entity == self.Entity)
+			self.lastDrawn = (trace.Entity == self)
 		
 		else
 			if self.lastDrawn and not self.stillDraw then
 				--Msg("starting timer\n")
 				self.lastDrawn = false
 				self.stillDraw = true
-				timer.Create("drawFadeT"..tostring(self:EntIndex()), 5, 1, endDrawTimer, self.Entity)
-				--timer.Simple(3, endDrawTimer, self.Entity)
+				timer.Create("drawFadeT"..tostring(self:EntIndex()), 5, 1, endDrawTimer, self)
+				--timer.Simple(3, endDrawTimer, self)
 				timer.Start("drawFadeT"..tostring(self:EntIndex()))
 			end
 		end
@@ -78,7 +78,7 @@ function ENT:Draw()
 	cam.End3D2D()
 	--end night-eagle's code
 	if (self:HasWire()) then
-		Wire_Render(self.Entity)
+		Wire_Render(self)
 	end
 end
 
@@ -88,7 +88,7 @@ function endDrawTimer(ent)
 	--Msg("endt\n")
 	--ent.lastDrawn = true
 	ent.stillDraw = false
-	timer.Destroy("drawFadeT"..tostring(ent:EntIndex()))  
+	timer.Remove("drawFadeT"..tostring(ent:EntIndex()))
 end
 
 

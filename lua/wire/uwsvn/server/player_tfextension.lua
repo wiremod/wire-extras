@@ -47,6 +47,6 @@ end
 //-----------------------------------------------------------------------------
 
 function meta:IsLockedOnto ()
-    return (#self.m_TargetLocks > 0)
+    return #self.m_TargetLocks > 0
 end
 

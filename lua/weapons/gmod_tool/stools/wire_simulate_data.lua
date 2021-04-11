@@ -94,9 +94,7 @@ end
 function TOOL:RightClick( trace )
 	local stage = self:GetStage()
 
-	if (stage < 2) then
-		if (not trace.Entity:IsValid()) or (trace.Entity:IsPlayer()) then return end
-	end
+	if (stage < 2) and (not trace.Entity:IsValid()) or (trace.Entity:IsPlayer()) then return end
 	
 	if (stage == 0) then
 		if (CLIENT) then return end
@@ -121,24 +119,24 @@ function TOOL:RightClick( trace )
 			if (self.CurrentInput) then self.LastValidInput = self.CurrentInput end
 			
 			local txt = ""
-			if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) and (self.CurrentInput)
-			  and (self.CurrentComponent.Inputs) and (self.CurrentComponent.Inputs[self.CurrentInput])
-			  and (self.CurrentComponent.Inputs[self.CurrentInput].Src) then
+			if self.CurrentComponent and self.CurrentComponent:IsValid() and self.CurrentInput
+			  and self.CurrentComponent.Inputs and self.CurrentComponent.Inputs[self.CurrentInput]
+			  and self.CurrentComponent.Inputs[self.CurrentInput].Src then
 				txt = "%"..(self.CurrentInput or "")
 			else
 				txt = self.CurrentInput or ""
 			end
-			if (self.InputsDesc) and (self.InputsDesc[self.CurrentInput]) then
+			if self.InputsDesc and self.InputsDesc[self.CurrentInput] then
 				txt = txt.." ("..self.InputsDesc[self.CurrentInput]..")"
 			end
-			if (self.InputsType) and (self.InputsType[self.CurrentInput])
+			if self.InputsType and self.InputsType[self.CurrentInput]
 			and (self.InputsType[self.CurrentInput] != "NORMAL") then
 				txt = txt.." ["..self.InputsType[self.CurrentInput].."]"
 			end
 			self:GetWeapon():SetNWString("WireCurrentInput", txt)
 			
 			
-			if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) then
+			if self.CurrentComponent and self.CurrentComponent:IsValid() then
 			    self.CurrentComponent:SetNWString("BlinkWire", self.CurrentInput)
 			end
 		end
@@ -158,10 +156,10 @@ function TOOL:RightClick( trace )
             self.CurrentOutput = self.Outputs[iNextOutput] or "" --if that's nil then somethis is wrong with the ent
 			
 			local txt = "Output: "..self.CurrentOutput
-			if (self.OutputsDesc) and (self.OutputsDesc[self.CurrentOutput]) then
+			if self.OutputsDesc and self.OutputsDesc[self.CurrentOutput] then
 				txt = txt.." ("..self.OutputsDesc[self.CurrentOutput]..")"
 			end
-			if (self.OutputsType) and (self.OutputsType[self.CurrentOutput])
+			if self.OutputsType and self.OutputsType[self.CurrentOutput]
 			and (self.OutputsType[self.CurrentOutput] != "NORMAL") then
 				txt = txt.." ["..self.OutputsType[self.CurrentOutput].."]"
 			end
@@ -200,7 +198,7 @@ function TOOL:Think()
 		local tr = util.GetPlayerTrace(player, player:GetAimVector())
 		local trace = util.TraceLine(tr)
 
-		if (trace.Hit) and (trace.Entity:IsValid()) then
+		if trace.Hit and trace.Entity:IsValid() then
 			self:SelectComponent(trace.Entity)
 		else
             self:SelectComponent(nil)
@@ -300,24 +298,24 @@ function TOOL:SelectComponent(ent)
 	if (CLIENT) then return end
 
 	if (self.CurrentComponent == ent) then return end
-	
-    if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) then
+
+    if self.CurrentComponent and self.CurrentComponent:IsValid() then
  	    self.CurrentComponent:SetNWString("BlinkWire", "")
 	end
-	
+
 	self.CurrentComponent = ent
 	self.CurrentInput = nil
 	self.Inputs = {}
 	self.InputsDesc = {}
 	self.InputsType = {}
-	
+
 	local best = nil
 	local first = nil
-	if (ent) and (ent.Inputs) then
+	if ent and ent.Inputs then
 		for k,v in pairs(ent.Inputs) do
 		    if (not first) then first = k end
 		    if (k == self.LastValidInput) then best = k end
-			if v.Num then 
+			if v.Num then
 				self.Inputs[v.Num] = k
 			else
 				table.insert(self.Inputs, k)
@@ -330,30 +328,30 @@ function TOOL:SelectComponent(ent)
 			end
 		end
 	end
-	
+
 	first = self.Inputs[1] or first
 
 	self.CurrentInput = best or first
-	if (self.CurrentInput) and (self.CurrentInput ~= "") then self.LastValidInput = self.CurrentInput end
+	if self.CurrentInput and (self.CurrentInput ~= "") then self.LastValidInput = self.CurrentInput end
 	
 	local txt = ""
-	if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) and (self.CurrentInput)
-	  and (self.CurrentComponent.Inputs) and (self.CurrentComponent.Inputs[self.CurrentInput])
-	  and (self.CurrentComponent.Inputs[self.CurrentInput].Src) then
+	if self.CurrentComponent and self.CurrentComponent:IsValid() and self.CurrentInput
+	  and self.CurrentComponent.Inputs and self.CurrentComponent.Inputs[self.CurrentInput]
+	  and self.CurrentComponent.Inputs[self.CurrentInput].Src then
     	txt = "%"..(self.CurrentInput or "")
 	else
     	txt = self.CurrentInput or ""
 	end
-	if (self.InputsDesc) and (self.InputsDesc[self.CurrentInput]) then
+	if self.InputsDesc and self.InputsDesc[self.CurrentInput] then
 		txt = txt.." ("..self.InputsDesc[self.CurrentInput]..")"
 	end
-	if (self.InputsType) and (self.InputsType[self.CurrentInput])
-	and (self.InputsType[self.CurrentInput] != "NORMAL") then
+	if self.InputsType and self.InputsType[self.CurrentInput]
+	and self.InputsType[self.CurrentInput] != "NORMAL" then
 		txt = txt.." ["..self.InputsType[self.CurrentInput].."]"
 	end
 	self:GetWeapon():SetNWString("WireCurrentInput", txt)
 	
-	if (self.CurrentComponent) and (self.CurrentComponent:IsValid()) then
+	if self.CurrentComponent and self.CurrentComponent:IsValid() then
 	    self.CurrentComponent:SetNWString("BlinkWire", self.CurrentInput)
 	end
 end

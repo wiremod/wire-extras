@@ -64,7 +64,7 @@ function ENT:BuildDupeInfo()
 	local info = self.BaseClass.BuildDupeInfo(self) or {}
 
 	grid = self:GetNWEntity( "grid" )
-	if (grid) and (grid:IsValid()) then
+	if grid and (grid:IsValid()) then
 		info.holoemitter_grid = grid:EntIndex()
 	end
 

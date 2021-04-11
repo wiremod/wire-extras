@@ -54,7 +54,7 @@ function TOOL:LeftClick( trace )
 	--local model = "models/kobilica/guipmonitorbig.mdl"
 	--self.Model = "models/kobilica/guipmonitorbig.mdl"
 	local currentState = tonumber(self:GetClientInfo("currentStoolPanel"))
-	local CreateFlat	= self:GetClientNumber("createflat")
+	//local CreateFlat	= self:GetClientNumber("createflat")
 	local Smodel	= self:GetClientInfo( "model" )
 
 	if (not util.IsValidModel(Smodel)) then return false end
@@ -76,7 +76,7 @@ function TOOL:LeftClick( trace )
 			end
 			SaveTableToFile (widTable, "modular_panels/testout.txt")
 			
-			spawnModularPanel(ply, trace, widTable, (Smodel))
+			spawnModularPanel(ply, trace, widTable, Smodel)
 			
 		else
 			Msg("file not found\n") --make say in stool panel
@@ -124,7 +124,7 @@ if (SERVER) then
 	function MakeWireModularPanel( pl, Ang, Pos, Smodel, widgetTable )
 		if ( !pl:CheckLimit( "wire_modular_panels" ) ) then return false end
 		
-		local wire_modular_panel = ents.Create( "gmod_wire_modular_panel" )
+		//local wire_modular_panel = ents.Create( "gmod_wire_modular_panel" )
 		if (!wire_modular_panel:IsValid()) then return false end
 		wire_modular_panel:SetModel(Smodel)
 
@@ -323,7 +323,7 @@ else
 	--server to client send panel
 	function sendClientPanel(player, widgetTable)
 		Msg("sending config\n")
-		local conf = net.ReadBool()		
+		//local conf = net.ReadBool()		
 		net.Start("smsgModularPanel")
 			net.WriteInt(#widgetTable, 16)
 			
@@ -642,10 +642,9 @@ function ModularPanelEditPanel(player, command, args)
 		else
 			Msg("file not found\n") --make say in stool panel
 		end
-		
+
 		--player:SendLua('ModularPanelEditPanel()')
-	else
-		
+	//else
 		--modularPanelRebuildPanel(nil, 2)
 	end
 end
@@ -723,9 +722,9 @@ function ModularPanelWidgetReturn(player, command, args)
 			clientPanelReadWidget()
 			if (modular_panel_current_widget.name ~= "") then
 				if (not (modular_panel_current_widget.wire.wireType > 0 and modular_panel_current_widget.wire.name == "")) then
-					for k, par in pairs (modular_panel_current_widget.params) do
+					/*for k, par in pairs (modular_panel_current_widget.params) do
 						--if 
-					end
+					end*/
 					modular_panel_current_panel.widgets[modular_panel_current_widget.index] = table.Copy(modular_panel_current_widget)
 					Msg("curname = "..modular_panel_current_widget.name.."\n")
 					Msg("widget "..modular_panel_current_widget.index.." name = "..modular_panel_current_panel.widgets[modular_panel_current_widget.index].name.."\n")
@@ -779,9 +778,8 @@ if SERVER then
 	concommand.Add("wire_modular_panel_widgetRemove", ModularPanelWidgetRemove)
 	concommand.Add("wire_modular_panel_widgetTypeUpdate", ModularPanelWidgetUpdate)
 	concommand.Add("wire_modular_panel_togglePreview", ModularPanelTogglePreview)
-	
 
-else
+//else
 
 
 end
@@ -895,8 +893,8 @@ if CLIENT then
 	
 	function modpanDrawHud()
 		if modular_panel_preview_enabled then
-			local sh = surface.ScreenHeight( )
-			local sw = surface.ScreenWidth( )
+			local sh = surface.ScrH( )
+			local sw = surface.ScrW( )
 			surface.SetDrawColor( 50, 255, 50, 50 )
 			local prevWidth = 200
 			local prevHeight = 200
@@ -911,10 +909,10 @@ if CLIENT then
 			end
 						
 			--draw currently editing widget
-			local curX = tonumber(LocalPlayer():GetInfo("wire_modular_panel_wxpos"))
+			/*local curX = tonumber(LocalPlayer():GetInfo("wire_modular_panel_wxpos"))
 			local curY = tonumber(LocalPlayer():GetInfo("wire_modular_panel_wypos"))
 			local curW = tonumber(LocalPlayer():GetInfo("wire_modular_panel_wwidth"))
-			local curH = tonumber(LocalPlayer():GetInfo("wire_modular_panel_wheight"))
+			local curH = tonumber(LocalPlayer():GetInfo("wire_modular_panel_wheight"))*/
 			
 			surface.SetDrawColor( 50, 50, 255, 50 ) 
 			surface.DrawOutlinedRect( prevX + modular_panel_current_widget.x, prevY + modular_panel_current_widget.y, modular_panel_current_widget.w, modular_panel_current_widget.h ) 
