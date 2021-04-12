@@ -704,7 +704,7 @@ local function AdvCheckHITableElement(eindex)
 end
 
 // UserMessage stuff
-local function AdvHUDIndicatorRegister( um )
+local function AdvHUDIndicatorRegister()
 	local eindex = net.ReadInt(16)
 	AdvCheckHITableElement(eindex)
 
@@ -753,13 +753,13 @@ local function AdvHUDIndicatorRegister( um )
 end
 net.Receive("AdvHUDIndicatorRegister", AdvHUDIndicatorRegister)
 
-local function AdvHUDIndicatorUnRegister( um )
+local function AdvHUDIndicatorUnRegister()
 	local eindex = net.ReadInt(16)
 	advhudindicators[eindex] = nil
 end
 net.Receive("AdvHUDIndicatorUnRegister", AdvHUDIndicatorUnRegister)
 
-local function AdvHUDIndicatorFactor( um )
+local function AdvHUDIndicatorFactor()
 	local eindex = net.ReadInt(16)
 	AdvCheckHITableElement(eindex)
 
@@ -769,7 +769,7 @@ local function AdvHUDIndicatorFactor( um )
 end
 net.Receive("AdvHUDIndicatorFactor", AdvHUDIndicatorFactor)
 
-local function AdvHUDIndicatorHideHUD( um )
+local function AdvHUDIndicatorHideHUD()
 	local eindex = net.ReadInt(16)
 	AdvCheckHITableElement(eindex)
 
@@ -778,7 +778,7 @@ end
 net.Receive("AdvHUDIndicatorHideHUD", AdvHUDIndicatorHideHUD)
 
 //--Forces the HUD data to be updated -Moggie100
-local function AdvHUDIndicatorUpdatePosition( um )
+local function AdvHUDIndicatorUpdatePosition()
 	//--Get the table index
 	local eindex = net.ReadInt(16)
 
@@ -797,7 +797,7 @@ net.Receive("AdvHUDIndicatorUpdatePosition", AdvHUDIndicatorUpdatePosition)
 
 
 //--Forces the HUD data to be updated -Moggie100
-local function AdvHUDIndicatorUpdatePositionTwo( um )
+local function AdvHUDIndicatorUpdatePositionTwo()
 	//--Get the table index
 	local eindex = net.ReadInt(16)
 
@@ -817,7 +817,7 @@ net.Receive("AdvHUDIndicatorUpdatePositionTwo", AdvHUDIndicatorUpdatePositionTwo
 //--BETA BETA BETA BETA BETA--//
 //--String data to set the FullText variable to!--//
 //--May just explode in everyone's faces!--//
-local function AdvHUDIndicator_UpdateSTRING( um )
+local function AdvHUDIndicator_UpdateSTRING()
 	//--Get the table index
 	local eindex = net.ReadInt(16)
 
@@ -834,7 +834,7 @@ net.Receive("AdvHUDIndicator_STRING", AdvHUDIndicator_UpdateSTRING)
 
 
 //--Forces the HUD data to be updated from 3D position data -Moggie100
-local function AdvHUDIndicatorUpdate3DPosition( um )
+local function AdvHUDIndicatorUpdate3DPosition()
 	//--Get the table index
 	local eindex = net.ReadInt(16)
 
@@ -851,7 +851,7 @@ net.Receive("AdvHUDIndicatorUpdate3DPosition", AdvHUDIndicatorUpdate3DPosition)
 
 
 //--Forces the HUD data to be updated from 3D position data -Moggie100
-local function AdvHUDIndicatorUpdate3DPositionTwo( um )
+local function AdvHUDIndicatorUpdate3DPositionTwo()
 	//--Get the table index
 	local eindex = net.ReadInt(16)
 
@@ -870,7 +870,7 @@ net.Receive("AdvHUDIndicatorUpdate3DPositionTwo", AdvHUDIndicatorUpdate3DPositio
 
 //-- Seeing as this is the only function to set up colours, I'm calling it on a creation/update event even if its not this
 //-- indicator type. -Moggie100
-local function AdvHUDIndicatorStylePercent( um )
+local function AdvHUDIndicatorStylePercent()
 	local eindex = net.ReadInt(16)
 	local ainfo = string.Explode("|", net.ReadString())
 	local binfo = string.Explode("|", net.ReadString())
@@ -881,7 +881,7 @@ local function AdvHUDIndicatorStylePercent( um )
 end
 net.Receive("AdvHUDIndicatorStylePercent", AdvHUDIndicatorStylePercent)
 
-local function AdvHUDIndicatorStyleFullCircle( um )
+local function AdvHUDIndicatorStyleFullCircle()
 	local eindex = net.ReadInt(16)
 	AdvCheckHITableElement(eindex)
 
@@ -895,7 +895,7 @@ net.Receive("AdvHUDIndicatorStyleFullCircle", AdvHUDIndicatorStyleFullCircle)
 
 
 //-- EXTENDED I/O UMSG HOOKS --//
-local function AdvHUDIndicator_EXIO( um )
+local function AdvHUDIndicator_EXIO()
 	local eindex = net.ReadInt(16)
 	AdvCheckHITableElement(eindex)
 

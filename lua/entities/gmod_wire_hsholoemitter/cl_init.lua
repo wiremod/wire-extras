@@ -13,7 +13,7 @@ function ENT:Initialize( )
 	self.RBound = Vector(1024,1024,1024)
 end
 
-function HSHoloemitter_DataMsg( um )
+function HSHoloemitter_DataMsg()
 	local ent = ents.GetByIndex(net.ReadInt(32))
 	local start = net.ReadInt(32)
 	local len = net.ReadInt(32)

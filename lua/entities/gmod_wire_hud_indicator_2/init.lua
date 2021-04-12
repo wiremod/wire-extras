@@ -44,7 +44,7 @@ ENT.podPlayer = nil
 //-- Functions below here are not part of the SENT, just serverside calls --//
 //--------------------------------------------------------------------------//
 
-net.Receive( "HMLUpload", function( len, ply )
+net.Receive( "HMLUpload", function( len )
 	print( "Received data on server: " );
 
 	local tbl = net.ReadTable()
@@ -63,15 +63,15 @@ end )
 //--------------------------------------------------------------------------//
 
 function ENT:Initialize()
-	self.Entity:SetModel( "models/jaanus/wiretool/wiretool_siren.mdl" )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:SetModel( "models/jaanus/wiretool/wiretool_siren.mdl" )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 	self:SetOverlayText( "Adv. HUD Indicator 2" )
 
 	//-- This causes wirelib to set up the required tables for this SENT, required before any
 	//-- other call to wire I/O, lest a nil pointer error occur.
-	self.Inputs = Wire_CreateInputs(self.Entity, {})
+	self.Inputs = Wire_CreateInputs(self, {})
 
 
 	lookupTable = {}
@@ -157,7 +157,7 @@ function ENT:BuildInputs( newInputLookup )
 	self.inputLookup = newInputLookup
 
 	--Finally adjust the inputs on the SENT itself.
-	WireLib.AdjustSpecialInputs(self.Entity, newInputs, newInputTypes, newInputDesc)
+	WireLib.AdjustSpecialInputs(self, newInputs, newInputTypes, newInputDesc)
 end
 
 
@@ -204,7 +204,7 @@ function ENT:RegisterPlayer( player, dataTable )
 	self.RegisteredPlayers[id] = { ply = player }
 
 	net.Start("HUD2_SYNC")
-		net.WriteInt( self.Entity:EntIndex() , 16)
+		net.WriteInt( self:EntIndex() , 16)
 	net.Send(player)
 
 	if( self.LoadedCode != "" ) then
@@ -231,7 +231,7 @@ function ENT:UnregisterPlayer( player )
 	
 	net.Start( "HUD2_UNREG")
 		//-- Entity index, so the client can look up which table to change
-		net.WriteInt( self.Entity:EntIndex() , 16)
+		net.WriteInt( self:EntIndex() , 16)
 	net.Send(self.RegisteredPlayers[id].ply )
 
 	if( self.RegisteredPlayers[id] ) then self.RegisteredPlayers[id] = nil end
@@ -296,12 +296,10 @@ function ENT:Think()
 		end
 	else
 		--The pod's gone! But someone was in it! Unlink!
-		if( self.podPlayer != player ) then
-			if( self.podPlayer ) then self.UnregisterPlayer( self.podPlayer ) end
-		end
-		
+		if self.podPlayer != player and self.podPlayer then self.UnregisterPlayer( self.podPlayer ) end
+
 	end
-	
+
 	--Set ourselves to think again!
 	self:NextThink(CurTime() + 0.1)
 end
@@ -309,7 +307,7 @@ end
 
 
 function ENT:TriggerInput(iname, value)
-	local pl = self:GetPlayer()
+	//local pl = self:GetPlayer()
 
 	local NORMAL = 0
 	local STRING = 1
