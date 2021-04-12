@@ -16,7 +16,7 @@ net.Receive("umsgPanelState", umGetPanelState)
 
 --For waking a panel for the first time (use once)
 function umPanelWake()
-	//local _ = net.ReadInt(16)
+	//local _ = net.ReadInt(16) --corresponds to lib-gui-panel-server.lua, line 57
 	--Msg("testnum = "..testnum.."\n")
 	local ent = net.ReadEntity()
 	guiP_PanelEnable(ent, true)
