@@ -15,7 +15,7 @@ registerType("stcontrol", "xsc", nil,
 	end
 )
 
---[[ **************************** CONFIGURATION **************************** ]]
+--[[ **************************** REGISTER **************************** ]]
 
 E2Lib.RegisterExtension("stcontrol", true,
 	"Lets E2 chips have dedicated state control objects.",
