@@ -54,9 +54,9 @@ end
 
 function umSendPanelWake(ent)	
 	net.Start("umsgPanelWake")
-		net.WriteInt(42, 16)
+		//net.WriteInt(42, 16)
 		net.WriteEntity(ent)
-	net.Send(player) 
+	net.Send(player)
 end
 
 function umSendPanelState(ent, state)	

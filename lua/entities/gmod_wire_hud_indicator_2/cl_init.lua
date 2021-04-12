@@ -97,7 +97,7 @@ concommand.Add("HUD2_uploadCode", HUD2_uploadCode, nil);
 
 
 //-- Hook the user message 'HUD2_SYNC' and keep our lookup table up to date! --//
-local function HUD2_Sync( um )
+local function HUD2_Sync()
 	local eindex = net.ReadInt(16)
 	local name = net.ReadString()
 	local inType = net.ReadInt(16)
@@ -145,7 +145,7 @@ net.Receive("HUD2_SYNC", HUD2_Sync)
 
 
 //-- Hook the user message 'HUD2_REG' so we get register messages
-local function HUD2_Register( um )
+local function HUD2_Register()
 	local eindex = net.ReadInt(16)
 
 	HUD_System.hookedEnts[eindex] = { renderer = HMLRenderer:new() }
@@ -157,7 +157,7 @@ net.Receive("HUD2_REG", HUD2_Register)
 
 
 //-- Hook the user message 'HUD2_UNREG' so we can unregister
-local function HUD2_Register( um )
+local function HUD2_Register()
 	local eindex = net.ReadInt(16)
 
 	HUD_System.hookedEnts[eindex] = nil
@@ -165,7 +165,7 @@ local function HUD2_Register( um )
 end
 net.Receive("HUD2_UNREG", HUD2_Register)
 
-function HML_RenderTableUpdate( len )
+function HML_RenderTableUpdate()
 	local tbl = net.ReadTable()
 
 	local eindex = tbl.eindex

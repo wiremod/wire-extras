@@ -87,8 +87,8 @@ function TOOL:LeftClick( trace )
 		--get config
 		Msg("sending request\n")
 		modularPanelTraceBuffer[ply:UniqueID()] = trace
-			net.Start("umsgRequestModularPanel")
-			net.WriteBool(true)
+		net.Start("umsgRequestModularPanel")
+			//net.WriteBool(true)
 		net.Send(ply)
 		--spawn code will be called by returning server message
 	end
@@ -202,7 +202,7 @@ if CLIENT then
 	--client to server send panel
 	function umRequestModularPanel()
 		Msg("sending config\n")
-		local _ = net.ReadBool()
+		//local _ = net.ReadBool()
 		net.Start("smsgModularPanel")
 			net.WriteInt(#modular_panel_current_panel.widgets, 16)
 			
@@ -239,10 +239,10 @@ if CLIENT then
 			end
 		net.SendToServer()
 	end
-	net.Receive("umsgRequestModularPanel", umRequestModularPanel) 
+	net.Receive("umsgRequestModularPanel", umRequestModularPanel)
 	
 	--client rec panel
-	function umClRecModularPanel(pl)
+	function umClRecModularPanel(_, pl)
 		local recWidgets = {}
 		local numWidgets = net.ReadInt(16)
 		for i = 1, numWidgets do
@@ -281,7 +281,7 @@ if CLIENT then
 	net.Receive("umsgclRecModularPanel", umClRecModularPanel) 
 else
 	--client to server rec panel
-	function smModularPanel(pl)
+	function smModularPanel(_, pl)
 		local recWidgets = {}
 		local numWidgets = net.ReadInt(16)
 		for i = 1, numWidgets do
@@ -323,7 +323,7 @@ else
 	--server to client send panel
 	function sendClientPanel(player, widgetTable)
 		Msg("sending config\n")
-		local _ = net.ReadBool()
+		//local _ = net.ReadBool()
 		net.Start("smsgModularPanel")
 			net.WriteInt(#widgetTable, 16)
 
@@ -358,7 +358,7 @@ else
 					end
 				end
 			end
-		net.Send(player) 
+		net.Send(player)
 	end
 
 end
@@ -663,7 +663,7 @@ function ModularPanelWidgetAdd(player, command, args)
 	if SERVER then
 		player:SendLua('ModularPanelWidgetAdd()')
 	else
-		
+
 		table.insert(modular_panel_current_panel.widgets, {})
 		local newIndex = #modular_panel_current_panel.widgets
 		Msg("new index = "..newIndex.."\n")
