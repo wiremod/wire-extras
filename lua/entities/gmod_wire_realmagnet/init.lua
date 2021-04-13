@@ -70,7 +70,7 @@ function ENT:Think()
 end
 
 function ENT:TriggerInput(iname, value)
-	self.CachedTickRate=GetConVar("sbox_wire_magnets_tickrate"):GetInt()
+	self.CachedTickRate=GetConVarNumber("sbox_wire_magnets_tickrate")
 	if (iname == "On") then
 		if (value > 0) then
 			self:SetOn(true)

@@ -68,7 +68,7 @@ function ENT:TriggerInput(iname, value)
 		if iname == "On" then
 			self.active = (value ~= 0)
 		elseif iname == "TxWatts" then
-			local m = GetConVar("sv_wdrk_max_tx_power"):GetInt()
+			local m = GetConVarNumber("sv_wdrk_max_tx_power")
 			if value > m then
 				self.txwatts = m
 			elseif value <= 0 then
@@ -187,7 +187,7 @@ function ENT:Think()
 		end
 
 		for k, v in pairs(txs) do
-			local dist = self:GetPos():Distance(v:GetPos()) / GetConVar("sv_wdrk_scale"):GetInt()
+			local dist = self:GetPos():Distance(v:GetPos()) / GetConVarNumber("sv_wdrk_scale")
 			local dBm = (math.log10((10^(v:TxDbw()/10)) / (4 * math.pi * dist * dist)) * 10) + 30
 			for freq, signal in pairs(v.txchannels) do
 				if spectrum[freq] == nil then
@@ -251,7 +251,7 @@ function ENT:Think()
 				local signalLock = 1
 
 				-- If the received signal after noise is less than the receiver's sensitivity threshold, then the data received is just random noise
-				if dBm < GetConVar("sv_wdrk_rx_sensitivity_threshold"):GetInt() then
+				if dBm < GetConVarNumber("sv_wdrk_rx_sensitivity_threshold") then
 					sig = math.random() * 1000
 					signalLock = 0
 				end

@@ -85,7 +85,7 @@ function ENT:Draw( )
 	local color = self:GetColor();
 	
 	self:SetRenderBounds( Vector()*-8192, Vector()*8192 )	
-	local num_points = math.Min(self.Memory[4],GetConVar("hsholoemitter_max_points"):GetInt())
+	local num_points = math.Min(self.Memory[4],GetConVarNumber("hsholoemitter_max_points"))
     if (perPointColor) then
       num_points = math.Min(num_points,291)
     end

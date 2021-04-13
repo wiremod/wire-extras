@@ -390,7 +390,7 @@ local sharing = {}
 
 CreateConVar("wire_shapes_max","50")
 local function ShapeCanCreate( ply )
-	if (playerAmount[ply] < GetConVar("wire_shapes_max"):GetInt()) then return true end
+	if (playerAmount[ply] < GetConVarNumber("wire_shapes_max")) then return true end
 end
 
 local function ShapeShare( share, self )
@@ -1478,7 +1478,7 @@ end
 **************************/
 
 e2function number tsShapeCanCreate( )
-	return GetConVar("wire_shapes_max"):GetInt() - playerAmount[self.player]
+	return GetConVarNumber("wire_shapes_max") - playerAmount[self.player]
 end
 
 e2function void tsShapeShare( number share )

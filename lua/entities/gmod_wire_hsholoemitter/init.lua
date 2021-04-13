@@ -117,13 +117,13 @@ end
 
 function ENT:ReadCell( Address )
     if(!self.Memory) then return; end
-	if ( Address >= 0 and Address <= 4 + 3*GetConVar("hsholoemitter_max_points"):GetInt() ) then
+	if ( Address >= 0 and Address <= 4 + 3*GetConVarNumber("hsholoemitter_max_points")) then
 		return self.Memory[Address]
 	end
 end
 
 function ENT:WriteCell( Address, Value )
-	if ( Address >= 0 and Address <= 4 + 3*GetConVar("hsholoemitter_max_points"):GetInt() ) then
+	if ( Address >= 0 and Address <= 4 + 3*GetConVarNumber("hsholoemitter_max_points")) then
 		self.Memory[Address] = Value
 		self.lastThinkChange = true
 		

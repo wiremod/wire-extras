@@ -52,7 +52,7 @@ function ENT:SetStrength(Strength)
 		self:SetBackwards(true)
 		Strength=math.abs(Strength)
 	end
-	Strength=math.min(Strength,GetConVar("sbox_wire_magnets_maxstrength"):GetInt())
+	Strength=math.min(Strength,GetConVarNumber("sbox_wire_magnets_maxstrength"))
 	self:SetNWFloat("Strength", Strength)
 	self:GetTable().Strength=Strength
 end
@@ -63,8 +63,8 @@ function ENT:GetStrength()
 end
 function ENT:SetLength(len)
 	--print("set len:"..len)
-	self:SetNWFloat("Length", math.min(len,GetConVar("sbox_wire_magnets_maxlen"):GetInt()))
-	self:GetTable().Len=math.min(len,GetConVar("sbox_wire_magnets_maxlen"):GetInt())
+	self:SetNWFloat("Length", math.min(len,GetConVarNumber("sbox_wire_magnets_maxlen")))
+	self:GetTable().Len=math.min(len,GetConVarNumber("sbox_wire_magnets_maxlen"))
 end
 
 function ENT:GetLength()

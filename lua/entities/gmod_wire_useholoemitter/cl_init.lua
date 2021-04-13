@@ -53,7 +53,7 @@ function ENT:Think( )
 			tempfaderate = math.Clamp( self:GetNWFloat( "FadeRate" ), 0.1, 255 )
 		else
 			-- Due to a request, in Multiplayer, the people can controle this with a CL side cvar (aVoN)
-			local minfaderate = GetConVar("cl_wire_holoemitter_minfaderate"):GetInt() or 10;
+			local minfaderate = GetConVarNumber("cl_wire_holoemitter_minfaderate") or 10;
 			tempfaderate = math.Clamp( self:GetNWFloat( "FadeRate" ),minfaderate, 255 )
 		end
 		table.insert( self.PointList, { pos = self.ActivePoint, alpha = a, faderate = tempfaderate } );
