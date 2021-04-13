@@ -135,7 +135,7 @@ local function getType(oStCon)
 	end; return table.concat(oStCon.mType, "-")
 end
 
-local function dumpItem(oStCon, sNam, sPos)
+local function dumpController(oStCon, sNam, sPos)
 	if(not oStCon) then return nil end
 	local sP = tostring(sPos or gsDefPrint)
 	local nP, oChip = gtPrintName[sP], oStCon.mChip -- Print location setup
@@ -407,7 +407,7 @@ local function tuneTyreusLuyben(uK, uT)
 	else return logStatus("Type mismatch <"..sT..">", oChip, nil, oStCon) end
 end
 
-local function newItem(oChip, nTo)
+local function newController(oChip, nTo)
 	local eChip = oChip.entity; if(not isValid(eChip)) then
 		return logStatus("Entity invalid", oChip, nil, nil) end
 	local oStCon, sM = {}, gtMissName[3]; oStCon.mnTo = tonumber(nTo) -- Place to store the object
@@ -443,22 +443,22 @@ end
 
 __e2setcost(20)
 e2function stcontrol newStControl()
-	return newItem(self)
+	return newController(self)
 end
 
 __e2setcost(20)
 e2function stcontrol newStControl(number nTo)
-	return newItem(self, nTo)
+	return newController(self, nTo)
 end
 
 __e2setcost(20)
 e2function stcontrol stcontrol:getCopy()
-	return newItem(self, this.mnTo)
+	return newController(self, this.mnTo)
 end
 
 __e2setcost(20)
 e2function stcontrol stcontrol:getCopy(number nT)
-	return newItem(self, nT)
+	return newController(self, nT)
 end
 
 __e2setcost(7)
@@ -1150,20 +1150,20 @@ end
 
 __e2setcost(15)
 e2function stcontrol stcontrol:dumpItem(number nN)
-	return dumpItem(this, nN)
+	return dumpController(this, nN)
 end
 
 __e2setcost(15)
 e2function stcontrol stcontrol:dumpItem(string sN)
-	return dumpItem(this, sN)
+	return dumpController(this, sN)
 end
 
 __e2setcost(15)
 e2function stcontrol stcontrol:dumpItem(string nT, number nN)
-	return dumpItem(this, nN, nT)
+	return dumpController(this, nN, nT)
 end
 
 __e2setcost(15)
 e2function stcontrol stcontrol:dumpItem(string nT, string sN)
-	return dumpItem(this, sN, nT)
+	return dumpController(this, sN, nT)
 end
