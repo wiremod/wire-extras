@@ -5,8 +5,6 @@ ENT.RenderGroup 		= RENDERGROUP_BOTH
 
 local advhudindicators = {}
 // Default HUD x/y
-//local hudx = 0
-//local hudy = 0
 local nextupdate = 0
 
 // Text Height Constant
@@ -16,11 +14,8 @@ local dtextheight = draw.GetFontHeight("Default")
 local pbarheight = dtextheight + 16
 
 // Y Offset constants
-//local offsety = {32, 32, 32, 92 + dtextheight, 60 + dtextheight}
 
 // Texture IDs for Full/Semi-Circle styles
-//local fullcircletexid = surface.GetTextureID("hudindicator/hi_fullcircle")
-//local semicircletexid = surface.GetTextureID("hudindicator/hi_semicircle")
 
 local tex_sci_fi_1 = surface.GetTextureID("adv_hud/sci_fi_style_1")
 
@@ -72,9 +67,6 @@ local function DrawAdvHUDIndicators()
 
 	local screenWidth = ScrW()
 	local screenHeight = ScrH()
-
-	//local halfScreenWidth = screenWidth/2
-	//local halfScreenHeight = screenHeight/2
 
 	local errors = 0
 
@@ -134,7 +126,6 @@ local function DrawAdvHUDIndicators()
 
 					local txt = indinfo.FullText or ""
 
-					//local alphaVal = 160
 					if( indinfo.alpha != nil ) then
 						alphaVal = indinfo.alpha
 					end
@@ -163,7 +154,6 @@ local function DrawAdvHUDIndicators()
 					//--Text Box - Pretty much only useful with string gates--//
 					elseif (indinfo.Style == 2) then
 						local lines = string.Explode("|", indinfo.Description)
-						//local totalLines = table.Count(lines)
 						local boxWidth = 0
 						local boxHeight = 0
 
@@ -188,7 +178,6 @@ local function DrawAdvHUDIndicators()
 						surface.SetTextColor(255, 255, 255, 255)
 						local index = 0
 						for k,v in pairs(lines) do
-							//local lineWidth, lineHeight = surface.GetTextSize( v )
 
 							surface.SetTextPos( xPos+5, yPos+5+(index*(lineHeight+2)) )
 							surface.DrawText( v );

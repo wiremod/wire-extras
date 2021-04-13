@@ -326,7 +326,6 @@ if CLIENT then
 	end
 	function PANEL:SetComponent(vx)
 		local kx = vx[5]
-		//local ekey = kx:EntIndex()
 		local nam = vx[3] or kx.WireDebugName or kx.PrintName or ""
 		nam = nam .. " ("..tostring(kx)..")"
 		self.Entity = kx

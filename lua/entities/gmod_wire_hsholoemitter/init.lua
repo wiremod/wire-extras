@@ -102,9 +102,6 @@ end
 
 function ENT:SendData()
 	if ( self.packetLen > 0 ) then
-		//local rp = RecipientFilter()
-		//rp:AddAllPlayers()
-
 		net.Start("hsholoemitter_datamsg")
 			net.WriteInt(self:EntIndex(), 32)
 			net.WriteInt(self.packetStartAddr, 32)

@@ -98,8 +98,6 @@ end
 function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, allowhook, fullcircleangle, flags)
 
 	local ply = self:GetPlayer()
-	//local eindex = self:EntIndex()
-
 	// If user updates with the STool to take indicator off of HUD
 	if (!showinhud && self.ShowInHUD) then
 		self:UnRegisterPlayer(ply)
@@ -181,7 +179,6 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 
 	//--Flag Options--//
 	local flag_worldcoords = 1
-	//local flag_alphainput = 2
 	local flag_position_by_pixel = 4
 	local flag_position_by_percent = 8
 	local flag_position_by_decimal = 16

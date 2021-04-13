@@ -307,7 +307,6 @@ end
 
 
 function ENT:TriggerInput(iname, value)
-	//local pl = self:GetPlayer()
 
 	local NORMAL = 0
 	local STRING = 1

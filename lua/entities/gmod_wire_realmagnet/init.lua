@@ -95,8 +95,6 @@ end
 
 function ENT:ShowOutput()
 	//set overlay
-	
-	//local ontxt="Off"
 	if self:IsOn()==true then ontxt="On" end
 	self:SetOverlayText(
 		"Wire Magnet"

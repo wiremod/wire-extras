@@ -178,7 +178,6 @@ function TOOL:LeftClick( trace )
 	if (not util.IsValidModel(model)) then return false end
 	if (not util.IsValidProp(model)) then return false end		// Allow ragdolls to be used?
 
-	//local Ang = trace.HitNormal:Angle()
 	local Ang = self:GetSelectedAngle(trace.HitNormal:Angle())
 	Ang.pitch = Ang.pitch + 90
 

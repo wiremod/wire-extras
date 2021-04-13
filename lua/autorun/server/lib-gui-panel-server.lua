@@ -54,7 +54,6 @@ end
 
 function umSendPanelWake(ent)	
 	net.Start("umsgPanelWake")
-		//net.WriteInt(42, 16)
 		net.WriteEntity(ent)
 	net.Send(player)
 end
@@ -67,8 +66,6 @@ function umSendPanelState(ent, state)
 end
 
 function guiP_cl_drawUpdate(widget, paramNum, value)
-	//local allPlayers = RecipientFilter()
-	//allPlayers:AddAllPlayers()
 	isString = (type(value) == "string")
 	net.Start("umsgDrawUpdate")
 		net.WriteEntity(widget.parent)
@@ -266,7 +263,6 @@ function guiP_fileDataToTable (fileData)
 			local mTop = tonumber(lineData[4])
 			local mWidth = tonumber(lineData[5])
 			local mHeight = tonumber(lineData[6])
-			//local parmTable = {}
 			local parmStart = 7
 			
 			--read wire settings
@@ -395,8 +391,6 @@ end
 
 --Send panel config to client
 function guiP_SendClientWidgets(ent)
-	//local allPlayers = RecipientFilter()
-	//allPlayers:AddAllPlayers()
 	net.Start("umsgPanelConfig")
 		--Msg("starting panel usmg\n")
 		net.WriteEntity(ent)
@@ -415,7 +409,6 @@ function guiP_SendClientWidgets(ent)
 			--check extra params
 			local numParams = table.Count(modu.paramTable)
 			net.WriteInt(numParams, 16)
-			//local keysend = 0
 						
 			for pkey, param in pairs(modu.paramTable) do
 				--Msg(string.format("key = %s, param = %s, cms = '%s'\n", pkey, param, table.concat(modu.modType.paramTable)))

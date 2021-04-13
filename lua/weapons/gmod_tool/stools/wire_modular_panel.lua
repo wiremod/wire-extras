@@ -54,7 +54,6 @@ function TOOL:LeftClick( trace )
 	--local model = "models/kobilica/guipmonitorbig.mdl"
 	--self.Model = "models/kobilica/guipmonitorbig.mdl"
 	local currentState = tonumber(self:GetClientInfo("currentStoolPanel"))
-	//local CreateFlat	= self:GetClientNumber("createflat")
 	local Smodel	= self:GetClientInfo( "model" )
 
 	if (not util.IsValidModel(Smodel)) then return false end
@@ -124,7 +123,6 @@ if (SERVER) then
 	function MakeWireModularPanel( pl, Ang, Pos, Smodel, widgetTable )
 		if ( !pl:CheckLimit( "wire_modular_panels" ) ) then return false end
 		
-		//local wire_modular_panel = ents.Create( "gmod_wire_modular_panel" )
 		if (!wire_modular_panel:IsValid()) then return false end
 		wire_modular_panel:SetModel(Smodel)
 
@@ -202,7 +200,6 @@ if CLIENT then
 	--client to server send panel
 	function umRequestModularPanel()
 		Msg("sending config\n")
-		//local _ = net.ReadBool()
 		net.Start("smsgModularPanel")
 			net.WriteInt(#modular_panel_current_panel.widgets, 16)
 			
@@ -323,7 +320,6 @@ else
 	--server to client send panel
 	function sendClientPanel(player, widgetTable)
 		Msg("sending config\n")
-		//local _ = net.ReadBool()
 		net.Start("smsgModularPanel")
 			net.WriteInt(#widgetTable, 16)
 
@@ -337,7 +333,7 @@ else
 					net.WriteInt(wid.y, 16)
 					net.WriteInt(wid.w, 16)
 					net.WriteInt(wid.h, 16)
-					
+
 					local numParams = table.Count(wid.params)
 					net.WriteInt(numParams, 16)
 					Msg("sending "..numParams..", params\n")

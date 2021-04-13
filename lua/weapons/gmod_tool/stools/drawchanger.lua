@@ -38,8 +38,6 @@ if SERVER then
 	util.AddNetworkString("umsgDrawChangerCfg")
 	function TOOL:sendSetVal(ent, x, y, w, h, res)
 		Msg ("um send function\n")
-		//local allPlayers = RecipientFilter()
-		//allPlayers:AddAllPlayers()
 		net.Start("umsgDrawChangerCfg")
 			net.WriteEntity(ent)
 			net.WriteFloat(x)

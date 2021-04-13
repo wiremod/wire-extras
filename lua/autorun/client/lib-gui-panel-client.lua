@@ -16,13 +16,9 @@ net.Receive("umsgPanelState", umGetPanelState)
 
 --For waking a panel for the first time (use once)
 function umPanelWake()
-	//local _ = net.ReadInt(16)
-	--Msg("testnum = "..testnum.."\n")
 	local ent = net.ReadEntity()
 	guiP_PanelEnable(ent, true)
 	ent.panelWoken = true
-	--Msg("panel woken, ")
-	--Msg("ent = "..tostring(ent).."\n")
 end
 net.Receive("umsgPanelWake", umPanelWake)
 
@@ -30,7 +26,6 @@ net.Receive("umsgPanelWake", umPanelWake)
 function umGetPanelScheme()
 	local ent = net.ReadEntity()
 	local sNum = net.ReadInt(16)
-	--Msg(string.format("cl using scheme #%d (%s)\n", sNum, guiP_schemeTable[sNum]))
 	ent.currentScheme = guiP_colourScheme[guiP_schemeTable[sNum]]
 end
 net.Receive("umsgPanelScheme", umGetPanelScheme) 
