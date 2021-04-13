@@ -23,8 +23,10 @@ if ( CLIENT ) then
 	language.Add("WireModularPanelTool_panelTheme", "Panel Theme:")
 end
 
-if (SERVER) then
+if SERVER then
 	CreateConVar('sbox_maxwire_modular_panels', 20)
+	util.AddNetworkString("umsgRequestModularPanel")
+	util.AddNetworkString("smsgModularPanel")
 end
 
 TOOL.ClientConVar["fileselect"] = ""
@@ -52,7 +54,6 @@ function TOOL:LeftClick( trace )
 	--local model = "models/kobilica/guipmonitorbig.mdl"
 	--self.Model = "models/kobilica/guipmonitorbig.mdl"
 	local currentState = tonumber(self:GetClientInfo("currentStoolPanel"))
-	local CreateFlat	= self:GetClientNumber("createflat")
 	local Smodel	= self:GetClientInfo( "model" )
 
 	if (not util.IsValidModel(Smodel)) then return false end
@@ -74,7 +75,7 @@ function TOOL:LeftClick( trace )
 			end
 			SaveTableToFile (widTable, "modular_panels/testout.txt")
 			
-			spawnModularPanel(ply, trace, widTable, (Smodel))
+			spawnModularPanel(ply, trace, widTable, Smodel)
 			
 		else
 			Msg("file not found\n") --make say in stool panel
@@ -85,9 +86,9 @@ function TOOL:LeftClick( trace )
 		--get config
 		Msg("sending request\n")
 		modularPanelTraceBuffer[ply:UniqueID()] = trace
-			umsg.Start("umsgRequestModularPanel", ply)
-			umsg.Bool(true)
-		umsg.End()
+		net.Start("umsgRequestModularPanel")
+			//net.WriteBool(true)
+		net.Send(ply)
 		--spawn code will be called by returning server message
 	end
 	return true
@@ -122,7 +123,6 @@ if (SERVER) then
 	function MakeWireModularPanel( pl, Ang, Pos, Smodel, widgetTable )
 		if ( !pl:CheckLimit( "wire_modular_panels" ) ) then return false end
 		
-		local wire_modular_panel = ents.Create( "gmod_wire_modular_panel" )
 		if (!wire_modular_panel:IsValid()) then return false end
 		wire_modular_panel:SetModel(Smodel)
 
@@ -198,165 +198,163 @@ end
 
 if CLIENT then
 	--client to server send panel
-	function umRequestModularPanel(um)
+	function umRequestModularPanel()
 		Msg("sending config\n")
-		local conf = um:ReadBool()		
-		smsg.Start("smsgModularPanel")
-			smsg.Short (table.getn(modular_panel_current_panel.widgets))
+		net.Start("smsgModularPanel")
+			net.WriteInt(#modular_panel_current_panel.widgets, 16)
 			
 			for k, wid in ipairs (modular_panel_current_panel.widgets) do
 				if (wid and wid.name) then
 					Msg("trying "..wid.name.."\n")
 					--Msg ("widget = "..table.concat (wid, ", "))
-					smsg.String (wid.name)
-					smsg.Short (wid.widgetType)
-					smsg.Short (wid.x)
-					smsg.Short (wid.y)
-					smsg.Short (wid.w)
-					smsg.Short (wid.h)
+					net.WriteString (wid.name)
+					net.WriteInt(wid.widgetType, 16)
+					net.WriteInt(wid.x, 16)
+					net.WriteInt(wid.y, 16)
+					net.WriteInt(wid.w, 16)
+					net.WriteInt(wid.h, 16)
 					
 					local numParams = table.Count(wid.params)
-					smsg.Short (numParams)
+					net.WriteInt(numParams, 16)
 					Msg("sending "..numParams..", params\n")
 					for pk, par in pairs (wid.params) do
 						Msg("write param #"..pk.." = "..par.."\n")
-						smsg.String (pk)
-						smsg.String (par)
+						net.WriteString (pk)
+						net.WriteString (par)
 					end
 					
 					if (wid.wire.wireType > 0) then
 						Msg("send wire\n")
-						smsg.Bool (true)
+						net.WriteBool (true)
 						Msg("sending wire, type = "..wid.wire.wireType..", name = "..wid.wire.name.."\n")
-						smsg.Short (wid.wire.wireType)
-						smsg.String (wid.wire.name)
+						net.WriteInt(wid.wire.wireType, 16)
+						net.WriteString (wid.wire.name)
 					else
-						smsg.Bool (false)
+						net.WriteBool (false)
 					end
 				end
 			end
-		smsg.End() 
+		net.SendToServer()
 	end
-	usermessage.Hook("umsgRequestModularPanel", umRequestModularPanel) 
+	net.Receive("umsgRequestModularPanel", umRequestModularPanel)
 	
 	--client rec panel
-	function umClRecModularPanel(um)
+	function umClRecModularPanel(_, pl)
 		local recWidgets = {}
-		local numWidgets = um:ReadShort()
+		local numWidgets = net.ReadInt(16)
 		for i = 1, numWidgets do
 			table.insert (recWidgets, {
-				name = um:ReadString(),
-				widgetType = um:ReadShort(),
-				x = um:ReadShort(),
-				y = um:ReadShort(),
-				w = um:ReadShort(),
-				h = um:ReadShort(),
+				name = net.ReadString(),
+				widgetType = net.ReadInt(16),
+				x = net.ReadInt(16),
+				y = net.ReadInt(16),
+				w = net.ReadInt(16),
+				h = net.ReadInt(16),
 				params = {},
 				wire = {name = "", type = 0}
 			})
-			local numParams = um:ReadShort()
+			local numParams = net.ReadInt(16)
 			Msg("rec "..numParams..", params\n")
 			for n = 1, numParams do
-				local paramIndex = um:ReadString()
-				local paramData = um:ReadString()
-				recWidgets[table.getn(recWidgets)].params[paramIndex] = paramData
-				Msg("read param index = "..paramIndex..", data = "..paramData..", for "..recWidgets[table.getn(recWidgets)].name.."\n")
+				local paramIndex = net.ReadString()
+				local paramData = net.ReadString()
+				recWidgets[#recWidgets].params[paramIndex] = paramData
+				Msg("read param index = "..paramIndex..", data = "..paramData..", for "..recWidgets[#recWidgets].name.."\n")
 			end
-			local hasWire = um:ReadBool()
+			local hasWire = net.ReadBool()
 			if hasWire then
 				Msg("rec wire\n")
-				recWidgets[table.getn(recWidgets)].wire.wireType = um:ReadShort()
-				recWidgets[table.getn(recWidgets)].wire.name = um:ReadString()
+				recWidgets[#recWidgets].wire.wireType = net.ReadInt(16)
+				recWidgets[#recWidgets].wire.name = net.ReadString()
 			end
 		end
-		Msg("recieved "..numWidgets.." widgets from "..tostring(um.player).."\n")
+		Msg("recieved "..numWidgets.." widgets from "..tostring(pl).."\n")
 		for k, w in ipairs (recWidgets) do
 			Msg("recieved widget "..w.name..", x = "..w.x..", y = "..w.y..", w = "..w.w..", h = "..w.h.."\n")
 		end
 		modular_panel_current_panel.widgets = table.Copy (recWidgets)
 		modularPanelRebuildPanel(nil, 2)
 	end
-	usermessage.Hook("umsgclRecModularPanel", umClRecModularPanel) 
+	net.Receive("umsgclRecModularPanel", umClRecModularPanel) 
 else
 	--client to server rec panel
-	function smModularPanel(sm)
+	function smModularPanel(_, pl)
 		local recWidgets = {}
-		local numWidgets = sm:ReadShort()
+		local numWidgets = net.ReadInt(16)
 		for i = 1, numWidgets do
 			table.insert (recWidgets, {
-				name = sm:ReadString(),
-				widgetType = sm:ReadShort(),
-				x = sm:ReadShort(),
-				y = sm:ReadShort(),
-				w = sm:ReadShort(),
-				h = sm:ReadShort(),
+				name = net.ReadString(),
+				widgetType = net.ReadInt(16),
+				x = net.ReadInt(16),
+				y = net.ReadInt(16),
+				w = net.ReadInt(16),
+				h = net.ReadInt(16),
 				params = {},
 				wire = {name = "", type = 0}
 			})
-			local numParams = sm:ReadShort()
+			local numParams = net.ReadInt(16)
 			Msg("rec "..numParams..", params\n")
 			for n = 1, numParams do
-				local paramIndex = sm:ReadString()
-				local paramData = sm:ReadString()
-				recWidgets[table.getn(recWidgets)].params[paramIndex] = paramData
-				Msg("read param index = "..paramIndex..", data = "..paramData..", for "..recWidgets[table.getn(recWidgets)].name.."\n")
+				local paramIndex = net.ReadString()
+				local paramData = net.ReadString()
+				recWidgets[#recWidgets].params[paramIndex] = paramData
+				Msg("read param index = "..paramIndex..", data = "..paramData..", for "..recWidgets[#recWidgets].name.."\n")
 			end
-			local hasWire = sm:ReadBool()
+			local hasWire = net.ReadBool()
 			if hasWire then
 				Msg("rec wire\n")
-				recWidgets[table.getn(recWidgets)].wire.wireType = sm:ReadShort()
-				recWidgets[table.getn(recWidgets)].wire.name = sm:ReadString()
+				recWidgets[#recWidgets].wire.wireType = net.ReadInt(16)
+				recWidgets[#recWidgets].wire.name = net.ReadString()
 			end
 		end
-		Msg("recieved "..numWidgets.." widgets from "..tostring(sm.player).."\n")
+		Msg("recieved "..numWidgets.." widgets from "..tostring(pl).."\n")
 		for k, w in ipairs (recWidgets) do
 			Msg("recieved widget "..w.name..", x = "..w.x..", y = "..w.y..", w = "..w.w..", h = "..w.h.."\n")
 		end
-		local trace = modularPanelTraceBuffer[sm.player:UniqueID()]
+		local trace = modularPanelTraceBuffer[pl:UniqueID()]
 		Msg("about to spawn (stopped?)\n")
-		spawnModularPanel(sm.player, trace, recWidgets)
+		spawnModularPanel(pl, trace, recWidgets)
 	end
-	servermessage.Hook("smsgModularPanel", smModularPanel) 
+	net.Receive("smsgModularPanel", smModularPanel)
 	
 	--server to client send panel
 	function sendClientPanel(player, widgetTable)
 		Msg("sending config\n")
-		local conf = sm:ReadBool()		
-		umsg.Start("smsgModularPanel", player)
-			smsg.Short (table.getn(widgetTable))
-			
+		net.Start("smsgModularPanel")
+			net.WriteInt(#widgetTable, 16)
+
 			for k, wid in ipairs (widgetTable) do
 				if (wid and wid.name) then
 					Msg("trying "..wid.name.."\n")
 					--Msg ("widget = "..table.concat (wid, ", "))
-					umsg.String (wid.name)
-					umsg.Short (wid.widgetType)
-					umsg.Short (wid.x)
-					umsg.Short (wid.y)
-					umsg.Short (wid.w)
-					umsg.Short (wid.h)
-					
+					net.WriteString (wid.name)
+					net.WriteInt(wid.widgetType, 16)
+					net.WriteInt(wid.x, 16)
+					net.WriteInt(wid.y, 16)
+					net.WriteInt(wid.w, 16)
+					net.WriteInt(wid.h, 16)
+
 					local numParams = table.Count(wid.params)
-					umsg.Short (numParams)
+					net.WriteInt(numParams, 16)
 					Msg("sending "..numParams..", params\n")
 					for pk, par in pairs (wid.params) do
 						Msg("write param #"..pk.." = "..par.."\n")
-						umsg.String (pk)
-						umsg.String (par)
+						net.WriteString (pk)
+						net.WriteString (par)
 					end
 					
 					if (wid.wire.wireType > 0) then
 						Msg("send wire\n")
-						umsg.Bool (true)
+						net.WriteBool (true)
 						Msg("sending wire, type = "..wid.wire.wireType..", name = "..wid.wire.name.."\n")
-						umsg.Short (wid.wire.wireType)
-						umsg.String (wid.wire.name)
+						net.WriteInt(wid.wire.wireType, 16)
+						net.WriteString (wid.wire.name)
 					else
-						umsg.Bool (false)
+						net.WriteBool (false)
 					end
 				end
 			end
-		umsg.End() 
+		net.Send(player)
 	end
 
 end
@@ -640,10 +638,9 @@ function ModularPanelEditPanel(player, command, args)
 		else
 			Msg("file not found\n") --make say in stool panel
 		end
-		
+
 		--player:SendLua('ModularPanelEditPanel()')
-	else
-		
+	//else
 		--modularPanelRebuildPanel(nil, 2)
 	end
 end
@@ -662,9 +659,9 @@ function ModularPanelWidgetAdd(player, command, args)
 	if SERVER then
 		player:SendLua('ModularPanelWidgetAdd()')
 	else
-		
+
 		table.insert(modular_panel_current_panel.widgets, {})
-		local newIndex = table.getn(modular_panel_current_panel.widgets)
+		local newIndex = #modular_panel_current_panel.widgets
 		Msg("new index = "..newIndex.."\n")
 		modular_panel_current_widget = table.Copy(modular_panel_blank_widget)
 		modular_panel_current_widget.name = "newWidget"	--todo: search widgets, add #1, #2 etc to end if already exists
@@ -721,9 +718,9 @@ function ModularPanelWidgetReturn(player, command, args)
 			clientPanelReadWidget()
 			if (modular_panel_current_widget.name ~= "") then
 				if (not (modular_panel_current_widget.wire.wireType > 0 and modular_panel_current_widget.wire.name == "")) then
-					for k, par in pairs (modular_panel_current_widget.params) do
+					/*for k, par in pairs (modular_panel_current_widget.params) do
 						--if 
-					end
+					end*/
 					modular_panel_current_panel.widgets[modular_panel_current_widget.index] = table.Copy(modular_panel_current_widget)
 					Msg("curname = "..modular_panel_current_widget.name.."\n")
 					Msg("widget "..modular_panel_current_widget.index.." name = "..modular_panel_current_panel.widgets[modular_panel_current_widget.index].name.."\n")
@@ -777,9 +774,8 @@ if SERVER then
 	concommand.Add("wire_modular_panel_widgetRemove", ModularPanelWidgetRemove)
 	concommand.Add("wire_modular_panel_widgetTypeUpdate", ModularPanelWidgetUpdate)
 	concommand.Add("wire_modular_panel_togglePreview", ModularPanelTogglePreview)
-	
 
-else
+//else
 
 
 end
@@ -893,8 +889,8 @@ if CLIENT then
 	
 	function modpanDrawHud()
 		if modular_panel_preview_enabled then
-			local sh = surface.ScreenHeight( )
-			local sw = surface.ScreenWidth( )
+			local sh = ScrH( )
+			local sw = ScrW( )
 			surface.SetDrawColor( 50, 255, 50, 50 )
 			local prevWidth = 200
 			local prevHeight = 200
@@ -909,10 +905,10 @@ if CLIENT then
 			end
 						
 			--draw currently editing widget
-			local curX = tonumber(LocalPlayer():GetInfo("wire_modular_panel_wxpos"))
+			/*local curX = tonumber(LocalPlayer():GetInfo("wire_modular_panel_wxpos"))
 			local curY = tonumber(LocalPlayer():GetInfo("wire_modular_panel_wypos"))
 			local curW = tonumber(LocalPlayer():GetInfo("wire_modular_panel_wwidth"))
-			local curH = tonumber(LocalPlayer():GetInfo("wire_modular_panel_wheight"))
+			local curH = tonumber(LocalPlayer():GetInfo("wire_modular_panel_wheight"))*/
 			
 			surface.SetDrawColor( 50, 50, 255, 50 ) 
 			surface.DrawOutlinedRect( prevX + modular_panel_current_widget.x, prevY + modular_panel_current_widget.y, modular_panel_current_widget.w, modular_panel_current_widget.h ) 

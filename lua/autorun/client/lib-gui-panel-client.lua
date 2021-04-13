@@ -8,44 +8,39 @@ end
 ------------------------CLIENT / SERVER COMMUNICATIONS------------------------------
 
 --For enabling / disabling panel (draw code)
-function umGetPanelState(um)
-	local ent = um:ReadEntity()
-	ent.panelEnabled = um:ReadBool()
+function umGetPanelState()
+	local ent = net.ReadEntity()
+	ent.panelEnabled = net.ReadBool()
 end
-usermessage.Hook("umsgPanelState", umGetPanelState) 
+net.Receive("umsgPanelState", umGetPanelState)
 
 --For waking a panel for the first time (use once)
-function umPanelWake(um)
-	local testnum = um:ReadShort()
-	--Msg("testnum = "..testnum.."\n")
-	local ent = um:ReadEntity()
+function umPanelWake()
+	local ent = net.ReadEntity()
 	guiP_PanelEnable(ent, true)
 	ent.panelWoken = true
-	--Msg("panel woken, ")
-	--Msg("ent = "..tostring(ent).."\n")
 end
-usermessage.Hook("umsgPanelWake", umPanelWake) 
+net.Receive("umsgPanelWake", umPanelWake)
 
 --For setting the panel colour scheme
-function umGetPanelScheme(um)
-	local ent = um:ReadEntity()
-	local sNum = um:ReadShort()
-	--Msg(string.format("cl using scheme #%d (%s)\n", sNum, guiP_schemeTable[sNum]))
+function umGetPanelScheme()
+	local ent = net.ReadEntity()
+	local sNum = net.ReadInt(16)
 	ent.currentScheme = guiP_colourScheme[guiP_schemeTable[sNum]]
 end
-usermessage.Hook("umsgPanelScheme", umGetPanelScheme) 
+net.Receive("umsgPanelScheme", umGetPanelScheme) 
 
 --For initializing entity (use once)
-function umClientPanelInit(um)
+function umClientPanelInit()
 	--Msg("is this used?\n")
-	local ent = um:ReadEntity()
-	local newID = um:ReadShort()
+	local ent = net.ReadEntity()
+	local newID = net.ReadInt(16)
 	--call auto re-trying init function
 	entInit(ent, newID)
 	--need to make this use a failed concommand instread?
 	
 end
-usermessage.Hook("umsgClientPanelInit", umClientPanelInit) 
+net.Receive("umsgClientPanelInit", umClientPanelInit) 
 
 function entInit(ent, entID)
 	--print ("and this?\n")
@@ -63,25 +58,25 @@ function entInit(ent, entID)
 end
 
 --For updating variables for the draw code - i.e change the appearance of a widget
-function umDrawUpdate(um)
-	local ent = um:ReadEntity()
-	local modIndex = um:ReadShort()
-	local paramNum = um:ReadShort()
-	local isString = um:ReadBool()
+function umDrawUpdate()
+	local ent = net.ReadEntity()
+	local modIndex = net.ReadInt(16)
+	local paramNum = net.ReadInt(16)
+	local isString = net.ReadBool()
 	local value
 	if isString then
-		value = um:ReadString()
+		value = net.ReadString()
 	else
-		value = um:ReadFloat()
+		value = net.ReadFloat()
 	end
 	ent.pWidgets[modIndex].modType.drawUpdate(ent.pWidgets[modIndex], paramNum, value)
 end
-usermessage.Hook("umsgDrawUpdate", umDrawUpdate) 
+net.Receive("umsgDrawUpdate", umDrawUpdate) 
 
 --Recieve panel config data from server (when using server defined panels)
-function umPanelConfig(um)
+function umPanelConfig()
 	--this sould be better in some form of startup routine
-	local ent = um:ReadEntity()
+	local ent = net.ReadEntity()
 	guiP_ClearWidgets(ent)
 	
 	if (table.Count(guiP_widgetLookup) == 0) then
@@ -94,22 +89,22 @@ function umPanelConfig(um)
 	end
 
 	ent.pWidgets = {}
-	ent.numWidgets = um:ReadShort()
+	ent.numWidgets = net.ReadInt(16)
 	for i=1, ent.numWidgets, 1 do
-		--local modType = panelWidget[um:ReadString()]
-		local widT = guiP_widgetLookup[um:ReadShort()]
+		--local modType = panelWidget[net.ReadString()]
+		local widT = guiP_widgetLookup[net.ReadInt(16)]
 		local modType = panelWidget[widT]
 	
 		Msg("read modtype as "..widT.."\n")
-		local X = um:ReadShort()
-		local Y = um:ReadShort()
-		local W = um:ReadShort()
-		local H = um:ReadShort()
-		local numParams = um:ReadShort()
+		local X = net.ReadInt(16)
+		local Y = net.ReadInt(16)
+		local W = net.ReadInt(16)
+		local H = net.ReadInt(16)
+		local numParams = net.ReadInt(16)
 		local paramTable = {}
 		for i=1, numParams, 1 do
-			local pNum = um:ReadShort()
-			paramTable[pNum] = um:ReadString()
+			local pNum = net.ReadInt(16)
+			paramTable[pNum] = net.ReadString()
 			Msg(string.format("(client) param #%d = %s\n", pNum, paramTable[pNum]))
 		end
 		
@@ -120,9 +115,9 @@ function umPanelConfig(um)
 		
 	end
 
-	guiP_PanelEnable(ent, um:ReadBool())
+	guiP_PanelEnable(ent, net.ReadBool())
 end
-usermessage.Hook("umsgPanelConfig", umPanelConfig) 
+net.Receive("umsgPanelConfig", umPanelConfig) 
 
 --------------------------------CLIENT FUNCTIONS-----------------------------------
 

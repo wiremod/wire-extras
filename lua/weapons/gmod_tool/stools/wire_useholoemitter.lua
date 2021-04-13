@@ -85,9 +85,9 @@ if SERVER then
 			tr.Entity:SetColor( Color(r, g, b, a) );
 			
 			// update size and show states
-			tr.Entity:SetNetworkedBool( "ShowBeam", showbeams );
-			tr.Entity:SetNetworkedBool( "GroundBeam", groundbeams );
-			tr.Entity:SetNetworkedFloat( "PointSize", size );
+			tr.Entity:SetNWBool( "ShowBeam", showbeams );
+			tr.Entity:SetNWBool( "GroundBeam", groundbeams );
+			tr.Entity:SetNWFloat( "PointSize", size );
 			
 			tr.Entity.r = r
 			tr.Entity.g = g

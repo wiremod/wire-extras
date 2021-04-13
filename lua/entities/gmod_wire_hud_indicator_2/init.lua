@@ -24,6 +24,8 @@ AddCSLuaFile( "expression_parser.lua" )
 
 util.AddNetworkString( "HMLUpload" )
 util.AddNetworkString( "RenderTableUpdate" )
+util.AddNetworkString( "HUD2_SYNC" )
+util.AddNetworkString( "HUD2_UNREG" )
 
 include('shared.lua')
 include('util/errors.lua')
@@ -42,7 +44,7 @@ ENT.podPlayer = nil
 //-- Functions below here are not part of the SENT, just serverside calls --//
 //--------------------------------------------------------------------------//
 
-net.Receive( "HMLUpload", function( len, ply )
+net.Receive( "HMLUpload", function( len )
 	print( "Received data on server: " );
 
 	local tbl = net.ReadTable()
@@ -61,15 +63,15 @@ end )
 //--------------------------------------------------------------------------//
 
 function ENT:Initialize()
-	self.Entity:SetModel( "models/jaanus/wiretool/wiretool_siren.mdl" )
-	self.Entity:PhysicsInit( SOLID_VPHYSICS )
-	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
-	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self:SetModel( "models/jaanus/wiretool/wiretool_siren.mdl" )
+	self:PhysicsInit( SOLID_VPHYSICS )
+	self:SetMoveType( MOVETYPE_VPHYSICS )
+	self:SetSolid( SOLID_VPHYSICS )
 	self:SetOverlayText( "Adv. HUD Indicator 2" )
 
 	//-- This causes wirelib to set up the required tables for this SENT, required before any
 	//-- other call to wire I/O, lest a nil pointer error occur.
-	self.Inputs = Wire_CreateInputs(self.Entity, {})
+	self.Inputs = Wire_CreateInputs(self, {})
 
 
 	lookupTable = {}
@@ -155,7 +157,7 @@ function ENT:BuildInputs( newInputLookup )
 	self.inputLookup = newInputLookup
 
 	--Finally adjust the inputs on the SENT itself.
-	WireLib.AdjustSpecialInputs(self.Entity, newInputs, newInputTypes, newInputDesc)
+	WireLib.AdjustSpecialInputs(self, newInputs, newInputTypes, newInputDesc)
 end
 
 
@@ -201,9 +203,9 @@ function ENT:RegisterPlayer( player, dataTable )
 	local id = player:UniqueID()
 	self.RegisteredPlayers[id] = { ply = player }
 
-	umsg.Start("HUD2_SYNC", player)
-		umsg.Short( self.Entity:EntIndex() )
-	umsg.End()
+	net.Start("HUD2_SYNC")
+		net.WriteInt( self:EntIndex() , 16)
+	net.Send(player)
 
 	if( self.LoadedCode != "" ) then
 		--Generate a send buffer for the code to download...
@@ -227,10 +229,10 @@ function ENT:UnregisterPlayer( player )
 	if( !player or !player:IsPlayer() ) then return false end
 	local id = player:UniqueID()
 	
-	umsg.Start( "HUD2_UNREG", self.RegisteredPlayers[id].ply )
+	net.Start( "HUD2_UNREG")
 		//-- Entity index, so the client can look up which table to change
-		umsg.Short( self.Entity:EntIndex() )
-	umsg.End()
+		net.WriteInt( self:EntIndex() , 16)
+	net.Send(self.RegisteredPlayers[id].ply )
 
 	if( self.RegisteredPlayers[id] ) then self.RegisteredPlayers[id] = nil end
 
@@ -294,20 +296,17 @@ function ENT:Think()
 		end
 	else
 		--The pod's gone! But someone was in it! Unlink!
-		if( self.podPlayer != player ) then
-			if( self.podPlayer ) then self.UnregisterPlayer( self.podPlayer ) end
-		end
-		
+		if self.podPlayer != player and self.podPlayer then self.UnregisterPlayer( self.podPlayer ) end
+
 	end
-	
+
 	--Set ourselves to think again!
-	self.Entity:NextThink(CurTime() + 0.1)
+	self:NextThink(CurTime() + 0.1)
 end
 
 
 
 function ENT:TriggerInput(iname, value)
-	local pl = self:GetPlayer()
 
 	local NORMAL = 0
 	local STRING = 1
@@ -329,59 +328,59 @@ function ENT:TriggerInput(iname, value)
 				if (rplayer.ply) then
 
 					//-- BUild a new umsg for this player
-					umsg.Start("HUD2_SYNC", rplayer.ply)
+					net.Start("HUD2_SYNC")
 
 						//-- Entity index, so the client can look up which table to change
-						umsg.Short( self.Entity:EntIndex() )
+						net.WriteInt( self:EntIndex() , 16)
 
 						//-- The input name
-						umsg.String( iname )
+						net.WriteString( iname )
 
 						//-- The input type, so we can correctly read the input
 						if( self.inputLookup[iname].type == "numeric" ) then
-							umsg.Short( NORMAL )	//-- The type
-							umsg.Float( value )		//-- The value
+							net.WriteInt( NORMAL , 16)	//-- The type
+							net.WriteFloat( value )		//-- The value
 
 						elseif( self.inputLookup[iname].type == "string" ) then
-							umsg.Short( STRING )	//-- The type
-							umsg.String( value )	//-- The value
+							net.WriteInt( STRING , 16)	//-- The type
+							net.WriteString( value )	//-- The value
 
 						elseif( self.inputLookup[iname].type == "color" ) then
-							umsg.Short( COLOR )		//-- The type
-							umsg.Short( value.x )	//-- Data
-							umsg.Short( value.y )
-							umsg.Short( value.z )
+							net.WriteInt( COLOR , 16)		//-- The type
+							net.WriteInt( value.x , 16)	//-- Data
+							net.WriteInt( value.y , 16)
+							net.WriteInt( value.z , 16)
 
 						elseif( self.inputLookup[iname].type == "alpha_color" ) then
-							umsg.Short( COLOR_ALPHA )	//-- The type
-							umsg.Short( value[1] )		//-- Data
-							umsg.Short( value[2] )
-							umsg.Short( value[3] )
-							umsg.Short( value[4] )
+							net.WriteInt( COLOR_ALPHA , 16)	//-- The type
+							net.WriteInt( value[1] , 16)		//-- Data
+							net.WriteInt( value[2] , 16)
+							net.WriteInt( value[3] , 16)
+							net.WriteInt( value[4] , 16)
 
 						elseif( self.inputLookup[iname].type == "vector2" ) then
-							umsg.Short( VECTOR2 )	//-- The type
-							umsg.Float( value[1] )	//-- Data
-							umsg.Float( value[2] )
+							net.WriteInt( VECTOR2 , 16)	//-- The type
+							net.WriteFloat( value[1] )	//-- Data
+							net.WriteFloat( value[2] )
 
 						elseif( self.inputLookup[iname].type == "vector3" ) then
-							umsg.Short( VECTOR3 )	//-- The type
-							--umsg.Float( value.x )	//-- Data
-							--umsg.Float( value.y )
-							--umsg.Float( value.z )
-							umsg.Vector( value )
+							net.WriteInt( VECTOR3 , 16)	//-- The type
+							--net.WriteFloat( value.x )	//-- Data
+							--net.WriteFloat( value.y )
+							--net.WriteFloat( value.z )
+							net.WriteVector( value )
 
 						elseif( self.inputLookup[iname].type == "vector4" ) then
-							umsg.Short( VECTOR4 )	//-- The type
-							umsg.Float( value[1] )	//-- Data
-							umsg.Float( value[2] )
-							umsg.Float( value[3] )
-							umsg.Float( value[4] )
+							net.WriteInt( VECTOR4 , 16)	//-- The type
+							net.WriteFloat( value[1] )	//-- Data
+							net.WriteFloat( value[2] )
+							net.WriteFloat( value[3] )
+							net.WriteFloat( value[4] )
 
 						end
 
 					//--Send message
-					umsg.End()
+					net.Send(rplayer.ply)
 				else
 					self.RegisteredPlayers[index] = nil
 				end

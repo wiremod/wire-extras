@@ -27,6 +27,8 @@ if (SERVER) then
 	------------------------------------------------------------------
 	-- Get the version
 	------------------------------------------------------------------
+	util.AddNetworkString("wire_uwsvn_rev")
+	
 	WireLib.UWSVNVersion = WireLib.GetUWSVNVersion()
 	
 	------------------------------------------------------------------
@@ -35,9 +37,9 @@ if (SERVER) then
 	local function recheck( ply, tries )
 		timer.Simple(5,function() function _my1(ply)
 			if (ply and ply:IsValid()) then -- Success!
-				umsg.Start("wire_uwsvn_rev",ply)
-					umsg.String( WireLib.UWSVNVersion )
-				umsg.End()
+				net.Start("wire_uwsvn_rev")
+					net.WriteString( WireLib.UWSVNVersion )
+				net.Send(ly)
 			else
 				if (tries and tries > 3) then return end -- several failures.. stop trying
 				recheck(ply, (tries or 0) + 1) -- Try again
@@ -53,9 +55,9 @@ if (SERVER) then
 		if (!antispam[ply]) then antispam[ply] = 0 end
 		if (antispam[ply] < CurTime()) then
 			antispam[ply] = CurTime() + 0.5
-			umsg.Start("wire_uwsvn_rev",ply)
-				umsg.String( WireLib.UWSVNVersion )
-			umsg.End()
+			net.Start("wire_uwsvn_rev")
+				net.WriteString( WireLib.UWSVNVersion )
+			net.Send(ly)
 		end
 	end)
 	
@@ -85,7 +87,7 @@ else -- CLIENT
 	
 	WireLib.UWSVNVersion = "-unknown-" -- We don't know the server's version yet
 	
-	usermessage.Hook("wire_uwsvn_rev",function(um)
-		WireLib.UWSVNVersion = um:ReadString()
+	net.Receive("wire_uwsvn_rev",function()
+		WireLib.UWSVNVersion = net.ReadString()
 	end)
 end

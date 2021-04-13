@@ -42,7 +42,7 @@ function ENT:Initialize()
 end
 
 function ENT:SetOverlayText(txt)
-	self:SetNetworkedBeamString("GModOverlayText", txt)
+	self:SetNWString("GModOverlayText", txt)
 end
 
 // Unlink if door removed

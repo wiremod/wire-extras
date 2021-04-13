@@ -49,13 +49,13 @@ end
 
 function surface.PlaySound() print("$surface.PlaySound$") end
 
-function surface.ScreenHeight()
-	print("[FAKE]", "surface.Screenheight() = " ..tostring(surface.height) )
+function ScrH()
+	print("[FAKE]", "ScrH() = " ..tostring(surface.height) )
 	return surface.height
 end
 
-function surface.ScreenWidth()
-	print("[FAKE]", "surface.ScreenWidth() = " ..tostring(surface.width) )
+function ScrW()
+	print("[FAKE]", "ScrW() = " ..tostring(surface.width) )
 	return surface.width
 end
 

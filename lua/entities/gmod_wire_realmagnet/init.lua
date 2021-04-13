@@ -53,22 +53,18 @@ function ENT:Think()
 		local entsTA=ents.FindInSphere(myPos,self:GetLength())
 		for k, ent in pairs(entsTA) do
 			local phys = ent:GetPhysicsObject()
-			if phys:IsValid() then
-				if ent:IsValid() and ent!=self and self:CheckFilter(ent, phys) then
-					
-					local direction = ent:GetPos() - myPos
-					local dist = math.max(direction:Length(), 1e-6)
-					
-					local strength = self.Strength*math.abs(dist/self:GetLength() - 1)
-					if not self:IsBackwards() then strength = -strength end
-					
-					phys:ApplyForceCenter(direction*(strength/dist))
+			if phys:IsValid() and ent:IsValid() and ent!=self and self:CheckFilter(ent, phys) then
+				local direction = ent:GetPos() - myPos
+				local dist = math.max(direction:Length(), 1e-6)
 
-				end
+				local strength = self.Strength*math.abs(dist/self:GetLength() - 1)
+				if not self:IsBackwards() then strength = -strength end
+
+				phys:ApplyForceCenter(direction*(strength/dist))
 			end
 		end
 	end
-	
+
 	self:NextThink(CurTime() + self.CachedTickRate) 
 	return true
 end
@@ -99,8 +95,6 @@ end
 
 function ENT:ShowOutput()
 	//set overlay
-	
-	local ontxt="Off"
 	if self:IsOn()==true then ontxt="On" end
 	self:SetOverlayText(
 		"Wire Magnet"

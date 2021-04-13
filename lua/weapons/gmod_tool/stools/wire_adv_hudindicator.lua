@@ -178,7 +178,6 @@ function TOOL:LeftClick( trace )
 	if (not util.IsValidModel(model)) then return false end
 	if (not util.IsValidProp(model)) then return false end		// Allow ragdolls to be used?
 
-	//local Ang = trace.HitNormal:Angle()
 	local Ang = self:GetSelectedAngle(trace.HitNormal:Angle())
 	Ang.pitch = Ang.pitch + 90
 
@@ -418,13 +417,13 @@ function TOOL:Think()
 				local currentcheck = trace.Entity:GetTable():CheckRegister(ply)
 				if (currentcheck != self.LastRegisterCheck) then
 					self.LastRegisterCheck = currentcheck
-					self:GetWeapon():SetNetworkedBool("HUDIndicatorCheckRegister", currentcheck)
+					self:GetWeapon():SetNWBool("HUDIndicatorCheckRegister", currentcheck)
 				end
 			else
 				if (self.LastRegisterCheck == true) then
 					// Don't need to set this every 1/10 of a second
 					self.LastRegisterCheck = false
-					self:GetWeapon():SetNetworkedBool("HUDIndicatorCheckRegister", false)
+					self:GetWeapon():SetNWBool("HUDIndicatorCheckRegister", false)
 				end
 			end
 			self.NextCheckTime = CurTime() + 0.10
@@ -434,7 +433,7 @@ end
 
 if (CLIENT) then
 	function TOOL:DrawHUD()
-		local isregistered = self:GetWeapon():GetNetworkedBool("AdvHUDIndicatorCheckRegister")
+		local isregistered = self:GetWeapon():GetNWBool("AdvHUDIndicatorCheckRegister")
 
 		if (isregistered) then
 			draw.WordBox(8, ScrW() / 2 + 10, ScrH() / 2 + 10, "Registered", "Default", Color(50, 50, 75, 192), Color(255, 255, 255, 255))
@@ -444,7 +443,7 @@ end
 
 function TOOL:Holster()
 	self:ReleaseGhostEntity()
-	self:GetWeapon():SetNetworkedBool("HUDIndicatorCheckRegister", false)
+	self:GetWeapon():SetNWBool("HUDIndicatorCheckRegister", false)
 end
 
 function TOOL.BuildCPanel(panel)

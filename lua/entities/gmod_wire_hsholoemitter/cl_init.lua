@@ -13,18 +13,18 @@ function ENT:Initialize( )
 	self.RBound = Vector(1024,1024,1024)
 end
 
-function HSHoloemitter_DataMsg( um )
-	local ent = ents.GetByIndex(um:ReadLong())
-	local start = um:ReadLong()
-	local len = um:ReadLong()
+function HSHoloemitter_DataMsg()
+	local ent = ents.GetByIndex(net.ReadInt(32))
+	local start = net.ReadInt(32)
+	local len = net.ReadInt(32)
 	
     if(!ent.Memory) then return; end
     
 	for i = 0, len-1 do
-		ent.Memory[start + i] = um:ReadFloat()
+		ent.Memory[start + i] = net.ReadFloat()
 	end
 end
-usermessage.Hook("hsholoemitter_datamsg", HSHoloemitter_DataMsg)
+net.Receive("hsholoemitter_datamsg", HSHoloemitter_DataMsg)
 
 // calculate point
 function ENT:CalculatePixelPoint( pos, emitterPos, fwd, right, up )
@@ -55,7 +55,7 @@ function ENT:Draw( )
 	if( self.Memory[0] == 0 ) then return; end
 	
 	// read emitter.
-	local emitter = self:GetNetworkedEntity( "grid" );
+	local emitter = self:GetNWEntity( "grid" );
 	if( !emitter || !emitter:IsValid() ) then return; end
 	
 	// calculate emitter position.
@@ -63,7 +63,7 @@ function ENT:Draw( )
 	local right 	= emitter:GetRight();
 	local up 	= emitter:GetUp();
 	local pos 	= emitter:GetPos() + up * 64;
-	local usegps = emitter:GetNetworkedBool( "UseGPS" )
+	local usegps = emitter:GetNWBool( "UseGPS" )
 
 	// evaluate flags
 	local flags = self.Memory[3];
@@ -85,7 +85,6 @@ function ENT:Draw( )
 	local color = self:GetColor();
 	
 	self:SetRenderBounds( Vector()*-8192, Vector()*8192 )	
-	
 	local num_points = math.Min(self.Memory[4],GetConVarNumber("hsholoemitter_max_points"))
     if (perPointColor) then
       num_points = math.Min(num_points,291)
@@ -155,7 +154,7 @@ local function HSHoloPressCheck( ply, key )
 			local LastEnt = 0
 			
 			for _,v in ipairs( emitters ) do
-				local emitter = v.Entity:GetNetworkedEntity( "grid" );
+				local emitter = v.Entity:GetNWEntity( "grid" );
 				if (v.Memory[0]) then
 					local fwd = emitter:GetForward();
 					local right = emitter:GetRight();
@@ -171,7 +170,7 @@ local function HSHoloPressCheck( ply, key )
 					for i = 0, count-1 do
 						
 						local pos2 = Vector(v.Memory[i*ps + 5], v.Memory[i*ps + 6], v.Memory[i*ps + 7])
-						if (v.Entity:GetNetworkedBool( "UseGPS" ) or (math.floor(v.Memory[3]*0.5)%2 == 1)) then
+						if (v.Entity:GetNWBool( "UseGPS" ) or (math.floor(v.Memory[3]*0.5)%2 == 1)) then
 							pixelpos = pos2
 						else
 							pixelpos = v:CalculatePixelPoint( pos2, pos, fwd, right, up );

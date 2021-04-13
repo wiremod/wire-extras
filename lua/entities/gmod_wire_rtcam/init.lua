@@ -98,8 +98,8 @@ end
 
 
 function ENT:Think()
-	self.TrackEnt = self:GetNetworkedEntity( E_TRACK )
-	self:TrackEntity( self.TrackEnt, self:GetNetworkedVector( V_TRACK ) )	
+	self.TrackEnt = self:GetNWEntity( E_TRACK )
+	self:TrackEntity( self.TrackEnt, self:GetNWVector( V_TRACK ) )	
 	self:NextThink( CurTime() )	
 end
 

@@ -40,7 +40,7 @@ end
 
 --Add a widget to a panel
 function guiP_AddWidget(ent, newName, modType, X, Y, W, H, paramTable)
-	local newKey = table.getn(ent.pWidgets) + 1
+	local newKey = #ent.pWidgets + 1
 	local newParTable = {}
 	if (panelWidget[modType]) then
 		local pNum = 1
@@ -75,16 +75,16 @@ guiP_panelIDRegister = {}
 
 --Create a new panel
 function guiPanelCreateNew(ent)
-	local newID = table.getn(guiP_panelIDRegister) + 1
+	local newID = #guiP_panelIDRegister + 1
 	table.insert(guiP_panelIDRegister, ent.Entity)
-	--Msg("creating new panel with id "..newID.." ("..table.getn(guiP_panelIDRegister)..")\n")
+	--Msg("creating new panel with id "..newID.." ("..#guiP_panelIDRegister..")\n")
 	ent.panelID = newID
 	--Msg("ent = "..tostring(ent).."  ")
-	if CLIENT then
+	//if CLIENT then
 		--Msg("client")
-	else
+	//else
 		--Msg("server")
-	end
+	//end
 	--Msg("  verified val = "..ent.panelID.."\n")
 end
 

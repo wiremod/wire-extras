@@ -19,17 +19,17 @@ function ENT:Initialize( )
 	self:SetSolid( SOLID_VPHYSICS );
 	
 	// vars
-	self:SetNetworkedFloat( "X", 0 );
-	self:SetNetworkedFloat( "Y", 0 );
-	self:SetNetworkedFloat( "Z", 0 );
-	self:SetNetworkedFloat( "FadeRate", 50 );
-	self:SetNetworkedFloat( "PointSize", 0.2 );
-	self:SetNetworkedBool( "ShowBeam", true );
-	self:SetNetworkedBool( "GroundBeam", true );
-	self:SetNetworkedBool( "Active", false );
-	self:SetNetworkedBool( "UseGPS", false );
-	self:SetNetworkedInt( "LastClear", 0 );
-	self:SetNetworkedEntity( "grid", self );
+	self:SetNWFloat( "X", 0 );
+	self:SetNWFloat( "Y", 0 );
+	self:SetNWFloat( "Z", 0 );
+	self:SetNWFloat( "FadeRate", 50 );
+	self:SetNWFloat( "PointSize", 0.2 );
+	self:SetNWBool( "ShowBeam", true );
+	self:SetNWBool( "GroundBeam", true );
+	self:SetNWBool( "Active", false );
+	self:SetNWBool( "UseGPS", false );
+	self:SetNWInt( "LastClear", 0 );
+	self:SetNWEntity( "grid", self );
 
 	// create inputs.
 	self.Inputs = WireLib.CreateSpecialInputs( self, { "X", "Y", "Z", "Vector", "Active", "FadeRate", "Clear" }, { "NORMAL", "NORMAL", "NORMAL", "VECTOR", "NORMAL", "NORMAL", "NORMAL" } );
@@ -43,7 +43,7 @@ end
 
 // link to grid
 function ENT:LinkToGrid( ent )
-	self:SetNetworkedEntity( "grid", ent );
+	self:SetNWEntity( "grid", ent );
 end
 
 // trigger input
@@ -52,18 +52,18 @@ function ENT:TriggerInput( inputname, value, iter )
 	if(not value) then return end;
 	if (inputname == "Clear" and value != 0)  then
 		self.LastClear = self.LastClear + 1
-		self:SetNetworkedInt( "Clear", self.LastClear );
+		self:SetNWInt( "Clear", self.LastClear );
 		
 	elseif ( inputname == "Active" ) then
-		self:SetNetworkedBool( "Active", value > 0 );
+		self:SetNWBool( "Active", value > 0 );
 		
 	// store float values.
 	elseif ( inputname == "Vector" ) and ( type(value) == "Vector" ) then
-		self:SetNetworkedFloat( "X", value.x );
-		self:SetNetworkedFloat( "Y", value.y );
-		self:SetNetworkedFloat( "Z", value.z );
+		self:SetNWFloat( "X", value.x );
+		self:SetNWFloat( "Y", value.y );
+		self:SetNWFloat( "Z", value.z );
 	elseif (inputname && inputname != "") then
-		self:SetNetworkedFloat( inputname, tonumber(value) );
+		self:SetNWFloat( inputname, tonumber(value) );
 	end
 end
 
@@ -74,9 +74,9 @@ if ( SERVER ) then
 		if( !pl:CheckLimit( "wire_useholoemitters" ) ) then return; end
 		
 		// create the emitter
-		local emitter = ents.Create( "gmod_wire_useholoemitter" );
-			emitter:SetPos( pos );
-			emitter:SetAngles( ang );
+		local emitter = ents.Create( "gmod_wire_useholoemitter" )
+		emitter:SetPos( pos );
+		emitter:SetAngles( ang );
 		emitter:Spawn();
 		emitter:Activate();
 		
@@ -90,9 +90,9 @@ if ( SERVER ) then
 		emitter:SetPlayer( pl );
 		
 		// update size and show states
-		emitter:SetNetworkedBool( "ShowBeam", showbeams );
-		emitter:SetNetworkedBool( "GroundBeam", groundbeams );
-		emitter:SetNetworkedFloat( "PointSize", size );
+		emitter:SetNWBool( "ShowBeam", showbeams );
+		emitter:SetNWBool( "GroundBeam", groundbeams );
+		emitter:SetNWFloat( "PointSize", size );
 		
 		// store the color on the table.
 		local tbl = {
@@ -118,7 +118,7 @@ end
 function ENT:BuildDupeInfo()
 	local info = self.BaseClass.BuildDupeInfo(self) or {}
 
-	grid = self:GetNetworkedEntity( "grid" )
+	grid = self:GetNWEntity( "grid" )
 	if (grid) and (grid:IsValid()) then
 		info.holoemitter_grid = grid:EntIndex()
 	end

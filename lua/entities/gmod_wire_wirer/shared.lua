@@ -12,33 +12,33 @@ ENT.AdminSpawnable		= false
 
 
 function ENT:SetBeamRange(length)
-	self:SetNetworkedFloat("BeamLength", length)
+	self:SetNWFloat("BeamLength", length)
 end
 
 function ENT:GetBeamRange()
-	return self:GetNetworkedFloat("BeamLength") or 0
+	return self:GetNWFloat("BeamLength") or 0
 end
 
 function ENT:GetBeamLength()
-	return self:GetNetworkedFloat("BeamLength") or 0
+	return self:GetNWFloat("BeamLength") or 0
 end
 
 function ENT:SetSkewX(value)
-	self:SetNetworkedFloat("SkewX", math.max(-100, math.min(value, 100)))
+	self:SetNWFloat("SkewX", math.max(-100, math.min(value, 100)))
 end
 
 function ENT:SetSkewY(value)
-	self:SetNetworkedFloat("SkewY", math.max(-100, math.min(value, 100)))
+	self:SetNWFloat("SkewY", math.max(-100, math.min(value, 100)))
 end
 
 function ENT:SetBeamLength(length)
-	self:SetNetworkedFloat("BeamLength", length)
+	self:SetNWFloat("BeamLength", length)
 end
 
 function ENT:GetSkewX()
-	return self:GetNetworkedFloat("SkewX") or 0
+	return self:GetNWFloat("SkewX") or 0
 end
 
 function ENT:GetSkewY()
-	return self:GetNetworkedFloat("SkewY") or 0
+	return self:GetNWFloat("SkewY") or 0
 end

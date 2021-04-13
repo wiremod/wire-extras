@@ -157,7 +157,7 @@ end
 
 function TOOL:Holster()
 	self:ReleaseGhostEntity()
-	self:GetWeapon():SetNetworkedBool("HUDIndicatorCheckRegister", false)
+	self:GetWeapon():SetNWBool("HUDIndicatorCheckRegister", false)
 
 
 end

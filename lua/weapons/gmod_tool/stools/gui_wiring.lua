@@ -8,7 +8,7 @@ if ( CLIENT ) then
 	language.Add( "Tool.gui_wiring.name", "GUI Wiring Tool" )
 	language.Add( "Tool.gui_wiring.desc", "Used to connect wirable props." )
 	language.Add( "Tool.gui_wiring.0", "Primary: Select entity.\nSecondary: Deselect entity.\nReload: Open GUI." )
-	
+
 	language.Add( "Tool_gui_wiring_showports", "Show overlay of ports in HUD" )
     language.Add( "GUI_WiringTool_width", "Width:" )
     language.Add( "GUI_WiringTool_material", "Material:" )
@@ -25,6 +25,8 @@ TOOL.ClientConVar[ "color_g" ] = "255"
 TOOL.ClientConVar[ "color_b" ] = "255"
 
 cleanup.Register( "wireconstraints" )
+
+
 
 local von = WireLib.von
 
@@ -43,17 +45,17 @@ function TOOL:LeftClick(trace)
 	if (!IsWire(ent)) then return end
 	if (CLIENT) then return true end
 
-	
+
 	ply_idx = self:GetOwner()
 	Components[ply_idx] = Components[ply_idx] or {}
 	if table.HasValue(Components[ply_idx],ent) then return end
-	
+
 	table.insert(Components[ply_idx], ent)
-	
+
 	local TmpClr = ent:GetColor()
 	ent.OldColorR, ent.OldColorG, ent.OldColorB, ent.OldColorA = TmpClr.r, TmpClr.g, TmpClr.b, TmpClr.a
 	ent:SetColor(Color(255,0,0,128))
-	
+
 	return true
 end
 
@@ -324,7 +326,6 @@ if CLIENT then
 	end
 	function PANEL:SetComponent(vx)
 		local kx = vx[5]
-		local ekey = kx:EntIndex()
 		local nam = vx[3] or kx.WireDebugName or kx.PrintName or ""
 		nam = nam .. " ("..tostring(kx)..")"
 		self.Entity = kx
@@ -631,13 +632,13 @@ function TOOL:Think() --get and transmit the info on the overlay, but only when 
 			end
 			
 			if(InputString != LastOverBoxInput) then
-				self:GetWeapon():SetNetworkedString("WireDebugOverlayInputs", InputString)
+				self:GetWeapon():SetNWString("WireDebugOverlayInputs", InputString)
 				LastOverBoxInput = InputString
 			end
 		else
 			if(LastOverBoxInput != "") then
 				LastOverBoxInput = ""
-				self:GetWeapon():SetNetworkedString("WireDebugOverlayInputs", "")
+				self:GetWeapon():SetNWString("WireDebugOverlayInputs", "")
 			end
 		end
 		
@@ -653,24 +654,24 @@ function TOOL:Think() --get and transmit the info on the overlay, but only when 
 			end
 			
 			if(OutputString != LastOverBoxOutput) then
-				self:GetWeapon():SetNetworkedString("WireDebugOverlayOutputs", OutputString)
+				self:GetWeapon():SetNWString("WireDebugOverlayOutputs", OutputString)
 				LastOverBoxOutput = OutputString
 			end
 		else
 			if(LastOverBoxOutput != "") then
 				LastOverBoxOutput = ""
-				self:GetWeapon():SetNetworkedString("WireDebugOverlayOutputs", "")
+				self:GetWeapon():SetNWString("WireDebugOverlayOutputs", "")
 			end
 		end
 	else
 		if(LastOverBoxInput != "") then
 			LastOverBoxInput = ""
-			self:GetWeapon():SetNetworkedString("WireDebugOverlayInputs", "")
+			self:GetWeapon():SetNWString("WireDebugOverlayInputs", "")
 		end
 		
 		if(LastOverBoxOutput != "") then
 			LastOverBoxOutput = ""
-			self:GetWeapon():SetNetworkedString("WireDebugOverlayOutputs", "")
+			self:GetWeapon():SetNWString("WireDebugOverlayOutputs", "")
 		end
 	end
 
@@ -679,8 +680,8 @@ end
 if CLIENT then
 
 	function TOOL:DrawHUD()
-		local InputText = self:GetWeapon():GetNetworkedString("WireDebugOverlayInputs") or ""
-		local OutputText = self:GetWeapon():GetNetworkedString("WireDebugOverlayOutputs") or ""
+		local InputText = self:GetWeapon():GetNWString("WireDebugOverlayInputs") or ""
+		local OutputText = self:GetWeapon():GetNWString("WireDebugOverlayOutputs") or ""
 		
 		if(InputText != "") then
 			surface.SetFont("Trebuchet24")
@@ -694,7 +695,7 @@ if CLIENT then
 			local FontHeight = draw.GetFontHeight("Trebuchet24")+1
 			local MaxWidth = 0
 			for i, Input in ipairs(Inputs) do
-				local W, H = surface.GetTextSize(Input)
+				local W, _ = surface.GetTextSize(Input)
 				if(W > MaxWidth) then
 					MaxWidth = W
 				end
@@ -717,7 +718,7 @@ if CLIENT then
 				draw.Text({
 					text = Input or "",
 					font = "Trebuchet24",
-					pos = {ScrW()/2-(MaxWidth+16)-12, (FontHeight)*(i-1)+(ScrH()/2-#Inputs*FontHeight/2)},
+					pos = {ScrW()/2-(MaxWidth+16)-12, FontHeight*(i-1)+(ScrH()/2-#Inputs*FontHeight/2)},
 					color = TextCol
 				})
 			end
@@ -731,7 +732,7 @@ if CLIENT then
 			local FontHeight = draw.GetFontHeight("Trebuchet24")+1
 			local MaxWidth = 0
 			for i, Output in ipairs(Outputs) do
-				local W, H = surface.GetTextSize(Output)
+				local W, _ = surface.GetTextSize(Output)
 				if(W > MaxWidth) then
 					MaxWidth = W
 				end
@@ -750,7 +751,7 @@ if CLIENT then
 				draw.Text({
 					text = Output or "",
 					font = "Trebuchet24",
-					pos = {ScrW()/2+28, (FontHeight)*(i-1)+(ScrH()/2-#Outputs*FontHeight/2)},
+					pos = {ScrW()/2+28, FontHeight*(i-1)+(ScrH()/2-#Outputs*FontHeight/2)},
 					color = Color(255,255,255)
 				})
 			end

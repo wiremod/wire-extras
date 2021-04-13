@@ -7,9 +7,9 @@ ENT.Spawnable = false
 ENT.AdminSpawnable = false
 
 function ENT:SetBeamLength(length)
-	self:SetNetworkedFloat("BeamLength", length)
+	self:SetNWFloat("BeamLength", length)
 end
 
 function ENT:GetBeamLength()
-	return self:GetNetworkedFloat("BeamLength") or 0
+	return self:GetNWFloat("BeamLength") or 0
 end

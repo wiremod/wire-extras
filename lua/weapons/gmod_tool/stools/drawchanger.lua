@@ -9,6 +9,7 @@ TOOL.ClientConVar["draww"] = ""
 TOOL.ClientConVar["drawh"] = ""
 TOOL.ClientConVar["drawres"] = ""
 
+
 if CLIENT then
     language.Add( "Tool_drawchanger_name", "Developer Tool" )
     language.Add( "Tool_drawchanger_desc", "change draw params" )
@@ -21,31 +22,30 @@ if CLIENT then
 	language.Add("Tool_drawchanger_drawh", "H:")
 	language.Add("Tool_drawchanger_drawres", "Res:")
 
-	function umGetNewSet(um)
-		local ent = um:ReadEntity()
-		ent.drawParams.x = um:ReadFloat()
-		ent.drawParams.y = um:ReadFloat()
-		ent.drawParams.w = um:ReadFloat()
-		ent.drawParams.h = um:ReadFloat()
-		ent.drawParams.Res = um:ReadFloat()
+	function umGetNewSet()
+		local ent = net.ReadEntity()
+		ent.drawParams.x = net.ReadFloat()
+		ent.drawParams.y = net.ReadFloat()
+		ent.drawParams.w = net.ReadFloat()
+		ent.drawParams.h = net.ReadFloat()
+		ent.drawParams.Res = net.ReadFloat()
 		gpCalcDrawCoefs(ent)
 	end
-	usermessage.Hook("umsgDrawChangerCfg", umGetNewSet) 
+	net.Receive("umsgDrawChangerCfg", umGetNewSet) 
 end
 
 if SERVER then
+	util.AddNetworkString("umsgDrawChangerCfg")
 	function TOOL:sendSetVal(ent, x, y, w, h, res)
 		Msg ("um send function\n")
-		local allPlayers = RecipientFilter()
-		allPlayers:AddAllPlayers()
-		umsg.Start("umsgDrawChangerCfg", allPlayers)	--do we need to send entity with all user messages (so we know which pannel we are talking about?)
-			umsg.Entity(ent)
-			umsg.Float(x)
-			umsg.Float(y)
-			umsg.Float(w)
-			umsg.Float(h)
-			umsg.Float(res)
-		umsg.End() 
+		net.Start("umsgDrawChangerCfg")
+			net.WriteEntity(ent)
+			net.WriteFloat(x)
+			net.WriteFloat(y)
+			net.WriteFloat(w)
+			net.WriteFloat(h)
+			net.WriteFloat(res)
+		net.Broadcast()	--do we need to send entity with all user messages (so we know which pannel we are talking about?) 
 	end
 end
 
