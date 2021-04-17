@@ -257,6 +257,7 @@ if CLIENT then
 			v[5] = k
 			local eGui = vgui.Create("DGUIWiringFrame",wiringGui)
 			eGui:SetComponent(v)
+			k.Outputs = v[2]
 		end
 		
 		for _,btnI in pairs(DInpButtons) do
