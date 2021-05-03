@@ -379,12 +379,12 @@ local function getEntityList(oFTrc, bID)
 end
 
 local function getFilterMode(oFTrc)
-	if(not oFTrc) then return "XXX" end -- Unavailable
+	if(not oFTrc) then return "XX" end -- Unavailable
 	local tF = oFTrc.mTrI.filter -- Filter table reference
-	local fE, fF = oFTrc.mFlt.Ear, oFTrc.mFlt.Fnc -- Options
-	if    (tF == fE) then return "EAR" -- Entity index array
-	elseif(tF == fF) then return "FNC" -- Function routine
-	elseif(isValid(tF)) then return "ENT" end; return "NIL"
+	if    (tF == oFTrc.mFlt.Ear) then return "AR" -- Entity index array
+	elseif(tF == oFTrc.mFlt.Fnc) then return "FN" -- Function routine
+	elseif(tF == oFTrc.mFlt.Enu) then return "EU" -- Entity unit
+	end; return "NA" -- Filter for ftrace is not available
 end
 
 local function dumpTracer(oFTrc, sNam, sPos)
@@ -392,12 +392,12 @@ local function dumpTracer(oFTrc, sNam, sPos)
 	local nP, oChip = gtPrintName[sP], oFTrc.mChip
 	if(not nP) then return oFTrc end
 	logStatus("["..tostring(sNam or gsNotAvStr).."] Data:", oChip, nP)
-	logStatus(" Len: "..tostring(oFTrc.mLen or gsNotAvStr), oChip, nP)
-	logStatus(" Pos: "..tostring(oFTrc.mPos or gsNotAvStr), oChip, nP)
-	logStatus(" Dir: "..tostring(oFTrc.mDir or gsNotAvStr), oChip, nP)
-	logStatus(" Ent: "..tostring(oFTrc.mEnt or gsNotAvStr), oChip, nP)
+	logStatus(" LEN: "..tostring(oFTrc.mLen or gsNotAvStr), oChip, nP)
+	logStatus(" POS: "..tostring(oFTrc.mPos or gsNotAvStr), oChip, nP)
+	logStatus(" DIR: "..tostring(oFTrc.mDir or gsNotAvStr), oChip, nP)
+	logStatus(" ENT: "..tostring(oFTrc.mEnt or gsNotAvStr), oChip, nP)
 	logStatus(" E2 : "..tostring(oChip.entity or gsNotAvStr), oChip, nP)
-	logStatus(" Fmo: "..getFilterMode(oFTrc), oChip, nP)
+	logStatus(" FMD: "..getFilterMode(oFTrc), oChip, nP)
 	local tFnc = oFTrc.mFnc -- Read the general hit list
 	local tEnt = tFnc.Ent   -- Read the direct hit entities list
 	logStatus(formType(0, tEnt.TYPE), oChip, nP)
@@ -624,35 +624,35 @@ end
 --[[ **************************** FILTER COPY **************************** ]]
 
 __e2setcost(3)
-e2function ftrace ftrace:useFilterEnu(ftrace oT)
+e2function ftrace ftrace:useFilterUnit(ftrace oT)
 	if(not this) then return nil end
 	if(not oT) then return this end
 	this.mFlt.Enu = oT.mFlt.Enu; return this
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:useFilterEar(ftrace oT)
+e2function ftrace ftrace:useFilterArray(ftrace oT)
 	if(not this) then return nil end
 	if(not oT) then return this end
 	this.mFlt.Ear = oT.mFlt.Ear; return this
 end
 
 __e2setcost(12)
-e2function ftrace ftrace:cpyFilterEar(ftrace oT)
+e2function ftrace ftrace:cpyFilterArray(ftrace oT)
 	if(not this) then return nil end
 	if(not oT) then return this end
 	return putFilterEar(this, oT.mFlt.Ear, false, false)
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:useFilterFnc(ftrace oT)
+e2function ftrace ftrace:useFilterAction(ftrace oT)
 	if(not this) then return nil end
 	if(not oT) then return this end
 	this.mFlt.Fnc = oT.mFlt.Fnc; return this
 end
 
 __e2setcost(12)
-e2function ftrace ftrace:cpyFilterFnc(ftrace oT)
+e2function ftrace ftrace:cpyFilterAction(ftrace oT)
 	return putFilterFnc(this, oT.mFnc)
 end
 
@@ -670,20 +670,20 @@ e2function ftrace ftrace:remFilter()
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:setFilterEar()
+e2function ftrace ftrace:setFilterArray()
 	if(not this) then return nil end
 	this.mTrI.filter = this.mFlt.Ear; return this
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:setFilterEnu()
+e2function ftrace ftrace:setFilterUnit()
 	if(not this) then return nil end
 	if(not isValid(vE)) then return nil end
 	this.mTrI.filter = this.mFlt.Enu; return this
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:setFilterFnc()
+e2function ftrace ftrace:setFilterAction()
 	if(not this) then return nil end
 	this.mTrI.filter = this.mFlt.Fnc; return this
 end
@@ -691,20 +691,20 @@ end
 --[[ **************************** ENTITY UNIT FILTER **************************** ]]
 
 __e2setcost(3)
-e2function ftrace ftrace:putEnu(entity vE)
+e2function ftrace ftrace:putUnit(entity vE)
 	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	this.mFlt.Enu = vE; return this
 end
 
 __e2setcost(3)
-e2function entity ftrace:getEnu()
+e2function entity ftrace:getUnit()
 	if(not this) then return nil end
 	return this.mFlt.Enu
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:remEnu()
+e2function ftrace ftrace:remUnit()
 	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	this.mFlt.Enu = nil; return this
@@ -713,116 +713,130 @@ end
 --[[ **************************** FUNCTION ENTITY FILTER **************************** ]]
 
 __e2setcost(3)
-e2function ftrace ftrace:putFncSkipEnt(entity vE)
+e2function ftrace ftrace:putActionSkipEnt(entity vE)
 	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	this.mFnc.Ent.SKIP[vE] = true; return this
 end
 
+e2function ftrace ftrace:addEntHitSkip(entity vE) = e2function ftrace ftrace:putActionSkipEnt(entity vE)
+
 __e2setcost(3)
-e2function ftrace ftrace:remFncSkipEnt(entity vE)
+e2function ftrace ftrace:remActionSkipEnt(entity vE)
 	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	this.mFnc.Ent.SKIP[vE] = nil; return this
 end
 
+e2function ftrace ftrace:remEntHitSkip(entity vE) = e2function ftrace ftrace:remActionSkipEnt(entity vE)
+
 __e2setcost(3)
-e2function ftrace ftrace:remFncSkipEnt()
+e2function ftrace ftrace:remActionSkipEnt()
 	if(not this) then return nil end
 	table.Empty(this.mFnc.Ent.SKIP); return this
 end
 
+e2function ftrace ftrace:remEntHitSkip() = e2function ftrace ftrace:remActionSkipEnt()
+
 __e2setcost(3)
-e2function ftrace ftrace:putFncOnlyEnt(entity vE)
+e2function ftrace ftrace:putActionOnlyEnt(entity vE)
 	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	this.mFnc.Ent.ONLY[vE] = true; return this
 end
 
+e2function ftrace ftrace:addEntHitOnly(entity vE) = e2function ftrace ftrace:putActionOnlyEnt(entity vE)
+
 __e2setcost(3)
-e2function ftrace ftrace:remFncOnlyEnt(entity vE)
+e2function ftrace ftrace:remActionOnlyEnt(entity vE)
 	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	this.mFnc.Ent.ONLY[vE] = nil; return this
 end
 
+e2function ftrace ftrace:remEntHitOnly(entity vE) = e2function ftrace ftrace:remActionOnlyEnt(entity vE)
+
 __e2setcost(3)
-e2function ftrace ftrace:remFncOnlyEnt()
+e2function ftrace ftrace:remActionOnlyEnt()
 	if(not this) then return nil end
 	table.Empty(this.mFnc.Ent.ONLY); return this
 end
 
+e2function ftrace ftrace:remEntHitOnly() = e2function ftrace ftrace:remActionOnlyEnt()
+
 __e2setcost(3)
-e2function ftrace ftrace:remFncEnt()
+e2function ftrace ftrace:remActionEnt()
 	if(not this) then return nil end
 	table.Empty(this.mFnc.Ent.SKIP)
 	table.Empty(this.mFnc.Ent.ONLY); return this
 end
 
+e2function ftrace ftrace:remEntHit() = e2function ftrace ftrace:remActionEnt()
+
 --[[ **************************** ENTITY ARRAY FILTER **************************** ]]
 
 __e2setcost(3)
-e2function ftrace ftrace:putEar(array vR)
+e2function ftrace ftrace:putArray(array vR)
 	return putFilterEar(this, vR, false, false)
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:putEar(table vT)
+e2function ftrace ftrace:putArray(table vT)
 	return putFilterEar(this, vT, true, false)
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:putEar(entity vE)
+e2function ftrace ftrace:putArray(entity vE)
 	return putFilterEar(this, {vE}, false, false)
 end
 
 __e2setcost(3)
-e2function array ftrace:getEar()
+e2function array ftrace:getArray()
 	return getEntityList(this, false)
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:putEarID(array vR)
+e2function ftrace ftrace:putArrayID(array vR)
 	return putFilterEar(this, vR, false, true)
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:putEarID(table vT)
+e2function ftrace ftrace:putArrayID(table vT)
 	return putFilterEar(this, vT, true, true)
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:putEarID(number iE)
+e2function ftrace ftrace:putArrayID(number iE)
 	return putFilterEar(this, {math.floor(iE)}, false, true)
 end
 
 __e2setcost(3)
-e2function array ftrace:getEarID()
+e2function array ftrace:getArrayID()
 	return getEntityList(this, true)
 end
 
 __e2setcost(3)
-e2function number ftrace:getEarSZ()
+e2function number ftrace:getArraySZ()
 	if(not this) then return nil end
 	return this.mFlt.Size
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:updEarSZ()
+e2function ftrace ftrace:updArraySZ()
 	return updateEarSize()
 end
 
 --[[ **************************** REMOVE ENTITY ARRAY ITEMS **************************** ]]
 
 __e2setcost(3)
-e2function ftrace ftrace:remEarN(number iN)
+e2function ftrace ftrace:remArrayN(number iN)
 	if(not this) then return nil end
 	table.remove(this.mFlt.Ear, math.floor(iN))
 	return updateEarSize(this)
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:remEarID(number iE)
+e2function ftrace ftrace:remArrayID(number iE)
 	if(not this) then return nil end
 	local tE = this.mFlt.Ear
 	local vE = Entity(math.floor(iE))
@@ -832,7 +846,7 @@ e2function ftrace ftrace:remEarID(number iE)
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:remEar(entity vE)
+e2function ftrace ftrace:remArray(entity vE)
 	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	local tE = this.mFlt.Ear
@@ -842,7 +856,7 @@ e2function ftrace ftrace:remEar(entity vE)
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:remEar()
+e2function ftrace ftrace:remArray()
 	if(not this) then return nil end
 	table.Empty(this.mFlt.Ear)
 	return updateEarSize(this)
@@ -851,7 +865,7 @@ end
 --[[ **************************** REMOVE FUNCTION ITEMS **************************** ]]
 
 __e2setcost(3)
-e2function ftrace ftrace:remFnc()
+e2function ftrace ftrace:remAction()
 	if(not this) then return nil end
 	local tID = this.mFnc.ID
 	for key, id in pairs(tID) do
@@ -859,54 +873,74 @@ e2function ftrace ftrace:remFnc()
 	end; return this
 end
 
+e2function ftrace ftrace:remHit() = e2function ftrace ftrace:remAction()
+
 __e2setcost(3)
-e2function ftrace ftrace:remFnc(string sM)
+e2function ftrace ftrace:remAction(string sM)
 	return remFncFilter(this, sM)
 end
+
+e2function ftrace ftrace:remHit(string sM) = e2function ftrace ftrace:remAction(string sM)
 
 --[[ **************************** FUNCTION NUMBER **************************** ]]
 
 __e2setcost(3)
-e2function ftrace ftrace:putFncSkip(string sM, number vN)
+e2function ftrace ftrace:putActionSkip(string sM, number vN)
 	return setFncFilter(this, sM, "SKIP", vN, true)
 end
 
+e2function ftrace ftrace:addHitSkip(string sM, number vN) = e2function ftrace ftrace:putActionSkip(string sM, number vN)
+
 __e2setcost(3)
-e2function ftrace ftrace:remFncSkip(string sM, number vN)
+e2function ftrace ftrace:remActionSkip(string sM, number vN)
 	return setFncFilter(this, sM, "SKIP", vN, nil)
 end
 
+e2function ftrace ftrace:remHitSkip(string sM, number vN) = e2function ftrace ftrace:remActionSkip(string sM, number vN)
+
 __e2setcost(3)
-e2function ftrace ftrace:putFncOnly(string sM, number vN)
+e2function ftrace ftrace:putActionOnly(string sM, number vN)
 	return setFncFilter(this, sM, "ONLY", vN, true)
 end
 
+e2function ftrace ftrace:addHitOnly(string sM, number vN) = e2function ftrace ftrace:putActionOnly(string sM, number vN)
+
 __e2setcost(3)
-e2function ftrace ftrace:remFncOnly(string sM, number vN)
+e2function ftrace ftrace:remActionOnly(string sM, number vN)
 	return setFncFilter(this, sM, "ONLY", vN, nil)
 end
+
+e2function ftrace ftrace:remHitOnly(string sM, number vN) = e2function ftrace ftrace:remActionOnly(string sM, number vN)
 
 --[[ **************************** FUNCTION STRING **************************** ]]
 
 __e2setcost(3)
-e2function ftrace ftrace:putFncSkip(string sM, string vS)
+e2function ftrace ftrace:putActionSkip(string sM, string vS)
 	return setFncFilter(this, sM, "SKIP", vS, true)
 end
 
+e2function ftrace ftrace:addHitSkip(string sM, string vS) = e2function ftrace ftrace:putActionSkip(string sM, string vS)
+
 __e2setcost(3)
-e2function ftrace ftrace:remFncSkip(string sM, string vS)
+e2function ftrace ftrace:remActionSkip(string sM, string vS)
 	return setFncFilter(this, sM, "SKIP", vS, nil)
 end
 
+e2function ftrace ftrace:remHitSkip(string sM, string vS) = e2function ftrace ftrace:remActionSkip(string sM, string vS)
+
 __e2setcost(3)
-e2function ftrace ftrace:putFncOnly(string sM, string vS)
+e2function ftrace ftrace:putActionOnly(string sM, string vS)
 	return setFncFilter(this, sM, "ONLY", vS, true)
 end
 
+e2function ftrace ftrace:addHitOnly(string sM, string vS) = e2function ftrace ftrace:putActionOnly(string sM, string vS)
+
 __e2setcost(3)
-e2function ftrace ftrace:remFncOnly(string sM, string vS)
+e2function ftrace ftrace:remActionOnly(string sM, string vS)
 	return setFncFilter(this, sM, "ONLY", vS, nil)
 end
+
+e2function ftrace ftrace:remHitOnly(string sM, string vS) = e2function ftrace ftrace:remActionOnly(string sM, string vS)
 
 --[[ **************************** RAY **************************** ]]
 
@@ -1407,18 +1441,22 @@ e2function vector ftrace:getStartPos()
 end
 
 __e2setcost(3)
-e2function number ftrace:getSurfPropsID()
+e2function number ftrace:getSurfacePropsID()
 	if(not this) then return 0 end
 	local trV = this.mTrO.SurfaceProps
 	return (trV and trV or 0)
 end
 
+e2function number ftrace:getSurfPropsID() = e2function number ftrace:getSurfacePropsID()
+
 __e2setcost(3)
-e2function string ftrace:getSurfPropsName()
+e2function string ftrace:getSurfacePropsName()
 	if(not this) then return gsZeroStr end
 	local trV = this.mTrO.SurfaceProps
 	return (trV and util.GetSurfacePropName(trV) or gsZeroStr)
 end
+
+e2function string ftrace:getSurfPropsName() = e2function string ftrace:getSurfacePropsName()
 
 __e2setcost(3)
 e2function number ftrace:getPhysicsBoneID()
@@ -1484,18 +1522,23 @@ e2function number ftrace:getSurfaceFlags()
 end
 
 __e2setcost(3)
-e2function number ftrace:getDisplaceFlags()
+e2function number ftrace:getDispFlags()
 	if(not this) then return 0 end
 	local trV = this.mTrO.DispFlags
 	return (trV and trV or 0)
 end
 
+e2function number ftrace:getDisplaceFlags()     = e2function number ftrace:getDispFlags()
+e2function number ftrace:getDisplacementFlags() = e2function number ftrace:getDispFlags()
+
 __e2setcost(3)
-e2function number ftrace:getHitContents()
+e2function number ftrace:getContents()
 	if(not this) then return 0 end
 	local trV = this.mTrO.Contents
 	return (trV and trV or 0)
 end
+
+e2function number ftrace:getHitContents() = e2function number ftrace:getContents()
 
 __e2setcost(15)
 e2function ftrace ftrace:dumpItem(number nN)
