@@ -312,21 +312,21 @@ end
 local function putFilterEar(oFTrc, tData, bTab, bID)
 	if(not oFTrc) then return nil end
 	local tE = oFTrc.mFlt.Ear
-	if(bTab) then local iD = 1
-		while(tData[iD]) do
-			local vE, iE, eE = tData[iD]
+	if(bTab) then
+		for iD = 1, #tData do
+			local vE, eE = tData[iD]
 			if(bID) then
-				iE = math.floor(tonumber(vE) or 0)
+				local iE = math.floor(tonumber(vE) or 0)
 				if(iE > 0) then eE = Entity(iE) end
 			else eE = vE end
 			if(isValid(eE, "Entity")) then
 				table.insert(tE, eE)
-			end; iD = iD + 1
+			end
 		end
 	else
-		for iD, vE in pairs(tData) do local iE, eE
+		for iD, vE in pairs(tData) do local eE
 			if(bID) then
-				iE = math.floor(tonumber(vE) or 0)
+				local iE = math.floor(tonumber(vE) or 0)
 				if(iE > 0) then eE = Entity(iE) end
 			else eE = vE end
 			if(isValid(eE, "Entity")) then
@@ -367,14 +367,15 @@ end
 ]]
 local function getEntityList(oFTrc, bID)
 	if(not oFTrc) then return nil end
-	local tO, iO = {}, 0
-	local tE, iD = oFTrc.mFlt.Ear, 1
-	while(tE[iD]) do local vE = tE[iD]
-		if(isValid(vE)) then iO = iO + 1
+	local tE, tO, iO = oFTrc.mFlt.Ear, {}, 0
+	for iD = 1, #tE do
+		local vE = tE[iD]
+		if(isValid(vE)) then
+			iO = iO + 1
 			if(bID) then
 				tO[iO] = vE:EntIndex()
 			else tO[iO] = vE end
-		end; iD = iD + 1
+		end
 	end; return tO
 end
 
