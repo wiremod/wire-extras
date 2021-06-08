@@ -313,8 +313,7 @@ local function putFilterEar(oFTrc, tData, bTab, bID)
 	if(not oFTrc) then return nil end
 	local tE = oFTrc.mFlt.Ear
 	if(bTab) then
-		for iD = 1, #tData do
-			local vE, eE = tData[iD]
+		for iD, vE in pairs(tData) do local eE
 			if(bID) then
 				local iE = math.floor(tonumber(vE) or 0)
 				if(iE > 0) then eE = Entity(iE) end
@@ -324,7 +323,8 @@ local function putFilterEar(oFTrc, tData, bTab, bID)
 			end
 		end
 	else
-		for iD, vE in pairs(tData) do local eE
+		for iD = 1, #tData do
+			local vE, eE = tData[iD]
 			if(bID) then
 				local iE = math.floor(tonumber(vE) or 0)
 				if(iE > 0) then eE = Entity(iE) end
