@@ -224,7 +224,7 @@ local function newFncFilter(oFTrc, sM)
 	tFnc.ID[sM] = tFnc.Size; return (tFnc.Size)
 end
 
-local function remFncFilter(oFTrc, sM)
+local function removeFncFilter(oFTrc, sM)
 	if(not oFTrc) then return nil end
 	local tFnc = oFTrc.mFnc; if(not tFnc) then return oFTrc end
 	local ID = tFnc.ID[sM]; if(not ID) then return oFTrc end
@@ -870,7 +870,7 @@ e2function ftrace ftrace:remAction()
 	if(not this) then return nil end
 	local tID = this.mFnc.ID
 	for key, id in pairs(tID) do
-		remFncFilter(this, key)
+		removeFncFilter(this, key)
 	end; return this
 end
 
@@ -878,7 +878,7 @@ e2function ftrace ftrace:remHit() = e2function ftrace ftrace:remAction()
 
 __e2setcost(3)
 e2function ftrace ftrace:remAction(string sM)
-	return remFncFilter(this, sM)
+	return removeFncFilter(this, sM)
 end
 
 e2function ftrace ftrace:remHit(string sM) = e2function ftrace ftrace:remAction(string sM)
