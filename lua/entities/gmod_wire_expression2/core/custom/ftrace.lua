@@ -38,8 +38,8 @@ local gnMaxBeam   = 50000 -- The tracer maximum length just about one cube map
 local gtEmptyVar  = {["#empty"]=true}; gtEmptyVar[gsZeroStr] = true -- Variable being set to empty string
 local gsVarPrefx  = "wire_expression2_ftrace" -- This is used for variable prefix
 local gtBoolToNum = {[true]=1,[false]=0} -- This is used to convert between GLua boolean and wire boolean
-local gtMethList  = {} -- Place holder for blacklist and convar prefix
-local gtConvEnab  = {["LW"] = LocalToWorld, ["WL"] = WorldToLocal} -- Coordinate conversion list
+local gtMethList  = {} -- Place holder for blacklist and console variables prefix
+local gtConvEnab  = {["LW"] = LocalToWorld, ["WL"] = WorldToLocal} -- Coordinate translation list
 local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServerControled, "FTrace entity black listed methods")
 local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServerControled, "FTrace entity white listed methods")
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "FTrace status output messages")
@@ -110,7 +110,7 @@ end
  * Array values are usually entity methods
  * tA > The table of number-indexed strings to convert
 ]]
-local function convArrayKeys(tA)
+local function convertArrayKeys(tA)
 	if(not tA) then return nil end
 	for ID = 1, #tA do -- Convert the table from array to hash bools
 		local key = tostring(tA[ID] or ""):gsub("%s+", "")
@@ -122,12 +122,12 @@ end
 
 cvars.RemoveChangeCallback(varMethSkip:GetName(), varMethSkip:GetName().."_call")
 cvars.AddChangeCallback(varMethSkip:GetName(), function(sVar, vOld, vNew)
-	gtMethList.SKIP = convArrayKeys(("/"):Explode(tostring(vNew or gsZeroStr)))
+	gtMethList.SKIP = convertArrayKeys(("/"):Explode(tostring(vNew or gsZeroStr)))
 end, varMethSkip:GetName().."_call")
 
 cvars.RemoveChangeCallback(varMethOnly:GetName(), varMethOnly:GetName().."_call")
 cvars.AddChangeCallback(varMethOnly:GetName(), function(sVar, vOld, vNew)
-	gtMethList.ONLY = convArrayKeys(("/"):Explode(tostring(vNew or gsZeroStr)))
+	gtMethList.ONLY = convertArrayKeys(("/"):Explode(tostring(vNew or gsZeroStr)))
 end, varMethOnly:GetName().."_call")
 
 cvars.RemoveChangeCallback(varDefPrint:GetName(), varDefPrint:GetName().."_call")
@@ -137,7 +137,7 @@ end, varDefPrint:GetName().."_call")
 
 --[[ **************************** WRAPPERS **************************** ]]
 
-local function convDirLocal(oFTrc, vE, vA)
+local function convertDirLocal(oFTrc, vE, vA)
 	if(not oFTrc) then return {0,0,0} end
 	local oD, oE = oFTrc.mDir, (vE or oFTrc.mEnt)
 	if(not (isValid(oE) or vA)) then return {oD[1], oD[2], oD[3]} end
@@ -147,7 +147,7 @@ local function convDirLocal(oFTrc, vE, vA)
 	return {oV:Dot(oA:Forward()), -oV:Dot(oA:Right()), oV:Dot(oA:Up())}
 end -- Gmod +Y is the left direction
 
-local function convDirWorld(oFTrc, vE, vA)
+local function convertDirWorld(oFTrc, vE, vA)
 	if(not oFTrc) then return {0,0,0} end
 	local oD, oE = oFTrc.mDir, (vE or oFTrc.mEnt)
 	if(not (isValid(oE) or vA)) then return {oD[1], oD[2], oD[3]} end
@@ -157,7 +157,7 @@ local function convDirWorld(oFTrc, vE, vA)
 	oV:Rotate(oA); return {oV[1], oV[2], oV[3]}
 end
 
-local function convOrgEnt(oFTrc, sF, vE)
+local function convertOrgEnt(oFTrc, sF, vE)
 	if(not oFTrc) then return {0,0,0} end
 	if(not gtConvEnab[sF or gsZeroStr]) then return {0,0,0} end
 	local oO, oE = oFTrc.mPos, (vE or oFTrc.mEnt)
@@ -166,7 +166,7 @@ local function convOrgEnt(oFTrc, sF, vE)
 	return {oV:Unpack()}
 end
 
-local function convOrgUCS(oFTrc, sF, vP, vA)
+local function convertOrgUCS(oFTrc, sF, vP, vA)
 	if(not oFTrc) then return {0,0,0} end
 	if(not gtConvEnab[sF or gsZeroStr]) then return {0,0,0} end
 	local oO, oE = oFTrc.mPos, (vE or oFTrc.mEnt)
@@ -224,6 +224,11 @@ local function newFncFilter(oFTrc, sM)
 	tFnc.ID[sM] = tFnc.Size; return (tFnc.Size)
 end
 
+--[[
+ * Removes method from the function hit list
+ * oFTrc > Reference to tracer object
+ * sM    > Entity method to remove from the list
+]]
 local function removeFncFilter(oFTrc, sM)
 	if(not oFTrc) then return nil end
 	local tFnc = oFTrc.mFnc; if(not tFnc) then return oFTrc end
@@ -234,10 +239,23 @@ local function removeFncFilter(oFTrc, sM)
 end
 
 --[[
+ * Removes method option from the function hit list
+ * oFTrc > Reference to tracer object
+ * sM    > Entity method to index from the list
+ * sO    > Registration option either being ( SKIP or ONLY )
+]]
+local function removeFncFilterOption(oFTrc, sM, sO)
+	if(not oFTrc) then return nil end
+	local tFnc = oFTrc.mFnc; if(not tFnc) then return oFTrc end
+	local ID = tFnc.ID[sM]; if(not ID) then return oFTrc end
+	tFnc[ID][sO] = nil; return oFTrc
+end
+
+--[[
  * Registers method and its return value in the function hit list
  * oFTrc > Reference to tracer object
  * sM    > Entity method to register in the configuration
- * sO    > Registration mode eithr being ( SKIP or ONLY )
+ * sO    > Registration option either being ( SKIP or ONLY )
  * vV    > The data that functional filter will compare
  * bS    > Status configuration flag ( any value )
 ]]
@@ -257,14 +275,14 @@ local function setFncFilter(oFTrc, sM, sO, vV, bS)
 	else tID[sO][vV] = bS end; return oFTrc
 end
 
-local function convFncValue(oEnt, sM)
+local function convertFncValue(oEnt, sM)
 	local vV = oEnt[sM](oEnt) -- Call method
 	if(sM:sub(1,2) == "Is") then -- Check name
 		vV = gtBoolToNum[vV] -- Convert boolean
 	end; return vV -- Return converted value
 end
 
-local function trcLocal(oFTrc, eB, vP, vA)
+local function traceLocal(oFTrc, eB, vP, vA)
 	if(not oFTrc) then return nil end
 	local eE = (eB and eB or oFTrc.mEnt)
 	local eP, eA = gvTransform, gaTransform
@@ -278,7 +296,7 @@ local function trcLocal(oFTrc, eB, vP, vA)
 	util.TraceLine(oFTrc.mTrI); return oFTrc
 end
 
-local function trcWorld(oFTrc, eE, vP, vA)
+local function traceWorld(oFTrc, eE, vP, vA)
 	if(not oFTrc) then return nil end
 	local eP, eA = gvTransform, gaTransform
 	eP:Set(oFTrc.mPos); eA:Set(oFTrc.mDir:Angle())
@@ -363,17 +381,14 @@ end
 --[[
  * Returns copy array for the entity filter list
  * oFTrc > Reference to tracer object
- * bID   > When enabled the table contains entity ID
+ * bID   > When enabled the array contains entity ID
 ]]
 local function getEntityList(oFTrc, bID)
 	if(not oFTrc) then return nil end
 	local tE, tO, iO = oFTrc.mFlt.Ear, {}, 0
-	for iD = 1, #tE do
-		local vE = tE[iD]
-		if(isValid(vE)) then
-			iO = iO + 1
-			if(bID) then
-				tO[iO] = vE:EntIndex()
+	for iD = 1, #tE do local vE = tE[iD]
+		if(isValid(vE)) then iO = iO + 1
+			if(bID) then tO[iO] = vE:EntIndex()
 			else tO[iO] = vE end
 		end
 	end; return tO
@@ -382,10 +397,11 @@ end
 local function getFilterMode(oFTrc)
 	if(not oFTrc) then return "XX" end -- Unavailable
 	local tF = oFTrc.mTrI.filter -- Filter table reference
-	if    (tF == oFTrc.mFlt.Ear) then return "AR" -- Entity index array
+	if    (tF == nil) then return "NA" -- No filter is currenttly set
+	elseif(tF == oFTrc.mFlt.Ear) then return "AR" -- Entity index array
 	elseif(tF == oFTrc.mFlt.Fnc) then return "FN" -- Function routine
 	elseif(tF == oFTrc.mFlt.Enu) then return "EU" -- Entity unit
-	end; return "NA" -- Filter for ftrace is not available
+	end; return "TS" -- Transfered settings form another instance
 end
 
 local function dumpTracer(oFTrc, sNam, sPos)
@@ -460,7 +476,7 @@ local function newTracer(oChip, vEnt, vPos, vDir, nLen)
 		if(nS > 1) then return vV end -- Entity found or skipped return
 		if(tFnc.Size > 0) then -- Swipe trough the other lists available
 			for IH = 1, tFnc.Size do local vFnc = tFnc[IH] -- Read list conf
-				local vC = convFncValue(oEnt, vFnc.CALL) -- Extract entity value
+				local vC = convertFncValue(oEnt, vFnc.CALL) -- Extract entity value
 				local nS, vV = getFncStatus(vFnc, vC) -- Check extracted value
 				if(nS > 1) then return vV end -- Option skipped or selected return
 			end -- All options are checked then trace hit normally routine
@@ -625,42 +641,42 @@ end
 --[[ **************************** FILTER COPY **************************** ]]
 
 __e2setcost(3)
-e2function ftrace ftrace:useFilterUnit(ftrace oT)
+e2function ftrace ftrace:useUnit(ftrace oT)
 	if(not this) then return nil end
 	if(not oT) then return this end
-	this.mFlt.Enu = oT.mFlt.Enu; return this
+	this.mTrI.filter = oT.mFlt.Enu; return this
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:useFilterArray(ftrace oT)
+e2function ftrace ftrace:useArray(ftrace oT)
 	if(not this) then return nil end
 	if(not oT) then return this end
-	this.mFlt.Ear = oT.mFlt.Ear; return this
+	this.mTrI.filter = oT.mFlt.Ear; return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:useAction(ftrace oT)
+	if(not this) then return nil end
+	if(not oT) then return this end
+	this.mTrI.filter = oT.mFlt.Fnc; return this
 end
 
 __e2setcost(12)
-e2function ftrace ftrace:cpyFilterArray(ftrace oT)
+e2function ftrace ftrace:cpyArray(ftrace oT)
 	if(not this) then return nil end
 	if(not oT) then return this end
 	return putFilterEar(this, oT.mFlt.Ear, false, false)
 end
 
-__e2setcost(3)
-e2function ftrace ftrace:useFilterAction(ftrace oT)
-	if(not this) then return nil end
-	if(not oT) then return this end
-	this.mFlt.Fnc = oT.mFlt.Fnc; return this
-end
-
 __e2setcost(12)
-e2function ftrace ftrace:cpyFilterAction(ftrace oT)
+e2function ftrace ftrace:cpyAction(ftrace oT)
 	return putFilterFnc(this, oT.mFnc)
 end
 
 --[[ **************************** FILTER CHANGE **************************** ]]
 
 __e2setcost(3)
-e2function string ftrace:getFilterMode()
+e2function string ftrace:getMode()
 	return getFilterMode(this)
 end
 
@@ -671,20 +687,19 @@ e2function ftrace ftrace:remFilter()
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:setFilterArray()
+e2function ftrace ftrace:useArray()
 	if(not this) then return nil end
 	this.mTrI.filter = this.mFlt.Ear; return this
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:setFilterUnit()
+e2function ftrace ftrace:useUnit()
 	if(not this) then return nil end
-	if(not isValid(vE)) then return nil end
 	this.mTrI.filter = this.mFlt.Enu; return this
 end
 
 __e2setcost(3)
-e2function ftrace ftrace:setFilterAction()
+e2function ftrace ftrace:useAction()
 	if(not this) then return nil end
 	this.mTrI.filter = this.mFlt.Fnc; return this
 end
@@ -707,7 +722,6 @@ end
 __e2setcost(3)
 e2function ftrace ftrace:remUnit()
 	if(not this) then return nil end
-	if(not isValid(vE)) then return this end
 	this.mFlt.Enu = nil; return this
 end
 
@@ -865,7 +879,7 @@ end
 
 --[[ **************************** REMOVE FUNCTION ITEMS **************************** ]]
 
-__e2setcost(3)
+__e2setcost(12)
 e2function ftrace ftrace:remAction()
 	if(not this) then return nil end
 	local tID = this.mFnc.ID
@@ -882,6 +896,36 @@ e2function ftrace ftrace:remAction(string sM)
 end
 
 e2function ftrace ftrace:remHit(string sM) = e2function ftrace ftrace:remAction(string sM)
+
+__e2setcost(3)
+e2function ftrace ftrace:remActionSkip(string sM)
+	if(not this) then return nil end
+	return removeFncFilterOption(this, sM, "SKIP")
+end
+
+__e2setcost(9)
+e2function ftrace ftrace:remActionSkip()
+	if(not this) then return nil end
+	local tID = this.mFnc.ID
+	for key, id in pairs(tID) do
+		removeFncFilterOption(this, key, "SKIP")
+	end; return this
+end
+
+__e2setcost(3)
+e2function ftrace ftrace:remActionOnly(string sM)
+	if(not this) then return nil end
+	return removeFncFilterOption(this, sM, "ONLY")
+end
+
+__e2setcost(9)
+e2function ftrace ftrace:remActionOnly()
+	if(not this) then return nil end
+	local tID = this.mFnc.ID
+	for key, id in pairs(tID) do
+		removeFncFilterOption(this, key, "ONLY")
+	end; return this
+end
 
 --[[ **************************** FUNCTION NUMBER **************************** ]]
 
@@ -1119,32 +1163,32 @@ end
 
 __e2setcost(3)
 e2function vector ftrace:getPosLocal()
-	return convOrgEnt(this, "WL", nil)
+	return convertOrgEnt(this, "WL", nil)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getPosWorld()
-	return convOrgEnt(this, "LW", nil)
+	return convertOrgEnt(this, "LW", nil)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getPosLocal(entity vE)
-	return convOrgEnt(this, "WL", vE)
+	return convertOrgEnt(this, "WL", vE)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getPosWorld(entity vE)
-	return convOrgEnt(this, "LW", vE)
+	return convertOrgEnt(this, "LW", vE)
 end
 
 __e2setcost(7)
 e2function vector ftrace:getPosLocal(vector vP, angle vA)
-	return convOrgUCS(this, "WL", vP, vA)
+	return convertOrgUCS(this, "WL", vP, vA)
 end
 
 __e2setcost(7)
 e2function vector ftrace:getPosWorld(vector vP, angle vA)
-	return convOrgUCS(this, "LW", vP, vA)
+	return convertOrgUCS(this, "LW", vP, vA)
 end
 
 __e2setcost(3)
@@ -1176,32 +1220,32 @@ end
 
 __e2setcost(3)
 e2function vector ftrace:getDirLocal()
-	return convDirLocal(this, nil, nil)
+	return convertDirLocal(this, nil, nil)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getDirWorld()
-	return convDirWorld(this, nil, nil)
+	return convertDirWorld(this, nil, nil)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getDirLocal(entity vE)
-	return convDirLocal(this, vE, nil)
+	return convertDirLocal(this, vE, nil)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getDirWorld(entity vE)
-	return convDirWorld(this, vE, nil)
+	return convertDirWorld(this, vE, nil)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getDirLocal(angle vA)
-	return convDirLocal(this, nil, vA)
+	return convertDirLocal(this, nil, vA)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getDirWorld(angle vA)
-	return convDirWorld(this, nil, vA)
+	return convertDirWorld(this, nil, vA)
 end
 
 __e2setcost(3)
@@ -1282,72 +1326,72 @@ end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpLocal()
-	return trcLocal(this, nil, nil, nil)
+	return traceLocal(this, nil, nil, nil)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpLocal(entity vE)
-	return trcLocal(this, vE, nil, nil)
+	return traceLocal(this, vE, nil, nil)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpLocal(angle vA)
-	return trcLocal(this, nil, nil, vA)
+	return traceLocal(this, nil, nil, vA)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpLocal(vector vP)
-	return trcLocal(this, nil, vP, nil)
+	return traceLocal(this, nil, vP, nil)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpLocal(vector vP, angle vA)
-	return trcLocal(this, nil, vP, vA)
+	return traceLocal(this, nil, vP, vA)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpLocal(entity vE, vector vP)
-	return trcLocal(this, vE, vP, nil)
+	return traceLocal(this, vE, vP, nil)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpLocal(entity vE, angle vA)
-	return trcLocal(this, vE, nil, vA)
+	return traceLocal(this, vE, nil, vA)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpWorld()
-	return trcWorld(this)
+	return traceWorld(this)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpWorld(entity vE)
-	return trcWorld(this, vE, nil, nil)
+	return traceWorld(this, vE, nil, nil)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpWorld(angle vA)
-	return trcWorld(this, nil, nil, vA)
+	return traceWorld(this, nil, nil, vA)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpWorld(vector vP)
-	return trcWorld(this, nil, vP, nil)
+	return traceWorld(this, nil, vP, nil)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpWorld(vector vP, angle vA)
-	return trcWorld(this, nil, vP, vA)
+	return traceWorld(this, nil, vP, vA)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpWorld(entity vE, vector vP)
-	return trcWorld(this, vE, vP, nil)
+	return traceWorld(this, vE, vP, nil)
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:smpWorld(entity vE, angle vA)
-	return trcWorld(this, vE, nil, vA)
+	return traceWorld(this, vE, nil, vA)
 end
 
 __e2setcost(3)
