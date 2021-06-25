@@ -1149,21 +1149,29 @@ e2function stcontrol stcontrol:tuneAutoTL(number uK, number uT)
 end
 
 __e2setcost(15)
-e2function stcontrol stcontrol:dumpItem(number nN)
+e2function stcontrol stcontrol:dmpInfo(number nN)
 	return dumpController(this, nN)
 end
 
+e2function stcontrol stcontrol:dumpItem(number nN) = e2function stcontrol stcontrol:dmpInfo(number nN)
+
 __e2setcost(15)
-e2function stcontrol stcontrol:dumpItem(string sN)
+e2function stcontrol stcontrol:dmpInfo(string sN)
 	return dumpController(this, sN)
 end
 
+e2function stcontrol stcontrol:dumpItem(string sN) = e2function stcontrol stcontrol:dmpInfo(string sN)
+
 __e2setcost(15)
-e2function stcontrol stcontrol:dumpItem(string nT, number nN)
+e2function stcontrol stcontrol:dmpInfo(string nT, number nN)
 	return dumpController(this, nN, nT)
 end
 
+e2function stcontrol stcontrol:dumpItem(string nT, number nN) = e2function stcontrol stcontrol:dmpInfo(string nT, number nN)
+
 __e2setcost(15)
-e2function stcontrol stcontrol:dumpItem(string nT, string sN)
+e2function stcontrol stcontrol:dmpInfo(string nT, string sN)
 	return dumpController(this, sN, nT)
 end
+
+e2function stcontrol stcontrol:dumpItem(string nT, string sN) = e2function stcontrol stcontrol:dmpInfo(string nT, string sN)

@@ -1586,21 +1586,29 @@ end
 e2function number ftrace:getHitContents() = e2function number ftrace:getContents()
 
 __e2setcost(15)
-e2function ftrace ftrace:dumpItem(number nN)
+e2function ftrace ftrace:dmpInfo(number nN)
 	return dumpTracer(this, nN)
 end
 
+e2function ftrace ftrace:dumpItem(number nN) = e2function ftrace ftrace:dmpInfo(number nN)
+
 __e2setcost(15)
-e2function ftrace ftrace:dumpItem(string sN)
+e2function ftrace ftrace:dmpInfo(string sN)
 	return dumpTracer(this, sN)
 end
 
+e2function ftrace ftrace:dumpItem(string sN) = e2function ftrace ftrace:dmpInfo(string sN)
+
 __e2setcost(15)
-e2function ftrace ftrace:dumpItem(string nT, number nN)
+e2function ftrace ftrace:dmpInfo(string nT, number nN)
 	return dumpTracer(this, nN, nT)
 end
 
+e2function ftrace ftrace:dumpItem(string nT, number nN) = e2function ftrace ftrace:dmpInfo(string nT, number nN)
+
 __e2setcost(15)
-e2function ftrace ftrace:dumpItem(string nT, string sN)
+e2function ftrace ftrace:dmpInfo(string nT, string sN)
 	return dumpTracer(this, sN, nT)
 end
+
+e2function ftrace ftrace:dumpItem(string nT, string sN) = e2function ftrace ftrace:dmpInfo(string nT, string sN)
