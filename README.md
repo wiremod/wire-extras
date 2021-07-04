@@ -8,7 +8,7 @@ While the wiremod project itself is more strict on what addons will be added to 
 
 # Workshop Installation
 
-The Wiremod Collection is available on the Steam Workshop! Go to the [Workshop page][WireTeam Workshop Collection] and press `Subscribe` on the addons you want
+Wire Extras is not presently available through the workshop.
 
 # Manual Installation
 
