@@ -111,6 +111,9 @@ function ENT:HUDSetup(showinhud, huddesc, hudaddname, hudshowvalue, hudstyle, al
 			hudshowvalue = 1
 		end
 
+		self.HUDShowValue = hudshowvalue
+		self.HUDStyle = hudstyle
+
 		if (!self:CheckRegister(ply)) then
 			// First-time register
 			// Updating this player is handled further down
