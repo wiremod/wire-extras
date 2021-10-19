@@ -97,8 +97,6 @@ Simulate Data Stool - ZeitJT
 
 Wired Damage Scale - Hitman271
 
-Wire Directional Radio Kit - philxyz
-
 Wired Npcs - Hitman271
 
 Wired Wirer - Jeremydeath
