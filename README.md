@@ -60,10 +60,8 @@ DuFace's Gates
 
 Free Fall's Extentions:
 * Adv. Dupe. Teleporter
-* Adv. Dupe RAM-Chip
 *Interactive Holoemitter
 *String Switch Gate
-* RAM-Cards
 
 High-speed holoemitter - Fizyk
 
