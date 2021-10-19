@@ -81,8 +81,6 @@ _Kilburn's Addons:
 * Wire Microphone
 * Wire RFID Systems
 
-Keycards - adb - (Placed in public domain by Author)
-
 Keypad - Robbis_1 and TomyLobo
 
 Lever - cpf
