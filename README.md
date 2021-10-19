@@ -77,7 +77,6 @@ _Kilburn's Addons:
 * Wire Painter
 * Wire Motor
 * Wire Microphone
-* Wire RFID Systems
 
 Keypad - Robbis_1 and TomyLobo
 
