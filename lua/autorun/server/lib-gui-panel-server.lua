@@ -123,7 +123,7 @@ function AttackKeyPress (ply, key)
 		--add keyboard (text entry) support here
 	end
 end
-hook.Add( "KeyPress", "guipanelKeyHook", AttackKeyPress ) 
+hook.Add( "KeyPress", "WireExtrasGuiPanelKeyPress", AttackKeyPress ) 
 
 --------------------------User Functions----------------------------------------------------
 
