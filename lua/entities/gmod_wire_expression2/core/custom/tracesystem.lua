@@ -1871,7 +1871,7 @@ end)
 
 
 //When player leaves, remove his shapes.
-hook.Add("PlayerDisconnected","playerdisconnected",function(ply)
+hook.Add("PlayerDisconnected","WireExtrasTraceSystemPlayerDisconnected",function(ply)
 	if (ply:IsValid() and ply:IsPlayer()) then
 		shapes[ply] = nil
 		sharing[ply] = nil

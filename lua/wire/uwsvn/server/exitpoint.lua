@@ -88,5 +88,5 @@ local function LeaveVehicle( ply, vehicle )
 		end
 	end
 end
-hook.Add("PlayerLeaveVehicle", "LeaveVehicle", LeaveVehicle )
+hook.Add("PlayerLeaveVehicle", "WireExitPointLeaveVehicle", LeaveVehicle )
 
