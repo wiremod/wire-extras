@@ -494,15 +494,14 @@ function ENT:TriggerInput(iname, value)
 	local force_position_update = 0
 
 	if (iname == "A") then
-		local factor = math.Clamp((value-self.A)/(self.B-self.A), 0, 1)
+		local factor = math.Clamp((value-self.A) / (self.B-self.A), 0, 1)
 		self:ShowOutput(factor, value)
 
-		//--local r = math.Clamp((self.BR-self.AR)*factor+self.AR, 0, 255)
-		//--local g = math.Clamp((self.BG-self.AG)*factor+self.AG, 0, 255)
-		//--local b = math.Clamp((self.BB-self.AB)*factor+self.AB, 0, 255)
-		//--local a = math.Clamp((self.BA-self.AA)*factor+self.AA, 0, 255)
-		//--self:SetColor(r, g, b, a)
-		self:SetColor(Color(255, 255, 255, 255))
+		local r = math.Clamp((self.BR-self.AR) * factor + self.AR, 0, 255)
+		local g = math.Clamp((self.BG-self.AG) * factor + self.AG, 0, 255)
+		local b = math.Clamp((self.BB-self.AB) * factor + self.AB, 0, 255)
+		local a = math.Clamp((self.BA-self.AA) * factor + self.AA, 0, 255)
+		self:SetColor(Color(r, g, b, a))
 	elseif (iname == "HideHUD") then
 		if (self.PrevHideHUD == (value > 0)) then return end
 
