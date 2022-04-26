@@ -141,7 +141,7 @@ local function DrawAdvHUDIndicators()
 					elseif (indinfo.Style == 0) then
 						//--draw.WordBox(8, xPos, yPos, txt, "Default", Color(50, 50, 75, 192), Color(255, 255, 255, 255))
 
-						draw.DrawText( txt, "ScoreboardText", xPos, yPos, indinfo.DisplayColor, indinfo.TextColor )
+						draw.DrawText( txt, "ScoreboardDefault", xPos, yPos, indinfo.DisplayColor, indinfo.TextColor )
 
 
 					//-- Boxed Text (rounded corners...) --//
