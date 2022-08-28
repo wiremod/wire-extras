@@ -31,7 +31,11 @@ net.Receive("wire_expression2_updateposeparameters", function()
 
 		local idx = net.ReadUInt(8)
 		while idx ~= 255 do
-			tbl[ent:GetPoseParameterName(idx)] = net.ReadFloat()
+			local name = ent:GetPoseParameterName(idx)
+			local val = net.ReadFloat()
+			if name then
+				tbl[name] = val
+			end
 			idx = net.ReadUInt(8)
 		end
 
