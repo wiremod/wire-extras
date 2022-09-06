@@ -140,13 +140,13 @@ __e2setcost( 10 )
 e2function void cameraPos( index, vector position )
 	local camera = GetCamera( self, index )
 	if not camera then return end
-	camera:SetPos( Vector(position[1],position[2],position[3]) )
+	camera:SetPos(position)
 end
 
 __e2setcost( 2 )
 e2function vector cameraPos( index )
 	local camera = GetCamera( self, index )
-	if not camera then return {0,0,0} end
+	if not camera then return Vector(0,0,0) end
 	return camera:GetPos()
 end
 
@@ -155,15 +155,14 @@ __e2setcost( 10 )
 e2function void cameraAng( index, angle ang )
 	local camera = GetCamera( self, index )
 	if not camera then return end
-	camera:SetAngles( Angle(ang[1],ang[2],ang[3]) )
+	camera:SetAngles(ang)
 end
 
 __e2setcost( 2 )
 e2function angle cameraAng( index )
 	local camera = GetCamera( self, index )
-	if not camera then return {0,0,0} end
-	local ang = camera:GetAngles()
-	return {ang.p, ang.y, ang.r}
+	if not camera then return Angle(0, 0, 0) end
+	return camera:GetAngles()
 end
 
 -----------------

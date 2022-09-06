@@ -58,7 +58,7 @@ local function CreateLight( self, index, position, color, distance, brightness )
 	local light = GetLight( self, index )
 	if light and light:IsValid() then
 		if position then
-			light:SetPos( Vector(position[1],position[2],position[3]) )
+			light:SetPos(position)
 		end
 		
 		if color then
@@ -144,7 +144,7 @@ end
 __e2setcost( 5 )
 e2function vector lightPos( index )
 	local light = GetLight( self, index )
-	if not light then return {0,0,0} end
+	if not light then return Vector(0, 0, 0) end
 	return light:GetPos()
 end
 
@@ -160,8 +160,8 @@ end
 __e2setcost( 5 )
 e2function vector lightColor( index )
 	local light = GetLight( self, index )
-	if not light then return {0,0,0} end
-	return {color[1],color[2],color[3]}
+	if not light then return Vector(0, 0, 0) end
+	return Vector(color[1],color[2],color[3])
 end
 
 -----------------
