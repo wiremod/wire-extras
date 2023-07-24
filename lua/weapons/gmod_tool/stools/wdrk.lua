@@ -23,8 +23,8 @@ if SERVER then
 
                 if not ply:CheckLimit("wdrk") then return false end
 
-                local tmpitem = model:gsub("models/radio/", "")
-                local itemclass = tmpitem:gsub(".mdl", "")
+                local itemclass = string.match(model, "models/radio/([^%./]+)%.mdl$")
+		if not itemclass then return false end
 
                 local ent = ents.Create(itemclass)
                 ent:Setup(tx)
@@ -44,10 +44,19 @@ if SERVER then
 
                 ply:AddCount("wdrk", ent)
 
-                duplicator.RegisterEntityClass(ent, MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
-
                 return ent
         end
+
+	duplicator.RegisterEntityClass( "ra_log", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_panel", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_sector", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_small_omni", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_large_drum", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_large_omni", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_small_drum", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_uplink_dish", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_orbital_dish", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_domestic_dish", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
 end
 
 cleanup.Register("wdrk")
