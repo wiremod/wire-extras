@@ -19,7 +19,7 @@ end
 if SERVER then
 	CreateConVar("sbox_maxwdrk", 10)
 
-	function MakeRadioPart(ply, Ang, Pos, model, trace, tx, freeze)
+	function MakeRadioPart(ply, Ang, Pos, model, tx, freeze)
 
                 if not ply:CheckLimit("wdrk") then return false end
 
@@ -47,16 +47,16 @@ if SERVER then
                 return ent
         end
 
-	duplicator.RegisterEntityClass( "ra_log", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
-	duplicator.RegisterEntityClass( "ra_panel", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
-	duplicator.RegisterEntityClass( "ra_sector", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
-	duplicator.RegisterEntityClass( "ra_small_omni", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
-	duplicator.RegisterEntityClass( "ra_large_drum", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
-	duplicator.RegisterEntityClass( "ra_large_omni", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
-	duplicator.RegisterEntityClass( "ra_small_drum", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
-	duplicator.RegisterEntityClass( "ra_uplink_dish", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
-	duplicator.RegisterEntityClass( "ra_orbital_dish", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
-	duplicator.RegisterEntityClass( "ra_domestic_dish", MakeRadioPart, "Ang", "Pos", "model", "trace", "tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_log", MakeRadioPart, "Ang", "Pos", "model", "is_tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_panel", MakeRadioPart, "Ang", "Pos", "model", "is_tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_sector", MakeRadioPart, "Ang", "Pos", "model", "is_tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_small_omni", MakeRadioPart, "Ang", "Pos", "model", "is_tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_large_drum", MakeRadioPart, "Ang", "Pos", "model", "is_tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_large_omni", MakeRadioPart, "Ang", "Pos", "model", "is_tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_small_drum", MakeRadioPart, "Ang", "Pos", "model", "is_tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_uplink_dish", MakeRadioPart, "Ang", "Pos", "model", "is_tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_orbital_dish", MakeRadioPart, "Ang", "Pos", "model", "is_tx", "freeze")
+	duplicator.RegisterEntityClass( "ra_domestic_dish", MakeRadioPart, "Ang", "Pos", "model", "is_tx", "freeze")
 end
 
 cleanup.Register("wdrk")
@@ -79,7 +79,7 @@ function TOOL:LeftClick(trace)
 	local Ang = trace.HitNormal:Angle()
 	Ang.pitch = Ang.pitch + 90
 
-	local radio_item = MakeRadioPart(ply, Ang, trace.HitPos, model, trace, tx, freeze)
+	local radio_item = MakeRadioPart(ply, Ang, trace.HitPos, model, tx, freeze)
 
 	local min = radio_item:OBBMins()
 	radio_item:SetPos(trace.HitPos - trace.HitNormal * min.z)
