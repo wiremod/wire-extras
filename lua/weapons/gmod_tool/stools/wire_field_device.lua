@@ -50,6 +50,7 @@ function TOOL:LeftClick( trace )
 	if string.len( lType ) < 2 then ply:SendHint( "field_type" , 0 ) return false end
 
 	local wire_field_device_obj = Makewire_field_device( ply, trace.HitPos, Ang , self:GetClientInfo("Model") , lType , self:GetClientNumber("ignoreself") , self:GetClientNumber("workonplayers"), self:GetClientNumber("arc") )
+	if not wire_field_device_obj then return end
 
 	local min = wire_field_device_obj:OBBMins()
 	wire_field_device_obj:SetPos( trace.HitPos - trace.HitNormal * min.z )
