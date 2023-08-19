@@ -3,6 +3,8 @@ TOOL.Name			= "Adv. Hud Indicator 2"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
 
+cleanup.Register( "wire_adv_hud_indicators" )
+
 if ( CLIENT ) then
     language.Add( "Tool_wire_adv_hud_indicator_2_name", "Adv. HUD Indicator 2 ! (Wire)" )
     language.Add( "Tool_wire_adv_hud_indicator_2_desc", "Spawns an Adv. HUD Indicator 2 for use with the wire system." )
@@ -48,6 +50,8 @@ function TOOL:LeftClick( trace )
 		undo.AddEntity( const )
 		undo.SetPlayer( player )
 	undo.Finish()
+
+	ply:AddCleanup( "wire_adv_hud_indicators", ent )
 
 	//-- Now that we have an entity, invoke its owner to send us code!
 	player:SendLua("HUD2_uploadCode(" .. ent:EntIndex() .. ")")
