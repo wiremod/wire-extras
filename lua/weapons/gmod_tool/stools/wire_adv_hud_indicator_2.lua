@@ -51,7 +51,7 @@ function TOOL:LeftClick( trace )
 		undo.SetPlayer( player )
 	undo.Finish()
 
-	ply:AddCleanup( "wire_adv_hud_indicators", ent )
+	player:AddCleanup( "wire_adv_hud_indicators", ent )
 
 	//-- Now that we have an entity, invoke its owner to send us code!
 	player:SendLua("HUD2_uploadCode(" .. ent:EntIndex() .. ")")
