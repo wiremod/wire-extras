@@ -201,6 +201,7 @@ function ENT:makedoor(ply,trace,ang,model,open,close,autoclose,closetime,class,h
 		entit:Fire("addoutput","OnFullyClosed " .. xuuid .. ",xtfclose",0)
 	end
 
+	ply:AddCleanup( "doors", entit )
 	self.xent = entit
 	self.xclass = tostring(class)
 end

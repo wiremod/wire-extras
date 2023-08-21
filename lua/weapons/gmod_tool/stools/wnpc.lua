@@ -3,6 +3,7 @@ TOOL.Name			= "Wired Npc Controller"
 TOOL.Command		= nil
 TOOL.ConfigName		= ""
 TOOL.Tab			= "Wire"
+cleanup.Register( "wire_npc_controllers" )
 
 if CLIENT then
     language.Add( "Tool.wnpc.name", "Wired Npc Controller" )
@@ -26,6 +27,8 @@ function TOOL:LeftClick( trace )
 			undo.SetPlayer( ply )
 		undo.Finish()
 		self:SetStage(1)
+
+		ply:AddCleanup( "wire_npc_controllers", cont )
 	end	
 end
 
@@ -40,6 +43,8 @@ function TOOL:RightClick( trace )
 			undo.SetPlayer( ply )
 		undo.Finish()
 		self:SetStage(0)
+
+		ply:AddCleanup( "wire_npc_controllers", npcc )
 	end
 end
 

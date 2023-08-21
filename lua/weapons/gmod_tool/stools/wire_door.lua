@@ -11,7 +11,7 @@ TOOL.ClientConVar[ "close" ] = "2"
 TOOL.ClientConVar[ "autoclose" ] = "0"
 TOOL.ClientConVar[ "closetime" ] = "5"
 TOOL.ClientConVar[ "hardware" ] = "1"
-cleanup.Register( "door" )
+cleanup.Register( "doors" )
 
 TOOL.Category		= "Wire Extras/Other"		// Name of the category
 TOOL.Name			= "#Door"		// Name to display
@@ -136,7 +136,7 @@ function TOOL.BuildCPanel( CPanel )
 	params.Options[ "SmallCombineDoor" ] = { wire_door_class = "prop_dynamic",wire_door_model = "models/combine_gate_citizen.mdl" }
 	params.Options[ "Door1" ] = { wire_door_hardware = "1",wire_door_class = "prop_door_rotating",wire_door_model = "models/props_c17/door01_left.mdl" }
 	params.Options[ "Door2" ] = { wire_door_hardware = "2",wire_door_class = "prop_door_rotating",wire_door_model = "models/props_c17/door01_left.mdl" }
-	params.Options[ "KlabBlastDoor(by †Omen†)" ] = { wire_door_class = "prop_dynamic",wire_door_model = "models/props_doors/doorKLab01.mdl" }
+	params.Options[ "KlabBlastDoor(by â€ Omenâ€ )" ] = { wire_door_class = "prop_dynamic",wire_door_model = "models/props_doors/doorKLab01.mdl" }
 
 	CPanel:AddControl( "ListBox", params )
 	CPanel:AddControl( "Slider",  { Label	= "#AutoClose Delay",

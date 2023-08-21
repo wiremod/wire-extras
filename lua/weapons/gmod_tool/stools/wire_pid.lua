@@ -14,6 +14,8 @@ TOOL.ClientConVar[ "limit" ] = "1000"
 
 TOOL.Model = "models/jaanus/wiretool/wiretool_siren.mdl"
 
+cleanup.Register( "wire_pids" )
+
 /* If we're running on the client, setup the description strings */
 if ( CLIENT ) then
     language.Add( "Tool.wire_pid.name", "PID Tool (Wire)" )
@@ -68,6 +70,8 @@ function TOOL:LeftClick( trace )
 		end
 		undo.SetPlayer(ply)
 	undo.Finish()
+
+	ply:AddCleanup( "wire_pids", ent )
 	return true
 end
 
