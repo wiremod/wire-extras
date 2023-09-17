@@ -1,5 +1,5 @@
 WireToolSetup.setCategory("Wire Extras/Detection")
-WireToolSetup.open("hstracer", "Highspeed Tracer", "gmod_wire_hstracer", nil, "Highspeed Rangers")
+WireToolSetup.open("hstracer", "Highspeed Tracer", "gmod_wire_hstracer", nil, "Highspeed Tracers")
 
 if CLIENT then
 	language.Add( "Tool.wire_hstracer.name", "Highspeed Tracer Tool (Wire)" )
