@@ -85,7 +85,7 @@ function ENT:ReadCell(address)
 	if address < 0 then return end
 	if address > 18 then return end
 
-	return self.Memory[Address] or 0
+	return self.Memory[address] or 0
 end
 
 function ENT:WriteCell(address, value)
