@@ -38,7 +38,6 @@ function ENT:Initialize()
 
 	self.tps = 0
 	self.tpsout = 0
-	self.tpstime = CurTime() + 1
 
 	self.Outputs = Wire_CreateOutputs(self, { "Memory" })
 	self.Memory = {}
@@ -50,8 +49,6 @@ function ENT:Initialize()
 end
 
 function ENT:Trace()
-	self.BaseClass.Think(self)
-
 	local memory = self.Memory
 
 	local trace = {}
@@ -110,10 +107,10 @@ function ENT:UpdateOverlay(update)
 end
 
 function ENT:Think()
-	local curTime = CurTime()
-	if curTime > self.tpstime then
-		self.tpstime = curTime + 1
-		self:UpdateOverlay(true)
-	end
+	self.BaseClass.Think(self)
+	self:UpdateOverlay(true)
+
+	self:NextThink(CurTime() + 1)
+	return true
 end
 
