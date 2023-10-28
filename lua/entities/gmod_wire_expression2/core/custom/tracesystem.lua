@@ -1314,13 +1314,6 @@ registerType("tracedata", "xtd", {},
 	end
 )
 
-e2function tracedata operator=(tracedata lhs, tracedata rhs)
-	local scope = self.Scopes[ args[4] ]
-	scope[lhs] = rhs
-	scope.vclk[lhs] = true
-	return rhs
-end
-
 e2function number operator_is(tracedata walker)
 	if walker then return 1 else return 0 end
 end
