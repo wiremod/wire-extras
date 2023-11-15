@@ -216,47 +216,14 @@ local function RayCircleIntersection( Start, Dir, Pos, Normal, Radius )
 end
 
 local function RaySphereIntersection( Start, Dir, Pos, Radius )
-
-	-- New ray-sphere intersection code
-	--[
-	local A = 2 * Length(Dir)^2
-	local B = 2 * Dot(Dir,Start - Pos)
-	local C = Length(Pos)^2 + Length(Start)^2 - 2 * Dot(Pos,Start) - Radius^2
-
-	local BAC4 = B^2-(2*A*C)
-
-	if (BAC4 >= 0 and B < 0) then
-		-- Enter sphere
-		return Start + ((-sqrt(BAC4) - B) / A)*Dir
-
-		-- Exits sphere
-		-- return Start + ((sqrt(BAC4) - B) / A)*Dir
-	end
-	--]]
-
-	-- Old ray-sphere intersection code (slower)
-	--[[
-	local Normal = Dir * -1
-	local B = Normal:Dot(Pos-Start) / Normal:Dot(Dir)
-
-	-- It is a ray, not line, for a line segment, just add a distance chek.
-	if (B >= 0) then
-
-		local HitPos = Start + Dir * B
-
-		local Dist = Distance(Pos, HitPos)
-
-		if (Dist < Radius) then
-			HitPos = HitPos - Dir * sqrt(Radius ^ 2 - Dist ^ 2)
-
-			return HitPos
-		end
-
-	end
-	--]]
-
-	return false
-
+  local A = Dir:LengthSqr(); if(A < 0) then return nil end
+  local R = Vector(Start) R:Sub(Pos) -- Margin less than distance
+  local B, nC = 2 * Dir:Dot(R), (R:LengthSqr() - Radius^2)
+  local D = (B^2 - 4*A*nC); if(D < 0) then return nil end -- Img roots
+  local K = (1/(2*A)); D, B = K*mathSqrt(D), -B*K
+  local P = Vector(Dir); P:Mul(B + D); P:Add(Start)
+  local M = Vector(Dir); M:Mul(B - D); M:Add(Start)
+  return P, M -- Return the intersected +/- root point
 end
 
 local function RayAAEllipsoidIntersection( Start, Dir, Pos, Size )
