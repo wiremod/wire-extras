@@ -216,14 +216,21 @@ local function RayCircleIntersection( Start, Dir, Pos, Normal, Radius )
 end
 
 local function RaySphereIntersection( Start, Dir, Pos, Radius )
-  local A = Dir:LengthSqr(); if(A < 0) then return nil end
-  local R = Vector(Start) R:Sub(Pos) -- Margin less than distance
-  local B, C = 2 * Dir:Dot(R), (R:LengthSqr() - Radius^2)
-  local D = (B^2 - 4*A*C); if(D < 0) then return nil end -- Img roots
-  local K = 1 / (2*A); D, B = K*math.sqrt(D), -B*K
-  local P = Vector(Dir); P:Mul(B + D); P:Add(Start)
-  local M = Vector(Dir); M:Mul(B - D); M:Add(Start)
-  return P, M -- Return the intersected +/- root point
+	local A = Dir:LengthSqr()
+	local R = Vector(Start)
+				R:Sub(Pos)
+	local B = 2 * Dir:Dot(R)
+	local C = (R:LengthSqr() - Radius^2)
+	local D = (B^2 - 4*A*C)
+	if(D < 0) then return nil end -- Img roots
+	local K = 1 / (2*A)
+	
+	D, B = K*math.sqrt(D), -B*K
+	
+	local P = Vector(Dir)
+				P:Mul(B + D)
+				P:Add(Start)
+	return P
 end
 
 local function RayAAEllipsoidIntersection( Start, Dir, Pos, Size )
@@ -1316,8 +1323,7 @@ e2function vector rayCircleIntersection( vector start, vector dir, vector pos, v
 end
 
 e2function vector raySphereIntersection( vector start, vector dir, vector pos, number radius )
-	local P = RaySphereIntersection( start, dir, pos, radius )
-  return (P ~= nil) and P or Vector()
+	return (RaySphereIntersection( start, dir, pos, radius ) or Vector()
 end
 
 e2function vector rayAAEllipsoidIntersection( vector start, vector dir, vector pos, vector size )
