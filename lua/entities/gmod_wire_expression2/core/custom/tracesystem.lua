@@ -217,19 +217,14 @@ end
 
 local function RaySphereIntersection( Start, Dir, Pos, Radius )
 	local A = Dir:LengthSqr()
-	local R = Vector(Start)
-				R:Sub(Pos)
+  if(A == 0) then return nil end -- Div zero
+	local R = Start - Pos
 	local B = 2 * Dir:Dot(R)
 	local C = (R:LengthSqr() - Radius^2)
 	local D = (B^2 - 4*A*C)
 	if(D < 0) then return nil end -- Img roots
-	local K = 1 / (2*A)
-	
-	D, B = K*math.sqrt(D), -B*K
-	
-	local P = Vector(Dir)
-				P:Mul(B + D)
-				P:Add(Start)
+	local S = (math.sqrt(D) - B) / (2*A)
+	local P = Vector(Dir); P:Mul(S); P:Add(Start)
 	return P
 end
 
