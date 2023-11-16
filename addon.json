@@ -11,9 +11,16 @@
 		"*.xcf",
 		".git*",
 		"*.md",
-		".travis.yml",
+		".glualint.json",
+		".github",
 		"git-hooks-pre-commit",
+		"gitrid.sh",
 		"LICENSE",
-		"wire_extras_icon.*"
+		"wire_extras_logo.*",
+
+		"cfg/*",
+		"beta/*",
+		"doc/*",
+		"data/*"
 	]
 }
