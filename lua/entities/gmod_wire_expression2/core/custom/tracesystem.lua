@@ -217,7 +217,7 @@ end
 
 local function RaySphereIntersection( Start, Dir, Pos, Radius )
 	local A = Dir:LengthSqr()
-  if(A == 0) then return nil end -- Div zero
+	if(A == 0) then return nil end -- Div zero
 	local R = Start - Pos
 	local B = 2 * Dir:Dot(R)
 	local C = (R:LengthSqr() - Radius^2)
@@ -1318,7 +1318,7 @@ e2function vector rayCircleIntersection( vector start, vector dir, vector pos, v
 end
 
 e2function vector raySphereIntersection( vector start, vector dir, vector pos, number radius )
-	return (RaySphereIntersection( start, dir, pos, radius ) or Vector()
+	return RaySphereIntersection( start, dir, pos, radius ) or Vector()
 end
 
 e2function vector rayAAEllipsoidIntersection( vector start, vector dir, vector pos, vector size )
