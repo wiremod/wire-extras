@@ -223,9 +223,10 @@ local function RaySphereIntersection( Start, Dir, Pos, Radius )
 	local C = (R:LengthSqr() - Radius^2)
 	local D = (B^2 - 4*A*C)
 	if(D < 0) then return nil end -- Img roots
-	local S = (math.sqrt(D) - B) / (2*A)
-	local P = Vector(Dir); P:Mul(S); P:Add(Start)
-	return P
+  local S = 1 / (2*A); D, B = S*sqrt(D), -B*S
+	local P = Vector(Dir); P:Mul(B + D); P:Add(Start)
+  local M = Vector(Dir); P:Mul(B - D); P:Add(Start)
+  return (Start:DistToSqr(Pos) < Radius^2) and P or M
 end
 
 local function RayAAEllipsoidIntersection( Start, Dir, Pos, Size )
