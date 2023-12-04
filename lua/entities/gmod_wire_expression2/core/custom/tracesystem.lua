@@ -219,13 +219,15 @@ local function RaySphereIntersection( Start, Dir, Pos, Radius )
 	local A = Dir:LengthSqr()
 	if(A == 0) then return nil end -- Div zero
 	local R = Start - Pos
+	local L = R:LengthSqr()
 	local B = 2 * Dir:Dot(R)
-	local C = (R:LengthSqr() - Radius^2)
+	local C = (L - Radius^2)
 	local D = (B^2 - 4*A*C)
 	if(D < 0) then return nil end -- Img roots
-	local S = (math.sqrt(D) - B) / (2*A)
-	local P = Vector(Dir); P:Mul(S); P:Add(Start)
-	return P
+	local I = (C < 0) and 1 or -1
+	local M = (I*sqrt(D) - B) / (2*A)
+	local X = Vector(Dir); X:Mul(M); X:Add(Start)
+	return X -- Marks the spot. And it is also faster
 end
 
 local function RayAAEllipsoidIntersection( Start, Dir, Pos, Size )
