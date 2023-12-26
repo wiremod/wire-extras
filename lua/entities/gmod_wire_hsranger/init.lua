@@ -21,6 +21,24 @@ local MODEL = Model( "models/jaanus/wiretool/wiretool_range.mdl" )
 	7 = HitNormal X
 	8 = HitNormal Y
 	9 = HitNormal Z
+
+	10 = Enable extended info
+	11 = Collision Group mask
+	12 = Mask
+	13 = Entity ID to check disposition against
+	14 = Unused
+	15 = Unused
+
+	16 = Collision Group Hit Mask
+	17 = Surface Flags
+	18 = Material Type Enum
+	19 = Hit Entity ID
+	20 = Is NPC?
+	(EXTENDED INFO)
+	21 = Entity's Max Health
+	22 = Entity's Health
+	23 = Disposition Enum towards Ent ID in Mem[13]
+	24-31 unused
 ]]--
 
 function ENT:Initialize()
@@ -38,13 +56,16 @@ function ENT:Setup()
 	self.tps = 0
 	self.tpsout = 0
 	self.tpstime = CurTime() + 1
-	
+	self.TraceCollisionGroupMask = 0 -- COLLISION_GROUP_NONE
+	self.TraceContentMask = 33570827 -- MASK_SOLID
+	self.ExtendedInfo = false
 	self.Memory = {}
 	
-	for i = 0, 9 do
+	for i = 0, 31 do
 		self.Memory[i] = 0
 	end
-	
+	self.Memory[11] = self.TraceCollisionGroupMask
+	self.Memory[12] = self.TraceContentMask
 	self:ShowOutput()
 end
 
@@ -57,7 +78,7 @@ function ENT:Trace()
 	if ( self.Memory[4] == 0 and self.Memory[5] == 0 ) then
 		trace.endpos = trace.start + self:GetUp() * self.Memory[2]
 	else
-		local skew = Vector( self.Memory[4], self.Memory[5], 1 )		
+		local skew = Vector( self.Memory[4], self.Memory[5], 1 )
 		skew = skew * ( self.Memory[2] / skew:Length() )
 		local beam_x = self:GetRight() * skew.x
 		local beam_y = self:GetForward() * skew.y
@@ -66,6 +87,8 @@ function ENT:Trace()
 	end	
 	
 	trace.filter = { self }
+	trace.collisiongroup = self.TraceCollisionGroupMask
+	trace.mask = self.TraceContentMask
 	
 	if ( self.Memory[6] > 0 ) then 
 		trace.mask = -1
@@ -87,12 +110,46 @@ function ENT:Trace()
 	self.Memory[7] = hitnormal.x or 0
 	self.Memory[8] = hitnormal.y or 0
 	self.Memory[9] = hitnormal.z or 0
+	self.Memory[16] = trace.Contents
+	self.Memory[17] = trace.SurfaceFlags
+	self.Memory[18] = trace.MatType
+	if ( trace.Entity:IsValid() ) then 
+		self.Memory[19] = trace.Entity:EntIndex()
+		if ( self.ExtendedInfo ) then
+				self.Memory[21] = trace.Entity:GetMaxHealth()
+				self.Memory[22] = trace.Entity:Health()
+		else
+			self.Memory[21] = 0
+			self.Memory[22] = 0
+		end
+		if( trace.Entity:IsNPC() ) then
+			self.Memory[20] = 1
+			if ( self.ExtendedInfo ) then
+				if ( self.FriendlyEnt and self.FriendlyEnt:IsValid() ) then
+					self.Memory[23] = trace.Entity:Disposition( self.FriendlyEnt )
+				else
+					self.Memory[23] = 0
+				end
+			else
+				self.Memory[23] = 0
+			end
+		else
+			self.Memory[20] = 0
+			self.Memory[23] = 0
+		end
+	else
+		self.Memory[19] = -1
+		self.Memory[20] = 0
+		self.Memory[21] = 0
+		self.Memory[22] = 0
+		self.Memory[23] = 0
+	end
 	self:UpdateTPS( true )
 end
 
 function ENT:UpdateTPS( add )
 	if ( self.tpstime <= CurTime() ) then
-		self.tpstime = CurTime() + 1		
+		self.tpstime = CurTime() + 1
 		self.tpsout = self.tps
 		self.tps = 0
 		self:ShowOutput()
@@ -108,7 +165,7 @@ function ENT:ShowOutput()
 end
 
 function ENT:ReadCell( Address )
-	if ( Address >= 0 and Address <= 9 ) then
+	if ( Address >= 0 and Address <= 31 ) then
 		return self.Memory[Address]
 	end
 end
@@ -119,6 +176,27 @@ function ENT:WriteCell( Address, Value )
 		return true
 	elseif ( Address >= 2 and Address <= 6 ) then
 		self.Memory[Address] = Value
+		return true
+	elseif ( Address >= 10 and Address <= 15) then
+		local flooredvalue = math.floor(Value)
+		if ( Address == 10 ) then
+			if( flooredvalue > 0 ) then
+				self.ExtendedInfo = true
+			else
+				self.ExtendedInfo = false
+			end
+		elseif( Address == 11 ) then
+			self.TraceCollisionGroupMask = flooredvalue
+		elseif( Address == 12 ) then
+			self.TraceContentMask = flooredvalue
+		elseif( Address == 13 ) then
+			if ( flooredvalue > 0 ) then
+				self.FriendlyEnt = Entity(flooredvalue)
+			else
+				self.FriendlyEnt = nil
+			end
+		end
+		self.Memory[Address] = flooredvalue
 		return true
 	end
 end
