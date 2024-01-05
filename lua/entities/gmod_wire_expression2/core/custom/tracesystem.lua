@@ -16,7 +16,7 @@ E2Lib.RegisterExtension("tracesystem", false)
 ****************************]]
 
 --[
-local v = debug.getregistry().Vector
+local v = FindMetaTable("Vector")
 local Length = v.Length
 local Dot = v.Dot
 local Cross = v.Cross
