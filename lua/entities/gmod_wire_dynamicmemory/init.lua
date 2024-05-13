@@ -29,7 +29,7 @@ function ENT:Initialize()
 end
 
 function ENT:Setup( size )
-	local size = math.floor( size or self.Size )
+	local size = math.Clamp(math.floor( size or self.Size )), 1, 2097152)
 	local overheap = size - self.Size
 	
 	if ( overheap < 0 ) then
