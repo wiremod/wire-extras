@@ -37,10 +37,8 @@ function TOOL:LeftClick( trace )
 	if (CLIENT) then return true end
 
 	local Model = self:GetClientInfo( "model" )
-	local Size = math.floor(self:GetClientNumber( "size" ))
+	local Size = math.Clamp(math.floor(self:GetClientNumber( "size" )), 1, 2097152)
 	local Pers = self:GetClientNumber( "persistant" )
-	
-	if ( Size < 1 ) then Size = 1 end
 	
 	if (!self:GetSWEP():CheckLimit( "wire_dynmemorys" ) ) then return false end	
 	if (!util.IsValidModel(Model)) then return false end
