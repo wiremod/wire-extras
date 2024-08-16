@@ -65,7 +65,7 @@ function TOOL:sendSetVal(ent, var, val)
 		net.WriteString(var)
 		net.WriteString(val)
 		net.WriteBool(bnv)
-	net.Broadcast()
+	net.Send(self:GetOwner())
 end
 
 function TOOL:LeftClick( trace )
