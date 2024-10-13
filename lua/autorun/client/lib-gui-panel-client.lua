@@ -134,9 +134,9 @@ end
 
 --calculate draw coefficients and offsets
 function gpCalcDrawCoefs(ent)
-	ent.XdrawCoef = ent.w or 1 / ent.drawParams and ent.drawParams.screenWidth or 1
+	ent.XdrawCoef = (ent.w or 1) / (ent.drawParams and ent.drawParams.screenWidth or 1)
 	ent.XdrawOffs = ent.x or 1
-	ent.YdrawCoef = ent.h or 1 / ent.drawParams and ent.drawParams.screenHeight or 1
+	ent.YdrawCoef = (ent.h or 1) / (ent.drawParams and ent.drawParams.screenHeight or 1)
 	ent.YdrawOffs = ent.y or 1
 end
 
