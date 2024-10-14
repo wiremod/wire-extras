@@ -66,11 +66,8 @@ function TOOL:LeftClick( trace )
 	return true
 end
 
-function TOOL:RightClick(trace)
-	if not IsValid(trace.Entity) or trace.Entity:IsPlayer() then return false end
-	if CLIENT then return true end
-
-	return true
+function TOOL:RightClick( trace )
+	return false
 end
 
 function TOOL:Think()
