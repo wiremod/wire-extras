@@ -9,7 +9,6 @@ TOOL.ClientConVar["draww"] = ""
 TOOL.ClientConVar["drawh"] = ""
 TOOL.ClientConVar["drawres"] = ""
 
-
 if CLIENT then
     language.Add( "Tool_drawchanger_name", "Developer Tool" )
     language.Add( "Tool_drawchanger_desc", "change draw params" )
@@ -22,22 +21,24 @@ if CLIENT then
 	language.Add("Tool_drawchanger_drawh", "H:")
 	language.Add("Tool_drawchanger_drawres", "Res:")
 
-	function umGetNewSet()
+	net.Receive("umsgDrawChangerCfg", function()
 		local ent = net.ReadEntity()
+		if not IsValid(ent) then return end
+
+		ent.drawParams = ent.drawParams or {}
 		ent.drawParams.x = net.ReadFloat()
 		ent.drawParams.y = net.ReadFloat()
 		ent.drawParams.w = net.ReadFloat()
 		ent.drawParams.h = net.ReadFloat()
 		ent.drawParams.Res = net.ReadFloat()
+
 		gpCalcDrawCoefs(ent)
-	end
-	net.Receive("umsgDrawChangerCfg", umGetNewSet) 
+	end) 
 end
 
 if SERVER then
 	util.AddNetworkString("umsgDrawChangerCfg")
 	function TOOL:sendSetVal(ent, x, y, w, h, res)
-		Msg ("um send function\n")
 		net.Start("umsgDrawChangerCfg")
 			net.WriteEntity(ent)
 			net.WriteFloat(x)
@@ -50,14 +51,15 @@ if SERVER then
 end
 
 function TOOL:LeftClick( trace )
-	if trace.Entity && trace.Entity:IsPlayer() then return false end
+	if not IsValid(trace.Entity) then return false end
+	if trace.Entity:IsPlayer() then return false end
 	if CLIENT then return true end
 
-	local x = tonumber(self:GetClientInfo("drawx"))
-	local y = self:GetClientInfo("drawy")
-	local w = self:GetClientInfo("draww")
-	local h = self:GetClientInfo("drawh")
-	local res = self:GetClientInfo("drawres")
+	local x = self:GetClientNumber("drawx", 0)
+	local y = self:GetClientNumber("drawy", 0)
+	local w = self:GetClientNumber("draww", 0)
+	local h = self:GetClientNumber("drawh", 0)
+	local res = self:GetClientNumber("drawres", 0)
 	
 	self:sendSetVal(trace.Entity, x, y, w, h, res)
 	
@@ -65,10 +67,7 @@ function TOOL:LeftClick( trace )
 end
 
 function TOOL:RightClick( trace )
-	if trace.Entity && trace.Entity:IsPlayer() then return false end
-	if CLIENT then return true end
-
-	return true
+	return false
 end
 
 function TOOL:Think()
