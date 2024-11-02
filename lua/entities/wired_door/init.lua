@@ -43,7 +43,9 @@ function ENT:Initialize()
 end
 
 function ENT:OnRemove()
-	self.xent:Remove()
+	if IsValid(self.xent) then
+		self.xent:Remove()
+	end
 end
 
 function ENT:TriggerInput(iname, value)
