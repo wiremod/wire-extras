@@ -730,8 +730,6 @@ e2function ftrace ftrace:putActionSkipEnt(entity vE)
 	this.mFnc.Ent.SKIP[vE] = true; return this
 end
 
-e2function ftrace ftrace:addEntHitSkip(entity vE) = e2function ftrace ftrace:putActionSkipEnt(entity vE)
-
 __e2setcost(3)
 e2function ftrace ftrace:remActionSkipEnt(entity vE)
 	if(not this) then return nil end
@@ -739,15 +737,11 @@ e2function ftrace ftrace:remActionSkipEnt(entity vE)
 	this.mFnc.Ent.SKIP[vE] = nil; return this
 end
 
-e2function ftrace ftrace:remEntHitSkip(entity vE) = e2function ftrace ftrace:remActionSkipEnt(entity vE)
-
 __e2setcost(3)
 e2function ftrace ftrace:remActionSkipEnt()
 	if(not this) then return nil end
 	table.Empty(this.mFnc.Ent.SKIP); return this
 end
-
-e2function ftrace ftrace:remEntHitSkip() = e2function ftrace ftrace:remActionSkipEnt()
 
 __e2setcost(3)
 e2function ftrace ftrace:putActionOnlyEnt(entity vE)
@@ -756,8 +750,6 @@ e2function ftrace ftrace:putActionOnlyEnt(entity vE)
 	this.mFnc.Ent.ONLY[vE] = true; return this
 end
 
-e2function ftrace ftrace:addEntHitOnly(entity vE) = e2function ftrace ftrace:putActionOnlyEnt(entity vE)
-
 __e2setcost(3)
 e2function ftrace ftrace:remActionOnlyEnt(entity vE)
 	if(not this) then return nil end
@@ -765,15 +757,11 @@ e2function ftrace ftrace:remActionOnlyEnt(entity vE)
 	this.mFnc.Ent.ONLY[vE] = nil; return this
 end
 
-e2function ftrace ftrace:remEntHitOnly(entity vE) = e2function ftrace ftrace:remActionOnlyEnt(entity vE)
-
 __e2setcost(3)
 e2function ftrace ftrace:remActionOnlyEnt()
 	if(not this) then return nil end
 	table.Empty(this.mFnc.Ent.ONLY); return this
 end
-
-e2function ftrace ftrace:remEntHitOnly() = e2function ftrace ftrace:remActionOnlyEnt()
 
 __e2setcost(3)
 e2function ftrace ftrace:remActionEnt()
@@ -781,8 +769,6 @@ e2function ftrace ftrace:remActionEnt()
 	table.Empty(this.mFnc.Ent.SKIP)
 	table.Empty(this.mFnc.Ent.ONLY); return this
 end
-
-e2function ftrace ftrace:remEntHit() = e2function ftrace ftrace:remActionEnt()
 
 --[[ **************************** ENTITY ARRAY FILTER **************************** ]]
 
@@ -884,14 +870,10 @@ e2function ftrace ftrace:remAction()
 	end; return this
 end
 
-e2function ftrace ftrace:remHit() = e2function ftrace ftrace:remAction()
-
 __e2setcost(3)
 e2function ftrace ftrace:remAction(string sM)
 	return removeFncFilter(this, sM)
 end
-
-e2function ftrace ftrace:remHit(string sM) = e2function ftrace ftrace:remAction(string sM)
 
 __e2setcost(3)
 e2function ftrace ftrace:remActionSkip(string sM)
@@ -930,28 +912,20 @@ e2function ftrace ftrace:putActionSkip(string sM, number vN)
 	return setFncFilter(this, sM, "SKIP", vN, true)
 end
 
-e2function ftrace ftrace:addHitSkip(string sM, number vN) = e2function ftrace ftrace:putActionSkip(string sM, number vN)
-
 __e2setcost(3)
 e2function ftrace ftrace:remActionSkip(string sM, number vN)
 	return setFncFilter(this, sM, "SKIP", vN, nil)
 end
-
-e2function ftrace ftrace:remHitSkip(string sM, number vN) = e2function ftrace ftrace:remActionSkip(string sM, number vN)
 
 __e2setcost(3)
 e2function ftrace ftrace:putActionOnly(string sM, number vN)
 	return setFncFilter(this, sM, "ONLY", vN, true)
 end
 
-e2function ftrace ftrace:addHitOnly(string sM, number vN) = e2function ftrace ftrace:putActionOnly(string sM, number vN)
-
 __e2setcost(3)
 e2function ftrace ftrace:remActionOnly(string sM, number vN)
 	return setFncFilter(this, sM, "ONLY", vN, nil)
 end
-
-e2function ftrace ftrace:remHitOnly(string sM, number vN) = e2function ftrace ftrace:remActionOnly(string sM, number vN)
 
 --[[ **************************** FUNCTION STRING **************************** ]]
 
@@ -960,28 +934,20 @@ e2function ftrace ftrace:putActionSkip(string sM, string vS)
 	return setFncFilter(this, sM, "SKIP", vS, true)
 end
 
-e2function ftrace ftrace:addHitSkip(string sM, string vS) = e2function ftrace ftrace:putActionSkip(string sM, string vS)
-
 __e2setcost(3)
 e2function ftrace ftrace:remActionSkip(string sM, string vS)
 	return setFncFilter(this, sM, "SKIP", vS, nil)
 end
-
-e2function ftrace ftrace:remHitSkip(string sM, string vS) = e2function ftrace ftrace:remActionSkip(string sM, string vS)
 
 __e2setcost(3)
 e2function ftrace ftrace:putActionOnly(string sM, string vS)
 	return setFncFilter(this, sM, "ONLY", vS, true)
 end
 
-e2function ftrace ftrace:addHitOnly(string sM, string vS) = e2function ftrace ftrace:putActionOnly(string sM, string vS)
-
 __e2setcost(3)
 e2function ftrace ftrace:remActionOnly(string sM, string vS)
 	return setFncFilter(this, sM, "ONLY", vS, nil)
 end
-
-e2function ftrace ftrace:remHitOnly(string sM, string vS) = e2function ftrace ftrace:remActionOnly(string sM, string vS)
 
 --[[ **************************** RAY **************************** ]]
 
@@ -1483,16 +1449,12 @@ e2function number ftrace:getSurfacePropsID()
 	return (trV and trV or 0)
 end
 
-e2function number ftrace:getSurfPropsID() = e2function number ftrace:getSurfacePropsID()
-
 __e2setcost(3)
 e2function string ftrace:getSurfacePropsName()
 	if(not this) then return gsZeroStr end
 	local trV = this.mTrO.SurfaceProps
 	return (trV and util.GetSurfacePropName(trV) or gsZeroStr)
 end
-
-e2function string ftrace:getSurfPropsName() = e2function string ftrace:getSurfacePropsName()
 
 __e2setcost(3)
 e2function number ftrace:getPhysicsBoneID()
@@ -1564,9 +1526,6 @@ e2function number ftrace:getDispFlags()
 	return (trV and trV or 0)
 end
 
-e2function number ftrace:getDisplaceFlags()     = e2function number ftrace:getDispFlags()
-e2function number ftrace:getDisplacementFlags() = e2function number ftrace:getDispFlags()
-
 __e2setcost(3)
 e2function number ftrace:getContents()
 	if(not this) then return 0 end
@@ -1574,32 +1533,23 @@ e2function number ftrace:getContents()
 	return (trV and trV or 0)
 end
 
-e2function number ftrace:getHitContents() = e2function number ftrace:getContents()
-
 __e2setcost(15)
 e2function ftrace ftrace:dmpInfo(number nN)
 	return dumpTracer(this, nN)
 end
-
-e2function ftrace ftrace:dumpItem(number nN) = e2function ftrace ftrace:dmpInfo(number nN)
 
 __e2setcost(15)
 e2function ftrace ftrace:dmpInfo(string sN)
 	return dumpTracer(this, sN)
 end
 
-e2function ftrace ftrace:dumpItem(string sN) = e2function ftrace ftrace:dmpInfo(string sN)
-
 __e2setcost(15)
 e2function ftrace ftrace:dmpInfo(string nT, number nN)
 	return dumpTracer(this, nN, nT)
 end
-
-e2function ftrace ftrace:dumpItem(string nT, number nN) = e2function ftrace ftrace:dmpInfo(string nT, number nN)
 
 __e2setcost(15)
 e2function ftrace ftrace:dmpInfo(string nT, string sN)
 	return dumpTracer(this, sN, nT)
 end
 
-e2function ftrace ftrace:dumpItem(string nT, string sN) = e2function ftrace ftrace:dmpInfo(string nT, string sN)
