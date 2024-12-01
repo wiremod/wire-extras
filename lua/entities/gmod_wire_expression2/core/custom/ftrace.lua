@@ -39,7 +39,7 @@ local gtEmptyVar  = {["#empty"]=true}; gtEmptyVar[gsZeroStr] = true -- Variable 
 local gsVarPrefx  = "wire_expression2_ftrace" -- This is used for variable prefix
 local gtBoolToNum = {[true]=1,[false]=0} -- This is used to convert between GLua boolean and wire boolean
 local gtMethList  = {} -- Place holder for blacklist and console variables prefix
-local gtConvEnab  = {["LW"] = LocalToWorld, ["WL"] = WorldToLocal} -- Coordinate translation list
+local gtConvUCS  = {["LWG"] = LocalToWorld, ["WLG"] = WorldToLocal, ["LWE"] = "LocalToWorld", ["WLE"] = "WorldToLocal"}
 local varMethSkip = CreateConVar(gsVarPrefx.."_skip", gsZeroStr, gnServerControled, "FTrace entity black listed methods")
 local varMethOnly = CreateConVar(gsVarPrefx.."_only", gsZeroStr, gnServerControled, "FTrace entity white listed methods")
 local varEnStatus = CreateConVar(gsVarPrefx.."_enst",  0, gnIndependentUsed, "FTrace status output messages")
@@ -80,7 +80,7 @@ end
 
 --[[
  * Picks the table when has values. Otherwise nil
- * Empty aggument is nil as nothing to be done
+ * Empty argument is nil as nothing to be done
  * tT > The table to checked and picked (table or nil)
 ]]
 local function pickTable(tT)
@@ -90,7 +90,7 @@ end
 
 --[[
  * Outputs status messages in various places
- * sMsg  > Messave as any value type
+ * sMsg  > Message as any value type
  * oChip > Reference to an E2 chip
  * nPos  > Output location `HUD_%`
 ]]
@@ -112,10 +112,10 @@ end
 ]]
 local function convertArrayKeys(tA)
 	if(not tA) then return nil end
-	for ID = 1, #tA do -- Convert the table from array to hash bools
+	for ID = 1, #tA do -- Convert the table from array to hash bool
 		local key = tostring(tA[ID] or ""):gsub("%s+", "")
 		if(not gtEmptyVar[key]) then tA[key] = true end; tA[ID] = nil
-	end; return pickTable(tA) -- Write empty velue when table is empty
+	end; return pickTable(tA) -- Write empty value when table is empty
 end
 
 --[[ **************************** CALLBACKS **************************** ]]
@@ -138,61 +138,43 @@ end, varDefPrint:GetName().."_call")
 --[[ **************************** WRAPPERS **************************** ]]
 
 local function convertDirLocal(oFTrc, vE, vA)
-	if(not oFTrc) then return Vector(0, 0, 0) end
+	if(not oFTrc) then return Vector() end
 	local oD, oE = oFTrc.mDir, (vE or oFTrc.mEnt)
-	if(not (isValid(oE) or vA)) then return oD end
-
-	local oA = Angle()
-	if(vA) then
-		oA:SetUnpacked(vA[1], vA[2], vA[3])
-	else
-		oA:Set(oE:GetAngles())
-	end
-
-	local oV = Vector(oD)
-	return Vector( oV:Dot(oA:Forward()), -oV:Dot(oA:Right()), oV:Dot(oA:Up()) )
+	if(not (isValid(oE) or vA)) then return Vector(oD) end
+	local oA, oV = Angle(), Vector(oD)
+	if(vA) then oA:Set(vA) else oA:Set(oE:GetAngles()) end
+	local x =  oV:Dot(oA:Forward())
+	local y = -oV:Dot(oA:Right())
+	local z =  oV:Dot(oA:Up())
+	oV:SetUnpacked(x, y, z); return oV
 end -- Gmod +Y is the left direction
 
 local function convertDirWorld(oFTrc, vE, vA)
-	if(not oFTrc) then return Vector(0, 0, 0) end
+	if(not oFTrc) then return Vector() end
 	local oD, oE = oFTrc.mDir, (vE or oFTrc.mEnt)
-
-	if(not (isValid(oE) or vA)) then return oD end
-	local oA = Angle()
-
-	if(vA) then
-		oA:SetUnpacked(vA[1], vA[2], vA[3])
-	else
-		oA:Set(oE:GetAngles())
-	end
-
-	local oV = Vector(oD)
-	oV:Rotate(oA)
-
-	return oV
+	if(not (isValid(oE) or vA)) then return Vector(oD) end
+	local oA, oV = Angle(), Vector(oD)
+	if(vA) then oA:Set(vA) else oA:Set(oE:GetAngles()) end
+	oV:Rotate(oA); return oV
 end
 
 local function convertOrgEnt(oFTrc, sF, vE)
-	if(not oFTrc) then return Vector(0, 0, 0) end
-	if(not gtConvEnab[sF or gsZeroStr]) then return Vector(0, 0, 0) end
+	if(not oFTrc) then return Vector() end
+	local sM = gtConvUCS[sF or gsZeroStr]
+	if(not sM) then return Vector() end
 	local oO, oE = oFTrc.mPos, (vE or oFTrc.mEnt)
-	if(not isValid(oE)) then return oO end
-	local oV = Vector(oO); oV:Set(oE[sF](oE, oV))
-	return oV
+	if(not isValid(oE)) then return Vector(oO) end
+	local oV = Vector(oO); oV:Set(oE[sM](oE, oV)); return oV
 end
 
 local function convertOrgUCS(oFTrc, sF, vP, vA)
-	if(not oFTrc) then return Vector(0, 0, 0) end
-	if(not gtConvEnab[sF or gsZeroStr]) then return Vector(0, 0, 0) end
+	if(not oFTrc) then return Vector() end
+	if(not gtConvUCS[sF or gsZeroStr]) then return Vector() end
 	local oO, oE = oFTrc.mPos, (vE or oFTrc.mEnt)
-	if(not isValid(oE)) then return oO end
+	if(not isValid(oE)) then return Vector(oO) end
 	local oV, oA = Vector(oO), Angle()
-	local uP, uA = gvTransform, gaTransform
-	uP:SetUnpacked(vP[1], vP[2], vP[3])
-	uA:SetUnpacked(vA[1], vA[2], vA[3])
-	local vN, aN = gtConvEnab[sF](oV, oA, uP, uA); oV:Set(vN)
-
-	return oV
+	local uP, uA = gvTransform, gaTransform; uP:Set(vP); uA:Set(vA)
+	local vN, aN = gtConvUCS[sF](oV, oA, uP, uA); oV:Set(vN); return oV
 end
 
 local function vecMultiply(vV, nX, nY, nZ)
@@ -386,7 +368,7 @@ local function putFilterFnc(oFTrc, tData)
 		if(vD.ONLY) then for key, val in pairs(vD.ONLY) do
 			setFncFilter(oFTrc, vD.CALL, "ONLY", key, true) end end
 	end
-	-- Transsfer referencies from the entity array
+	-- Transfer references from the entity array
 	for key, val in pairs(tData.Ent.SKIP) do
 		oFTrc.mFnc.Ent.SKIP[key] = val end
 	for key, val in pairs(tData.Ent.ONLY) do
@@ -413,11 +395,11 @@ end
 local function getFilterMode(oFTrc)
 	if(not oFTrc) then return "XX" end -- Unavailable
 	local tF = oFTrc.mTrI.filter -- Filter table reference
-	if    (tF == nil) then return "NA" -- No filter is currenttly set
+	if    (tF == nil) then return "NA" -- No filter is currently set
 	elseif(tF == oFTrc.mFlt.Ear) then return "AR" -- Entity index array
 	elseif(tF == oFTrc.mFlt.Fnc) then return "FN" -- Function routine
 	elseif(tF == oFTrc.mFlt.Enu) then return "EU" -- Entity unit
-	end; return "TS" -- Transfered settings form another instance
+	end; return "TS" -- Transferred settings form another instance
 end
 
 local function dumpTracer(oFTrc, sNam, sPos)
@@ -446,9 +428,9 @@ local function dumpTracer(oFTrc, sNam, sPos)
 	end
 	local tF = pickTable(oFTrc.mFlt.Ear)
 	if(tF) then
-		local nF = oFTrc.mFlt.Size -- Total amaunt of entities in the array
-		local nL = tostring(nF):len() -- Aligment length for the key index
-		local fF = ("%"..nL.."d") -- Generate format string for aligment
+		local nF = oFTrc.mFlt.Size -- Total amount of entities in the array
+		local nL = tostring(nF):len() -- Alignment length for the key index
+		local fF = ("%"..nL.."d") -- Generate format string for alignment
 		logStatus(gsFormEar:format(nF, nL), oChip, nP)
 		for iF = 1, nF do local vE, sC, iC = tF[iF], gsNotAvStr, 0
 			if(isValid(vE)) then sC, iC = vE:GetClass(), vE:EntIndex() end
@@ -467,16 +449,14 @@ end
 ]]
 local function newTracer(oChip, vEnt, vPos, vDir, nLen)
 	local eChip = oChip.entity; if(not isValid(eChip)) then
-		return logStatus("Entity invalid", oChip, nil, nil) end
+		return logStatus("Chip invalid", oChip, nil, nil) end
 	local oFTrc, ncDir, ncLen = {}, getNorm(vDir), (tonumber(nLen) or 0)
 	oFTrc.mChip, oFTrc.mFnc, oFTrc.mFlt = oChip, {Size = 0, ID = {}}, {};
 	oFTrc.mFnc.Ent = {SKIP = {}, ONLY = {}, TYPE = type(eChip)} -- No entities in ONLY or SKIP by default
 	if(isValid(vEnt)) then oFTrc.mEnt = vEnt else oFTrc.mEnt = nil end -- Make sure the entity is cleared
 	oFTrc.mPos, oFTrc.mDir = Vector(), Vector(0, 0, 1)
-	if(vPos) then -- Local tracer position the trace starts from
-		oFTrc.mPos:SetUnpacked(vPos[1], vPos[2], vPos[3]) end
-	if(vDir and ncDir > 0) then -- Local tracer direction to read the data from
-		oFTrc.mDir:SetUnpacked(vDir[1], vDir[2], vDir[3]) end
+	if(vPos) then oFTrc.mPos:Set(vPos) end -- Local tracer position the trace starts from
+	if(vDir and ncDir > 0) then oFTrc.mDir:Set(vDir) end -- Local tracer direction to read
 	-- How long the flash tracer length will be. Must be positive
 	oFTrc.mLen = (ncLen == 0 and ncDir or ncLen)
 	oFTrc.mLen = math.Clamp(oFTrc.mLen, -gnMaxBeam, gnMaxBeam)
@@ -491,13 +471,13 @@ local function newTracer(oChip, vEnt, vPos, vDir, nLen)
 		local nS, vV = getFncStatus(tFnc.Ent, oEnt) -- Check the entity
 		if(nS > 1) then return vV end -- Entity found or skipped return
 		if(tFnc.Size > 0) then -- Swipe trough the other lists available
-			for IH = 1, tFnc.Size do local vFnc = tFnc[IH] -- Read list conf
+			for IH = 1, tFnc.Size do local vFnc = tFnc[IH] -- Read list config
 				local vC = convertFncValue(oEnt, vFnc.CALL) -- Extract entity value
 				local nS, vV = getFncStatus(vFnc, vC) -- Check extracted value
 				if(nS > 1) then return vV end -- Option skipped or selected return
 			end -- All options are checked then trace hit normally routine
 		end; return true -- Finally we register the trace hit enabled
-	end -- Defines a general universal filter finction may be slower
+	end -- Defines a general universal filter function may be slower
 	oFTrc.mFlt.Enu  = nil -- Direct entity filter place holder unit
 	oFTrc.mFlt.Ear  = {} -- Direct entity filter place holder array
 	oFTrc.mFlt.Size = 0 -- Direct entity filter place holder size
@@ -658,28 +638,28 @@ end
 
 __e2setcost(3)
 e2function ftrace ftrace:useUnit(ftrace oT)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(not oT) then return this end
 	this.mTrI.filter = oT.mFlt.Enu; return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:useArray(ftrace oT)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(not oT) then return this end
 	this.mTrI.filter = oT.mFlt.Ear; return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:useAction(ftrace oT)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(not oT) then return this end
 	this.mTrI.filter = oT.mFlt.Fnc; return this
 end
 
 __e2setcost(12)
 e2function ftrace ftrace:cpyArray(ftrace oT)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(not oT) then return this end
 	return putFilterEar(this, oT.mFlt.Ear, false, false)
 end
@@ -698,25 +678,25 @@ end
 
 __e2setcost(3)
 e2function ftrace ftrace:remFilter()
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mTrI.filter = nil; return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:useArray()
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mTrI.filter = this.mFlt.Ear; return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:useUnit()
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mTrI.filter = this.mFlt.Enu; return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:useAction()
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mTrI.filter = this.mFlt.Fnc; return this
 end
 
@@ -724,20 +704,20 @@ end
 
 __e2setcost(3)
 e2function ftrace ftrace:putUnit(entity vE)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	this.mFlt.Enu = vE; return this
 end
 
 __e2setcost(3)
 e2function entity ftrace:getUnit()
-	if not this then return nil end
+	if(not this) then return nil end
 	return this.mFlt.Enu
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:remUnit()
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mFlt.Enu = nil; return this
 end
 
@@ -745,7 +725,7 @@ end
 
 __e2setcost(3)
 e2function ftrace ftrace:putActionSkipEnt(entity vE)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	this.mFnc.Ent.SKIP[vE] = true; return this
 end
@@ -754,7 +734,7 @@ e2function ftrace ftrace:addEntHitSkip(entity vE) = e2function ftrace ftrace:put
 
 __e2setcost(3)
 e2function ftrace ftrace:remActionSkipEnt(entity vE)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	this.mFnc.Ent.SKIP[vE] = nil; return this
 end
@@ -763,7 +743,7 @@ e2function ftrace ftrace:remEntHitSkip(entity vE) = e2function ftrace ftrace:rem
 
 __e2setcost(3)
 e2function ftrace ftrace:remActionSkipEnt()
-	if not this then return nil end
+	if(not this) then return nil end
 	table.Empty(this.mFnc.Ent.SKIP); return this
 end
 
@@ -771,7 +751,7 @@ e2function ftrace ftrace:remEntHitSkip() = e2function ftrace ftrace:remActionSki
 
 __e2setcost(3)
 e2function ftrace ftrace:putActionOnlyEnt(entity vE)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	this.mFnc.Ent.ONLY[vE] = true; return this
 end
@@ -780,7 +760,7 @@ e2function ftrace ftrace:addEntHitOnly(entity vE) = e2function ftrace ftrace:put
 
 __e2setcost(3)
 e2function ftrace ftrace:remActionOnlyEnt(entity vE)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	this.mFnc.Ent.ONLY[vE] = nil; return this
 end
@@ -789,7 +769,7 @@ e2function ftrace ftrace:remEntHitOnly(entity vE) = e2function ftrace ftrace:rem
 
 __e2setcost(3)
 e2function ftrace ftrace:remActionOnlyEnt()
-	if not this then return nil end
+	if(not this) then return nil end
 	table.Empty(this.mFnc.Ent.ONLY); return this
 end
 
@@ -797,7 +777,7 @@ e2function ftrace ftrace:remEntHitOnly() = e2function ftrace ftrace:remActionOnl
 
 __e2setcost(3)
 e2function ftrace ftrace:remActionEnt()
-	if not this then return nil end
+	if(not this) then return nil end
 	table.Empty(this.mFnc.Ent.SKIP)
 	table.Empty(this.mFnc.Ent.ONLY); return this
 end
@@ -848,7 +828,7 @@ end
 
 __e2setcost(3)
 e2function number ftrace:getArraySZ()
-	if not this then return nil end
+	if(not this) then return nil end
 	return this.mFlt.Size
 end
 
@@ -861,14 +841,14 @@ end
 
 __e2setcost(3)
 e2function ftrace ftrace:remArrayN(number iN)
-	if not this then return nil end
+	if(not this) then return nil end
 	table.remove(this.mFlt.Ear, math.floor(iN))
 	return updateEarSize(this)
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:remArrayID(number iE)
-	if not this then return nil end
+	if(not this) then return nil end
 	local tE = this.mFlt.Ear
 	local vE = Entity(math.floor(iE))
 	local iN = table.KeyFromValue(tE, vE)
@@ -878,7 +858,7 @@ end
 
 __e2setcost(3)
 e2function ftrace ftrace:remArray(entity vE)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(not isValid(vE)) then return this end
 	local tE = this.mFlt.Ear
 	local iN = table.KeyFromValue(tE, vE)
@@ -888,7 +868,7 @@ end
 
 __e2setcost(3)
 e2function ftrace ftrace:remArray()
-	if not this then return nil end
+	if(not this) then return nil end
 	table.Empty(this.mFlt.Ear)
 	return updateEarSize(this)
 end
@@ -897,7 +877,7 @@ end
 
 __e2setcost(12)
 e2function ftrace ftrace:remAction()
-	if not this then return nil end
+	if(not this) then return nil end
 	local tID = this.mFnc.ID
 	for key, id in pairs(tID) do
 		removeFncFilter(this, key)
@@ -915,13 +895,13 @@ e2function ftrace ftrace:remHit(string sM) = e2function ftrace ftrace:remAction(
 
 __e2setcost(3)
 e2function ftrace ftrace:remActionSkip(string sM)
-	if not this then return nil end
+	if(not this) then return nil end
 	return removeFncFilterOption(this, sM, "SKIP")
 end
 
 __e2setcost(9)
 e2function ftrace ftrace:remActionSkip()
-	if not this then return nil end
+	if(not this) then return nil end
 	local tID = this.mFnc.ID
 	for key, id in pairs(tID) do
 		removeFncFilterOption(this, key, "SKIP")
@@ -930,13 +910,13 @@ end
 
 __e2setcost(3)
 e2function ftrace ftrace:remActionOnly(string sM)
-	if not this then return nil end
+	if(not this) then return nil end
 	return removeFncFilterOption(this, sM, "ONLY")
 end
 
 __e2setcost(9)
 e2function ftrace ftrace:remActionOnly()
-	if not this then return nil end
+	if(not this) then return nil end
 	local tID = this.mFnc.ID
 	for key, id in pairs(tID) do
 		removeFncFilterOption(this, key, "ONLY")
@@ -1007,105 +987,103 @@ e2function ftrace ftrace:remHitOnly(string sM, string vS) = e2function ftrace ft
 
 __e2setcost(3)
 e2function ftrace ftrace:rayMove()
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mPos:Add(this.mDir); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayMove(number nL)
-	if not this then return nil end
+	if(not this) then return nil end
 	local vD = this.mDir:GetNormalized()
 	vD:Mul(nL); this.mPos:Add(vD); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayMove(vector vV)
-	if not this then return nil end
-	local vD = Vector(vV[1], vV[2], vV[3])
-	this.mPos:Add(vD); return this
+	if(not this) then return nil end
+	this.mPos:Add(vV); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayMove(number nX, number nY, number nZ)
-	if not this then return nil end
+	if(not this) then return nil end
 	local vD = Vector(nX, nY, nZ)
 	this.mPos:Add(vD); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayMove(vector vV, number nL)
-	if not this then return nil end
-	local vD = Vector(vV[1], vV[2], vV[3])
-	vD:Normalize(); vD:Mul(nL); this.mPos:Add(vD); return this
+	if(not this) then return nil end
+	local vD = vV:GetNormalized()
+	vD:Mul(nL); this.mPos:Add(vD); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayAmend(vector vV)
-	if not this then return nil end
-	local vD = Vector(vV[1], vV[2], vV[3])
-	this.mDir:Add(vD); return this
+	if(not this) then return nil end
+	this.mDir:Add(vV); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayAmend(number nX, number nY, number nZ)
-	if not this then return nil end
+	if(not this) then return nil end
 	local vD = Vector(nX, nY, nZ)
 	this.mDir:Add(vD); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayAmend(vector vV, number nL)
-	if not this then return nil end
-	local vD = Vector(vV[1], vV[2], vV[3])
-	vD:Normalize(); vD:Mul(nL); this.mDir:Add(vD); return this
+	if(not this) then return nil end
+	local vD = vV:GetNormalized()
+	vD:Mul(nL); this.mDir:Add(vD); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayMul(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mLen = this.mLen * nN; this.mDir:Normalize()
 	this.mDir:Mul(this.mLen); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayMul(vector vV)
-	if not this then return nil end
-	vecMultiply(this.mDir, vV[1], vV[2], vV[3])
+	if(not this) then return nil end
+	vecMultiply(this.mDir, vV:Unpack())
 	this.mLen = this.mDir:Length(); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayMul(number nX, number nY, number nZ)
-	if not this then return nil end
+	if(not this) then return nil end
 	vecMultiply(this.mDir, nX, nY, nZ)
 	this.mLen = this.mDir:Length(); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayDiv(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mLen = this.mLen / nN; this.mDir:Normalize()
 	this.mDir:Mul(this.mLen); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayDiv(vector vV)
-	if not this then return nil end
-	vecDivide(this.mDir, vV[1], vV[2], vV[3])
+	if(not this) then return nil end
+	vecDivide(this.mDir, vV:Unpack())
 	this.mLen = this.mDir:Length(); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayDiv(number nX, number nY, number nZ)
-	if not this then return nil end
+	if(not this) then return nil end
 	vecDivide(this.mDir, nX, nY, nZ)
 	this.mLen = this.mDir:Length(); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayAim(vector vV)
-	if not this then return nil end
-	local vD = Vector(vV[1], vV[2], vV[3])
+	if(not this) then return nil end
+	local vD = Vector(vV)
 	vD:Sub(this.mPos); vD:Normalize()
 	vD:Mul(this.mLen); this.mDir:Set(vD)
 	return this
@@ -1113,7 +1091,7 @@ end
 
 __e2setcost(3)
 e2function ftrace ftrace:rayAim(number nX, number nY, number nZ)
-	if not this then return nil end
+	if(not this) then return nil end
 	local vD = Vector(nX, nY, nZ)
 	vD:Sub(this.mPos); vD:Normalize()
 	vD:Mul(this.mLen); this.mDir:Set(vD)
@@ -1124,14 +1102,14 @@ end
 
 __e2setcost(3)
 e2function entity ftrace:getChip()
-	if not this then return nil end;
+	if(not this) then return nil end;
 	local vE = this.mChip.entity
 	if(not isValid(vE)) then return nil end; return vE
 end
 
 __e2setcost(3)
 e2function entity ftrace:getPlayer()
-	if not this then return nil end;
+	if(not this) then return nil end;
 	local vE = this.mChip.player
 	if(not isValid(vE)) then return nil end; return vE
 end
@@ -1140,20 +1118,20 @@ end
 
 __e2setcost(3)
 e2function entity ftrace:getBase()
-	if not this then return nil end; local vE = this.mEnt
+	if(not this) then return nil end; local vE = this.mEnt
 	if(not isValid(vE)) then return nil end; return vE
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:setBase(entity eE)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(not isValid(eE)) then return this end
 	this.mEnt = eE; return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:remBase()
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mEnt = nil; return this
 end
 
@@ -1161,77 +1139,77 @@ end
 
 __e2setcost(3)
 e2function number ftrace:isIgnoreWorld()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mTrI.ignoreworld and 1 or 0)
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:setIsIgnoreWorld(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mTrI.ignoreworld = (nN ~= 0); return this
 end
 
 __e2setcost(3)
 e2function vector ftrace:getPos()
-	if not this then return Vector(0, 0, 0) end
-	return this.mPos
+	if(not this) then return Vector() end
+	return Vector(this.mPos)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getPosLocal()
-	return convertOrgEnt(this, "WL", nil)
+	return convertOrgEnt(this, "WLE", nil)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getPosWorld()
-	return convertOrgEnt(this, "LW", nil)
+	return convertOrgEnt(this, "LWE", nil)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getPosLocal(entity vE)
-	return convertOrgEnt(this, "WL", vE)
+	return convertOrgEnt(this, "WLE", vE)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getPosWorld(entity vE)
-	return convertOrgEnt(this, "LW", vE)
+	return convertOrgEnt(this, "LWE", vE)
 end
 
 __e2setcost(7)
 e2function vector ftrace:getPosLocal(vector vP, angle vA)
-	return convertOrgUCS(this, "WL", vP, vA)
+	return convertOrgUCS(this, "WLG", vP, vA)
 end
 
 __e2setcost(7)
 e2function vector ftrace:getPosWorld(vector vP, angle vA)
-	return convertOrgUCS(this, "LW", vP, vA)
+	return convertOrgUCS(this, "LWG", vP, vA)
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:setPos(array aO)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mPos:SetUnpacked(aO[1], aO[2], aO[3])
 	return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:setPos(vector vO)
-	if not this then return nil end
-	this.mPos:SetUnpacked(vO[1], vO[2], vO[3])
+	if(not this) then return nil end
+	this.mPos:Set(vO)
 	return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:setPos(number nX, number nY, number nZ)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mPos:SetUnpacked(nX, nY, nZ)
 	return this
 end
 
 __e2setcost(3)
 e2function vector ftrace:getDir()
-	if not this then return nil end
-	return this.mDir
+	if(not this) then return nil end
+	return Vector(this.mDir)
 end
 
 __e2setcost(3)
@@ -1266,7 +1244,7 @@ end
 
 __e2setcost(3)
 e2function ftrace ftrace:setDir(array aD)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mDir:SetUnpacked(aD[1], aD[2], aD[3])
 	this.mDir:Normalize(); this.mDir:Mul(this.mLen)
 	return this
@@ -1274,15 +1252,14 @@ end
 
 __e2setcost(3)
 e2function ftrace ftrace:setDir(vector vD)
-	if not this then return nil end
-	this.mDir:SetUnpacked(vD[1], vD[2], vD[3])
-	this.mDir:Normalize(); this.mDir:Mul(this.mLen)
-	return this
+	if(not this) then return nil end
+	this.mDir:Set(vD); this.mDir:Normalize()
+	this.mDir:Mul(this.mLen); return this
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:setDir(number nX, number nY, number nZ)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mDir:SetUnpacked(nX, nY, nZ)
 	this.mDir:Normalize(); this.mDir:Mul(this.mLen)
 	return this
@@ -1290,13 +1267,13 @@ end
 
 __e2setcost(3)
 e2function number ftrace:getLen()
-	if not this then return nil end
+	if(not this) then return nil end
 	return (this.mLen or 0)
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:setLen(number nL)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mLen = math.Clamp(nL,-gnMaxBeam,gnMaxBeam)
 	this.mDir:Normalize(); this.mDir:Mul(this.mLen)
 	this.mLen = math.abs(this.mLen); return this
@@ -1304,38 +1281,38 @@ end
 
 __e2setcost(3)
 e2function number ftrace:getMask()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mTrI.mask or 0)
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:setMask(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mTrI.mask = nN; return this
 end
 
 __e2setcost(3)
 e2function number ftrace:getCollideGroup()
-	if not this then return nil end
+	if(not this) then return nil end
 	return (this.mTrI.collisiongroup or 0)
 end
 
 __e2setcost(3)
 e2function ftrace ftrace:setCollideGroup(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mTrI.collisiongroup = nN; return this
 end
 
 __e2setcost(3)
 e2function vector ftrace:getStart()
-	if not this then return Vector(0, 0, 0) end
-	return this.mTrI.start
+	if(not this) then return Vector() end
+	return Vector(this.mTrI.start)
 end
 
 __e2setcost(3)
 e2function vector ftrace:getStop()
-	if not this then return Vector(0, 0, 0) end
-	return this.mTrI.endpos
+	if(not this) then return Vector() end
+	return Vector(this.mTrI.endpos)
 end
 
 __e2setcost(12)
@@ -1410,94 +1387,98 @@ end
 
 __e2setcost(3)
 e2function number ftrace:isHitNoDraw()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.HitNoDraw
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:isHitNonWorld()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.HitNonWorld
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:isHit()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.Hit
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:isHitSky()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.HitSky
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:isHitWorld()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.HitWorld
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:getHitBox()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.HitBox
 	return (trV and trV or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:getMatType()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.MatType
 	return (trV and trV or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:getHitGroup()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.HitGroup
 	return (trV and trV or 0)
 end
 
 __e2setcost(8)
 e2function vector ftrace:getHitPos()
-	if not this then return Vector(0, 0, 0) end
-	return this.mTrO.HitPos
+	if(not this) then return Vector() end
+	local trV = this.mTrO.HitPos
+	return (trV and Vector(trV) or Vector())
 end
 
 __e2setcost(8)
 e2function vector ftrace:getHitNormal()
-	if not this then return Vector(0, 0, 0) end
-	return this.mTrO.HitNormal
+	if(not this) then return Vector() end
+	local trV = this.mTrO.HitNormal
+	return (trV and Vector(trV) or Vector())
 end
 
 __e2setcost(8)
 e2function vector ftrace:getNormal()
-	if not this then return Vector(0, 0, 0) end
-	return this.mTrO.Normal
+	if(not this) then return Vector() end
+	local trV = this.mTrO.Normal
+	return (trV and Vector(trV) or Vector())
 end
 
 __e2setcost(8)
 e2function string ftrace:getHitTexture()
-	if not this then return gsZeroStr end
+	if(not this) then return gsZeroStr end
 	local trV = this.mTrO.HitTexture
 	return tostring(trV or gsZeroStr)
 end
 
 __e2setcost(8)
 e2function vector ftrace:getStartPos()
-	if not this then return Vector(0, 0, 0) end
-	return this.mTrO.StartPos
+	if(not this) then return Vector() end
+	local trV = this.mTrO.StartPos
+	return (trV and Vector(trV) or Vector())
 end
 
 __e2setcost(3)
 e2function number ftrace:getSurfacePropsID()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.SurfaceProps
 	return (trV and trV or 0)
 end
@@ -1506,7 +1487,7 @@ e2function number ftrace:getSurfPropsID() = e2function number ftrace:getSurfaceP
 
 __e2setcost(3)
 e2function string ftrace:getSurfacePropsName()
-	if not this then return gsZeroStr end
+	if(not this) then return gsZeroStr end
 	local trV = this.mTrO.SurfaceProps
 	return (trV and util.GetSurfacePropName(trV) or gsZeroStr)
 end
@@ -1515,70 +1496,70 @@ e2function string ftrace:getSurfPropsName() = e2function string ftrace:getSurfac
 
 __e2setcost(3)
 e2function number ftrace:getPhysicsBoneID()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.PhysicsBone
 	return (trV and trV or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:getFraction()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.Fraction
 	return (trV and trV or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:getFractionLen()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.Fraction
 	return (trV and (trV * this.mLen) or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:isStartSolid()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.StartSolid
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:isAllSolid()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.AllSolid
 	return (trV and 1 or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:getFractionLS()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.FractionLeftSolid
 	return (trV and trV or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:getFractionLenLS()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.FractionLeftSolid
 	return (trV and (trV * this.mLen) or 0)
 end
 
 __e2setcost(3)
 e2function entity ftrace:getEntity()
-	if not this then return nil end
+	if(not this) then return nil end
 	local trV = this.mTrO.Entity
 	return (trV and trV or nil)
 end
 
 __e2setcost(3)
 e2function number ftrace:getSurfaceFlags()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.SurfaceFlags
 	return (trV and trV or 0)
 end
 
 __e2setcost(3)
 e2function number ftrace:getDispFlags()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.DispFlags
 	return (trV and trV or 0)
 end
@@ -1588,7 +1569,7 @@ e2function number ftrace:getDisplacementFlags() = e2function number ftrace:getDi
 
 __e2setcost(3)
 e2function number ftrace:getContents()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local trV = this.mTrO.Contents
 	return (trV and trV or 0)
 end
@@ -1596,21 +1577,29 @@ end
 e2function number ftrace:getHitContents() = e2function number ftrace:getContents()
 
 __e2setcost(15)
-e2function ftrace ftrace:dumpItem(number nN)
+e2function ftrace ftrace:dmpInfo(number nN)
 	return dumpTracer(this, nN)
 end
 
+e2function ftrace ftrace:dumpItem(number nN) = e2function ftrace ftrace:dmpInfo(number nN)
+
 __e2setcost(15)
-e2function ftrace ftrace:dumpItem(string sN)
+e2function ftrace ftrace:dmpInfo(string sN)
 	return dumpTracer(this, sN)
 end
 
+e2function ftrace ftrace:dumpItem(string sN) = e2function ftrace ftrace:dmpInfo(string sN)
+
 __e2setcost(15)
-e2function ftrace ftrace:dumpItem(string nT, number nN)
+e2function ftrace ftrace:dmpInfo(string nT, number nN)
 	return dumpTracer(this, nN, nT)
 end
 
+e2function ftrace ftrace:dumpItem(string nT, number nN) = e2function ftrace ftrace:dmpInfo(string nT, number nN)
+
 __e2setcost(15)
-e2function ftrace ftrace:dumpItem(string nT, string sN)
+e2function ftrace ftrace:dmpInfo(string nT, string sN)
 	return dumpTracer(this, sN, nT)
 end
+
+e2function ftrace ftrace:dumpItem(string nT, string sN) = e2function ftrace ftrace:dmpInfo(string nT, string sN)
