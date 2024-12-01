@@ -411,7 +411,7 @@ local function dumpTracer(oFTrc, sNam, sPos)
 	logStatus(" POS: "..tostring(oFTrc.mPos or gsNotAvStr), oChip, nP)
 	logStatus(" DIR: "..tostring(oFTrc.mDir or gsNotAvStr), oChip, nP)
 	logStatus(" ENT: "..tostring(oFTrc.mEnt or gsNotAvStr), oChip, nP)
-	logStatus(" E2 : "..tostring(oChip.entity or gsNotAvStr), oChip, nP)
+	logStatus(" EXP: "..tostring(oChip.entity or gsNotAvStr), oChip, nP)
 	logStatus(" FMD: "..getFilterMode(oFTrc), oChip, nP)
 	local tFnc = oFTrc.mFnc -- Read the general hit list
 	local tEnt = tFnc.Ent   -- Read the direct hit entities list
