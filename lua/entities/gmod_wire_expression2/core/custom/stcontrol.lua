@@ -46,8 +46,10 @@ gtPrintName["CENTER" ] = HUD_PRINTCENTER
 
 --[[ **************************** PRIMITIVES **************************** ]]
 
-local function isValid(vE)
-	return (vE and vE:IsValid())
+local function isValid(vE, vT)
+	if(vT) then local sT = tostring(vT or "")
+		if(sT ~= type(vE)) then return false end end
+	return (vE and vE.IsValid and vE:IsValid())
 end
 
 local function getSign(nV)
@@ -123,8 +125,9 @@ end
 local function resState(oStCon)
 	if(not oStCon) then return nil end
 	oStCon.mErrO, oStCon.mErrN = 0, 0 -- Reset the error
-	oStCon.mvCon, oStCon.meInt, oStCon.meDif = 0, true, true -- Control value and integral enabled
-	oStCon.mvP, oStCon.mvI, oStCon.mvD, oStCon.meZcx = 0, 0, 0, false -- Term values
+	oStCon.mvCon, oStCon.meInt, oStCon.meDif = 0, true, true -- Control value and term enabled
+	oStCon.meZcx, oStCon.mnZcm = false, 0 -- Zero cross detection and margin
+	oStCon.mvP, oStCon.mvI, oStCon.mvD = 0, 0, 0 -- Terms actual values
 	oStCon.mTimN = CurTime(); oStCon.mTimO = oStCon.mTimN; -- Update clock
 	return oStCon
 end
@@ -168,6 +171,7 @@ local function dumpController(oStCon, sNam, sPos)
 	logStatus("   EInt: "..tostring(oStCon.meInt), oChip, nP)
 	logStatus("   EDif: "..tostring(oStCon.meDif), oChip, nP)
 	logStatus("   EZcx: "..tostring(oStCon.meZcx), oChip, nP)
+	logStatus("   MZcx: "..tostring(oStCon.mnZcm), oChip, nP)
 	return oStCon -- The dump method
 end
 
@@ -188,26 +192,48 @@ local function conProcess(oStCon, nRef, nOut)
 		local errNw = (oStCon.mbInv and (nOut - nRef) or (nRef - nOut))
 		oStCon.mErrO = errPs; oStCon.mErrN = errNw -- Sync internal state
 		oStCon.mTimO = oStCon.mTimN; oStCon.mTimN = CurTime() -- Sync the time
+		-- Time delta is being reset when an input is triggered
 		local timDt = (oStCon.mnTo and oStCon.mnTo or (oStCon.mTimN - oStCon.mTimO))
 		-- Does not get affected by the time and just multiplies. Not approximated
 		if(oStCon.mkP > 0) then
 			oStCon.mvP = getValue(oStCon.mkP, errNw, oStCon.mpP)
 		end
 		-- Direct approximation with error sampling average for calculating the integral term
-		if((oStCon.mkI > 0) and oStCon.meInt and (timDt > 0)) then
-			if(oStCon.meZcx and (getSign(errNw) ~= getSign(errPs))) then
-				oStCon.mvI = 0 -- Reset on zero for avoid having the same value in the other direction
-			else -- If the flag is not set and an error delta is present calculate the integral area
-				local arInt = (errNw + errPs) * timDt -- Integral error area
-				oStCon.mvI = getValue(oStCon.mkI * timDt, arInt, oStCon.mpI) + oStCon.mvI
+		if(oStCon.mkI > 0) then -- Integral term is used and must be updated in realtime
+			if(oStCon.meInt and timDt > 0) then -- If integration is enabled it continues to integrate
+				if(oStCon.meZcx) then -- Calculate and compare the sign only when zero crossing is enabled
+					if(getSign(errNw) ~= getSign(errPs)) then -- Graph crosses zero when signs are different
+						if(oStCon.mnZcm > 0) then -- Clear integral only when the delta bigger than margin
+							local arDif = (errNw - errPs) / timDt -- Error derivative slope dE/dT
+							if(math.abs(arDif) > oStCon.mnZcm) then -- Derivative is bigger than margin
+								oStCon.mvI = 0 -- Reset the integral term when derivative is bigger than margin
+							else -- Otherwise keep integrating like nothing ever happened
+								local arInt = (errNw + errPs) * timDt -- Integral error area
+								oStCon.mvI = getValue(oStCon.mkI * timDt, arInt, oStCon.mpI) + oStCon.mvI
+							end -- This will keep integrating when derivative is less than margin
+						else -- When error delta margin is not defined consider it being not used
+							oStCon.mvI = 0 -- Reset on zero for avoid having the same value in the other direction
+						end -- Both condition need the sign to be checked so this is done with zero cross enabled
+					else -- Signs are equal the process is below or above the reference. Continue
+						local arInt = (errNw + errPs) * timDt -- Integral error area
+						oStCon.mvI = getValue(oStCon.mkI * timDt, arInt, oStCon.mpI) + oStCon.mvI
+					end -- Check the signs only when zero crossing is enabled
+				else -- If the flag is not set and an error delta is present calculate the integral area
+					local arInt = (errNw + errPs) * timDt -- Integral error area
+					oStCon.mvI = getValue(oStCon.mkI * timDt, arInt, oStCon.mpI) + oStCon.mvI
+				end
 			end
+		else
+			oStCon.mvI = 0
 		end
 		-- Direct approximation for calculating the derivative term
-		if((oStCon.mkD > 0) and (errNw ~= errPs) and oStCon.meDif and (timDt > 0)) then
-			local arDif = (errNw - errPs) / timDt -- Error derivative slope dE/dT
-			oStCon.mvD = getValue(oStCon.mkD * timDt, arDif, oStCon.mpD)
+		if(oStCon.mkD > 0 and errNw ~= errPs) then
+			if(oStCon.meDif and timDt > 0) then -- Derivative term is used must be updated in realtime
+				local arDif = (errNw - errPs) / timDt -- Error derivative slope dE/dT
+				oStCon.mvD = getValue(oStCon.mkD * timDt, arDif, oStCon.mpD)
+			end -- Derivative part is not updated when it is not enabled
 		else -- Reset the derivative as there is no slope to be used
-			oStCon.mvD = 0
+			oStCon.mvD = 0 -- Derivative path is not used so reset term
 		end
 		oStCon.mvCon = oStCon.mvP + oStCon.mvI + oStCon.mvD -- Calculate the control signal
 		if(satD and oStCon.mvCon < satD) then -- Saturate lower limit
@@ -409,7 +435,7 @@ end
 
 local function newController(oChip, nTo)
 	local eChip = oChip.entity; if(not isValid(eChip)) then
-		return logStatus("Entity invalid", oChip, nil, nil) end
+		return logStatus("Chip invalid", oChip, nil, nil) end
 	local oStCon, sM = {}, gtMissName[3]; oStCon.mnTo = tonumber(nTo) -- Place to store the object
 	if(oStCon.mnTo and oStCon.mnTo <= 0) then
 		return logStatus("Delta mismatch ["..tostring(oStCon.mnTo).."]", oChip, nil, nil) end
@@ -422,7 +448,8 @@ local function newController(oChip, nTo)
 	oStCon.mkP, oStCon.mkI, oStCon.mkD = 0, 0, 0 -- P, I and D term gains
 	oStCon.mpP, oStCon.mpI, oStCon.mpD = 1, 1, 1 -- Raise the error to power of that much
 	oStCon.mbCmb, oStCon.mbInv, oStCon.mbOn, oStCon.mbMan = false, false, false, false
-	oStCon.mvMan, oStCon.mChip, oStCon.meZcx = 0, oChip, false -- Configure manual mode and store indexing
+	-- Configure manual mode and store indexing. Setup zero crossing for integral
+	oStCon.mvMan, oStCon.mChip, oStCon.meZcx, oStCon.mnZcm = 0, oChip, false, 0
 	return oStCon -- Return the created controller object
 end
 
@@ -533,7 +560,7 @@ end
 
 __e2setcost(7)
 e2function stcontrol stcontrol:setGain(vector vV)
-	return setGains(this, vV[1], vV[2], vV[3])
+	return setGains(this, vV:Unpack())
 end
 
 __e2setcost(7)
@@ -573,79 +600,79 @@ end
 
 __e2setcost(3)
 e2function array stcontrol:getGain()
-	if not this then return {0,0,0} end
+	if(not this) then return {0,0,0} end
 	return {this.mkP, this.mkI, this.mkD}
 end
 
 __e2setcost(3)
 e2function vector stcontrol:getGain()
-	if not this then return Vector(0, 0, 0) end
+	if(not this) then return Vector() end
 	return Vector(this.mkP, this.mkI, this.mkD)
 end
 
 __e2setcost(3)
 e2function array stcontrol:getGainPI()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mkP, this.mkI}
 end
 
 __e2setcost(3)
 e2function vector2 stcontrol:getGainPI()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mkP, this.mkI}
 end
 
 __e2setcost(3)
 e2function array stcontrol:getGainPD()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mkP, this.mkD}
 end
 
 __e2setcost(3)
 e2function vector2 stcontrol:getGainPD()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mkP, this.mkD}
 end
 
 __e2setcost(3)
 e2function array stcontrol:getGainID()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mkI, this.mkD}
 end
 
 __e2setcost(3)
 e2function vector2 stcontrol:getGainID()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mkI, this.mkD}
 end
 
 __e2setcost(3)
 e2function number stcontrol:getGainP()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mkP or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getGainI()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mkI or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getGainD()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mkD or 0)
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setBias(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mBias = nN; return this
 end
 
 __e2setcost(3)
 e2function number stcontrol:getBias()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mBias or 0)
 end
 
@@ -656,76 +683,76 @@ end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setWindup(number nD, number nU)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(nD < nU) then this.mSatD, this.mSatU = nD, nU end
 	return this
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setWindup(array aA)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(aA[1] < aA[2]) then this.mSatD, this.mSatU = aA[1], aA[2] end
 	return this
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setWindup(vector2 vV)
-	if not this then return nil end
+	if(not this) then return nil end
 	if(vV[1] < vV[2]) then this.mSatD, this.mSatU = vV[1], vV[2] end
 	return this
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setWindupMin(number nD)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mSatD = nD; return this
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setWindupMax(number nU)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mSatU = nU; return this
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:remWindup()
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mSatD = nil; this.mSatU = nil; return this
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:remWindupMin()
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mSatD = nil; return this
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:remWindupMax()
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mSatU = nil; return this
 end
 
 __e2setcost(3)
 e2function array stcontrol:getWindup()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mSatD, this.mSatU}
 end
 
 __e2setcost(3)
 e2function vector2 stcontrol:getWindup()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mSatD, this.mSatU}
 end
 
 __e2setcost(3)
 e2function number stcontrol:getWindupMin()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mSatD or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getWindupMax()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mSatU or 0)
 end
 
@@ -801,140 +828,139 @@ end
 
 __e2setcost(8)
 e2function stcontrol stcontrol:setPower(vector vV)
-	return setPower(this, vV[1], vV[2], vV[3])
+	return setPower(this, vV:Unpack())
 end
 
 __e2setcost(3)
 e2function array stcontrol:getPower()
-	if not this then return {0,0,0} end
+	if(not this) then return {0,0,0} end
 	return {this.mpP, this.mpI, this.mpD}
 end
 
 __e2setcost(3)
 e2function vector stcontrol:getPower()
-	if not this then return Vector(0, 0, 0) end
+	if(not this) then return Vector() end
 	return Vector(this.mpP, this.mpI, this.mpD)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getPowerP()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mpP or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getPowerI()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mpI or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getPowerD()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mpD or 0)
 end
 
 __e2setcost(3)
 e2function array stcontrol:getPowerPI()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mpP, this.mpI}
 end
 
 __e2setcost(3)
 e2function vector2 stcontrol:getPowerPI()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mpP, this.mpI}
 end
 
 __e2setcost(3)
 e2function array stcontrol:getPowerPD()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mpP, this.mpD}
 end
 
 __e2setcost(3)
 e2function vector2 stcontrol:getPowerPD()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mpP, this.mpD}
 end
 
 __e2setcost(3)
 e2function array stcontrol:getPowerID()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mpI, this.mpD}
 end
 
 __e2setcost(3)
 e2function vector2 stcontrol:getPowerID()
-	if not this then return {0,0} end
+	if(not this) then return {0,0} end
 	return {this.mpI, this.mpD}
 end
 
-
 __e2setcost(3)
 e2function number stcontrol:getErrorNow()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mErrN or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getErrorPast()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mErrO or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getErrorDelta()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mErrN - this.mErrO)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getTimeNow()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mTimN or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getTimePast()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mTimO or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getTimeDelta()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return ((this.mTimN or 0) - (this.mTimO or 0))
 end
 
 __e2setcost(3)
 e2function number stcontrol:getTimeSample()
-	if not this then return 0 end; local nT = this.mnTo
+	if(not this) then return 0 end; local nT = this.mnTo
 	return ((nT and nT > 0) and nT or 0)
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setTimeSample(number nT)
-	if not this then return 0 end
+	if(not this) then return 0 end
 	this.mnTo = ((nT and nT > 0) and nT or nil)
 	return this
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:remTimeSample()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	this.mnTo = nil; return this
 end
 
 __e2setcost(3)
 e2function number stcontrol:getTimeBench()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mTimB or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getTimeRatio()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	local timDt = (this.mTimN - this.mTimO)
 	if(timDt == 0) then return 0 end
 	return ((this.mTimB or 0) / timDt)
@@ -942,133 +968,145 @@ end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setIsIntegral(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.meInt = (nN ~= 0); return this
 end
 
 __e2setcost(3)
 e2function number stcontrol:isIntegral()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.meInt and 1 or 0)
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setIsDerivative(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.meDif = (nN ~= 0); return this
 end
 
 __e2setcost(3)
 e2function number stcontrol:isDerivative()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.meDif and 1 or 0)
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setIsZeroCross(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.meZcx = (nN ~= 0); return this
 end
 
 __e2setcost(3)
 e2function number stcontrol:isZeroCross()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.meZcx and 1 or 0)
 end
 
 __e2setcost(3)
+e2function stcontrol stcontrol:setZeroCross(number nM)
+	if(not this) then return nil end
+	this.mnZcm = (nM > 0) and nM or 0; return this
+end
+
+__e2setcost(3)
+e2function number stcontrol:getZeroCross()
+	if(not this) then return 0 end
+	return this.mnZcm
+end
+
+__e2setcost(3)
 e2function stcontrol stcontrol:setIsCombined(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mbCmb = (nN ~= 0); return this
 end
 
 __e2setcost(3)
 e2function number stcontrol:isCombined()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mbCmb and 1 or 0)
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setIsManual(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mbMan = (nN ~= 0); return this
 end
 
 __e2setcost(3)
 e2function number stcontrol:isManual()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mbMan and 1 or 0)
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setManual(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mvMan = nN; return this
 end
 
 __e2setcost(3)
 e2function number stcontrol:getManual()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mvMan or 0)
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setIsInverted(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mbInv = (nN ~= 0); return this
 end
 
 __e2setcost(3)
 e2function number stcontrol:isInverted()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mbInv and 1 or 0)
 end
 
 __e2setcost(3)
 e2function stcontrol stcontrol:setIsActive(number nN)
-	if not this then return nil end
+	if(not this) then return nil end
 	this.mbOn = (nN ~= 0); return this
 end
 
 __e2setcost(3)
 e2function number stcontrol:isActive()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mbOn and 1 or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getControl()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mvCon or 0)
 end
 
 __e2setcost(3)
 e2function array stcontrol:getControlTerm()
-	if not this then return {0,0,0} end
+	if(not this) then return {0,0,0} end
 	return {this.mvP, this.mvI, this.mvD}
 end
 
 __e2setcost(3)
 e2function vector stcontrol:getControlTerm()
-	if not this then return Vector(0, 0, 0) end
+	if(not this) then return Vector() end
 	return Vector(this.mvP, this.mvI, this.mvD)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getControlTermP()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mvP or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getControlTermI()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mvI or 0)
 end
 
 __e2setcost(3)
 e2function number stcontrol:getControlTermD()
-	if not this then return 0 end
+	if(not this) then return 0 end
 	return (this.mvD or 0)
 end
 
@@ -1079,7 +1117,7 @@ end
 
 __e2setcost(20)
 e2function stcontrol stcontrol:setState(number nR, number nO)
-	if not this then return nil end
+	if(not this) then return nil end
 	return conProcess(this, nR, nO)
 end
 
@@ -1149,21 +1187,21 @@ e2function stcontrol stcontrol:tuneAutoTL(number uK, number uT)
 end
 
 __e2setcost(15)
-e2function stcontrol stcontrol:dumpItem(number nN)
+e2function stcontrol stcontrol:dmpInfo(number nN)
 	return dumpController(this, nN)
 end
 
 __e2setcost(15)
-e2function stcontrol stcontrol:dumpItem(string sN)
+e2function stcontrol stcontrol:dmpInfo(string sN)
 	return dumpController(this, sN)
 end
 
 __e2setcost(15)
-e2function stcontrol stcontrol:dumpItem(string nT, number nN)
+e2function stcontrol stcontrol:dmpInfo(string nT, number nN)
 	return dumpController(this, nN, nT)
 end
 
 __e2setcost(15)
-e2function stcontrol stcontrol:dumpItem(string nT, string sN)
+e2function stcontrol stcontrol:dmpInfo(string nT, string sN)
 	return dumpController(this, sN, nT)
 end
