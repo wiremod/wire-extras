@@ -435,7 +435,7 @@ end
 
 local function newController(oChip, nTo)
 	local eChip = oChip.entity; if(not isValid(eChip)) then
-		return logStatus("Entity invalid", oChip, nil, nil) end
+		return logStatus("Chip invalid", oChip, nil, nil) end
 	local oStCon, sM = {}, gtMissName[3]; oStCon.mnTo = tonumber(nTo) -- Place to store the object
 	if(oStCon.mnTo and oStCon.mnTo <= 0) then
 		return logStatus("Delta mismatch ["..tostring(oStCon.mnTo).."]", oChip, nil, nil) end
