@@ -10,7 +10,7 @@ local MODEL = Model( "models/props_lab/binderblue.mdl" )
 local Servs = {}
 
 function GetWirelessSrv()
-	return Servs;
+	return Servs
 end
 
 function ENT:Initialize()
@@ -31,19 +31,16 @@ function ENT:Initialize()
 	self.Outputs = Wire_CreateOutputs(self, { "ID", "Connected", "Count" , "Message" , "Clients" })
 end
 
-function BTClientUpdateMessage( self )
-
-	if ( self.Connected != 0 ) then
-		Wire_TriggerOutput(self, "Connected", 1 )
+local function BTClientUpdateMessage(self)
+	if self.Connected ~= 0 then
+		Wire_TriggerOutput(self, "Connected", 1)
 	else
-		Wire_TriggerOutput(self, "Connected", 0 )
+		Wire_TriggerOutput(self, "Connected", 0)
 	end
 
-	Wire_TriggerOutput(self, "ID", self.clientID )
-	Wire_TriggerOutput(self, "Count", #self.Buff )
-	
-	Wire_TriggerOutput(self, "Message", self.Buff[1] or 0 )
-	
+	Wire_TriggerOutput(self, "ID", self.clientID)
+	Wire_TriggerOutput(self, "Count", #self.Buff)
+	Wire_TriggerOutput(self, "Message", self.Buff[1] or 0)
 end
 
 function ENT:GetClient( C )
@@ -63,20 +60,16 @@ function ENT:GetClient( C )
 	return 0
 end
 
-function CreateClient( srv , C , id )
-
-	local obj={}
-	
-	obj.clientID=id;
-	obj.Entity = srv.Entity;
-	obj.SendMsg=0;
-	obj.Buff={};
-	obj.Byte=0;
-	obj.Connected=C;
-	obj.UpdateMessage = BTClientUpdateMessage;
-	
-	return obj;
-	
+local function CreateClient(srv, c, id)
+	return {
+		clientID = id,
+		Entity = srv.Entity,
+		SendMsg = 0,
+		Buff = {},
+		Byte = 0,
+		Connected = c,
+		UpdateMessage = BTClientUpdateMessage
+	}
 end
 
 function ENT:TriggerInput(iname, value)

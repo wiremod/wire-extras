@@ -1,4 +1,4 @@
-include( "Constants.lua" )
+local HMLConstants = include( "Constants.lua" )
 include("entities/gmod_wire_hud_indicator_2/util/tables.lua")
 
 HMLParser = {}

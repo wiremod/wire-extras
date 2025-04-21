@@ -8,7 +8,7 @@ ENT.WireDebugName = "RFID Target Filter"
 
 local MODEL = Model("models/jaanus/wiretool/wiretool_siren.mdl")
 
-function ___comp___(a,o,b)
+local function ___comp___(a, o, b)
 		if o==0 then return a==b
 	elseif o==1 then return a~=b
 	elseif o==2 then return a<b

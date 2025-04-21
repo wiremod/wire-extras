@@ -5,6 +5,22 @@ include('shared.lua')
 
 ENT.WireDebugName = "Door Controller"
 
+local function switch(t)
+	function t:case(x)
+		local f = self[x] or self.default
+
+		if f then
+			if isfunction(f) then
+				f(x, self)
+			else
+				error("case " .. tostring(x) .. " not a function")
+			end
+		end
+	end  
+	
+	return t
+end
+
 function ENT:Initialize()
 	self.isopen = 0
 	self.xautoclose = 0
@@ -26,7 +42,7 @@ function ENT:Initialize()
 	self.xent = nil
 	self.xclass = ""
 
-	self.xswitch = switch {
+	self.xswitch = switch({
 		["xtopen"] = function(x) self:SetOpen(1) end,		
 		["xtclose"] = function(x) self:SetOpen(0) end,
 		["xtbopen"] = function(x) self:SetOpen(0) self:SetBlocked(1) end,
@@ -38,7 +54,7 @@ function ENT:Initialize()
 		["xtabegun"] = function(x) if(self.animov <= 0) then self:SetOpen(1 - self.isopen) else self.animov = (self.animov - 1) end end,
 		["xtadone"] = function(x) self:SetFully(self.isopen) end,
 		-- ["xtremove"] = function(x) self:Remove() end, --damn, there is no OnRemove event fired :/
-	}
+	})
 
 end
 
@@ -206,18 +222,4 @@ function ENT:makedoor(ply,trace,ang,model,open,close,autoclose,closetime,class,h
 	ply:AddCleanup( "doors", entit )
 	self.xent = entit
 	self.xclass = tostring(class)
-end
-
-function switch(t)
-  t.case = function (self,x)
-    local f=self[x] or self.default
-    if f then
-      if type(f)=="function" then
-        f(x,self)
-      else
-        error("case "..tostring(x).." not a function")
-      end
-    end
-  end
-  return t
 end

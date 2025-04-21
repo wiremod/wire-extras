@@ -11,8 +11,8 @@
 -- Moggie100.
 
 
-function HMLConstants()
-	constants = {}
+return function HMLConstants()
+	local constants = {}
 	constants["BLACK"]		=	{ type="vector_3d", x=000, y=000, z=000 }
 	constants["BLACK25"]	=	{ type="vector_4d", x=000, y=000, z=000, w=64 }
 	constants["BLACK50"]	=	{ type="vector_4d", x=000, y=000, z=000, w=128 }

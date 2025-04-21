@@ -16,11 +16,3 @@ function HMLWarning( s )
 	end
 	Msg("[WW] " .. s .. "\n")
 end
-
-function HMLMessage( s )
-	displayTime = displayTime or 7
-	if( CLIENT ) then
-		GAMEMODE:AddNotify("[II] " .. s, NOTIFY_GENERIC, displayTime)
-	end
-	Msg("[II] " .. s .. "\n")
-end

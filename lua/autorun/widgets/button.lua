@@ -1,4 +1,11 @@
 -------------------------------------------------				Momentary Button				----------------------------------------------------------
+local function endTimer(widget, ply)
+	timer.Destroy("modtimer" .. widget.modIndex)
+	widget.aVal = false
+	widget.parent:widgetOutput(ply, widget.modName, "active", 0)
+	guiP_cl_drawUpdate(widget, 1, 0)
+end
+
 panelWidget["button"] = {	
 	name = "button",
 	realName = "Button",
@@ -71,10 +78,3 @@ panelWidget["button"] = {
 	inputs = nil,
 	outputs = {"active"}
 }
-
-function endTimer(widget, ply)
-	timer.Destroy("modtimer"..widget.modIndex)
-	widget.aVal = false
-	widget.parent:widgetOutput(ply, widget.modName, "active", 0)
-	guiP_cl_drawUpdate(widget, 1, 0)
-end

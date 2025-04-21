@@ -158,18 +158,16 @@ function ENT:UpdateTransmitState()
     return TRANSMIT_ALWAYS
 end
 
-function HSHoloInteract(ply,cmd,args)
+concommand.Add("HSHoloInteract", function(ply, cmd, args)
 	local entid = tonumber(args[1])
+	if not entid or entid <= 0 then return end
+
+	local ent = ents.GetByIndex(entid)
+	if not ent:IsValid() or ent:GetClass() ~= "gmod_wire_hsholoemitter" then return end
+
 	local num = tonumber(args[2])
-	if (!entid || entid <= 0) then return end
-	ent = ents.GetByIndex(entid)
-	if (!ent || !ent:IsValid()) then return end
-	if (ent:GetClass() != "gmod_wire_hsholoemitter") then return end
-	if (num < 0 || num > 680) then return end
-	if ( !gamemode.Call( "PlayerUse", ply, ent ) ) then return end
+	if num < 0 or num > 680 then return end
+	if not gamemode.Call("PlayerUse", ply, ent) then return end
 	
-	ent:WriteCell(1,num)
-end
-concommand.Add("HSHoloInteract",HSHoloInteract)
-
-
+	ent:WriteCell(1, num)
+end)

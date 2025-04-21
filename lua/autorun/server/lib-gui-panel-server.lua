@@ -24,41 +24,27 @@ end
 --CreateConVar("wmpcldata", "0", false, false )
 --CreateConVar("wmpcldwait", 0, false, false )
 
---Called by a client to request panel setup information
-function clientPanelInitRequest(player, commandName, args)
-	--Msg ("responding to init request\n")
-	local ent = ents.GetByIndex(args[1])
-	--ent = guipLastNewEnt
-	
-	umSendPanelInit(ent, ent.entID)
-	umSendPanelScheme(ent, ent.currentScheme)
-	umSendPanelWake(ent)
-	umSendPanelState(ent, true) 
-	
-end
-concommand.Add("guiPinitMe", clientPanelInitRequest)
-
-function umSendPanelInit(ent, entID)
+local function umSendPanelInit(ent, entID)
 	net.Start("umsgClientPanelInit")
 		net.WriteEntity(ent)
 		net.WriteInt(entID, 16)
 	net.Send(player) 
 end
 	
-function umSendPanelScheme(ent, scheme)
+local function umSendPanelScheme(ent, scheme)
 	net.Start("umsgPanelScheme")
 		net.WriteEntity(ent)
 		net.WriteInt(guiP_schemeTable[scheme], 16)
 	net.Send(player) 
 end
 
-function umSendPanelWake(ent)	
+local function umSendPanelWake(ent)	
 	net.Start("umsgPanelWake")
 		net.WriteEntity(ent)
 	net.Send(player)
 end
 
-function umSendPanelState(ent, state)	
+local function umSendPanelState(ent, state)	
 	net.Start("umsgPanelState")
 		net.WriteEntity(ent)
 		net.WriteBool(state)
@@ -80,6 +66,14 @@ function guiP_cl_drawUpdate(widget, paramNum, value)
 	net.Broadcast()
 end
 
+concommand.Add("guiPinitMe", function(player, commandName, args)
+	local ent = ents.GetByIndex(args[1])
+	umSendPanelInit(ent, ent.entID)
+	umSendPanelScheme(ent, ent.currentScheme)
+	umSendPanelWake(ent)
+	umSendPanelState(ent, true)
+end)
+
 --[[
  print(type(Function)) // Prints "function"
  print(type(String)) // Prints "string"
@@ -87,43 +81,33 @@ end
  print(type(Table)) // Prints "table" 
 ]]--
 
+hook.Add("KeyPress", "guipanelKeyHook", function()
+	if key == IN_ATTACK or key == IN_USE then return end
 
-function gpCursorClick (ply)
 	local trace = {}
 	trace.start = ply:GetShootPos()
 	trace.endpos = ply:GetAimVector() * 64 + trace.start
 	trace.filter = ply
+
 	local trace = util.TraceLine(trace)
 	local ent = trace.Entity
-	if (ent.Base == "base_gui_panel") then
-		if !ent.paramsSetup then
-			ent:SetupParams()
-		end
-		local pos = ent.Entity:WorldToLocal(trace.HitPos)
-		local xval = (ent.x1 - pos.y) / (ent.x1 - ent.x2)
-		local yval = (ent.y1 - pos.z) / (ent.y1 - ent.y2)
-		
-		if (xval >= 0 and yval >= 0 and xval <= 1 and yval <= 1) then
-			--Msg ("clicked at ( "..xval.." , "..yval.." )\n")
-			for k, widget in ipairs(ent.pWidgets) do
-				if xval * ent.drawParams.screenWidth > widget.X and yval * ent.drawParams.screenHeight > widget.Y
-				and xval * ent.drawParams.screenWidth < widget.X + widget.W and yval * ent.drawParams.screenHeight < widget.Y + widget.H
-				and widget.enabled then
-					widget.modType.modClicked (ply, widget, (xval * ent.drawParams.screenWidth) - widget.X, (yval * ent.drawParams.screenHeight) - widget.Y)
-				end
+	if not IsValid(ent) or ent.Base ~= "base_gui_panel" then return end
+	
+	if not ent.paramsSetup then ent:SetupParams() end
+	local pos = ent.Entity:WorldToLocal(trace.HitPos)
+	local xval = (ent.x1 - pos.y) / (ent.x1 - ent.x2)
+	local yval = (ent.y1 - pos.z) / (ent.y1 - ent.y2)
+	
+	if (xval >= 0 and yval >= 0 and xval <= 1 and yval <= 1) then
+		for k, widget in ipairs(ent.pWidgets) do
+			if xval * ent.drawParams.screenWidth > widget.X and yval * ent.drawParams.screenHeight > widget.Y
+			and xval * ent.drawParams.screenWidth < widget.X + widget.W and yval * ent.drawParams.screenHeight < widget.Y + widget.H
+			and widget.enabled then
+				widget.modType.modClicked(ply, widget, (xval * ent.drawParams.screenWidth) - widget.X, (yval * ent.drawParams.screenHeight) - widget.Y)
 			end
 		end
-		return true
 	end
-end
-
-function AttackKeyPress (ply, key)
-	if (key == IN_ATTACK or key == IN_USE) then
-		gpCursorClick (ply)
-		--add keyboard (text entry) support here
-	end
-end
-hook.Add( "KeyPress", "guipanelKeyHook", AttackKeyPress ) 
+end) 
 
 --------------------------User Functions----------------------------------------------------
 

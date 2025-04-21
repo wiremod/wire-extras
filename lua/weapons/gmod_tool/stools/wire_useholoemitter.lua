@@ -22,9 +22,6 @@ if SERVER then CreateConVar( "sbox_maxwire_useholoemitters", 5 ) end
 TOOL.Model = "models/jaanus/wiretool/wiretool_range.mdl"
 TOOL.Emitter = nil
 TOOL.NoGhostOn = { "gmod_wire_hologrid" }
-timer.Simple(0,function() function _my2(TOOL)
-	setmetatable(TOOL, WireToolObj)
-end end)
 TOOL.WireClass = "gmod_wire_useholoemitter"
 
 TOOL.ClientConVar = {

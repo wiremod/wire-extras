@@ -51,15 +51,10 @@ function ENT:Think()
 	end 
 end
 
-function TellGps()
+concommand.Add("Tell_Gps", function()
 	if NPCGPS then
-		local a = RunConsoleCommand
-		a("say",("The X is "..self.Xn)) //It's "\n" and not "/n". Might've been a comment lol
-		a("say",("The Y is "..self.Yn)) //Split for debugging
-		a("say",("The Z is "..self.Zn))
+		RunConsoleCommand("say", "The X is " .. self.Xn) //It's "\n" and not "/n". Might've been a comment lol
+		RunConsoleCommand("say", "The Y is " .. self.Yn) //Split for debugging
+		RunConsoleCommand("say", "The Z is " .. self.Zn)
 	end
-end
-
-concommand.Add( "Tell_Gps", TellGps )
-
-
+end)

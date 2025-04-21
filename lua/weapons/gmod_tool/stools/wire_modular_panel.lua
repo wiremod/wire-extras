@@ -318,7 +318,7 @@ else
 	net.Receive("smsgModularPanel", smModularPanel)
 	
 	--server to client send panel
-	function sendClientPanel(player, widgetTable)
+	local function sendClientPanel(player, widgetTable)
 		Msg("sending config\n")
 		net.Start("smsgModularPanel")
 			net.WriteInt(#widgetTable, 16)
@@ -365,7 +365,7 @@ end
 
 --------------------------------------------------------------------Stool panels-----------------------------------------------------------------------
 --try local
-function modularPanelBuildBrowsePanel(panel)
+local function modularPanelBuildBrowsePanel(panel)
 	local Actions = {
 		Label = "#WireModularPanelTool_filelist",
 		MenuButton = "0",
@@ -410,7 +410,7 @@ function modularPanelBuildBrowsePanel(panel)
 	})
 end
 
-function modularPanelBuildEditPanel(panel)
+local function modularPanelBuildEditPanel(panel)
 	local Actions = {
 		Label = "#WireModularPanelTool_panelTheme",
 		MenuButton = "0",
@@ -476,7 +476,7 @@ function modularPanelBuildEditPanel(panel)
 end
 
 --Widget editing panel
-function modularPanelBuildWidgetEditPanel(panel)
+local function modularPanelBuildWidgetEditPanel(panel)
 	local widgetType = tonumber(LocalPlayer():GetInfo("wire_modular_panel_widgettype"))
 	if widgetType and guiP_widgetLookup[widgetType] then
 		local Actions = {
