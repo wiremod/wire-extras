@@ -135,42 +135,7 @@ GateActions["entity_parent"] = {
 		return string.format ("A: %s  Parent  %s", A, strParent)
 	end
 }
-// Null (not actually worth the effort)
-// Max Health/Health
-GateActions["entity_health"] = {
-	name = "Health",
-	inputs = { "A" },
-	inputtypes = { "ENTITY" },
-	outputs = { "Health", "MaxHealth" },
-	timed = true,
-	output = function (gate, A)
-		if (A and IsEntity (A) and A:IsValid ()) then 
-			return A:Health (), A:GetMaxHealth ()
-		end
-		return 0, 0
-	end,
-	label = function (Out, A)
-		return string.format ("A: %s  Health: %d  Max. Health: %d",
-			A, Out.Health, Out.MaxHealth)
-	end
-}
-// Skin/Skin Count
-GateActions["entity_skin"] = {
-	name = "Skin Info",
-	inputs = { "A" },
-	inputtypes = { "ENTITY" },
-	outputs = { "Skin", "SkinCount" },
-	output = function (gate, A)
-		if (A and IsEntity (A) and A:IsValid ()) then 
-			return A:GetSkin (), A:SkinCount ()
-		end
-		return 0, 0
-	end,
-	label = function (Out, A)
-		return string.format ("A: %s  Skin ID: %d  Count: %d",
-			A, Out.Skin, Out.SkinCount)
-	end
-}
+
 // IsConstrained
 GateActions["entity_isconstrained"] = {
 	name = "Is Constrained",
@@ -217,40 +182,6 @@ GateActions["entity_cansee"] = {
 
 GateActions("Player")
 
-// Alive
-GateActions["player_isalive"] = {
-	name = "Is Alive",
-	inputs = { "A" },
-	inputtypes = { "ENTITY" },
-	timed = true,
-	output = function (gate, A)
-		if (A and IsEntity (A) and A:IsValid () and A:IsPlayer () and A:Alive ()) then
-			return 1
-		end
-		return 0
-	end,
-	label = function (Out, A)
-		local strNot = "no"
-		if (Out == 1) then strNot = "yes" end
-		return string.format ("A: %s  Is Alive: %s", A, strNot)
-	end
-}
-// Armour
-GateActions["player_armour"] = {
-	name = "Armour",
-	inputs = { "A" },
-	inputtypes = { "ENTITY" },
-	timed = true,
-	output = function (gate, A)
-		if (A and IsEntity (A) and A:IsValid () and A:IsPlayer ()) then 
-			return A:Armor ()
-		end
-		return 0
-	end,
-	label = function (Out, A)
-		return string.format ("A: %s  Armour: %d", A, Out)
-	end
-}
 --[[// Chat Print
 GateActions["player_printf"] = {
 	name = "Chat Print",
@@ -293,59 +224,7 @@ GateActions["player_printf"] = {
 	end
 }
 ]]
-// Crouching
-GateActions["player_iscrouching"] = {
-	name = "Is Crouching",
-	inputs = { "A" },
-	inputtypes = { "ENTITY" },
-	timed = true,
-	output = function (gate, A)
-		if (A and IsEntity (A) and A:IsValid () and A:IsPlayer () and A:Crouching ()) then
-			return 1
-		end
-		return 0
-	end,
-	label = function (Out, A)
-		local strNot = "no"
-		if (Out == 1) then strNot = "yes" end
-		return string.format ("A: %s  Is Crouching: %s", A, strNot)
-	end
-}
-// Death/Kill Count
-GateActions["player_mdk"] = {
-	name = "Death/Kill Count",
-	inputs = { "A" },
-	inputtypes = { "ENTITY" },
-	outputs = { "Deaths", "Kills" },
-	timed = true,
-	output = function (gate, A)
-		if (A and IsEntity (A) and A:IsValid () and A:IsPlayer ()) then 
-			return A:Deaths (), A:Frags ()
-		end
-		return 0, 0
-	end,
-	label = function (Out, A)
-		return string.format ("A: %s  Kills: %d  Deaths: %d", A, Out.Kills, Out.Deaths)
-	end
-}
-// Team ID/Name
-GateActions["player_team"] = {
-	name = "Team Details",
-	inputs = { "A" },
-	inputtypes = { "ENTITY" },
-	outputs = { "TeamID", "TeamName" },
-	outputtypes = { "NORMAL", "STRING" },
-	output = function (gate, A)
-		if (A and IsEntity (A) and A:IsValid () and A:IsPlayer ()) then 
-			return A:Team (), team.GetName (A:Team ())
-		end
-		return 0, "(none)"
-	end,
-	label = function (Out, A)
-		return string.format ("A: %s  Team: %s (%d)",
-			A, Out.TeamName, Out.TeamID)
-	end
-}
+
 // Is Locked Onto by [at least one] Target Finder
 GateActions["player_istarget"] = {
 	name = "Is Locked Onto",
@@ -366,4 +245,5 @@ GateActions["player_istarget"] = {
 		return string.format ("A: %s  In Target: %s", A, strNot)
 	end
 }
+
 GateActions()
