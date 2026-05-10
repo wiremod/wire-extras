@@ -6,7 +6,8 @@ include("shared.lua")
 function ENT:Initialize()
 	self.gain = 22.0 -- dB
 	self.pol = 0 -- Cross Polarization
-	self.beamWidth = 5.0 -- Degrees
+	self.beamWidth = 5 -- Degrees
+	self.beamWidthCos = math.cos(math.rad(self.beamWidth/2))
 	self.active = false -- TX enabled (if TX)
 	self.txchannels = {} -- tx data
 	self.txwatts = 0 -- tx power

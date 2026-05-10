@@ -111,7 +111,7 @@ function ENT:Think()
 	if self:CanTX() then
 		if RES_DISTRIB then
 			local amt = RD.GetResourceAmount(self, "energy")
-			
+
 			if amt < (self.txwatts * 4 * ThinkInterval) then
 				RD.ConsumeResource(self, "energy", amt)
 			else
@@ -120,8 +120,8 @@ function ENT:Think()
 		end
 
 		if self.txwatts >= 200 then
-			local e = ents.FindInCone(self:GetPos(), self:GetForward(), self.txwatts/5, self.beamWidth)
-			
+			local e = ents.FindInCone(self:GetPos(), self:GetForward(), self.txwatts/5, self.beamWidthCos)
+
 			for k, v in pairs(e) do
 				if v:IsPlayer() then v:TakeDamage(self.txwatts / 500 + (100/self:GetPos():Distance(v:GetPos())), self) end
 			end
@@ -163,7 +163,7 @@ function ENT:Think()
 				local skew = 0
 				-- One vertical, one horizontal
 				if self.pol ~= v.pol then skew = 1.5707963267949 end
-				
+
 				skewloss = math.abs(math.sin(math.rad(v:GetAngles().r) - math.rad(self:GetAngles().r) + skew) * 20)
 			end
 
@@ -174,7 +174,7 @@ function ENT:Think()
 
 			-- Calculate the received signal strength (strength + self.gain)
 			-- If this transmitter is operational, within our field of vision, and we are within its beam
-			if v:CanTX() and math.deg(onedir) <= (self.beamWidth/2.0) and math.deg(otherdir) <= (v.beamWidth/2.0) then
+			if v:CanTX() and math.deg(onedir) <= (self.beamWidth) and math.deg(otherdir) <= (v.beamWidth) then
 				table.insert(txs, v)
 			end
 		end
